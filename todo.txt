@@ -1,0 +1,39 @@
+- Map : Hover/target icons scaling to text length
+- Story : store last viewed
+
+- Map : Better resources display
+- Map : Better target position for lock => key
+
+- Skill : Free chanelling (slider 4) // too good?
+- Skill : Blood ignore spirit
+- Skill : Metal ignore spirit
+- Skill : Power ignore spirit
+
+- Buildings : level 2 (+1-2)
+- Buildings : level 3 (2-3)
+- Buildings : level 4 (2-3)
+
+- Notifications (ran out of exp / mana, achievement)
+- Management : Sorting / Filtering
+
+- Magic (into imbuements)
+- Virtual maps
+- Stardust investition
+- Artifacts (mine depth)
+- Story
+- Achievements
+
+- Themes
+
+- Map : Backgrounds
+- Map : Low load mode + setting for auto
+
+- World : Map 15 boss blood + metal
+- World : Map 20 boss 
+
+- Keyboard : ESC - reset target window
+
+- Mobile : Pinch zoom / Touch scroll
+- Mobile : Ascend button workaround
+
+- Statistics : Finish

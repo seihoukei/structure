@@ -1,0 +1,885 @@
+@import "https://fonts.googleapis.com/css?family=Open+Sans:300,400";
+
+@font-face {
+    font-family: 'Symbols';
+    src: url('symbols.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html, body {
+	width : 100%;
+	height : 100%;
+	overflow : hidden;
+	background-color : white;
+	padding : 0;
+	margin : 0;
+	font-family : 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif;
+	font-size : 15px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+body.invert {
+	filter : invert(0.8) hue-rotate(180deg);
+	font-weight : bold;
+}
+
+.bg-none { background-color : #EEEEEE;}
+.bg-power { background-color : #FFFF55;}
+.bg-spirit { background-color : #ADFF2F;}
+.bg-blood { background-color : #DC143C;}
+.bg-fire { background-color : #FF8C00;}
+.bg-ice { background-color : #00FFFF;}
+.bg-metal { background-color : #BBBBBB;}
+.bg-home { background-color : #7F7F7F;}
+
+.titles.main {
+	display : flex;
+	height : 30px;
+	overflow-y : hidden;
+	background-color : #AAAAAA;
+}
+
+.titles.main .title{
+	display : flex;
+	background-color : #CCCCCC;
+	height : 28px;
+	padding : 0 20px;
+	margin : 0 0 0 0;
+	border : 1px solid black;
+	align-items : center;
+	justify-content : center;
+	white-space : nowrap;
+	cursor : pointer;
+	transition : background-color 0.3s;
+}
+
+.titles.main .title:hover{
+	background-color : #EEEEEE;
+}
+
+.titles.main .title.active{
+	margin : 1px 0 0 0;
+	background-color : #FFFFFF;
+	border-bottom : none;
+	cursor : default;
+}
+
+.titles.main .filler {
+	display : flex;
+	flex-grow : 999;
+	margin : -1px 0 0 0;
+	width : 100%;
+	height : 30px;
+	border-bottom : 1px solid black;
+}
+
+.tabs.main > .tab {
+	position : absolute;
+	width : 100vw;
+	top : 30px;
+	height : calc(100vh - 30px);
+}
+
+.tab.map.dark {
+	background-color : #000033;
+	color : white;
+	transition : background-color 2s, color 2s;
+}
+
+.tab.map.complete {
+	background-color : #DDFFDD;
+	transition : background-color 2s, color 2s;
+}
+
+.tab.map.dark.complete {
+	background-color : #003300;
+	transition : background-color 2s, color 2s;
+}
+
+canvas {
+	position : absolute;
+	left : 0;
+	width : 100%;
+	height : 100%;
+}
+
+canvas.background : {
+	z-index : 1;
+}
+
+canvas.foreground : {
+	z-index : 2;
+}
+
+.dev {
+	z-index : 4;
+	position : absolute;
+	pointer-events : none;
+}
+
+.ascend {
+	z-index : 4;
+	position : absolute;
+	right : 0;
+	bottom : 0;
+	background-color : #000000;
+	color : #FFFFFF;
+	padding : 20px;
+	width : 150px;
+	text-align : center;
+	cursor : pointer;
+}
+
+.ascend.disabled {
+	background-color : #DDDDDD;
+	color : #777777;
+	cursor : default;
+}
+
+.target {
+	position : absolute;
+	z-index : 5;	
+	display : flex;
+	flex-direction : column;
+	font-size : 13.3px;
+	color : black;
+}
+
+.target .sliders, .upgrades .buildings {
+	margin : 0;
+	display : flex;
+	flex-wrap : wrap;
+	width : 418px;
+}
+
+.target .target-hint {
+	margin : -1px;
+	border : 2px solid black;
+	background-color : black;
+	color : white;
+	width : 416px;
+}
+
+.target .slider {
+	width : 207px;
+	height : 40px;
+	border : 2px solid black;
+	margin : -1px;
+	background-color : #FFFFDD;
+	cursor : pointer;
+	display : flex;
+	white-space: nowrap;
+	overflow : hidden;
+	transition : color 0.2s, background-color 0.2s;
+}
+
+.target .slider:hover {
+	background-color : #EEEE88;
+}
+
+.target .slider.active {
+	background-color : black;
+	color : white
+}
+
+.target .slider.active.weak {
+	background-color : #550000;
+	color : white
+}
+
+.target .slider .slider-color {
+	width : 40px;
+	height : 40px;
+	background-color : maroon;
+	display : flex;
+	color : white;
+	align-items : center;
+	justify-content : center;
+	font-size : 20px;
+}
+
+.target .slider .slider-stat {
+	padding : 5px 0;
+}
+
+.target .slider .slider-info {
+	padding : 0 4px;
+}
+
+.target .slider .slider-charge {
+	width : 5px;
+	background : linear-gradient(to bottom, green, lime) no-repeat;
+	background-position : 0 40px;
+	margin-left : auto;
+}
+
+.target .slider.weak .slider-info {
+	color : maroon;
+}
+
+.target .slider.active.weak .slider-info {
+	color : white;
+}
+
+.icon-button {
+	width : 207px;
+	height : 40px;
+	border : 2px solid black;
+	margin : -1px;
+	background-color : #DDDDDD;
+	display : flex;
+	white-space: nowrap;
+	overflow : hidden;
+	transition : color 0.2s, background-color 0.2s;
+	cursor : default;
+	border-radius : 10px;
+}
+
+.icon-button.available {
+	background-color : #FFFFDD;
+	cursor : pointer;
+}
+
+.icon-button.owned {
+	background-color : black;
+	color : white;
+}
+
+.icon-button .icon {
+	width : 40px;
+	height : 40px;
+	background-color : maroon;
+	display : flex;
+	color : white;
+	align-items : center;
+	justify-content : center;
+	font-size : 35px;
+}
+
+.icon-button .text {
+	padding : 0 0 0 5px;
+}
+
+.hover {
+	position : absolute;
+	z-index : 5;	
+	pointer-events : none;	
+}
+
+.hover .icons {
+	display : flex;
+}
+.hover .icon {
+	width : 40px;
+	height : 40px;
+	border : 2px solid black;
+	font-size : 35px;
+	display : flex;
+	color : white;
+	align-items : center;
+	justify-content : center;
+	margin : -1px;
+}
+
+.hover .icon.unbought {
+	transform : scale(0.8);
+	opacity : 0.5;
+}
+
+.point-info {
+	margin : -1px;
+	background-color : white;
+	border : 2px solid black;
+	display : flex;
+	justify-content : space-between;
+	align-items : stretch;
+	color : black;
+}
+
+.target .point-info {
+	position : static;
+}
+
+.point-info .point-type {
+	width : 60px;
+	height : 60px;
+	display : flex;
+	font-size : 25px;
+	align-items : center;
+	justify-content : center;
+}
+
+.point-info .info {
+	display : flex;
+	align-items : stretch;
+	align-content : stretch;
+	font-size : 13.3px;
+	padding : 1px 0 1px 5px;
+	width : 126px;
+	white-space: nowrap;
+	overflow : hidden;
+}
+
+.point-info .info.progress {
+	background: linear-gradient(to bottom right, #FFFFFF, #FFFFFF 75%, transparent 75%, transparent),
+				linear-gradient(to right, #7F0000, #7F0000 100%, transparent 100%) no-repeat;	
+	background-color : #BBBBBB;
+	width : 220px;
+}
+
+.map div.growth {
+	position : absolute;
+	bottom : 3px;
+	left : 3px;
+	z-index : 4;
+	cursor : default;
+}
+
+.map .growth .growth-type {
+	display : inline-block;
+	width : 10px;
+	height : 10px;
+	border : 1px solid black;
+}
+.map .growth .growth-value {
+	display : inline-block;
+	padding : 0 0 0 3px;
+}
+
+.map .resources {
+	position : absolute;
+	top : 3px;
+	left : 3px;
+	z-index : 4;
+	pointer-events : none;
+}
+
+.tab.sliders, .tab.skills, .tab.management {
+	display : flex;
+	flex-direction : column;
+	overflow : hidden;
+}
+
+.tab.sliders .sliders, .tab.skills .skills {
+	overflow : auto;
+	overflow-x : hidden;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	flex-wrap : wrap;
+	padding: 10px 0 10px 0;
+}
+
+.header {
+	padding : 5px;
+	border : 2px solid gray;
+	margin : 10px 10px 0 10px;
+}
+
+.header div {
+	display : inline-block; 
+	width : 250px;
+}
+
+.tab.sliders .header .exp-mult, .tab.sliders .header .science, .tab.skills .header .mana,
+.tab.sliders .header .gold, .tab.skills .header .gold, .tab.management .header .exp-mult {
+	display : none;
+}
+
+.skills .skill {
+	display : flex;
+	flex-direction : column;
+	width : 290px;
+	height : 150px;
+	border : 2px solid silver;
+	color : gray;
+	align-items : center;
+	justify-content : center;
+	margin : 10px;
+	cursor : default;
+	order : 1;
+}
+
+.skill .title {
+	font-size : larger;
+	padding : 10px;
+}
+
+.skill .desc {
+	padding : 0 10px;
+	flex-grow : 999;
+	text-align : center;
+}
+
+.skill .cost {
+	font-size : larger;
+	text-align : right;
+	width : 100%;
+	padding : 5px;
+	margin : 0 15px 0 0;
+}
+
+.skill.available {
+	cursor : pointer;
+	border : 2px solid gray;
+	color : black;
+	order : 0;
+}
+
+.skill.owned {
+	background-color : #EEFFEE;
+	border : 2px solid gray;
+	color : black;
+	order : 2;
+}
+
+.tab.sliders .slider {
+	display : inline-block;
+	width : 350px;
+	font-size : 13px;
+	text-align : center;
+	border : 2px solid gray;
+	padding : 10px;
+	margin : 10px;
+	cursor : default;
+	vertical-align : top;
+}
+
+.tab.sliders .slider .slider-color {
+	background-color : maroon;
+	width : 100%;
+	height : 40px;
+	margin : 0 0 10px 0;
+	cursor : pointer;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	font-size : 30px;
+	color : rgba(255,255,255,0.7);
+}
+
+.slider .slider-name, .slider .slider-value {
+	display : inline;
+	padding : 4px 0 2px;
+}
+
+.gui-picker {
+	display : flex;
+	padding : 3px 0 5px 0;
+	width : 100%;
+	align-items : center;
+	justify-content : center;
+}
+
+.gui-picker .name {
+}
+
+.gui-picker .attributes {
+	display : flex;
+}
+
+.gui-picker .attribute {
+	display : flex;
+	width : 20px;
+	height : 20px;
+	margin : 0 2px;
+	align-items : center;
+	justify-content : center;
+	border : 1px solid black;
+	cursor : pointer;
+}
+
+.gui-slider {
+	display : flex;
+	width : 350px;
+	height : 20px;
+	cursor : pointer;
+	padding : 2px 0 5px;
+}
+
+.gui-slider.disabled {
+	opacity : 0.5;
+}
+
+.gui-slider .gui-slider-left, .gui-slider .gui-slider-left {
+	width : 40px;
+}
+
+.gui-slider .gui-slider-left{
+	text-align : right;
+}
+
+.gui-slider .gui-slider-line {
+	width : 250px;
+	position : relative;
+	border : 1px solid black;
+	margin : 5px;
+}
+
+.gui-slider .gui-slider-runner {
+	position : absolute;
+	margin : -6px -1px;
+	pointer-events : none;
+	border : 1px solid black;
+	padding : 0 2px;
+	border-radius : 3px;
+}
+
+.gui-slider.growth.boost .gui-slider-line, .gui-slider.growth.channel .gui-slider-line{
+	opacity : 0.6;
+}
+
+.gui-slider.automation .gui-slider-runner, .gui-slider.automation .gui-slider-line {
+	background-color : #EEEEEE;
+}
+
+.tab.menu {
+	display : flex;
+	
+}
+
+.tab.menu > .titles {
+	display : flex;
+	flex-direction : column;
+	align-items : stretch;
+	justify-content : center;
+	width : 200px;
+	background-color : #AAAAAA;
+	border-right : 2px solid gray;
+}
+
+.tab.menu > .titles .title {
+	padding : 20px 20px 20px 0;
+	text-align : right;
+	cursor : pointer;
+	transition : background-color 0.3s;
+	z-index : 0;
+	background-color : #CCCCCC;
+}
+
+.tab.menu > .titles .title:hover {
+	background-color : #E3E3E3;
+}
+
+.tab.menu > .titles .title.active {
+	background-color : white;
+	cursor : default;
+	margin : -2px;
+	padding-right : 22px;
+	border-top : 2px solid gray;
+	border-bottom : 2px solid gray;
+	z-index : 1;
+}
+
+.tab.menu > .tabs {
+	flex-grow : 999;
+}
+
+.tab.menu > .tabs .tab {
+	display : flex;
+	flex-direction: column;
+	width : 100%;
+	height : 100%;
+	align-items : stretch;
+}
+	
+.savelist {
+	margin : 20px;
+	border : 2px solid gray;
+	overflow : hidden;
+	overflow-y : auto;
+	height : 50%;
+	display : flex;
+	flex-direction : column;
+}
+
+.savelist .save {
+	display : flex;
+	white-space : nowrap;
+	padding : 3px 5px;
+}
+
+.save:nth-child(even) {
+	background-color : #EEEEEE;
+}
+
+.savelist .save.active {
+	background-color : #444444;
+	color : white;
+}
+
+.savelist .save .date {
+	width : 200px;
+}
+
+.savelist .save .name {
+	font-weight : bolder;
+}
+
+.savelist .save .progress {
+	padding : 0 5px;
+	font-weight : normal;
+}
+
+.saves .buttons {
+	display : flex;
+	flex-wrap : wrap;
+	padding : 0 15px;
+}
+
+.saves .button {
+	display : inline-block;
+	border : 2px solid gray;
+	padding : 10px;
+	margin : 5px;
+	cursor : pointer;
+}
+
+.button.reset {
+	margin-left : auto;
+	color : maroon;
+}
+
+.saves .export {
+	margin : 20px;
+
+	flex-grow : 999;
+	border : 2px solid gray;
+	background-color : #EEEEEE;
+	font-family : Courier;
+	min-height : 50px;
+}
+
+.management > .automation {
+	display : flex;
+	padding : 15px 10px 15px 10px;
+	align-items : center;
+	margin : 10px 10px 0 10px;
+	border : 2px solid gray;
+	overflow-x : auto;
+	overflow-y : hidden;
+	white-space: nowrap;
+}
+
+.automation .gui-picker {
+	width : auto;
+}
+
+.automation .text {
+	width : 150px;
+	text-align : right;
+	margin : -1px -28px 1px 20px;
+}
+
+.management .list {
+	overflow-y : auto;
+	padding : 0 10px;
+}
+
+.management .point {
+	display : flex;
+	padding : 5px;
+	border : 2px solid gray;
+	margin : 10px 5px;
+	align-items : center;
+}
+
+.management .point .level {
+	width : 40px;
+	height : 40px;
+	font-size : 25px;
+	border-radius : 20px;
+	border : 1px solid black;
+	display : flex;
+	margin : 5px;
+	align-items : center;
+	justify-content : center;
+}
+
+.management .point .info {
+	width : 160px;
+	font-size : 13px;
+	padding-left : 5px;
+}
+
+.management .point .icons {
+	display : flex;
+}
+
+.management .point .icons .icon {
+	width : 40px;
+	height : 40px;
+	border : 2px solid black;
+	font-size : 35px;
+	display : flex;
+	color : white;
+	align-items : center;
+	justify-content : center;
+	margin : -1px;
+	opacity : 0;
+	pointer-events : none;
+}
+
+.management .point .icons .icon.visible {
+	pointer-events : auto;
+	opacity : 0.25;
+	transform : scale(0.8);
+	transition : transform 0.2s, opacity 0.2s;
+}
+
+.management .point .icons .icon.visible.available {
+	opacity : 0.75;
+	cursor : pointer;
+}
+
+.management .point .icons .icon.visible.bought {
+	opacity : 1;
+	transform : none;
+}
+
+.management .list-hover {
+	position : absolute;
+	background-color : #DDDDDD;
+	border : 2px solid black;
+	pointer-events : none;
+	padding : 3px;
+}
+
+.management .list-hover.available {
+	background-color : #FFFFDD;
+}
+
+.management .list-hover.bought {
+	background-color : black;
+	color : white;
+}
+
+.tab.about {
+	padding : 30px;
+}
+
+.about .title {
+	color : #004400;
+	font-size : 100px;
+	margin : -40px 0 0 0;
+}
+
+.about .subtitle {
+	margin : -30px 0 0 320px;
+}
+
+.about .links {
+	display : flex;
+	padding : 20px 0;
+}
+
+.about .links .link {
+	padding : 0 20px 0 0;
+}
+
+.about .changelog {
+	padding : 20px 0 0 0;
+	font-family : Courier New;
+}
+
+.settings {
+	display : flex;
+	flex-direction : column;
+}
+
+.settings > .titles {
+	margin : 20px 20px 0 20px;
+	display : flex;
+	flex-direction : row;
+	z-index : 2;
+}
+
+.settings > .titles .title {
+	background-color : #CCCCCC;
+	border : 2px solid gray;
+	padding : 5px;
+	border-bottom : none ;
+	cursor : pointer;
+	transition : background-color 0.2s, color 0.2s, margin 0.2s;
+}
+
+.settings > .titles .title:hover {
+	background-color : #E3E3E3;
+}
+
+.settings > .titles .title.active {
+	background-color : #FFFFFF;
+	margin : 2px 0 -2px 0;
+	cursor : default;
+}
+
+.settings > .tabs {
+	flex-grow : 999;
+	margin : 0 20px 20px 20px;
+	border : 2px solid gray;
+	overflow-y : auto;
+	z-index : 1;
+}
+
+.settings .setting {
+	padding : 15px;
+	margin : 20px 20px 0 20px;
+	background-color : #EEEEEE;
+}
+
+.settings .choices {
+	display : flex;
+	flex-direction : row;
+	padding : 5px 0 0 50px;
+}
+
+.settings .choice {
+	padding : 10px;	
+	margin : 0 10px 0 0;
+	cursor : pointer;
+	transition : background-color 0.2s, color 0.2s;
+}
+
+.settings .choice:hover {
+	background-color : #CCCCCC;
+}
+
+.settings .choice.active {
+	background-color : #444444;
+	color : white;
+}
+
+.tab.statistics .statistics {
+	display : flex;
+	flex-direction : column;
+}
+
+.statistics .stat {
+	padding : 10px;
+	display : flex;
+	flex-direction : row;
+	white-space : nowrap;
+}
+
+.statistics .stat .name {
+	width : 200px;
+	text-align : right;
+}
+
+.statistics .stat .value {
+	width : 200px;
+	text-align : left;
+	padding-left : 10px;
+}
+
+.hidden {
+	display : none !important;
+}
+
+.notransition {
+	transition: none !important;
+}

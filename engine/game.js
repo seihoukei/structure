@@ -233,6 +233,9 @@ const game = {
 			
 			if (!confirm("Ascend to the next map?")) 
 				return
+			
+			gui.hover.reset()
+			gui.target.reset()
 
 			let bossPoints = this.map.points.filter(x => x.boss && x.boss > game.map.boss && !x.owned)
 			if (bossPoints.length) {

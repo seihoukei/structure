@@ -331,6 +331,10 @@ const mapMaker = {
 				angle += (angle / (3.1415 * (0.4)) | 0) * 3.1415 * (0.6)
 				spacing = MAP_MINIMUM_DISTANCE 
 				
+			} else if (this.level == 15) {
+				angle = ((n - 2) * 2 + ((n - 2) / 3 | 0 % 1)) * Math.PI / 3
+				spacing = MAP_MINIMUM_DISTANCE 
+				
 			} else {
 				angle = (Math.random() * 6.29).toDigits(3)
 				spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
@@ -367,6 +371,25 @@ const mapMaker = {
 			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 15, 3*Math.PI/4 , MAP_MINIMUM_DISTANCE, 5, this.basePower * 200).boss = 2
 		}
 						
+		if (this.level == 15) {
+			//dark world
+			for (let n = 0; n <= 5; n++) {
+				const point1 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 1)
+				point1.boss = 1
+				point1.special = SPECIAL_RESIST
+				const point2 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 6, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 2)
+				point2.boss = 1
+				point2.special = SPECIAL_BLOCK
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 7, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 4, 200e21).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 8, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 5, 200e21).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 3, 500e21).boss = 2
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 3, 500e21).boss = 2
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 6, 1e24).boss = 3
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 6, 1e24).boss = 3
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 35, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 0, 5e24).boss = 3
+			}
+		}
+
 		this.points.sort((x,y) => x.distance - y.distance)
 		this.points.map((x,n) => x.index = n)
 		this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
@@ -381,7 +404,7 @@ const mapMaker = {
 		}
 		
 		if (this.level > 12) {
-			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && !x.special))
+			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && !x.special && !x.boss))
 			
 			for (let i = 0; i < (this.level / 6 | 0) - 1; i++) {
 				const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
@@ -404,7 +427,7 @@ const mapMaker = {
 		let ends = this.points.filter(x => !x.boss && !([...x.children].filter(y => !y.boss).length))
 		ends = ends.slice(Math.floor(ends.length / 2))
 		this.size = ends.reduce((v,x) => v + x.distance, 0)/ends.length
-		let sorted = [...this.points].sort((x,y) => (y.depth * 5 - y.children.size * 100) - (x.depth * 5 - x.children.size * 100))
+		let sorted = [...this.points].filter(x => !x.boss).sort((x,y) => (y.depth * 5 - y.children.size * 100) - (x.depth * 5 - x.children.size * 100))
 		sorted.slice(0,this.exitsCount).map((pt,n) => pt.exit = true)
 		let free = new Set(sorted.filter(x => !x.exit && !x.boss))
 		

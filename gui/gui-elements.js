@@ -90,6 +90,7 @@ const attributePickerHandler = {
 			}			
 			attribute.dvDisplay = createElement("div", "attribute bg-"+x, this.dvAttributes)
 			attribute.dvDisplay.onclick = (event) => {this.switch(n)}
+			attribute.dvDisplay.ondblclick = (event) => {this.reset(), this.switch(n)}
 			attribute.dvDisplay.title = x.capitalizeFirst()
 			return attribute
 		})
@@ -323,3 +324,46 @@ const pointInfoDisplayHandler = {
 
 const GuiPointElement = Template(guiPointElementHandler)
 const PointInfoDisplay = Template(guiPointElementHandler, pointInfoDisplayHandler)
+
+const listPickerHandler = {
+	_init() {
+		this.dvDisplay = createElement("div", "list-picker " + (this.className || "") , this.parent)
+		this.dvName = createElement("div", "title", this.dvDisplay, this.name + ":")
+		this.dvChoices = createElement("div", "choices", this.dvDisplay)
+		if (!this.values) {
+			if (!this.choices) return
+			this.values = this.choices.map(x => x.value)
+			this.texts = this.choices.map(x => x.text || x.value)
+		}
+		this.index = this.values.indexOf(this.container[this.value])
+		this.buttons = this.values.map ((x,n) => {
+			let button = {
+				name : this.texts[n],
+				value : x,
+			}
+			button.dvDisplay = createElement("div", "choice", this.dvChoices)
+			button.dvDisplay.innerText = button.name
+			button.dvDisplay.onclick = (event) => {
+				this.set(x)
+			}
+			return button
+		})
+	},
+	
+	set(x) {
+		this.same = (this.container[this.value] == x)
+		this.index = this.values.indexOf(x)
+		this.container[this.value] = x
+		this.onSet && this.onSet()
+		if (this.same && this.onSame) this.onSame()
+		this.update(true)
+	},
+	
+	update(forced) {
+		if (forced)
+			this.buttons.map(x => x.dvDisplay.classList.toggle("active", x.value == this.container[this.value]))
+		this.onUpdate && this.onUpdate(forced)
+	}
+}
+
+const ListPicker = Template(listPickerHandler)

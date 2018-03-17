@@ -174,16 +174,21 @@ canvas.foreground : {
 	display : flex;
 	white-space: nowrap;
 	overflow : hidden;
-	transition : color 0.2s, background-color 0.2s;
+	transition : color 0.2s, background-color 0.2s, transform 0.2s;
+/*	border-radius : 10px;*/
+	z-index : 1;
 }
 
 .target .slider:hover {
 	background-color : #EEEE88;
+	transform : scale(1.1);
+	z-index : 2;
 }
 
 .target .slider.active {
 	background-color : black;
-	color : white
+	color : white;
+/*	transform : scale(1); */
 }
 
 .target .slider.active.weak {
@@ -234,14 +239,18 @@ canvas.foreground : {
 	display : flex;
 	white-space: nowrap;
 	overflow : hidden;
-	transition : color 0.2s, background-color 0.2s;
+	transition : color 0.2s, background-color 0.2s, transform 0.2s;
 	cursor : default;
-	border-radius : 10px;
+	/*border-radius : 10px;*/
 }
 
 .icon-button.available {
 	background-color : #FFFFDD;
 	cursor : pointer;
+}
+
+.icon-button.available:hover {
+	transform : scale(1.1);
 }
 
 .icon-button.owned {
@@ -372,6 +381,7 @@ canvas.foreground : {
 	justify-content : center;
 	flex-wrap : wrap;
 	padding: 10px 0 10px 0;
+	flex-grow : 999;
 }
 
 .header {
@@ -447,11 +457,16 @@ canvas.foreground : {
 	margin : 10px;
 	cursor : default;
 	vertical-align : top;
+	overflow : visible;
 }
 
+.tab.sliders .slider .slider-header {
+	display : flex;
+	flex-direction : row;
+}
 .tab.sliders .slider .slider-color {
 	background-color : maroon;
-	width : 100%;
+	flex-grow : 999;
 	height : 40px;
 	margin : 0 0 10px 0;
 	cursor : pointer;
@@ -460,6 +475,84 @@ canvas.foreground : {
 	justify-content : center;
 	font-size : 30px;
 	color : rgba(255,255,255,0.7);
+}
+
+.tab.sliders .slider .slider-target {
+	width : 40px;
+	height : 40px;
+	border : 2px solid black;
+	font-size : 20px;
+	display : flex;
+	color : black;
+	align-items : center;
+	justify-content : center;
+	margin : -2px;
+}
+
+.tab.sliders .selector {
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+	justify-content : center;
+}
+
+.tab.sliders .selector .title {
+	display : none;
+}
+
+.tab.sliders .selector .choices {
+	display : flex;
+	flex-direction : column;
+	background-color : white;
+	position : relative;
+}
+
+.tab.sliders .selector .choice {
+	padding : 5px;
+	margin : 0 0 0 5px;
+	width : 180px;
+	white-space : nowrap;
+	overflow : hidden;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	position : absolute;
+	transition : background-color 0.2s, color 0.2s, height 0.2s, margin 0.2s, top 0.2s;
+	z-index : 1;
+	background-color : #EEEEEE;
+	cursor : pointer;
+}
+
+.tab.sliders .selector .choice:hover {
+	background-color : #CCCCCC;
+}
+
+.tab.sliders .selector .choice.active:before {
+	content : "Target: ";
+	padding : 0 5px;
+}
+
+.tab.sliders .selector .choice.active {
+	height : 15px;
+	background-color : white;
+	position : static;
+	z-index : 2;
+}
+
+.tab.sliders .selector .choice.active:hover {
+	background-color : #CCCCCC;
+}
+
+.tab.sliders .apply {
+	border : 2px solid gray;
+	padding : 5px;
+	cursor : pointer;
+	transition : background-color 0.2s;
+	background-color : white;
+}	
+
+.tab.sliders .apply:hover {
+	background-color : #CCCCCC;
 }
 
 .slider .slider-name, .slider .slider-value {
@@ -654,15 +747,16 @@ canvas.foreground : {
 	min-height : 50px;
 }
 
-.management > .automation {
+.management > .automation, .management > .sort {
 	display : flex;
-	padding : 15px 10px 15px 10px;
+	padding : 5px 10px 5px 10px;
 	align-items : center;
 	margin : 10px 10px 0 10px;
 	border : 2px solid gray;
 	overflow-x : auto;
 	overflow-y : hidden;
 	white-space: nowrap;
+	flex-shrink : 0;
 }
 
 .automation .gui-picker {
@@ -675,8 +769,49 @@ canvas.foreground : {
 	margin : -1px -28px 1px 20px;
 }
 
+.management .filter {
+	width : auto;
+}
+
+.management .filter .name {
+	padding : 0 20px 0 0;
+}
+
+.management .sorter {
+	display : flex;
+	flex-direction : row;
+	padding : 0 20px;
+}
+.management .sorter .choices {
+	display : flex;
+	flex-direction : row;
+	padding : 0 5px;
+}
+
+.management .sorter .choice {
+	padding : 5px 10px;
+	margin : -5px 0;
+	transition : background-color 0.2s, color 0.2s;
+	cursor : pointer;
+}
+
+.management .sorter .choice:hover {
+	background-color : #DDDDDD;
+	
+}
+
+.management .sorter .choice.active {
+	background-color : #005500;
+	color : white;
+}
+
+.management .sorter.reverse .choice.active {
+	background-color : #550000;	
+}
+
 .management .list {
 	overflow-y : auto;
+	flex-grow : 999;
 	padding : 0 10px;
 }
 

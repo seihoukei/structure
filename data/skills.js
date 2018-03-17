@@ -175,6 +175,14 @@ const SKILLS = {
 		mult: 2,
 		exp : 200000
 	},
+	autoTargetSelector: {
+		name: "Journey of Souls",
+		desc: "Set advanced priorities for autotargetting",
+		req : ["autoTarget"],
+		map : 22,
+		mult : 1.5,
+		exp : 2500
+	},
 	modifyPoints: {
 		name: "Paint it black",
 		desc: "Ability to convert point types",

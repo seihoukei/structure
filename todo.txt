@@ -5,8 +5,8 @@
 - Map : Better target position for lock => key
 
 - Skill : Free chanelling (slider 4) // too good?
-- Skill : Blood ignore spirit
-- Skill : Metal ignore spirit
+- Skill : Blood ignore spirit ("blood")
+- Skill : Metal ignore spirit ("metal")
 - Skill : Power ignore spirit
 
 - Buildings : level 2 (+1-2)
@@ -14,7 +14,7 @@
 - Buildings : level 4 (2-3)
 
 - Notifications (ran out of exp / mana, achievement)
-- Management : Sorting / Filtering
+- Management : Sorting by time
 
 - Magic (into imbuements)
 - Virtual maps

@@ -13,7 +13,7 @@ const ManagementTab = Template({
 		
 		this.dvAutomation = createElement("div", "automation", this.dvDisplay)
 		
-		this.types = MultiAttributePicker({
+		this.autoTypes = MultiAttributePicker({
 			parent : this.dvAutomation,
 			container : game.automation,
 			value : "types",
@@ -58,12 +58,45 @@ const ManagementTab = Template({
 		this.sorting = {
 			minLevel : 0,
 			maxLevel : 4,
-			types : POINT_TYPES.map((x,n) => n),
-			sortBy : "bonus",
+			types : [],
+			sortBy : SORT_METHODS["Level"],
 			sortDir : -1
 		}
 		
 		this.dvSort = createElement("div", "sort", this.dvDisplay)
+
+		this.sortTypes = MultiAttributePicker({
+			parent : this.dvSort,
+			container : this.sorting,
+			className : "filter",
+			value : "types",
+			title : "Filter: ",
+			hint : "Only display points of chosen types:",
+			attributeVisible(x, n) {
+				if (n > 2) return game.growth[x]?1:0
+				return true
+			},
+			onUpdate : () => {
+				game && game.map && game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").dvDisplay.classList.toggle("hidden", this.sorting.types.length && !this.sorting.types.includes(x.type)))
+			}
+		})
+		
+		this.sortSorter = ListPicker({
+			parent : this.dvSort,
+			container : this.sorting,
+			className : "sorter",
+			value : "sortBy",
+			name : "Sort by",
+			values : Object.values(SORT_METHODS),
+			texts : Object.keys(SORT_METHODS),
+			onSame : () => {
+				this.sorting.sortDir = -this.sorting.sortDir
+				this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
+			},
+			onUpdate : () => {
+				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => this.sorting.sortBy(x, y) * this.sorting.sortDir).map(x => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
+			}
+		})
 
 		this.dvList = createElement("div", "list", this.dvDisplay)
 		
@@ -81,9 +114,12 @@ const ManagementTab = Template({
 			if (game.skills.automation) {
 				this.maxLevel.update()
 				this.maxCost.update()
-				this.types.update()
-				this.types.updateVisibility()
+				this.autoTypes.update()
+				this.autoTypes.updateVisibility()
 			}
+			this.sortTypes.update()
+			this.sortTypes.updateVisibility()
+			this.sortSorter.update(true)
 			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		

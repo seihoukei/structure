@@ -10,9 +10,30 @@ const AT_F_EXIT = 2
 const AT_F_BOSS = 3
 
 const SELECTORS = {
-	[AT_S_RANDOM](points) {
+	Random(points) {
 		return points[points.length * Math.random() | 0]
-	}
+	},
+	Closest(points) {
+		return points.sort((x, y) => x.distance - y.distance)[0]
+	},
+	Farthest(points) {
+		return points.sort((x, y) => y.distance - x.distance)[0]
+	},
+	Weakest(points) {
+		return points.sort((x, y) => x.power - y.power)[0]
+	},
+	Strongest(points) {
+		return points.sort((x, y) => y.power - x.power)[0]
+	},
+	Deepest(points) {
+		return points.sort((x, y) => y.depth - x.depth)[0]
+	},	
+	["Least defended"](points) {
+		return points.sort((x, y) => x.real.defence - y.real.defence)[0]
+	},	
+	["Most defended"](points) {
+		return points.sort((x, y) => y.real.defence - x.real.defence)[0]
+	},	
 }
 
 const sliderHandler = {
@@ -32,7 +53,7 @@ const sliderHandler = {
 			disabled : false
 		}
 		
-		this.atSelector = this.atSelector || AT_S_RANDOM
+		this.atSelector = this.atSelector || "Random"
 		
 		this.dvTarget = createElement("div", "slider")
 		this.dvTarget.onclick = (event) => {
@@ -44,7 +65,8 @@ const sliderHandler = {
 		this.dvCharge = createElement("div", "slider-charge", this.dvTarget)
 		
 		this.dvDisplay = createElement("div", "slider", gui.sliders.dvSliders)
-		this.dvBigColor = createElement("div", "slider-color", this.dvDisplay, this.clone?"CLONE":"")
+		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
+		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?"CLONE":"")
 		this.dvBigColor.title = this.clone?"Mechanical clones don't have concept of growth, learning or ascending":"Double click to change color"
 		this.dvBigColor.ondblclick = (event) => {
 			this.dvBigColor.style.background = this.clone?'linear-gradient(to right, hsl(0,30%,40%), hsl(120,30%,40%), hsl(240,30%,40%), hsl(360,30%,40%) )':'linear-gradient(to right, hsl(0,100%,30%), hsl(120,100%,30%), hsl(240,100%,30%), hsl(360,100%,30%) )'
@@ -53,6 +75,17 @@ const sliderHandler = {
 				this.dvBigColor.style.background = ""
 				this.setColor("hsl("+((event.offsetX / this.dvBigColor.offsetWidth * 360)|0)+(this.clone?",30%,40%)":",100%,30%)"))
 			}
+		}
+
+		this.dvTargetPoint = createElement("div", "slider-target", this.dvHeader)
+		this.dvTargetPoint.onmousemove = (event) => {
+			gui.sliders.hover.set(this.target, event.clientX, event.clientY)
+			//display point info
+		}
+		
+		this.dvTargetPoint.onmouseleave = this.dvTargetPoint.onmouseout = (event) => {
+			gui.sliders.hover.reset()
+			//hide point info
 		}
 		
 		this.imbuements = SingleAttributePicker({
@@ -122,7 +155,7 @@ const sliderHandler = {
 		}
 		
 		this.priorities = MultiAttributePicker({
-			parent : this.dvDisplay,
+			parent : this.dvAutoTarget,
 			container : this.atFilter,
 			value : "types",
 			title : "Priorities: ",
@@ -133,6 +166,55 @@ const sliderHandler = {
 			},
 			visible : () =>	game.skills.autoTargetFilter
 		})
+		
+		this.dvATSelector = createElement("div", "selectors", this.dvAutoTarget)
+		
+		this.selector = ListPicker({
+			parent : this.dvATSelector,
+			container : this,
+			className : "selector",
+			value : "atSelector",
+			name : "Target",
+			values : Object.keys(SELECTORS),
+			texts : Object.keys(SELECTORS),
+			expanded : false,
+			onSet : () => {
+				this.selector.expanded = !this.selector.expanded && this.selector.same
+				if (this.selector.expanded) {
+					this.selector.buttons.map((x,n) => {
+						if (n < this.selector.index){
+							x.dvDisplay.style.top = -25* (this.selector.index - n) + "px"
+						}
+						else if (n > this.selector.index) {
+							x.dvDisplay.style.top = -25 * (this.selector.index - n) + "px"
+						} else {
+						}
+						x.dvDisplay.style.height = "15px"
+					})
+				} else {
+					this.selector.buttons.map((x,n) => {
+						x.dvDisplay.style.height = (this.selector.index == n)?"15px":0
+						x.dvDisplay.style.top = 0
+					})
+				}
+			},
+		})
+		
+		this.dvATSelector.onmouseleave = /*this.dvATSelector.onmouseout = */(event) => {
+			if (!this.selector.expanded) return
+			this.selector.buttons.map((x,n) => {
+				x.dvDisplay.style.height = (this.selector.index == n)?"15px":0
+				x.dvDisplay.style.top = 0
+			})
+			this.selector.expanded = false
+		}
+
+		this.dvATApply = createElement("div", "apply button", this.dvATSelector, "Autotarget now")
+		this.dvATApply.onclick = (event) => {
+			this.assignTarget(null)
+			this.autoTarget()
+		}
+		
 		
 		this.sparks = new Set()
 		
@@ -200,6 +282,8 @@ const sliderHandler = {
 								  (this.clone?"":" (+" + displayNumber(this.real.growth[x.name]) + "/s)") + 
 								  ((this.real && (this.real[x.name] != this.stats[x.name]))?" => " + displayNumber(this.real[x.name]):"")
 		})
+		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
+		this.dvTargetPoint.style.backgroundColor = this.target?(POINT_COLORS[this.target.type]):"black"
 	}, 
 
 	updateSliders() {
@@ -222,11 +306,13 @@ const sliderHandler = {
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget))
+		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.imbuements.updateVisibility()
 		this.channels.updateVisibility()
 		this.priorities.updateVisibility()
 		this.learns.updateVisibility()
 		this.updateSliders()
+		this.selector.update(true)
 	},
 	
 	render(c) {
@@ -364,6 +450,7 @@ const sliderHandler = {
 		delete o.displayStats
 		delete o.imbuements
 		delete o.priorities
+		delete o.selector
 		delete o.channels
 		Object.keys(o).filter(x => x.substr(0,2) == "dv").map (x => {
 			delete o[x]

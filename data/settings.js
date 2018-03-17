@@ -99,6 +99,21 @@ const SETTINGS = {
 			document.body.classList.toggle("invert", settings.invert)
 		}
 	},
+	colorBlind : {
+		group : "Display",
+		displayName : "Color blind mode",
+		default : 0,
+		choices : [{
+			text : "Off",
+			value : 0
+		},{
+			text : "On",
+			value : 1
+		}],
+		onSet () {
+			game.updateBackground = true
+		}
+	},
 }
 
 Object.keys(SETTINGS).map(x => {

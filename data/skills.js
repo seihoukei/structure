@@ -124,16 +124,6 @@ const SKILLS = {
 		onGet: () => game.production.gold *= 10,
 		science : 300000
 	},
-	stardust: {
-		name: "Ride the sky",
-		desc: "Use stardust to grow 100% faster for each cloud",
-		map : 16,
-		mult : 5,
-		req : ['build2'],
-		res : ['clouds', 'stardust'],
-		exp : 98923710034.82115 / 3,
-		science : 500000
-	},
 	fear : {
 		name : "Reign of fear",
 		desc : "Spirit multiplied by fear is added to sliders attack",
@@ -144,10 +134,20 @@ const SKILLS = {
 		res : ['fears'],
 		science : 750000
 	},
+	stardust: {
+		name: "Ride the sky",
+		desc: "Use stardust to grow 100% faster for each cloud",
+		map : 16,
+		mult : 5,
+		req : ['build2'],
+		res : ['clouds', 'stardust'],
+		exp : 98923710034.82115 / 3,
+		science : 500000
+	},
 	automation: {
 		name : "The grand design",
 		desc : "Unlock point levelup automation",
-		map : 16,
+		map : 50,
 		mult : 3,
 		exp : 1286008230.452675,
 		req : ["management"],
@@ -156,14 +156,14 @@ const SKILLS = {
 	pierceResist: {
 		name : "Witchbane", //rename
 		desc : "Remove spirit penalty from points with elemental resistance",
-		map : 18,
+		map : 50,
 		mult : 2,
 		exp : 1286008230.452675,
 	},
 	magic: {
 		name: "Heroes of mighty magic",
 		desc: "Unlocks the whole new world of magic",
-		map : 21,
+		map : 50,
 		mult : 2,
 		exp : 200000
 	},
@@ -171,7 +171,7 @@ const SKILLS = {
 		name: "Elements, pt.2",
 		desc: "Use mana to imbue power with element",
 		req : ["magic"],
-		map : 21,
+		map : 50,
 		mult: 2,
 		exp : 200000
 	},
@@ -179,14 +179,14 @@ const SKILLS = {
 		name: "Journey of Souls",
 		desc: "Set advanced priorities for autotargetting",
 		req : ["autoTarget"],
-		map : 22,
+		map : 50,
 		mult : 1.5,
 		exp : 2500
 	},
 	modifyPoints: {
 		name: "Paint it black",
 		desc: "Ability to convert point types",
-		map : 21,
+		map : 50,
 		mult : 2,
 		exp : 1e16
 	}

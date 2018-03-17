@@ -148,6 +148,21 @@ const mapHandler = {
 			fillPoints(this.renderedPoints, x => (x.away < 2 && !x.locked || game.dev && game.dev.seeAll) && x.type == n, color)
 		})
 		
+		if (settings.colorBlind) {
+			c.save()
+			c.fillStyle = "black"
+			c.textAlign = "center",
+			c.textBaseline = "top",
+			c.font = "4px"+fontName
+			this.renderedPoints.map(point => {
+				c.save()
+				c.translate(point.x, point.y)
+				c.fillText(POINT_TYPES[point.type].capitalizeFirst()[0],0, -point.size)
+				c.restore()
+			})
+			c.restore()
+		}
+		
 		fillPoints(this.renderedPoints, x => x.index == 0, "gray")
 
 		if (game.dev && game.dev.seeAll)

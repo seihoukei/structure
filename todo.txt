@@ -1,3 +1,8 @@
+Important: 
+- Stardust investition
+- Notifications (ran out of exp / mana, achievement, offline progress)
+
+...
 - Map : Hover/target icons scaling to text length
 - Story : store last viewed
 
@@ -13,12 +18,10 @@
 - Buildings : level 3 (2-3)
 - Buildings : level 4 (2-3)
 
-- Notifications (ran out of exp / mana, achievement)
 - Management : Sorting by time
 
 - Magic (into imbuements)
 - Virtual maps
-- Stardust investition
 - Artifacts (mine depth)
 - Story
 - Achievements

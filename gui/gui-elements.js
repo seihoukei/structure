@@ -8,12 +8,21 @@ const guiSliderHandler = {
 		this.dvLine = createElement("div", "gui-slider-line "+(this.sliderClass || ""), this.dvDisplay)
 		this.dvRunner = createElement("div", "gui-slider-runner "+(this.sliderClass || ""), this.dvLine, this.getValue())
 		this.dvRight = createElement("div", "gui-slider-right", this.dvDisplay, this.rightText)
-		this.dvLeft.onclick = () => this.setPosition(0)
-		this.dvRight.onclick = () => this.setPosition(1)
-		this.dvLine.onclick = (event) => {
-			let position = Math.max(0, Math.min(1, (event.offsetX - 15) / (this.dvLine.offsetWidth - 30)))
+		this.dvDisplay.onmousedown = (event) => {
+			this.moving = true
+			let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.dvLine.offsetLeft) / (this.dvLine.offsetWidth - 30)))
 			position = Math.round(position * this.steps) / this.steps
 			this.setPosition(position)
+		}
+		this.dvDisplay.onmousemove = (event) => {
+			if (this.moving) {
+				let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.dvLine.offsetLeft) / (this.dvLine.offsetWidth - 30)))
+				position = Math.round(position * this.steps) / this.steps
+				this.setPosition(position)
+			}
+		}
+		/*this.dvDisplay.onmouseout = */this.dvDisplay.onmouseleave = this.dvDisplay.onmouseup = (event) => {
+			this.moving = false
 		}
 		this.update()
 	},

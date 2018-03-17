@@ -283,7 +283,7 @@ const sliderHandler = {
 								  ((this.real && (this.real[x.name] != this.stats[x.name]))?" => " + displayNumber(this.real[x.name]):"")
 		})
 		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
-		this.dvTargetPoint.style.backgroundColor = this.target?(POINT_COLORS[this.target.type]):"black"
+		this.dvTargetPoint.style.backgroundColor = this.target?(POINT_COLORS[this.target.type]):"white"
 	}, 
 
 	updateSliders() {

@@ -352,6 +352,9 @@ canvas.foreground : {
 	display : inline-block;
 	width : 10px;
 	height : 10px;
+	text-align : center;
+	line-height : 10px;
+	font-size : 9.5px;
 	border : 1px solid black;
 }
 .map .growth .growth-value {

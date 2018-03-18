@@ -92,7 +92,7 @@ const SETTINGS = {
 			text : "Light",
 			value : "light"
 		}, {
-			text : "Dark (incomplete)",
+			text : "Dark",
 			value : "dark"
 		}],
 		onSet () {

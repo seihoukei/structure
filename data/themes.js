@@ -80,7 +80,7 @@ const THEMES = {
 				levelUp : "#003300"
 			},
 			radar : "lime",
-			special : "#DDDDDD",
+			special : "white",
 			magic : "#666666",
 			mouseOwned : "green",
 			mouseEnemy : "maroon",
@@ -118,7 +118,7 @@ const THEMES = {
 				levelUp : "#003300"
 			},
 			radar : "lime",
-			special : "#DDDDDD",
+			special : "white",
 			magic : "#666666",
 			mouseOwned : "green",
 			mouseEnemy : "maroon",

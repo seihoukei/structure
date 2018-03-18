@@ -13,26 +13,29 @@ const SELECTORS = {
 	Random(points) {
 		return points[points.length * Math.random() | 0]
 	},
-	Closest(points) {
-		return points.sort((x, y) => x.distance - y.distance)[0]
-	},
-	Farthest(points) {
-		return points.sort((x, y) => y.distance - x.distance)[0]
-	},
 	Weakest(points) {
 		return points.sort((x, y) => x.power - y.power)[0]
 	},
 	Strongest(points) {
 		return points.sort((x, y) => y.power - x.power)[0]
 	},
-	Deepest(points) {
-		return points.sort((x, y) => y.depth - x.depth)[0]
-	},	
 	["Least defended"](points) {
 		return points.sort((x, y) => x.real.defence - y.real.defence)[0]
 	},	
 	["Most defended"](points) {
 		return points.sort((x, y) => y.real.defence - x.real.defence)[0]
+	},	
+	Closest(points) {
+		return points.sort((x, y) => x.distance - y.distance)[0]
+	},
+	Farthest(points) {
+		return points.sort((x, y) => y.distance - x.distance)[0]
+	},
+	["Least deep"](points) {
+		return points.sort((x, y) => x.depth - y.depth)[0]
+	},	
+	Deepest(points) {
+		return points.sort((x, y) => y.depth - x.depth)[0]
 	},	
 }
 
@@ -190,6 +193,7 @@ const sliderHandler = {
 						} else {
 						}
 						x.dvDisplay.style.height = "15px"
+						x.dvDisplay.classList.toggle("hidden", n > 4 && !game.skills.autoTargetDistance)
 					})
 				} else {
 					this.selector.buttons.map((x,n) => {

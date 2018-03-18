@@ -524,6 +524,8 @@ canvas.foreground : {
 	z-index : 1;
 	background-color : #EEEEEE;
 	cursor : pointer;
+	height : 0;
+	top : 0;
 }
 
 .tab.sliders .selector .choice:hover {

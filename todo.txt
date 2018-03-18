@@ -13,6 +13,7 @@ Important:
 - Skill : Blood ignore spirit ("blood")
 - Skill : Metal ignore spirit ("metal")
 - Skill : Power ignore spirit
+- Skill : Production bonus inside magic circle
 
 - Buildings : level 2 (+1-2)
 - Buildings : level 3 (2-3)

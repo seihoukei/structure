@@ -44,6 +44,14 @@ const SKILLS = {
 		mult : 10,
 		exp : 7500
 	},
+	autoTargetSelector: {
+		name: "Journey of Souls",
+		desc: "Add advanced priorities for autotargetting",
+		map : 5,
+		req : ['autoTargetFilter'],
+		mult: 1.5,
+		exp : 10000
+	},
 	learn: {
 		name: "Show me how to live",
 		desc: "Ability to triple the attribute growth for the growth worth of experience",
@@ -175,10 +183,10 @@ const SKILLS = {
 		mult: 2,
 		exp : 200000
 	},
-	autoTargetSelector: {
-		name: "Journey of Souls",
-		desc: "Set advanced priorities for autotargetting",
-		req : ["autoTarget"],
+	autoTargetDistance: {
+		name: "Far from the End of the World",
+		desc: "Set distance-based priorities for autotargetting",
+		req : ["autoTargetSelector"],
 		map : 50,
 		mult : 1.5,
 		exp : 2500

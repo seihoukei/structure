@@ -185,14 +185,9 @@ const sliderHandler = {
 				this.selector.expanded = !this.selector.expanded && this.selector.same
 				if (this.selector.expanded) {
 					this.selector.buttons.map((x,n) => {
-						if (n < this.selector.index){
-							x.dvDisplay.style.top = -25* (this.selector.index - n) + "px"
-						}
-						else if (n > this.selector.index) {
+						if (n != this.selector.index)
 							x.dvDisplay.style.top = -25 * (this.selector.index - n) + "px"
-						} else {
-						}
-						x.dvDisplay.style.height = "15px"
+                        x.dvDisplay.style.height = "15px"
 						x.dvDisplay.classList.toggle("hidden", n > 4 && !game.skills.autoTargetDistance)
 					})
 				} else {
@@ -287,7 +282,7 @@ const sliderHandler = {
 								  ((this.real && (this.real[x.name] != this.stats[x.name]))?" => " + displayNumber(this.real[x.name]):"")
 		})
 		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
-		this.dvTargetPoint.style.backgroundColor = this.target?(POINT_COLORS[this.target.type]):"white"
+		this.dvTargetPoint.style.backgroundColor = this.target?(gui.theme.typeColors[this.target.type]):gui.theme.background
 	}, 
 
 	updateSliders() {

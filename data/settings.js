@@ -84,15 +84,30 @@ const SETTINGS = {
 			value : 3
 		}]
 	},
-	invert : {
+	theme : {
 		group : "Display",
 		displayName : "Color theme",
+		default : "light",
+		choices : [{
+			text : "Light",
+			value : "light"
+		}, {
+			text : "Dark (incomplete)",
+			value : "dark"
+		}],
+		onSet () {
+			gui.setTheme(settings.theme, game.map.boss?"boss":"main")
+		}
+	},
+	invert : {
+		group : "Display",
+		displayName : "Invert lightness",
 		default : 0,
 		choices : [{
-			text : "Original",
+			text : "Off",
 			value : 0
-		},{
-			text : "Inverted",
+		}, {
+			text : "On",
 			value : 1
 		}],
 		onSet () {

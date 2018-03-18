@@ -2,6 +2,9 @@
 
 const gui = {
 	init() {
+
+		this.setTheme(settings.theme, "main")
+		
 		this.tabs = TabGroup({
 			name : "main"
 		})
@@ -213,6 +216,11 @@ const gui = {
 		this.hover.reset(true)
 	},	
 	
+	setTheme(theme, subtheme) {
+		this.theme = (THEMES[theme] || THEMES["light"])[subtheme || "main"] || THEMES.light.main
+		document.body.className = theme + " " + theme + "-" + subtheme
+	},
+
 	updateTabs() {
 		let distress = game.map.markers && game.map.markers.length
 		this.map.dvAscend.innerText = distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"

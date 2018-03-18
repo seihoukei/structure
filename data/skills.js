@@ -142,7 +142,7 @@ const SKILLS = {
 		res : ['fears'],
 		science : 750000
 	},
-	stardust: {
+/*	stardust: {
 		name: "Ride the sky",
 		desc: "Use stardust to grow 100% faster for each cloud",
 		map : 16,
@@ -151,45 +151,64 @@ const SKILLS = {
 		res : ['clouds', 'stardust'],
 		exp : 98923710034.82115 / 3,
 		science : 500000
-	},
-	automation: {
-		name : "The grand design",
-		desc : "Unlock point levelup automation",
-		map : 50,
-		mult : 3,
-		exp : 1286008230.452675,
-		req : ["management"],
-		science : 1e8
-	},
-	pierceResist: {
-		name : "Witchbane", //rename
-		desc : "Remove spirit penalty from points with elemental resistance",
-		map : 50,
-		mult : 2,
-		exp : 1286008230.452675,
-	},
+	},*/
 	magic: {
 		name: "Heroes of mighty magic",
 		desc: "Unlocks the whole new world of magic",
-		map : 50,
+		map : 15,
 		mult : 2,
-		exp : 200000
+		exp : 98923710034.82115,
+		science : 1e6
+	},
+/*	magicBoost1: {
+		name: "Magic kingdom",
+		desc: "Level 1 buildings production boosted within magic circle",
+		map : 16,
+		mult : 3,
+		req : ["magic"],
+		exp : 2e10,
+		science : 1.5e7,
+	},*/
+	automation: {
+		name : "The grand design",
+		desc : "Unlock point levelup automation",
+		map : 17,
+		mult : 3,
+		exp : 12860082304.52675,
+		req : ["management"],
+		science : 2e7
 	},
 	imbuement: {
 		name: "Elements, pt.2",
 		desc: "Use mana to imbue power with element",
 		req : ["magic"],
-		map : 50,
+		map : 17,
 		mult: 2,
-		exp : 200000
+		exp : 2e10
 	},
 	autoTargetDistance: {
 		name: "Far from the End of the World",
 		desc: "Set distance-based priorities for autotargetting",
 		req : ["autoTargetSelector"],
-		map : 50,
+		map : 18,
 		mult : 1.5,
-		exp : 2500
+		exp : 2e10
+	},
+/*	magicGrowthBoost1: {
+		name: "Magic forest",
+		desc: "Points growth boosted within magic circle",
+		map : 18,
+		mult : 3,
+		req : ["magic"],
+		exp : 2e10,
+		science : 1.5e7,
+	},*/
+	pierceResist: {
+		name : "Witchbane", //rename
+		desc : "Remove spirit penalty from points with elemental resistance",
+		map : 50,
+		mult : 2,
+		exp : 2e10
 	},
 	modifyPoints: {
 		name: "Paint it black",

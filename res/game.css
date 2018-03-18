@@ -1,5 +1,117 @@
 @import "https://fonts.googleapis.com/css?family=Open+Sans:300,400";
 
+:root {
+	--background : white;
+	--background-complete : #EEFFEE;
+	--foreground : black;
+	--lightframe : gray;
+	--darkframe : black;
+	--shade0  : #000000;
+	--shade1  : #111111;
+	--shade2  : #222222;
+	--shade3  : #333333;
+	--shade4  : #444444;
+	--shade5  : #555555;
+	--shade6  : #666666;
+	--shade7  : #777777;
+	--shade8  : #888888;
+	--shade9  : #999999;
+	--shade10 : #AAAAAA;
+	--shade11 : #BBBBBB;
+	--shade12 : #CCCCCC;
+	--shade13 : #DDDDDD;
+	--shade14 : #EEEEEE;
+	--shade15 : #FFFFFF;
+	--bg-none   : #EEEEEE;
+	--bg-power  : #FFFF55;
+	--bg-spirit : #ADFF2F;
+	--bg-blood  : #DC143C;
+	--bg-fire   : #FF8C00;
+	--bg-ice    : #00FFFF;
+	--bg-metal  : #BBBBBB;
+	--bg-home   : #7F7F7F;
+	--skill-owned : #EEFFEE;
+	--skill-owned-text : #001100;
+	--button-bg : #FFFFDD;
+	--button-text : black;
+	--button-active-bg : black;
+	--button-active-text : white;
+	--button-weak-bg : #FFFFDD;
+	--button-weak-text : maroon;
+	--button-active-weak-bg : #550000;
+	--button-active-weak-text : black;
+	--button-inactive-bg : #DDDDDD;
+	--button-inactive-text : black;
+	--button-hover-bg : #EEEE88;
+	--button-hover-text : black;
+	--hover-bg : white;
+	--hover-text : black;
+	--progress-fg : maroon;
+	--progress-bg : #BBBBBB;
+	--gui-slider-text : black;
+}
+
+body.dark {
+	--background : #222222;
+	--background-complete : #223322;
+	--foreground : #DDDDDD;
+	--lightframe : #BBBBBB;
+	--darkframe : #DDDDDD;
+	--shade0  : #DDDDDD;
+	--shade1  : #D0D0D0;
+	--shade2  : #C4C4C4;
+	--shade3  : #B7B7B7;
+	--shade4  : #ABABAB;
+	--shade5  : #9E9E9E;
+	--shade6  : #929292;
+	--shade7  : #858585;
+	--shade8  : #797979;
+	--shade9  : #6C6C6C;
+	--shade10 : #606060;
+	--shade11 : #535353;
+	--shade12 : #474747;
+	--shade13 : #3A3A3A;
+	--shade14 : #2E2E2E;
+	--shade15 : #222222;
+	--bg-none   : #444444;
+	--bg-power  : #AAAA00;
+	--bg-spirit : #00AA00;
+	--bg-blood  : #AA0000;
+	--bg-fire   : #AA6600;
+	--bg-ice    : #0066AA;
+	--bg-metal  : #666666;
+	--bg-home   : #777777;
+	--skill-owned : #224422;
+	--skill-owned-text : #DDEEDD;
+	--button-bg : #444422;
+	--button-text : #DDDDDD;
+	--button-active-bg : #DDDDDD;
+	--button-active-text : #222222;
+	--button-weak-bg : #444422;
+	--button-weak-text : #EEDD22;
+	--button-active-weak-bg : #DDBBBB;
+	--button-active-weak-text : #222222;
+	--button-inactive-bg : #222222;
+	--button-inactive-text : #DDDDDD;
+	--button-hover-bg : #555533;
+	--button-hover-text : #DDDDDD;
+	--hover-bg : black;
+	--hover-text : white;
+	--progress-fg : maroon;
+	--progress-bg : #BBBBBB;
+	--gui-slider-text : white;
+}
+
+/*body.light.light-boss {
+	--background : #000033;
+	--background-complete : #003300;
+}
+
+body.dark.dark-boss {
+	--background : #000000;
+	--background-complete : #001100;
+}*/
+
 @font-face {
     font-family: 'Symbols';
     src: url('symbols.woff') format('woff');
@@ -11,7 +123,8 @@ html, body {
 	width : 100%;
 	height : 100%;
 	overflow : hidden;
-	background-color : white;
+	background-color : var(--background);
+	color : var(--foreground);
 	padding : 0;
 	margin : 0;
 	font-family : 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif;
@@ -27,29 +140,29 @@ body.invert {
 	font-weight : bold;
 }
 
-.bg-none { background-color : #EEEEEE;}
-.bg-power { background-color : #FFFF55;}
-.bg-spirit { background-color : #ADFF2F;}
-.bg-blood { background-color : #DC143C;}
-.bg-fire { background-color : #FF8C00;}
-.bg-ice { background-color : #00FFFF;}
-.bg-metal { background-color : #BBBBBB;}
-.bg-home { background-color : #7F7F7F;}
+.bg-none   { background-color : var(--bg-none   );}
+.bg-power  { background-color : var(--bg-power  );}
+.bg-spirit { background-color : var(--bg-spirit );}
+.bg-blood  { background-color : var(--bg-blood  );}
+.bg-fire   { background-color : var(--bg-fire   );}
+.bg-ice    { background-color : var(--bg-ice    );}
+.bg-metal  { background-color : var(--bg-metal  );}
+.bg-home   { background-color : var(--bg-home   );}
 
 .titles.main {
 	display : flex;
 	height : 30px;
 	overflow-y : hidden;
-	background-color : #AAAAAA;
+	background-color : var(--shade10);
 }
 
 .titles.main .title{
 	display : flex;
-	background-color : #CCCCCC;
+	background-color : var(--shade12);
 	height : 28px;
 	padding : 0 20px;
 	margin : 0 0 0 0;
-	border : 1px solid black;
+	border : 1px solid var(--darkframe);
 	align-items : center;
 	justify-content : center;
 	white-space : nowrap;
@@ -58,12 +171,12 @@ body.invert {
 }
 
 .titles.main .title:hover{
-	background-color : #EEEEEE;
+	background-color : var(--shade14);
 }
 
 .titles.main .title.active{
 	margin : 1px 0 0 0;
-	background-color : #FFFFFF;
+	background-color : var(--shade15);
 	border-bottom : none;
 	cursor : default;
 }
@@ -74,7 +187,7 @@ body.invert {
 	margin : -1px 0 0 0;
 	width : 100%;
 	height : 30px;
-	border-bottom : 1px solid black;
+	border-bottom : 1px solid var(--darkframe);
 }
 
 .tabs.main > .tab {
@@ -84,20 +197,12 @@ body.invert {
 	height : calc(100vh - 30px);
 }
 
-.tab.map.dark {
-	background-color : #000033;
-	color : white;
+.tab.map {
 	transition : background-color 2s, color 2s;
 }
 
 .tab.map.complete {
-	background-color : #DDFFDD;
-	transition : background-color 2s, color 2s;
-}
-
-.tab.map.dark.complete {
-	background-color : #003300;
-	transition : background-color 2s, color 2s;
+	background-color : var(--background-complete);
 }
 
 canvas {
@@ -126,8 +231,8 @@ canvas.foreground : {
 	position : absolute;
 	right : 0;
 	bottom : 0;
-	background-color : #000000;
-	color : #FFFFFF;
+	background-color : var(--shade0);
+	color : var(--shade15);
 	padding : 20px;
 	width : 150px;
 	text-align : center;
@@ -135,8 +240,8 @@ canvas.foreground : {
 }
 
 .ascend.disabled {
-	background-color : #DDDDDD;
-	color : #777777;
+	background-color : var(--shade13);
+	color : var(--shade7);
 	cursor : default;
 }
 
@@ -146,7 +251,8 @@ canvas.foreground : {
 	display : flex;
 	flex-direction : column;
 	font-size : 13.3px;
-	color : black;
+	color : var(--foreground);
+	background-color : var(--background);
 }
 
 .target .sliders, .upgrades .buildings {
@@ -158,18 +264,19 @@ canvas.foreground : {
 
 .target .target-hint {
 	margin : -1px;
-	border : 2px solid black;
-	background-color : black;
-	color : white;
+	border : 2px solid var(--darkframe);
+	background-color : var(--darkframe);
+	color : var(--shade15);
 	width : 416px;
 }
 
 .target .slider {
 	width : 207px;
 	height : 40px;
-	border : 2px solid black;
+	border : 2px solid var(--darkframe);
 	margin : -1px;
-	background-color : #FFFFDD;
+	background-color : var(--button-bg);
+	color : var(--button-text);
 	cursor : pointer;
 	display : flex;
 	white-space: nowrap;
@@ -180,20 +287,21 @@ canvas.foreground : {
 }
 
 .target .slider:hover {
-	background-color : #EEEE88;
+	background-color : var(--button-hover-bg);
+	color : var(--button-hover-text);
 	transform : scale(1.1);
 	z-index : 2;
 }
 
 .target .slider.active {
-	background-color : black;
-	color : white;
+	background-color : var(--button-active-bg);
+	color : var(--button-active-text);
 /*	transform : scale(1); */
 }
 
 .target .slider.active.weak {
-	background-color : #550000;
-	color : white
+	background-color : var(--button-active-weak-bg);
+	color : var(--button-active-weak-text);
 }
 
 .target .slider .slider-color {
@@ -201,7 +309,7 @@ canvas.foreground : {
 	height : 40px;
 	background-color : maroon;
 	display : flex;
-	color : white;
+	color : #FFFFFF;
 	align-items : center;
 	justify-content : center;
 	font-size : 20px;
@@ -223,19 +331,20 @@ canvas.foreground : {
 }
 
 .target .slider.weak .slider-info {
-	color : maroon;
+	color : var(--button-weak-text);
 }
 
 .target .slider.active.weak .slider-info {
-	color : white;
+	color : var(--button-active-weak-text);
 }
 
 .icon-button {
 	width : 207px;
 	height : 40px;
-	border : 2px solid black;
+	border : 2px solid var(--darkframe);
 	margin : -1px;
-	background-color : #DDDDDD;
+	background-color : var(--button-inactive-bg);
+	color : var(--button-inactive-text);
 	display : flex;
 	white-space: nowrap;
 	overflow : hidden;
@@ -245,7 +354,8 @@ canvas.foreground : {
 }
 
 .icon-button.available {
-	background-color : #FFFFDD;
+	background-color : var(--button-bg);
+	color : var(--button-text);
 	cursor : pointer;
 }
 
@@ -254,8 +364,8 @@ canvas.foreground : {
 }
 
 .icon-button.owned {
-	background-color : black;
-	color : white;
+	background-color : var(--button-active-bg);
+	color : var(--button-active-text);
 }
 
 .icon-button .icon {
@@ -263,7 +373,7 @@ canvas.foreground : {
 	height : 40px;
 	background-color : maroon;
 	display : flex;
-	color : white;
+	color : #FFFFFF;
 	align-items : center;
 	justify-content : center;
 	font-size : 35px;
@@ -282,13 +392,14 @@ canvas.foreground : {
 .hover .icons {
 	display : flex;
 }
+
 .hover .icon {
 	width : 40px;
 	height : 40px;
-	border : 2px solid black;
+	border : 2px solid var(--darkframe);
 	font-size : 35px;
 	display : flex;
-	color : white;
+	color : #FFFFFF;
 	align-items : center;
 	justify-content : center;
 	margin : -1px;
@@ -301,12 +412,12 @@ canvas.foreground : {
 
 .point-info {
 	margin : -1px;
-	background-color : white;
-	border : 2px solid black;
+	background-color : var(--hover-bg);
+	border : 2px solid var(--darkframe);
 	display : flex;
 	justify-content : space-between;
 	align-items : stretch;
-	color : black;
+	color : var(--hover-fg);
 }
 
 .target .point-info {
@@ -334,9 +445,9 @@ canvas.foreground : {
 }
 
 .point-info .info.progress {
-	background: linear-gradient(to bottom right, #FFFFFF, #FFFFFF 75%, transparent 75%, transparent),
-				linear-gradient(to right, #7F0000, #7F0000 100%, transparent 100%) no-repeat;	
-	background-color : #BBBBBB;
+	background: linear-gradient(to bottom right, var(--hover-bg), var(--hover-bg) 75%, transparent 75%, transparent),
+				linear-gradient(to right, var(--progress-fg), var(--progress-fg) 100%, transparent 100%) no-repeat;	
+	background-color : var(--progress-bg);
 	width : 220px;
 }
 
@@ -355,7 +466,7 @@ canvas.foreground : {
 	text-align : center;
 	line-height : 10px;
 	font-size : 9.5px;
-	border : 1px solid black;
+	border : 1px solid var(--darkframe);
 }
 .map .growth .growth-value {
 	display : inline-block;
@@ -389,7 +500,7 @@ canvas.foreground : {
 
 .header {
 	padding : 5px;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	margin : 10px 10px 0 10px;
 }
 
@@ -408,8 +519,8 @@ canvas.foreground : {
 	flex-direction : column;
 	width : 290px;
 	height : 150px;
-	border : 2px solid silver;
-	color : gray;
+	border : 2px solid var(--shades12);
+	color : var(--shades8);
 	align-items : center;
 	justify-content : center;
 	margin : 10px;
@@ -438,15 +549,15 @@ canvas.foreground : {
 
 .skill.available {
 	cursor : pointer;
-	border : 2px solid gray;
-	color : black;
+	border : 2px solid var(--lightframe);
+	color : var(--foreground);
 	order : 0;
 }
 
 .skill.owned {
-	background-color : #EEFFEE;
-	border : 2px solid gray;
-	color : black;
+	background-color : var(--skill-owned);
+	border : 2px solid var(--lightframe);
+	color : var(--skill-owned-text);
 	order : 2;
 }
 
@@ -455,7 +566,7 @@ canvas.foreground : {
 	width : 350px;
 	font-size : 13px;
 	text-align : center;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	padding : 10px;
 	margin : 10px;
 	cursor : default;
@@ -471,7 +582,7 @@ canvas.foreground : {
 	background-color : maroon;
 	flex-grow : 999;
 	height : 40px;
-	margin : 0 0 10px 0;
+	margin : 0 10px 10px 0;
 	cursor : pointer;
 	display : flex;
 	align-items : center;
@@ -483,10 +594,10 @@ canvas.foreground : {
 .tab.sliders .slider .slider-target {
 	width : 40px;
 	height : 40px;
-	border : 2px solid black;
-	font-size : 20px;
+	border : 2px solid var(--darkframe);
+	font-size : 18px;
 	display : flex;
-	color : black;
+	color : var(--shades15);
 	align-items : center;
 	justify-content : center;
 	margin : -2px;
@@ -506,7 +617,7 @@ canvas.foreground : {
 .tab.sliders .selector .choices {
 	display : flex;
 	flex-direction : column;
-	background-color : white;
+	background-color : var(--background);
 	position : relative;
 }
 
@@ -522,14 +633,14 @@ canvas.foreground : {
 	position : absolute;
 	transition : background-color 0.2s, color 0.2s, height 0.2s, margin 0.2s, top 0.2s;
 	z-index : 1;
-	background-color : #EEEEEE;
+	background-color : var(--shade14);
 	cursor : pointer;
 	height : 0;
 	top : 0;
 }
 
 .tab.sliders .selector .choice:hover {
-	background-color : #CCCCCC;
+	background-color : var(--shade12);
 }
 
 .tab.sliders .selector .choice.active:before {
@@ -539,25 +650,25 @@ canvas.foreground : {
 
 .tab.sliders .selector .choice.active {
 	height : 15px;
-	background-color : white;
+	background-color : var(--background);
 	position : static;
 	z-index : 2;
 }
 
 .tab.sliders .selector .choice.active:hover {
-	background-color : #CCCCCC;
+	background-color : var(--shade12);
 }
 
 .tab.sliders .apply {
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	padding : 5px;
 	cursor : pointer;
 	transition : background-color 0.2s;
-	background-color : white;
+	background-color : var(--shade15);
 }	
 
 .tab.sliders .apply:hover {
-	background-color : #CCCCCC;
+	background-color : var(--shade12);
 }
 
 .slider .slider-name, .slider .slider-value {
@@ -587,7 +698,7 @@ canvas.foreground : {
 	margin : 0 2px;
 	align-items : center;
 	justify-content : center;
-	border : 1px solid black;
+	border : 1px solid var(--darkframe);
 	cursor : pointer;
 }
 
@@ -597,6 +708,7 @@ canvas.foreground : {
 	height : 20px;
 	cursor : pointer;
 	padding : 2px 0 5px;
+	color : var(--gui-slider-text);
 }
 
 .gui-slider.disabled {
@@ -614,7 +726,7 @@ canvas.foreground : {
 .gui-slider .gui-slider-line {
 	width : 250px;
 	position : relative;
-	border : 1px solid black;
+	border : 1px solid var(--darkframe);
 	margin : 5px;
 }
 
@@ -622,7 +734,7 @@ canvas.foreground : {
 	position : absolute;
 	margin : -6px -1px;
 	pointer-events : none;
-	border : 1px solid black;
+	border : 1px solid var(--darkframe);
 	padding : 0 2px;
 	border-radius : 3px;
 }
@@ -632,7 +744,7 @@ canvas.foreground : {
 }
 
 .gui-slider.automation .gui-slider-runner, .gui-slider.automation .gui-slider-line {
-	background-color : #EEEEEE;
+	background-color : var(--shade14);
 }
 
 .tab.menu {
@@ -646,8 +758,8 @@ canvas.foreground : {
 	align-items : stretch;
 	justify-content : center;
 	width : 200px;
-	background-color : #AAAAAA;
-	border-right : 2px solid gray;
+	background-color : var(--shade10);
+	border-right : 2px solid var(--lightframe);
 }
 
 .tab.menu > .titles .title {
@@ -656,20 +768,20 @@ canvas.foreground : {
 	cursor : pointer;
 	transition : background-color 0.3s;
 	z-index : 0;
-	background-color : #CCCCCC;
+	background-color : var(--shade12);
 }
 
 .tab.menu > .titles .title:hover {
-	background-color : #E3E3E3;
+	background-color : var(--shade14);
 }
 
 .tab.menu > .titles .title.active {
-	background-color : white;
+	background-color : var(--background);
 	cursor : default;
 	margin : -2px;
 	padding-right : 22px;
-	border-top : 2px solid gray;
-	border-bottom : 2px solid gray;
+	border-top : 2px solid var(--lightframe);
+	border-bottom : 2px solid var(--lightframe);
 	z-index : 1;
 }
 
@@ -687,7 +799,7 @@ canvas.foreground : {
 	
 .savelist {
 	margin : 20px;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	overflow : hidden;
 	overflow-y : auto;
 	height : 50%;
@@ -702,12 +814,12 @@ canvas.foreground : {
 }
 
 .save:nth-child(even) {
-	background-color : #EEEEEE;
+	background-color : var(--shade14);
 }
 
 .savelist .save.active {
-	background-color : #444444;
-	color : white;
+	background-color : var(--shade4);
+	color : var(--shade15);
 }
 
 .savelist .save .date {
@@ -731,7 +843,7 @@ canvas.foreground : {
 
 .saves .button {
 	display : inline-block;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	padding : 10px;
 	margin : 5px;
 	cursor : pointer;
@@ -744,10 +856,10 @@ canvas.foreground : {
 
 .saves .export {
 	margin : 20px;
-
+	color : var(--foreground);
 	flex-grow : 999;
-	border : 2px solid gray;
-	background-color : #EEEEEE;
+	border : 2px solid var(--lightframe);
+	background-color : var(--shade14);
 	font-family : Courier;
 	min-height : 50px;
 }
@@ -757,7 +869,7 @@ canvas.foreground : {
 	padding : 5px 10px 5px 10px;
 	align-items : center;
 	margin : 10px 10px 0 10px;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	overflow-x : auto;
 	overflow-y : hidden;
 	white-space: nowrap;
@@ -801,17 +913,17 @@ canvas.foreground : {
 }
 
 .management .sorter .choice:hover {
-	background-color : #DDDDDD;
+	background-color : var(--shade13);
 	
 }
 
 .management .sorter .choice.active {
-	background-color : #005500;
-	color : white;
+	background-color : var(--sort-down-bg);
+	color : var(--sort-active);
 }
 
 .management .sorter.reverse .choice.active {
-	background-color : #550000;	
+	background-color : var(--sort-up-bg);	
 }
 
 .management .list {
@@ -823,7 +935,7 @@ canvas.foreground : {
 .management .point {
 	display : flex;
 	padding : 5px;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	margin : 10px 5px;
 	align-items : center;
 }
@@ -833,7 +945,7 @@ canvas.foreground : {
 	height : 40px;
 	font-size : 25px;
 	border-radius : 20px;
-	border : 1px solid black;
+	border : 1px solid var(--darkframe);
 	display : flex;
 	margin : 5px;
 	align-items : center;
@@ -853,10 +965,10 @@ canvas.foreground : {
 .management .point .icons .icon {
 	width : 40px;
 	height : 40px;
-	border : 2px solid black;
+	border : 2px solid var(--darkframe);
 	font-size : 35px;
 	display : flex;
-	color : white;
+	color : #FFFFFF;
 	align-items : center;
 	justify-content : center;
 	margin : -1px;
@@ -883,19 +995,19 @@ canvas.foreground : {
 
 .management .list-hover {
 	position : absolute;
-	background-color : #DDDDDD;
-	border : 2px solid black;
+	background-color : var(--shade13);
+	border : 2px solid var(--darkframe);
 	pointer-events : none;
 	padding : 3px;
 }
 
 .management .list-hover.available {
-	background-color : #FFFFDD;
+	background-color : var(--button-bg);
 }
 
 .management .list-hover.bought {
-	background-color : black;
-	color : white;
+	background-color : var(--button-active-bg);
+	color : var(--button-active-text);
 }
 
 .tab.about {
@@ -939,8 +1051,8 @@ canvas.foreground : {
 }
 
 .settings > .titles .title {
-	background-color : #CCCCCC;
-	border : 2px solid gray;
+	background-color : var(--shade12);
+	border : 2px solid var(--lightframe);
 	padding : 5px;
 	border-bottom : none ;
 	cursor : pointer;
@@ -948,11 +1060,11 @@ canvas.foreground : {
 }
 
 .settings > .titles .title:hover {
-	background-color : #E3E3E3;
+	background-color : var(--shade14);
 }
 
 .settings > .titles .title.active {
-	background-color : #FFFFFF;
+	background-color : var(--shade15);
 	margin : 2px 0 -2px 0;
 	cursor : default;
 }
@@ -960,7 +1072,7 @@ canvas.foreground : {
 .settings > .tabs {
 	flex-grow : 999;
 	margin : 0 20px 20px 20px;
-	border : 2px solid gray;
+	border : 2px solid var(--lightframe);
 	overflow-y : auto;
 	z-index : 1;
 }
@@ -968,7 +1080,7 @@ canvas.foreground : {
 .settings .setting {
 	padding : 15px;
 	margin : 20px 20px 0 20px;
-	background-color : #EEEEEE;
+	background-color : var(--shade14);
 }
 
 .settings .choices {
@@ -985,12 +1097,12 @@ canvas.foreground : {
 }
 
 .settings .choice:hover {
-	background-color : #CCCCCC;
+	background-color : var(--shade12);
 }
 
 .settings .choice.active {
-	background-color : #444444;
-	color : white;
+	background-color : var(--shade4);
+	color : var(--shade15);
 }
 
 .tab.statistics .statistics {

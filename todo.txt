@@ -1,5 +1,5 @@
 Important: 
-- Stardust investition
+- Stardust investition (growth)
 - Notifications (ran out of exp / mana, achievement, offline progress)
 
 ...
@@ -21,6 +21,7 @@ Important:
 
 - Management : Sorting by time
 
+- Stardust investition (resources)
 - Magic (into imbuements)
 - Virtual maps
 - Artifacts (mine depth)
@@ -33,7 +34,7 @@ Important:
 - Map : Low load mode + setting for auto
 
 - World : Map 15 boss blood + metal
-- World : Map 20 boss 
+- World : Map 20 boss (multi elemental!)
 
 - Keyboard : ESC - reset target window
 

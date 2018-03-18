@@ -18,6 +18,7 @@ window.onload = (event) => {
 	
 	if (settings.invert) 
 		document.body.classList.add("invert")
+
 	if (location.hostname === "localhost" || location.hostname === "127.0.0.1")
 		game.dev = {
 //			display : createElement("div", "dev", document.body),

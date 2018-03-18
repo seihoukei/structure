@@ -126,13 +126,13 @@ const mapHandler = {
 		c.save()
 		c.beginPath()
 		c.lineWidth = 0.5
-		c.strokeStyle = this.boss?"silver":"gray"
+		c.strokeStyle = gui.theme.shades[7]
 		this.renderedPoints.filter(x => x.owned && x.level).map(drawLevel)
 		c.stroke()
 		c.restore()
 
 		c.beginPath()
-		c.strokeStyle = this.boss?"gray":"silver"
+		c.strokeStyle = gui.theme.shades[11]
 		if (game.dev && game.dev.seeAll)
 			this.renderedPoints.filter(x => x.away).map(drawOutline)
 		else
@@ -140,17 +140,17 @@ const mapHandler = {
 		c.stroke()
 		
 		c.beginPath()
-		c.strokeStyle = this.boss?"white":"black"
+		c.strokeStyle = gui.theme.shades[0]
 		this.renderedPoints.filter(x => x.owned).map(drawOutline)
 		c.stroke()		
 		
-		POINT_COLORS.map((color, n) => {
+		gui.theme.typeColors.map((color, n) => {
 			fillPoints(this.renderedPoints, x => (x.away < 2 && !x.locked || game.dev && game.dev.seeAll) && x.type == n, color)
 		})
 		
 		if (settings.colorBlind) {
 			c.save()
-			c.fillStyle = "black"
+			c.fillStyle = gui.foreground
 			c.textAlign = "center",
 			c.textBaseline = "top",
 			c.font = "4px"+fontName
@@ -163,24 +163,23 @@ const mapHandler = {
 			c.restore()
 		}
 		
-		fillPoints(this.renderedPoints, x => x.index == 0, "gray")
+		fillPoints(this.renderedPoints, x => x.index == 0, gui.theme.shades[7])
 
 		if (game.dev && game.dev.seeAll)
 			fillPoints(this.renderedPoints, x => x.away > 1, "rgba(255,255,255,0.7)")
 		else
-			fillPoints(this.renderedPoints, x => x.away == 2, this.boss?"rgb(128,128,225)":"silver")
+			fillPoints(this.renderedPoints, x => x.away == 2, gui.theme.shades[11])
 
 //		c.font = "3.5px" + fontName
 		c.textBaseline = "middle"
 		c.textAlign = "center"
-		c.fillStyle = "black"
+		c.fillStyle = gui.theme.special
 		
 		if (game.dev && game.dev.seeAll)
 			this.renderedPoints.filter(pt => (pt.specialText)).map(drawSpecial)
 		else {
 			this.renderedPoints.filter(pt => (pt.away < 2) && !pt.locked && (pt.specialText)).map(drawSpecial)
-			if (this.boss) 
-				c.fillStyle = "white"
+			c.fillStyle = gui.theme.foreground
 			this.renderedPoints.filter(pt => (pt.away < 2) && pt.locked && (pt.specialText)).map(drawSpecial)
 		}
 	},
@@ -188,11 +187,15 @@ const mapHandler = {
 	getOwnedRadius() {
 		let n = 1
 		let lastRadius = 0
-		while (this.points[n] && this.points[n].owned) {
+		while (this.points[n] && (this.points[n].owned || this.points[n].boss)) {
 			lastRadius = this.points[n].distance - this.points[n].size
 			n++
 		}
-		return this.ownedRadius = this.points[n]?this.points[n].distance - this.points[n].size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE
+		this.points.map(point => point.suspendBuildings())
+		this.ownedRadius = this.points[n]?this.points[n].distance - this.points[n].size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE
+		this.points.map(point => point.restoreBuildings())
+		
+		return this.ownedRadius
 	},
 	
 	restoreState() {

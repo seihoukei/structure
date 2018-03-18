@@ -101,7 +101,8 @@ const pointHandler = {
 		
 		if (this.type)
 			game.growth[POINT_TYPES[this.type]] -= this.bonus
-		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy.call(this))
+		
+		this.suspendBuildings()
 		
 		this.level = (this.level || 0) + 1
 		
@@ -111,7 +112,8 @@ const pointHandler = {
 		
 		if (this.type)
 			game.growth[POINT_TYPES[this.type]] += this.bonus
-		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build.call(this))
+		
+		this.restoreBuildings()
 		
 		game.update()
 		gui.target.updateUpgrades()
@@ -146,6 +148,14 @@ const pointHandler = {
 		this.buildings[name] = 1
 		game.update()
 		gui.target.updateUpgrades()
+	},
+	
+	suspendBuildings() {
+		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy.call(this))
+	},
+	
+	restoreBuildings() {
+		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build.call(this))
 	},
 
 	updateText() {
@@ -254,7 +264,7 @@ const pointHandler = {
 		if (game.activeRender) {
 			if (slider)
 				animations.Fireworks(this.x, this.y, slider.color, 5 * this.size, this.size * 0.8)
-			animations.Fireworks(this.x, this.y, POINT_COLORS[this.type], 15 * this.size, this.size)
+			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
 			
 			for (let child of this.children) {
 				child.animate(1, 120)
@@ -346,7 +356,7 @@ const pointHandler = {
 					c.fill()
 				}
 				if (this.animationProgress > 0.5) {
-					c.fillStyle = POINT_COLORS[this.type]
+					c.fillStyle = gui.theme.typeColors[this.type]
 					c.globalAlpha = this.animationProgress
 					const r = this.size * Math.sin((this.animationProgress - 0.5) * 5) / 0.5985
 					c.beginPath()

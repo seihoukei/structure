@@ -133,7 +133,7 @@ const managementPointElementHandler = {
 		this.dvInfo = createElement("div", "info", this.dvDisplay)
 		this.dvIcons = createElement("div", "icons", this.dvDisplay)
 		this.dvLevelUp = createElement("div", "icon", this.dvIcons, "⇮\uFE0E")
-		this.dvLevelUp.style.backgroundColor = "#003300"
+		this.dvLevelUp.style.backgroundColor = gui.theme.icons.levelUp
 		this.dvLevelUp.onclick = (event) => {
 			if (this.point.costs.levelUp > game.resources.gold) return
 			this.point.levelUp()

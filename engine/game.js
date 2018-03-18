@@ -35,7 +35,7 @@ const game = {
 		this.renderData.radarCV.height = viewport.height
 		const c = this.renderData.radarCV.getContext("2d")
 		const grad = gui.foregroundContext.createRadialGradient(0, 0, 0, 0, 0, 5)
-		grad.addColorStop(0, "lime")
+		grad.addColorStop(0, gui.theme.radar)
 		grad.addColorStop(1, "transparent")
 		c.translate(viewport.halfWidth, viewport.halfHeight)
 		c.fillStyle = grad
@@ -104,7 +104,7 @@ const game = {
 		if (mouse.closest) {
 			c.save()
 			c.translate(mouse.closest.x, mouse.closest.y)
-			c.strokeStyle = mouse.closest.owned?"green":(mouse.closest.lock && !mouse.closest.keyData.keyPoint.owned)?"silver":"maroon"
+			c.strokeStyle = mouse.closest.owned?gui.theme.mouseOwned:(mouse.closest.lock && !mouse.closest.keyData.keyPoint.owned)?gui.theme.shades[11]:gui.theme.mouseEnemy
 			c.beginPath()
 			let radius = mouse.closest.size + (mouse.closest.level || 0) * 2 + 1.75 + 0.5 * Math.sin(this.frame / 30) 
 			let angle = this.frame / 50
@@ -128,7 +128,7 @@ const game = {
 			if (partner && partner.away < 2 && partner.locked < 2) {
 				c.save()
 				c.translate(partner.x, partner.y)
-				c.strokeStyle = partner.owned?"green":"maroon"
+				c.strokeStyle = partner.owned?gui.theme.mouseOwned:gui.theme.mouseEnemy
 				c.beginPath()
 				let radius = partner.size + (partner.level||0) * 2 + 1.75 + 0.5 * Math.sin(this.frame / 30) 
 				c.arc(0, 0, radius, 0, 6.29)
@@ -155,7 +155,7 @@ const game = {
 			c.lineTo(end.x, end.y)
 			c.restore()
 		}
-		c.strokeStyle = "maroon"
+		c.strokeStyle = gui.theme.progress
 		c.beginPath()
 		this.map.renderedPoints.filter(x => !x.owned && x.progress > 0).map(renderProgress)
 		c.stroke()
@@ -164,7 +164,7 @@ const game = {
 	},
 	
 	renderCircle(c, radius) {
-		c.fillStyle = "#eeeeee"
+		c.fillStyle = gui.theme.magic
 		c.beginPath()
 		c.arc(0, 0, radius, 0, 6.29)
 		c.fill()
@@ -276,6 +276,7 @@ const game = {
 			}
 			this.sliders.map(x => x.autoTarget())
 			gui.skills.updateSkills()
+			gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		}
 	},
 	
@@ -460,6 +461,7 @@ const game = {
 			this.advance(1)
 		this.offline = false
 		
+		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		gui.tabs.setTab("map")
 	},
 	
@@ -518,6 +520,7 @@ const game = {
 		this.getRealProduction()
 
 		this.advance(1)
+		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		gui.tabs.setTab("map")
 	}
 }

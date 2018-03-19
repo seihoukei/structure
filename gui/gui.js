@@ -17,7 +17,7 @@ const gui = {
 		this.management = this.tabs.addTab("management", "Management", ManagementTab)	
 		
 		this.tabs.addTab("stardust", "Stardust", StardustTab)
-		this.tabs.addTab("magic", "Magic")
+		//this.tabs.addTab("magic", "Magic")
 		this.tabs.addFiller()
 
 		this.story = this.tabs.addTab("story", "Story", StoryTab)
@@ -234,7 +234,7 @@ const gui = {
 		this.tabs.toggleDisplay("skills", game.map.level)
 		this.tabs.toggleDisplay("management", game.skills.management)
 		this.tabs.toggleDisplay("stardust", game.skills.stardust)
-		this.tabs.toggleDisplay("magic", game.skills.magic)
+//		this.tabs.toggleDisplay("magic", game.skills.magic)
 	},
 	
 	updateSaves(target) {

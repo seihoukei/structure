@@ -217,7 +217,7 @@ const game = {
 
 	update() {
 		this.map.update()
-		this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
+		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		viewport.getLimits(this.map.bounds)
 		this.updateBackground = true
 		gui.updateTabs()
@@ -359,9 +359,11 @@ const game = {
 				return
 			game.resources.exp -= SKILLS[skill].exp * game.skillCostMult
 		}
+		this.map.points.map(point => point.suspend())
 		this.skills[skill] = 1
 		this.skillCostMult *= SKILLS[skill].mult || 1
 		SKILLS[skill].onGet && SKILLS[skill].onGet()
+		this.map.points.map(point => point.unsuspend())
 		this.update()
 		gui.skills.updateSkills()
 		gui.skills.updateExp()
@@ -386,6 +388,7 @@ const game = {
 	
 	getRealProduction() {
 		RESOURCES.map (x => this.real.production[x] = this.production[x])
+		this.real.production.mana += this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		this.real.production.mana -= this.sliders.reduce((v,x) => v + (x.real && x.real.usedMana || 0), 0)
 		this.real.production.exp += this.sliders.reduce((v,x) => v + (x.real && x.real.expChange || 0), 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => x.target && !x.target.index?v + (x.real && x.real.attack || 0):v, 0)

@@ -45,7 +45,7 @@ const SKILLS = {
 		exp : 7500
 	},
 	autoTargetSelector: {
-		name: "Journey of Souls",
+		name: "Journey of souls",
 		desc: "Add advanced priorities for autotargetting",
 		map : 5,
 		req : ['autoTargetFilter'],
@@ -153,7 +153,7 @@ const SKILLS = {
 	},
 	stardust: {
 		name: "Ride the sky",
-		desc: "Use stardust to grow 100% faster for each cloud",
+		desc: "Use stardust to grow 100% faster for each cloud (not there yet)",
 		map : 15,
 		mult : 5,
 		req : ['build2'],
@@ -164,44 +164,69 @@ const SKILLS = {
 	magic: {
 		name: "Heroes of mighty magic",
 		desc: "Unlocks the whole new world of magic",
-		map : 50,
+		map : 16,
 		mult : 2,
+		sliders : 4,
 		exp : 98923710034.82115,
-		science : 1.5e6
 	},
 	magicBoost1: {
 		name: "Magic kingdom",
 		desc: "Level 1 buildings production boosted within magic circle",
-		map : 50,
+		map : 16,
 		mult : 3,
 		req : ["magic"],
 		exp : 2e10,
-		science : 1.5e7,
+		science : 1.5e6,
+	},
+	autoTargetDistance: {
+		name: "Far from the end of the world",
+		desc: "Set distance-based priorities for autotargetting",
+		req : ["autoTargetSelector"],
+		map : 17,
+		mult : 1.5,
+		exp : 2e10,
+		science : 3e6,
+	},
+	magicGrowthBoost: {
+		name: "Magic forest",
+		desc: "Points growth bonus boosted within magic circle",
+		map : 17,
+		mult : 3,
+		req : ["magic"],
+		exp : 2e10,
+		science : 5e6,
+	},
+	blood: {
+		name: "Halo of blood",
+		desc: "Blood damage ignores spirit penalty",
+		map : 17,
+		mult : 2,
+		exp : 2e10,
+	},
+	metal: {
+		name: "Metal mass",
+		desc: "Metal damage ignores spirit penalty",
+		map : 17,
+		mult : 2,
+		exp : 2e10,
 	},
 	imbuement: {
 		name: "Elements, pt.2",
 		desc: "Use mana to imbue power with element",
 		req : ["magic"],
-		map : 50,
+		map : 18,
 		mult: 2,
+		science : 7.5e6,
 		exp : 2e10
 	},
-	autoTargetDistance: {
-		name: "Far from the End of the World",
-		desc: "Set distance-based priorities for autotargetting",
-		req : ["autoTargetSelector"],
-		map : 50,
-		mult : 1.5,
-		exp : 2e10
-	},
-	magicGrowthBoost1: {
-		name: "Magic forest",
-		desc: "Points growth boosted within magic circle",
-		map : 50,
+	buildAutomation: {
+		name : "Built to last",
+		desc : "Unlock building automation (not there yet)",
+		map : 18,
 		mult : 3,
-		req : ["magic"],
 		exp : 2e10,
-		science : 1.5e7,
+		req : ["management"],
+		science : 1e7
 	},
 	pierceResist: {
 		name : "Witchbane", //rename

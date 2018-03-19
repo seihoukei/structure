@@ -30,11 +30,11 @@ function deleteState(slot = "_Autosave") {
 	if (slot != "Save Backup" && localStorage[SAVE_PREFIX+slot])
 		localStorage[SAVE_PREFIX + "_Last deleted/overwritten save backup"] = localStorage[SAVE_PREFIX+slot]
 	delete localStorage[SAVE_PREFIX+slot]
-	let save = gui.saves[slot]
+	let save = gui.menu.saves.saves[slot]
 	if (save) {
 		save.dvDisplay.remove()
 		delete save.dvDisplay
-		delete gui.saves[slot]
+		delete gui.menu.saves.saves[slot]
 	}
 	gui.updateSaves()
 }

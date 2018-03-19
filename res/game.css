@@ -258,7 +258,7 @@ canvas.foreground : {
 	flex-direction : column;
 	font-size : 13.3px;
 	color : var(--foreground);
-	background-color : var(--background);
+
 }
 
 .target .sliders, .upgrades .buildings {
@@ -357,6 +357,8 @@ canvas.foreground : {
 	transition : color 0.2s, background-color 0.2s, transform 0.2s;
 	cursor : default;
 	/*border-radius : 10px;*/
+	transform : scale(1);
+	z-index : 2;
 }
 
 .icon-button.available {
@@ -367,6 +369,7 @@ canvas.foreground : {
 
 .icon-button.available:hover {
 	transform : scale(1.1);
+	z-index : 3;
 }
 
 .icon-button.owned {

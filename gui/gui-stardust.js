@@ -5,6 +5,18 @@ const StardustTab = Template({
 		this.dvDisplay = createElement("div", "stardust "+(this.className || ""), this.parent)
 		this.dvSliders = createElement("div", "stardust-growth", this.dvDisplay)
 		this.sliders = POINT_TYPES.slice(1).map(x => {
+			return GuiSlider({
+				parent : this.dvDisplay,
+				container : game.stardust,
+				value : x,
+				leftText : "0",
+				rightText : game.resources.stardust,
+				max : game.resources.stardust,
+				min : 0,
+				steps : game.resources.stardust,
+				className : "stardust",
+				sliderClass : "bg-"+x
+			})
 		})
 	},
 	

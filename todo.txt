@@ -4,16 +4,13 @@ Important:
 
 ...
 - Map : Hover/target icons scaling to text length
+- Map : Fix fallback icon scaling
 - Story : store last viewed
 
 - Map : Better resources display
 - Map : Better target position for lock => key
 
-- Skill : Free chanelling (slider 4) // too good?
-- Skill : Blood ignore spirit ("blood")
-- Skill : Metal ignore spirit ("metal")
 - Skill : Power ignore spirit
-- Skill : Production bonus inside magic circle
 
 - Buildings : level 2 (+1-2)
 - Buildings : level 3 (2-3)
@@ -28,12 +25,9 @@ Important:
 - Story
 - Achievements
 
-- Themes
-
 - Map : Backgrounds
 - Map : Low load mode + setting for auto
 
-- World : Map 15 boss blood + metal
 - World : Map 20 boss (multi elemental!)
 
 - Keyboard : ESC - reset target window

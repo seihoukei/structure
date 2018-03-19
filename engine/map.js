@@ -191,9 +191,9 @@ const mapHandler = {
 			lastRadius = this.points[n].distance - this.points[n].size
 			n++
 		}
-		this.points.map(point => point.suspendBuildings())
+		this.points.map(point => point.suspend())
 		this.ownedRadius = this.points[n]?this.points[n].distance - this.points[n].size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE
-		this.points.map(point => point.restoreBuildings())
+		this.points.map(point => point.unsuspend())
 		
 		return this.ownedRadius
 	},
@@ -258,7 +258,6 @@ const mapHandler = {
 		delete o.renderedPoints
 		delete o.keys
 		delete o.markers
-		delete o.ownedRadius
 		delete o.complete
 		return o
 	}

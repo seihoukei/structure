@@ -90,6 +90,9 @@ const pointHandler = {
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
 		Object.values(BUILDINGS).map(x => this.costs[x.id] = x.cost.call(this))
 		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
+		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
+			this.bonusMult = game.skills.magicGrowthBoost?Math.max(0, this.map.ownedRadius - this.distance):0
+
 		this.updateDisplay("management", true)
 	},
 	
@@ -99,21 +102,15 @@ const pointHandler = {
 		
 		game.resources.gold -= this.costs.levelUp
 		
-		if (this.type)
-			game.growth[POINT_TYPES[this.type]] -= this.bonus
-		
-		this.suspendBuildings()
+		this.suspend()
 		
 		this.level = (this.level || 0) + 1
 		
 		game.addStatistic("point_level"+this.level)
 		
 		this.calculateStats()
-		
-		if (this.type)
-			game.growth[POINT_TYPES[this.type]] += this.bonus
-		
-		this.restoreBuildings()
+				
+		this.unsuspend()
 		
 		game.update()
 		gui.target.updateUpgrades()
@@ -150,12 +147,18 @@ const pointHandler = {
 		gui.target.updateUpgrades()
 	},
 	
-	suspendBuildings() {
+	suspend() {
+		this.bonusMult = game.skills.magicGrowthBoost?Math.max(0, this.map.ownedRadius - this.distance):0
+		if (this.type && this.owned)
+			game.growth[POINT_TYPES[this.type]] -= this.bonus * ((this.bonusMult || 0) + 1)
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy.call(this))
 	},
 	
-	restoreBuildings() {
+	unsuspend() {
+		this.bonusMult = game.skills.magicGrowthBoost?Math.max(0, this.map.ownedRadius - this.distance):0
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build.call(this))
+		if (this.type && this.owned)
+			game.growth[POINT_TYPES[this.type]] += this.bonus * ((this.bonusMult || 0) + 1)
 	},
 
 	updateText() {
@@ -276,8 +279,8 @@ const pointHandler = {
 			}
 		}
 		
-		if (this.type)
-			game.growth[POINT_TYPES[this.type]] += this.bonus
+		this.unsuspend()
+
 		game.resources.exp += (this.power * this.length) ** 0.5
 
 		if (this.exit) {

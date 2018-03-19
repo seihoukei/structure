@@ -9,13 +9,13 @@ const BUILDINGS = {//function context == point
 			return this.depth * 68400
 		},
 		info() {
-			return "Production: " + displayNumber(this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? 10 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)) + "/s"
+			return "Production: " + displayNumber(this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? this.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)) + "/s"
 		},
 		build() {
-			game.production.gold += this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? 10 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
+			game.production.gold += this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? this.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
 		},
 		destroy() {
-			game.production.gold -= this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? 10 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
+			game.production.gold -= this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? this.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
 		},
 		iconText : "G",
 		iconColor : "gold",

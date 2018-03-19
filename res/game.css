@@ -49,6 +49,9 @@
 	--progress-fg : maroon;
 	--progress-bg : #BBBBBB;
 	--gui-slider-text : black;
+	--sort-down-bg: maroon;
+	--sort-up-bg: green;
+	--sort-active : white;
 }
 
 body.dark {
@@ -100,6 +103,9 @@ body.dark {
 	--progress-fg : maroon;
 	--progress-bg : #BBBBBB;
 	--gui-slider-text : white;
+	--sort-down-bg: maroon;
+	--sort-up-bg: green;
+	--sort-active : white;
 }
 
 /*body.light.light-boss {
@@ -597,7 +603,7 @@ canvas.foreground : {
 	border : 2px solid var(--darkframe);
 	font-size : 18px;
 	display : flex;
-	color : var(--shade15);
+	color : var(--shade0);
 	align-items : center;
 	justify-content : center;
 	margin : -2px;
@@ -810,6 +816,7 @@ canvas.foreground : {
 .savelist .save {
 	display : flex;
 	white-space : nowrap;
+	flex-shrink : 0;
 	padding : 3px 5px;
 }
 

@@ -2,9 +2,9 @@
 
 const SORT_METHODS = {
 	"Power" : (x,y) => x.power - y.power,
-	"Level" : (x,y) => (x.level || 0) - (y.level || 0),
+	"Level" : (x,y) => ((x.level || 0) - (y.level || 0)) || (x.depth - y.depth) || (x.bonus - y.bonus),
 	"Growth" : (x,y) => x.bonus - y.bonus,
-	"Depth" : (x,y) => x.depth - y.depth,
+	"Depth" : (x,y) => (x.depth - y.depth) || (x.bonus - y.bonus),
 }
 
 const ManagementTab = Template({
@@ -41,7 +41,7 @@ const ManagementTab = Template({
 		})
 		
 		this.dvMaxCost = createElement("div", "slider", this.dvAutomation)
-		this.dvText2 = createElement("div", "text", this.dvMaxCost, "Maximum cost:")
+		this.dvText2 = createElement("div", "text", this.dvMaxCost, "Maximum gold:")
 
 		this.maxCost = GuiSlider({
 			parent : this.dvAutomation,
@@ -77,7 +77,7 @@ const ManagementTab = Template({
 				return true
 			},
 			onUpdate : () => {
-				game && game.map && game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").dvDisplay.classList.toggle("hidden", this.sorting.types.length && !this.sorting.types.includes(x.type)))
+				game && game.map && game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").dvDisplay.classList.toggle("hidden", x.boss || this.sorting.types.length && !this.sorting.types.includes(x.type)))
 			}
 		})
 		
@@ -98,6 +98,15 @@ const ManagementTab = Template({
 			}
 		})
 
+		this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
+
+		this.dvSortOften = createElement("div", "sort-often", this.dvSort)		
+		this.dvSortOftenCheckbox = createElement("input", "sort-often-checkbox", this.dvSortOften)		
+		this.dvSortOftenCheckbox.id = "sortOften"
+		this.dvSortOftenCheckbox.type = "checkbox"
+		this.dvSortOftenLabel = createElement("label", "sort-often-label", this.dvSortOften, "Re-sort upon change")
+		this.dvSortOftenLabel.htmlFor = "sortOften"
+		
 		this.dvList = createElement("div", "list", this.dvDisplay)
 		
 		this.dvHover = createElement("div", "list-hover hidden", this.dvDisplay)
@@ -137,6 +146,7 @@ const managementPointElementHandler = {
 		this.dvLevelUp.onclick = (event) => {
 			if (this.point.costs.levelUp > game.resources.gold) return
 			this.point.levelUp()
+			if (gui.management.dvSortOftenCheckbox.checked) gui.management.update(true)
 			this.dvLevelUp.animate([
 				{
 					transform : "scale(0.8)",
@@ -175,6 +185,7 @@ const managementPointElementHandler = {
 		this.icons.map(x => {
 			x.dvDisplay.onclick = (event) => {
 				this.point.build(x.id)
+				if (gui.management.dvSortOftenCheckbox.checked) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
 				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info.call(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
@@ -200,9 +211,9 @@ const managementPointElementHandler = {
 									"Growth : " + displayNumber(this.point.bonus) + "\n" +
 									"Depth : " + this.point.depth
 			this.dvIcon.innerText = this.point.level || "0"
-			this.dvLevelUp.classList.toggle("visible", !this.point.level || this.point.level < POINT_MAX_LEVEL)
+			this.dvLevelUp.classList.toggle("visible", !this.point.boss && (!this.point.level || this.point.level < POINT_MAX_LEVEL))
 			this.icons.map(x => {
-				x.visible = this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])
+				x.visible = !this.point.boss && this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)
 			})
 		}

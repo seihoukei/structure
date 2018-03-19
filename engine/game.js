@@ -274,6 +274,7 @@ const game = {
 				gui.target.reset()
 				gui.hover.reset()
 			}
+			this.map.points.map(x => x.getReal())
 			this.sliders.map(x => x.autoTarget())
 			gui.skills.updateSkills()
 			gui.setTheme(settings.theme, this.map.boss?"boss":"main")
@@ -304,7 +305,7 @@ const game = {
 	
 	autoUpgrade() {
 		if (!game.skills.automation) return
-		let points = this.map.points.filter( x => this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
+		let points = this.map.points.filter(x => x.index && x.owned && !x.boss && this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
 		while (points[0] && points[0].costs.levelUp <= this.resources.gold * this.automation.maxCost * 0.01) points.shift().levelUp()
 	},
 	

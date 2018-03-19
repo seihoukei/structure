@@ -267,6 +267,7 @@ const pointHandler = {
 			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
 			
 			for (let child of this.children) {
+				if (child.boss > this.map.boss) continue
 				child.animate(1, 120)
 				if (game.skills.sensor)
 					for (let grandchild of child.children)
@@ -284,9 +285,13 @@ const pointHandler = {
 			game.addStatistic("stars")
 		}
 		if (this.special == SPECIAL_CLONE) {
-			let base = attackers[Math.random() * attackers.length | 0]
+			let baseStats = {}
+			let sliders = game.sliders.filter(x => !x.clone)
+			sliders.map(x => {
+				Object.keys(x.stats).map(y => baseStats[y] = (baseStats[y] || 0) + x.stats[y] / sliders.length)
+			})
 			game.sliders.push(Slider({
-				stats : Object.assign({},base.stats),
+				stats : baseStats,
 				clone : true
 			}))
 			this.special = 0

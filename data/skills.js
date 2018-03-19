@@ -129,12 +129,12 @@ const SKILLS = {
 		mult: 1.3, 
 		exp : 1286008230.452675,
 		req : ['build1'],
-		onGet: () => game.production.gold *= 10,
+		onGet: () => game.production.gold *= game.map.level ** 2 / 16.9,
 		science : 300000
 	},
 	fear : {
 		name : "Reign of fear",
-		desc : "Spirit multiplied by fear is added to sliders attack",
+		desc : "Spirit multiplied by fear is added to sliders power",
 		map : 14,
 		mult : 2.4,
 		exp : 98923710034.82115 / 3,
@@ -142,15 +142,24 @@ const SKILLS = {
 		res : ['fears'],
 		science : 750000
 	},
+	automation: {
+		name : "The grand design",
+		desc : "Unlock point levelup automation",
+		map : 15,
+		mult : 3,
+		exp : 12860082304.52675,
+		req : ["management"],
+		science : 1e6
+	},
 	stardust: {
 		name: "Ride the sky",
 		desc: "Use stardust to grow 100% faster for each cloud",
-		map : 50,
+		map : 15,
 		mult : 5,
 		req : ['build2'],
 		res : ['clouds', 'stardust'],
 		exp : 98923710034.82115 / 3,
-		science : 500000
+		science : 1200000
 	},
 	magic: {
 		name: "Heroes of mighty magic",
@@ -158,7 +167,7 @@ const SKILLS = {
 		map : 50,
 		mult : 2,
 		exp : 98923710034.82115,
-		science : 1e6
+		science : 1.5e6
 	},
 	magicBoost1: {
 		name: "Magic kingdom",
@@ -168,15 +177,6 @@ const SKILLS = {
 		req : ["magic"],
 		exp : 2e10,
 		science : 1.5e7,
-	},
-	automation: {
-		name : "The grand design",
-		desc : "Unlock point levelup automation",
-		map : 50,
-		mult : 3,
-		exp : 12860082304.52675,
-		req : ["management"],
-		science : 2e7
 	},
 	imbuement: {
 		name: "Elements, pt.2",

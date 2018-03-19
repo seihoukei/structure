@@ -70,7 +70,7 @@ const sliderHandler = {
 		this.dvDisplay = createElement("div", "slider", gui.sliders.dvSliders)
 		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
 		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?"CLONE":"")
-		this.dvBigColor.title = this.clone?"Mechanical clones don't have concept of growth, learning or ascending":"Double click to change color"
+		this.dvBigColor.title = this.clone?"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
 		this.dvBigColor.ondblclick = (event) => {
 			this.dvBigColor.style.background = this.clone?'linear-gradient(to right, hsl(0,30%,40%), hsl(120,30%,40%), hsl(240,30%,40%), hsl(360,30%,40%) )':'linear-gradient(to right, hsl(0,100%,30%), hsl(120,100%,30%), hsl(240,100%,30%), hsl(360,100%,30%) )'
 			this.dvBigColor.onclick = (event) => {
@@ -424,7 +424,7 @@ const sliderHandler = {
 		this.real.attackSpirit = gui.target.point?gui.target.point.getActiveSpirit(this):0
 		this.real.spirit = this.target?this.target.getActiveSpirit(this):this.real.spirit
 		
-		if (game.skills.fear) this.real.power += this.real.spirit * game.resources.fears
+		if (game.skills.fear && !this.clone) this.real.power += this.real.spirit * game.resources.fears
 //		if (this.target && this.target.parent && this.target.parent.buildings.obelisk) this.real.spirit *= (this.target.parent.level || 0) + 1
 		
 		if (this.imbuement) {

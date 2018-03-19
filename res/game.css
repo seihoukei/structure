@@ -519,8 +519,8 @@ canvas.foreground : {
 	flex-direction : column;
 	width : 290px;
 	height : 150px;
-	border : 2px solid var(--shades12);
-	color : var(--shades8);
+	border : 2px solid var(--shade12);
+	color : var(--shade8);
 	align-items : center;
 	justify-content : center;
 	margin : 10px;
@@ -597,7 +597,7 @@ canvas.foreground : {
 	border : 2px solid var(--darkframe);
 	font-size : 18px;
 	display : flex;
-	color : var(--shades15);
+	color : var(--shade15);
 	align-items : center;
 	justify-content : center;
 	margin : -2px;

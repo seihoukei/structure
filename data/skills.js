@@ -142,37 +142,37 @@ const SKILLS = {
 		res : ['fears'],
 		science : 750000
 	},
-/*	stardust: {
+	stardust: {
 		name: "Ride the sky",
 		desc: "Use stardust to grow 100% faster for each cloud",
-		map : 16,
+		map : 50,
 		mult : 5,
 		req : ['build2'],
 		res : ['clouds', 'stardust'],
 		exp : 98923710034.82115 / 3,
 		science : 500000
-	},*/
+	},
 	magic: {
 		name: "Heroes of mighty magic",
 		desc: "Unlocks the whole new world of magic",
-		map : 15,
+		map : 50,
 		mult : 2,
 		exp : 98923710034.82115,
 		science : 1e6
 	},
-/*	magicBoost1: {
+	magicBoost1: {
 		name: "Magic kingdom",
 		desc: "Level 1 buildings production boosted within magic circle",
-		map : 16,
+		map : 50,
 		mult : 3,
 		req : ["magic"],
 		exp : 2e10,
 		science : 1.5e7,
-	},*/
+	},
 	automation: {
 		name : "The grand design",
 		desc : "Unlock point levelup automation",
-		map : 17,
+		map : 50,
 		mult : 3,
 		exp : 12860082304.52675,
 		req : ["management"],
@@ -182,7 +182,7 @@ const SKILLS = {
 		name: "Elements, pt.2",
 		desc: "Use mana to imbue power with element",
 		req : ["magic"],
-		map : 17,
+		map : 50,
 		mult: 2,
 		exp : 2e10
 	},
@@ -190,19 +190,19 @@ const SKILLS = {
 		name: "Far from the End of the World",
 		desc: "Set distance-based priorities for autotargetting",
 		req : ["autoTargetSelector"],
-		map : 18,
+		map : 50,
 		mult : 1.5,
 		exp : 2e10
 	},
-/*	magicGrowthBoost1: {
+	magicGrowthBoost1: {
 		name: "Magic forest",
 		desc: "Points growth boosted within magic circle",
-		map : 18,
+		map : 50,
 		mult : 3,
 		req : ["magic"],
 		exp : 2e10,
 		science : 1.5e7,
-	},*/
+	},
 	pierceResist: {
 		name : "Witchbane", //rename
 		desc : "Remove spirit penalty from points with elemental resistance",

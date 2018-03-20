@@ -381,7 +381,7 @@ const game = {
 		if (!this.real.production) this.real.production = {}
 		
 		Object.keys(this.growth).map(x => {
-			this.real.multi[x] = this.multi[x] * (1 + this.stardust[x] * this.resources.clouds)
+			this.real.multi[x] = this.multi[x] * (1 + 0.1 * this.stardust[x] * this.resources.clouds)
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
 	},

@@ -153,7 +153,7 @@ const SKILLS = {
 	},
 	stardust: {
 		name: "Ride the sky",
-		desc: "Use stardust to grow 100% faster for each cloud (not there yet)",
+		desc: "Use stardust to grow 10% faster for each cloud (not there yet)",
 		map : 15,
 		mult : 5,
 		req : ['build2'],

@@ -25,5 +25,12 @@ const StardustTab = Template({
 	},
 	
 	update(forced) {
+		if (forced) {
+			this.sliders.map(x => {
+				x.setMax(game.resources.stardust)
+				x.steps = game.resources.stardust
+				x.dvRight.innerText = game.resources.stardust
+			})
+		}
 	}
 })

@@ -268,7 +268,7 @@ const sliderHandler = {
 		this.dvColor.innerText = this.target?this.target.specialText?this.target.specialText:"⭕\uFE0E":""
 									
 		this.dvInfo.innerText = (!point.index?"Gold:" + displayNumber(this.real.attackTarget):"Attack: " + displayNumber(this.real.attackTarget)) + "/s\n" +
-								((point.boss)?"":("Spirit: " + displayNumber(this.real.attackSpirit) + "\n"))
+								((point.boss || this.clone)?"":("Spirit: " + displayNumber(this.real.attackSpirit) + "\n"))
 
 		this.dvTarget.classList.toggle("weak", !point.boss && !this.clone && point.real.localPower > this.real.attackSpirit)
 		if (game.skills.charge)

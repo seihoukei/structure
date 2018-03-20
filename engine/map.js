@@ -92,7 +92,7 @@ const mapHandler = {
 			c.translate(point.x, point.y)
 			c.moveTo(point.size, 0)
 			c.arc(0, 0, point.size, 0, 6.29)
-			c.restore()
+			c.restore()	
 		}
 		function drawSpecial(point) {
 			c.save()
@@ -423,6 +423,7 @@ const mapMaker = {
 		if (this.level > 12) {
 			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && !x.special && !x.boss))
 			
+			if (this.level < 15)
 			for (let i = 0; i < (this.level / 6 | 0) - 1; i++) {
 				const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
 				const colony = points[points.length * Math.random() | 0]

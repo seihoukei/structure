@@ -16,7 +16,8 @@ const game = {
 	automation : {
 		types : [],
 		maxLevel : 0,
-		maxCost : 100
+		maxCost : 100,
+		buildings: {}
 	},
 	production : {},
 	stardust : {},
@@ -287,6 +288,7 @@ const game = {
 		this.activeRender = !document.hidden && gui.tabs.activeTab == "map"
 		
 		if (performance.now() - this.lastSave > 5000) {
+			this.autoUpgrade()
 			saveState("_Autosave", 1)
 			this.lastSave = performance.now()
 		}		
@@ -297,16 +299,25 @@ const game = {
 			this.addStatistic("onlineTime", deltaTime)
 		
 		this.timeStep(deltaTime / 1000)
-		
-		this.autoUpgrade()
-		
+				
 		this.updateInterface = true
 	},
 	
 	autoUpgrade() {
-		if (!game.skills.automation) return
-		let points = this.map.points.filter(x => x.index && x.owned && !x.boss && this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
-		while (points[0] && points[0].costs.levelUp <= this.resources.gold * this.automation.maxCost * 0.01) points.shift().levelUp()
+		if (game.skills.automation){
+			let points = this.map.points.filter(x => x.index && x.owned && !x.boss && this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
+			while (points[0] && points[0].costs.levelUp <= this.resources.gold * this.automation.maxCost * 0.01) points.shift().levelUp()
+		}
+		if (game.skills.buildAutomation) {
+			Object.keys(BUILDINGS).map(x => {
+				if (!game.automation.buildings[x]) return
+				this.map.points.map(point => {
+					if (point.level < BUILDINGS[x].level) return
+					if (point.costs[x] > this.resources.gold || point.costs[x] < 0) return
+					point.build(x)
+				})
+			})
+		}
 	},
 	
 	timeStep(time) {

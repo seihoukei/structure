@@ -55,6 +55,17 @@ const ManagementTab = Template({
 			className : "automation"
 		})
 		
+		this.dvBuildAutomation = createElement("div", "automation", this.dvDisplay)
+		this.dvBuildAutomationText = createElement("div", "automation-text", this.dvBuildAutomation, "Autobuild: ")
+
+		this.buildings = Object.keys(BUILDINGS).map(x => BuildingIcon(x, this.dvBuildAutomation))
+		this.buildings.map(x => {
+			x.dvDisplay.onclick = (event) => {
+				game.automation.buildings[x.id] = game.automation.buildings[x.id]?0:1
+				this.update(true)
+			}
+		})
+
 		this.sorting = {
 			minLevel : 0,
 			maxLevel : 4,
@@ -120,6 +131,7 @@ const ManagementTab = Template({
 	update(forced) {
 		if (forced) {
 			this.dvAutomation.classList.toggle("hidden", !game.skills.automation)
+			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			if (game.skills.automation) {
 				this.maxLevel.update()
 				this.maxCost.update()
@@ -130,6 +142,12 @@ const ManagementTab = Template({
 			this.sortTypes.updateVisibility()
 			this.sortSorter.update(true)
 			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
+			this.buildings.map(x => {
+				let visible = game.statistics["built_"+x.id]
+				x.dvDisplay.classList.toggle("visible", !!visible)
+				if (visible)
+					x.dvDisplay.classList.toggle("active", game.automation.buildings[x.id])
+			})
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
 	}

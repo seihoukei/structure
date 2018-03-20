@@ -460,7 +460,7 @@ canvas.foreground : {
 	width : 220px;
 }
 
-.map div.growth {
+.map div.growth, .stardust div.growth {
 	position : absolute;
 	bottom : 3px;
 	left : 3px;
@@ -468,7 +468,7 @@ canvas.foreground : {
 	cursor : default;
 }
 
-.map .growth .growth-type {
+.map .growth .growth-type, .stardust .growth .growth-type  {
 	display : inline-block;
 	width : 10px;
 	height : 10px;
@@ -477,7 +477,7 @@ canvas.foreground : {
 	font-size : 9.5px;
 	border : 1px solid var(--darkframe);
 }
-.map .growth .growth-value {
+.map .growth .growth-value, .stardust .growth .growth-value {
 	display : inline-block;
 	padding : 0 0 0 3px;
 }
@@ -972,7 +972,7 @@ canvas.foreground : {
 	display : flex;
 }
 
-.management .point .icons .icon {
+.management .point .icons .icon, .management .automation .icon {
 	width : 40px;
 	height : 40px;
 	border : 2px solid var(--darkframe);
@@ -986,19 +986,19 @@ canvas.foreground : {
 	pointer-events : none;
 }
 
-.management .point .icons .icon.visible {
+.management .point .icons .icon.visible, .management .automation .icon.visible {
 	pointer-events : auto;
 	opacity : 0.25;
 	transform : scale(0.8);
 	transition : transform 0.2s, opacity 0.2s;
 }
 
-.management .point .icons .icon.visible.available {
+.management .point .icons .icon.visible.available, .management .automation .icon.visible {
 	opacity : 0.75;
 	cursor : pointer;
 }
 
-.management .point .icons .icon.visible.bought {
+.management .point .icons .icon.visible.bought, .management .automation .icon.visible.active {
 	opacity : 1;
 	transform : none;
 }
@@ -1136,6 +1136,37 @@ canvas.foreground : {
 	width : 200px;
 	text-align : left;
 	padding-left : 10px;
+}
+
+.tab.stardust {
+	display : flex;
+	flex-direction : column;
+	align-items : center;
+	justify-content : center;
+}
+
+.tab.stardust .stardust-growth {
+	display : flex;
+	flex-direction : column;
+	align-items : center;
+	justify-content : center;
+	width : 400px;
+	padding : 10px;	
+	border : 2px solid var(--lightframe);
+}
+
+.tab.stardust .stardust-title {
+	font-size : 20px;
+	padding: 0 0 10px 0;
+}
+
+.tab.stardust .gui-slider {
+	padding : 10px 0;
+	width : 400px;
+}
+
+.tab.stardust .gui-slider-left, .tab.stardust .gui-slider-right {
+	width : 65px;
 }
 
 .hidden {

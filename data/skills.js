@@ -153,7 +153,7 @@ const SKILLS = {
 	},
 	stardust: {
 		name: "Ride the sky",
-		desc: "Use stardust to grow 10% faster for each cloud (not there yet)",
+		desc: "Use stardust to grow 10% faster for each cloud",
 		map : 15,
 		mult : 5,
 		req : ['build2'],
@@ -177,6 +177,15 @@ const SKILLS = {
 		req : ["magic"],
 		exp : 2e10,
 		science : 1.5e6,
+	},
+	buildAutomation: {
+		name : "Built to last",
+		desc : "Unlock building automation",
+		map : 16,
+		mult : 3,
+		exp : 2e10,
+		req : ["management"],
+		science : 2e6
 	},
 	autoTargetDistance: {
 		name: "Far from the end of the world",
@@ -218,15 +227,6 @@ const SKILLS = {
 		mult: 2,
 		science : 7.5e6,
 		exp : 2e10
-	},
-	buildAutomation: {
-		name : "Built to last",
-		desc : "Unlock building automation (not there yet)",
-		map : 18,
-		mult : 3,
-		exp : 2e10,
-		req : ["management"],
-		science : 1e7
 	},
 	pierceResist: {
 		name : "Witchbane", //rename

@@ -39,8 +39,8 @@ const guiSliderHandler = {
 	
 	setValue(value) {
 		this.container[this.value] = value
-		this.update()
-		
+		this.onSet && this.onSet()
+		this.update()		
 		return value
 	},
 	

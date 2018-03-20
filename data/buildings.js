@@ -110,6 +110,25 @@ const BUILDINGS = {//function context == point
 		},
 		iconText : "C",
 		iconColor : "#44CCFF"
+	},
+	manalith : {
+		name : "Black obelisk",
+		desc : "Produces mana",
+		level : 3,
+		cost() {
+			return this.distance < this.map.ownedRadius?1e15:-1
+		},
+		info() {
+			return "Production: " + displayNumber(this.depth * this.map.level / 1000 * (1 + (this.map.ownedRadius - this.distance) / 100))
+		},
+		build() {
+			game.production.mana += this.depth * this.map.level / 1000 * (1 + (this.map.ownedRadius - this.distance) / 100)
+		},
+		destroy() {
+			game.production.mana -= this.depth * this.map.level / 1000 * (1 + (this.map.ownedRadius - this.distance) / 100)
+		},
+		iconText : "M",
+		iconColor : "#113388"
 	}
 }
 

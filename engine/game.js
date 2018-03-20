@@ -68,6 +68,10 @@ const game = {
 				gui.map.updateGrowth()
 			}
 		}
+
+		if (gui.tabs.activeTab == "stardust") {
+			gui.map.updateGrowth()
+		}
 		
 		if (this.updateInterface) {
 			gui.update()
@@ -165,10 +169,29 @@ const game = {
 	},
 	
 	renderCircle(c, radius) {
-		c.fillStyle = gui.theme.magic
+		c.save()
+		c.fillStyle = gui.theme.magicbg
+		c.strokeStyle = gui.theme.magic
+		c.lineWidth = 5
 		c.beginPath()
+		c.moveTo(radius, 0)
 		c.arc(0, 0, radius, 0, 6.29)
 		c.fill()
+		if (radius > 50) {
+			c.moveTo(radius-15, 0)
+			c.arc(0, 0, radius - 15, 0, 6.29)
+			const length = (radius - 7.5) / 10 | 0
+			const step = Math.PI / length
+			let angle = 0
+			for (let i = 0; i < length; i++) {
+				angle += step
+				c.lineTo(radius * Math.cos(angle), radius * Math.sin(angle))
+				angle += step
+				c.lineTo((radius - 15) * Math.cos(angle), (radius - 15) * Math.sin(angle))
+			}
+		}
+		c.stroke()
+		c.restore()
 	},
 	
 	renderMarkers(c) {
@@ -304,14 +327,15 @@ const game = {
 	},
 	
 	autoUpgrade() {
+		const upgradablePoints = this.map.points.filter(x => x.index && x.owned && !x.boss)
 		if (game.skills.automation){
-			let points = this.map.points.filter(x => x.index && x.owned && !x.boss && this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
+			let points = upgradablePoints.filter(x => this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
 			while (points[0] && points[0].costs.levelUp <= this.resources.gold * this.automation.maxCost * 0.01) points.shift().levelUp()
 		}
 		if (game.skills.buildAutomation) {
 			Object.keys(BUILDINGS).map(x => {
 				if (!game.automation.buildings[x]) return
-				this.map.points.map(point => {
+				upgradablePoints.map(point => {
 					if (point.level < BUILDINGS[x].level) return
 					if (point.costs[x] > this.resources.gold || point.costs[x] < 0) return
 					point.build(x)
@@ -392,7 +416,7 @@ const game = {
 		if (!this.real.production) this.real.production = {}
 		
 		Object.keys(this.growth).map(x => {
-			this.real.multi[x] = this.multi[x] * (1 + 0.1 * this.stardust[x] * this.resources.clouds)
+			this.real.multi[x] = this.multi[x] * (1 + 1 * this.stardust[x] * this.resources.clouds)
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
 	},
@@ -497,7 +521,8 @@ const game = {
 		Object.assign(this.automation, {
 			types : [],
 			maxLevel : 0,
-			maxCost : 100
+			maxCost : 100,
+			buildings : {}
 		})
 		this.story = {}
 		this.statistics = {

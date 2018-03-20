@@ -153,7 +153,7 @@ const SKILLS = {
 	},
 	stardust: {
 		name: "Ride the sky",
-		desc: "Use stardust to grow 10% faster for each cloud",
+		desc: "Use stardust to grow elements 100% faster for each cloud",
 		map : 15,
 		mult : 5,
 		req : ['build2'],
@@ -196,14 +196,14 @@ const SKILLS = {
 		exp : 2e10,
 		science : 3e6,
 	},
-	magicGrowthBoost: {
-		name: "Magic forest",
-		desc: "Points growth bonus boosted within magic circle",
-		map : 17,
-		mult : 3,
+	imbuement: {
+		name: "Elements, pt.2",
+		desc: "Use mana to imbue power with element",
 		req : ["magic"],
-		exp : 2e10,
+		map : 17,
+		mult: 2,
 		science : 5e6,
+		exp : 2e10
 	},
 	blood: {
 		name: "Halo of blood",
@@ -219,13 +219,22 @@ const SKILLS = {
 		mult : 2,
 		exp : 2e10,
 	},
-	imbuement: {
-		name: "Elements, pt.2",
-		desc: "Use mana to imbue power with element",
-		req : ["magic"],
+	magicGrowthBoost: {
+		name: "Magic forest",
+		desc: "Elemental growth bonus boosted within magic circle",
 		map : 18,
+		mult : 3,
+		req : ["magic"],
+		exp : 2e10,
+		science : 30e6,
+	},
+	build3: {
+		name: "Tomorrowland",
+		desc: "Unlock level 3 buildings",
+		req : ["build2"],
+		map : 19,
 		mult: 2,
-		science : 7.5e6,
+		science : 100e6,
 		exp : 2e10
 	},
 	pierceResist: {

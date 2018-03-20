@@ -325,7 +325,7 @@ const mapMaker = {
 				owned : false,
 				available : false,
 				parent : farthest[1],
-//				depth : (farthest[1].depth || 0) + 1,
+				depth : (farthest[1].depth || 0) + 1,
 				dx : farthest[1].x - x,
 				dy : farthest[1].y - y,
 				length : Math.hypot(farthest[1].x - x, farthest[1].y - y)
@@ -403,7 +403,7 @@ const mapMaker = {
 				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 3, 500e21).boss = 2
 				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 6, 1e24).boss = 3
 				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 6, 1e24).boss = 3
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 35, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 0, 5e24).boss = 3
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 35, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 0, 1.5e24).boss = 3
 			}
 		}
 
@@ -421,9 +421,9 @@ const mapMaker = {
 		}
 		
 		if (this.level > 12) {
-			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && !x.special && !x.boss))
+			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && x.depth > 2 && !x.special && !x.boss))
 			
-			if (this.level < 15)
+//			if (this.level < 15)
 			for (let i = 0; i < (this.level / 6 | 0) - 1; i++) {
 				const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
 				const colony = points[points.length * Math.random() | 0]
@@ -435,7 +435,7 @@ const mapMaker = {
 					canBlock.delete(point = point.parent)
 			}		
 			
-			for (let i = 0; i < (this.level / 3 | 0) - 1; i++) {
+			for (let i = 0; i < (this.level | 0) - 10; i++) {
 				const point = [...canBlock][canBlock.size * Math.random()|0]
 				point.special = i&1?SPECIAL_RESIST:SPECIAL_BLOCK
 				canBlock.delete(point)

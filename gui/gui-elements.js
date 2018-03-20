@@ -63,7 +63,7 @@ const guiSliderHandler = {
 	},
 	
 	update() {
-		this.dvRunner.innerText = this.forceText || displayNumber(this.getValue(),2)
+		this.dvRunner.innerText = this.forceText || displayNumber(this.getValue(), this.digits)
 		let position = this.forcePosition === undefined?this.getPosition():this.forcePosition
 		this.dvRunner.style.left = ((position * (this.dvLine.offsetWidth - this.dvRunner.offsetWidth)) | 0) + "px"
 	},
@@ -87,6 +87,7 @@ function createGrowthSlider(container, value, parent) {
 		max : 1,
 		min : 0,
 		steps : 20,
+		digits : 2,
 		className : "growth",
 		sliderClass : "bg-"+value
 	})

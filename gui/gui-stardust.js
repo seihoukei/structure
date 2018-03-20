@@ -5,7 +5,7 @@ const StardustTab = Template({
 		this.dvDisplay = createElement("div", "stardust "+(this.className || ""), this.parent)
 		this.dvSliders = createElement("div", "stardust-growth", this.dvDisplay)
 		this.dvGrowthTitle = createElement("div", "stardust-title", this.dvSliders, "Growth boost")
-		this.sliders = POINT_TYPES.slice(1).map(x => {
+		this.sliders = POINT_TYPES.slice(3).map(x => {
 			return GuiSlider({
 				parent : this.dvSliders,
 				container : game.stardust,
@@ -14,6 +14,7 @@ const StardustTab = Template({
 				rightText : game.resources.stardust,
 				max : game.resources.stardust,
 				min : 0,
+				digits : 0,
 				steps : game.resources.stardust,
 				className : "stardust",
 				sliderClass : "bg-"+x,
@@ -21,7 +22,7 @@ const StardustTab = Template({
 					const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
 					const scale = (game.resources.stardust - game.stardust[x]) / otherTotal
 					if (scale < 1) {
-						POINT_TYPES.slice(1).map(y => {
+						POINT_TYPES.slice(3).map(y => {
 							if (y != x) {
 								game.stardust[y] *= scale
 								if (game.stardust[y] < 1e-2)

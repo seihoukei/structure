@@ -36,6 +36,7 @@ const ManagementTab = Template({
 			value : "maxLevel",
 			max : 4,
 			min : 0,
+			digits : 0,
 			steps : 4,
 			className : "automation"
 		})
@@ -52,6 +53,7 @@ const ManagementTab = Template({
 			max : 100,
 			min : 0,
 			steps : 100,
+			digits : 0,
 			className : "automation"
 		})
 		
@@ -146,7 +148,7 @@ const ManagementTab = Template({
 				let visible = game.statistics["built_"+x.id]
 				x.dvDisplay.classList.toggle("visible", !!visible)
 				if (visible)
-					x.dvDisplay.classList.toggle("active", game.automation.buildings[x.id])
+					x.dvDisplay.classList.toggle("active", !!game.automation.buildings[x.id])
 			})
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		

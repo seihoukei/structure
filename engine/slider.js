@@ -429,7 +429,7 @@ const sliderHandler = {
 		
 		if (this.imbuement) {
 			if (game.resources.mana > 1e-6) {
-				this.real.usedMana += Math.log10(this.real.power)
+				this.real.usedMana += Math.log10(this.real.power) ** 4 / 1000
 				this.real[POINT_TYPES[this.imbuement]] += this.real.power
 				this.real.power = 0
 			} else {

@@ -32,7 +32,9 @@ const SkillsTab = Template({
 							(game.resources.exp >= skill.exp * game.skillCostMult) && 
 							(!skill.map || game.map.level >= skill.map) && 
 							(!skill.sliders || game.sliders.length >= skill.sliders) && 
-							(!skill.science || game.resources.science >= skill.science)
+							(!skill.science || game.resources.science >= skill.science) &&
+							(!skill.req || skill.req.reduce((v,x) => v && game.skills[x], true)) &&
+							(!skill.res || skill.res.reduce((v,x) => v && game.resources[x], true))
 			skill.dvDisplay.classList.toggle("available", !!available)
 			if (skill.unknown && skill.science <= game.resources.science) {
 				skill.unknown = false

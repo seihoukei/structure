@@ -1020,6 +1020,10 @@ canvas.foreground : {
 	color : var(--button-active-text);
 }
 
+.management .automation-text {
+	padding : 0 5px 0 0;
+}
+
 .tab.about {
 	padding : 30px;
 }

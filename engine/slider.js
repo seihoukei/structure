@@ -238,7 +238,7 @@ const sliderHandler = {
 			return
 		}
 		
-		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss)).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
+		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || x.getActivePower(this))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
 												(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
 												(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
 												(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||

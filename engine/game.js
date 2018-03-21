@@ -292,6 +292,7 @@ const game = {
 				const depth = this.map.points[0].mineDepth
 				const miners = this.sliders.filter(x => x.target && x.target.index == 0)
 
+				this.production.mana += this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 				this.setMap(Map(mapLevel(this.map.level+1), mapMaker))
 				this.map.points[0].mineDepth = depth
 				miners.map(x => x.assignTarget(this.map.points[0]))

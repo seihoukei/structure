@@ -28,13 +28,13 @@ const BUILDINGS = {//function context == point
 			return this.depth * 1000000
 		},
 		info() {
-			return "Production: " + displayNumber(this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1))
+			return "Production: " + displayNumber(this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?this.map.ownedRadius * (this.map.ownedRadius - this.distance + 1):1))
 		},
 		build() {
-			game.production.science += this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
+			game.production.science += this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?this.map.ownedRadius * (this.map.ownedRadius - this.distance + 1):1)
 		},
 		destroy() {
-			game.production.science -= this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
+			game.production.science -= this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?this.map.ownedRadius * (this.map.ownedRadius - this.distance + 1):1)
 		},
 		iconText : "S",
 		iconColor : "purple",

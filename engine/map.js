@@ -50,9 +50,9 @@ const mapHandler = {
 					c.arc(0, 0, 6 + point.renderSize, 3.1415-an, 3.1415+an)		
 				}
 				if (point.special == SPECIAL_CLONE) {
-					c.moveTo(3 + point.renderSize, 0)
+					c.moveTo(point.renderSize * 1.2, 0)
 					for (let i = 0; i < 19; i++) {
-						c.arc(0, 0, point.renderSize * (i&1?1.4:1.1), 2 * i * 3.1415 / 18, (2 * i+1) * 3.1415/18)
+						c.arc(0, 0, point.renderSize * (i&1?1.5:1.2), 2 * i * 3.1415 / 18, (2 * i+1) * 3.1415/18)
 					}
 				}
 				if (point.special == SPECIAL_RESIST) {
@@ -428,7 +428,6 @@ const mapMaker = {
 				const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
 				const colony = points[points.length * Math.random() | 0]
 				colony.special = SPECIAL_CLONE
-				console.log(colony.depth)
 				canBlock.delete(colony)
 				let point = colony
 				while (point.parent && point.parent.index) 

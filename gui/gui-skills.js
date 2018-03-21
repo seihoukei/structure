@@ -31,7 +31,7 @@ const SkillsTab = Template({
 			let available = !game.skills[skill.id] && 
 							(game.resources.exp >= skill.exp * game.skillCostMult) && 
 							(!skill.map || game.map.level >= skill.map) && 
-							(!skill.sliders || game.sliders.length >= skill.sliders) && 
+							(!skill.sliders || game.sliders.filter(x => !x.clone).length >= skill.sliders) && 
 							(!skill.science || game.resources.science >= skill.science) &&
 							(!skill.req || skill.req.reduce((v,x) => v && game.skills[x], true)) &&
 							(!skill.res || skill.res.reduce((v,x) => v && game.resources[x], true))
@@ -41,8 +41,9 @@ const SkillsTab = Template({
 				skill.dvDesc.innerText = skill.desc
 				skill.dvCost.innerText = game.skills[skill.id]?"Unlocked":"EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + " / x" + (skill.mult || 1)
 			}
-			if (available) 
+			if (available) {
 				total++
+			}
 		})
 		gui.tabs.setTitle("skills", total?"Skills ("+total+")":"Skills")
 	},

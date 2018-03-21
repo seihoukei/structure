@@ -234,7 +234,7 @@ const SKILLS = {
 		map : 18,
 		mult : 3,
 		req : ["magic"],
-		exp : 1e13,
+		exp : 4e12,
 	},
 	build3: {
 		name: "Tomorrowland",

@@ -291,7 +291,7 @@ const pointHandler = {
 			let baseStats = {}
 			let sliders = game.sliders.filter(x => !x.clone)
 			sliders.map(x => {
-				Object.keys(x.stats).map(y => baseStats[y] = (baseStats[y] || 0) + x.stats[y] / sliders.length)
+				Object.keys(x.stats).map(y => baseStats[y] = (y=="power"?(baseStats[y] || 0) + x.stats[y] / sliders.length:0))
 			})
 			game.sliders.push(Slider({
 				stats : baseStats,

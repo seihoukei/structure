@@ -224,6 +224,7 @@ const sliderHandler = {
 		}
 		
 		if (game && game.map && game.real) {
+			this.getReal()
 			if (!this.target)
 				this.autoTarget()
 			this.getReal()
@@ -238,7 +239,7 @@ const sliderHandler = {
 			return
 		}
 		
-		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || x.getActivePower(this))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
+		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || x.real && x.getActivePower(this))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
 												(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
 												(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
 												(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||
@@ -301,7 +302,7 @@ const sliderHandler = {
 	
 	updateFullVisibility() {
 		this.displayStats.map(y => {
-			y.dvDisplay.classList.toggle("hidden",!(game.growth[y.name] || this.stats[y.name]))
+			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && (y.name != "power"))))
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget))

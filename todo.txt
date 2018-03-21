@@ -1,5 +1,4 @@
 Important: 
-- Stardust investition (growth)
 - Notifications (ran out of exp / mana, achievement, offline progress)
 
 ...
@@ -12,7 +11,6 @@ Important:
 
 - Skill : Power ignore spirit
 
-- Buildings : level 2 (+1-2)
 - Buildings : level 3 (2-3)
 - Buildings : level 4 (2-3)
 
@@ -24,11 +22,13 @@ Important:
 - Artifacts (mine depth)
 - Story
 - Achievements
+- Agglomerations (mend captured points into huge growth sources
 
 - Map : Backgrounds
 - Map : Low load mode + setting for auto
 
-- World : Map 20 boss (multi elemental!)
+- World : Map 20 boss (world tree)
+- World break
 
 - Keyboard : ESC - reset target window
 

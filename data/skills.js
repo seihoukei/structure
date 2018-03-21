@@ -101,7 +101,8 @@ const SKILLS = {
 		name: "Kingmaker",
 		desc: "Manage captured points all in one place",
 		req : ['upgradePoints'],
-		map : 12,
+		res : ['science'],
+		map : 9,
 		mult: 1.2,
 		exp : 128600823.0452675,
 		science : 100000
@@ -120,7 +121,6 @@ const SKILLS = {
 		mult: 5, 
 		exp : 1286008230.452675,
 		req : ['upgradePoints'],
-		science : 150000
 	},
 	greed : {
 		name: "Power gold",
@@ -130,7 +130,6 @@ const SKILLS = {
 		exp : 1286008230.452675,
 		req : ['build1'],
 		onGet: () => game.production.gold *= game.map.level ** 2 / 16.9,
-		science : 300000
 	},
 	fear : {
 		name : "Reign of fear",
@@ -140,15 +139,15 @@ const SKILLS = {
 		exp : 98923710034.82115 / 3,
 		req : ['build2'],
 		res : ['fears'],
-		science : 750000
 	},
 	automation: {
 		name : "The grand design",
 		desc : "Unlock point levelup automation",
-		map : 15,
+		map : 9,
 		mult : 3,
 		exp : 12860082304.52675,
 		req : ["management"],
+		res : ['science'],
 		science : 1e6
 	},
 	stardust: {
@@ -159,7 +158,6 @@ const SKILLS = {
 		req : ['build2'],
 		res : ['clouds', 'stardust'],
 		exp : 98923710034.82115 / 3,
-		science : 1200000
 	},
 	magic: {
 		name: "Heroes of mighty magic",
@@ -181,43 +179,54 @@ const SKILLS = {
 	buildAutomation: {
 		name : "Built to last",
 		desc : "Unlock building automation",
-		map : 16,
+		map : 9,
 		mult : 3,
 		exp : 2e10,
 		req : ["management"],
-		science : 2e6
+		res : ['science'],
+		science : 2.5e6
+	},
+	smartAuto: {
+		name: "Walk Away in Silence",
+		desc: "Sliders change target when dealing no damage and avoid such strong points",
+		req : ["autoTargetSelector"],
+		res : ['science'],
+		map : 9,
+		mult : 1.1,
+		exp : 2e10,
+		science : 1e7,
 	},
 	autoTargetDistance: {
 		name: "Far from the end of the world",
 		desc: "Set distance-based priorities for autotargetting",
-		req : ["autoTargetSelector"],
-		map : 17,
+		req : ["smartAuto"],
+		res : ['science'],
+		map : 9,
 		mult : 1.5,
 		exp : 2e10,
-		science : 3e6,
+		science : 1e10,
 	},
 	imbuement: {
 		name: "Elements, pt.2",
 		desc: "Use mana to imbue power with element",
 		req : ["magic"],
 		map : 17,
-		mult: 2,
-		science : 5e6,
-		exp : 2e10
+		mult: 4,
+		exp : 4e12
 	},
 	blood: {
 		name: "Halo of blood",
 		desc: "Blood damage ignores spirit penalty",
 		map : 17,
 		mult : 2,
-		exp : 2e10,
+		exp : 2e11,
 	},
 	metal: {
 		name: "Metal mass",
 		desc: "Metal damage ignores spirit penalty",
 		map : 17,
 		mult : 2,
-		exp : 2e10,
+		exp : 2e11,
 	},
 	magicGrowthBoost: {
 		name: "Magic forest",
@@ -225,8 +234,7 @@ const SKILLS = {
 		map : 18,
 		mult : 3,
 		req : ["magic"],
-		exp : 2e10,
-		science : 30e6,
+		exp : 1e13,
 	},
 	build3: {
 		name: "Tomorrowland",
@@ -234,8 +242,7 @@ const SKILLS = {
 		req : ["build2"],
 		map : 19,
 		mult: 2,
-		science : 100e6,
-		exp : 2e10
+		exp : 1e13
 	},
 	pierceResist: {
 		name : "Witchbane", //rename

@@ -231,7 +231,7 @@ const sliderHandler = {
 	},
 	
 	autoTarget() {
-		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining)) return
+		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && !this.real.attack)) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if (!game.skills.autoTarget || this.atFilter.disabled) {
 			this.assignTarget(null)
@@ -377,6 +377,10 @@ const sliderHandler = {
 		let change = deltaTime / 5
 		if (game.skills.charge)
 			this.charge = Math.max(0, Math.min(1, free?this.charge + change:this.charge - change))
+		
+		if (game.skills.smartAuto && !this.real.attack) {
+			this.autoTarget()
+		}
 	},
 	
 	grow (mul) {

@@ -575,6 +575,7 @@ canvas.foreground : {
 	width : 350px;
 	font-size : 13px;
 	text-align : center;
+	align-self : flex-start;
 	border : 2px solid var(--lightframe);
 	padding : 10px;
 	margin : 10px;

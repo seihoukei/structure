@@ -474,12 +474,15 @@ const game = {
 			this.stardust[x] = save.stardust && save.stardust[x] || 0
 		})
 		
-		this.setMap(Map(save.map, mapLoader))
 		save.saveSkills.map(x => this.skills[x] = 1)
+
+		this.setMap(Map(save.map, mapLoader))
 		this.sliders = save.sliders.map(x => Slider(x))
 
 		this.sliders.map(x => x.target && x.autoTarget())
 
+		this.map.getOwnedRadius()
+		
 		this.update()
 		gui.skills.updateSkills()
 		this.lastSave = performance.now()

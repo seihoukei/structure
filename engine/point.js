@@ -91,7 +91,7 @@ const pointHandler = {
 		Object.values(BUILDINGS).map(x => this.costs[x.id] = x.cost.call(this))
 		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
-			this.bonusMult = game.skills.magicGrowthBoost?Math.max(0, this.map.ownedRadius - this.distance):0
+			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 
 		this.updateDisplay("management", true)
 	},
@@ -148,14 +148,14 @@ const pointHandler = {
 	},
 	
 	suspend() {
-		this.bonusMult = (game.skills.magicGrowthBoost ** this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		if (this.type && this.owned)
 			game.growth[POINT_TYPES[this.type]] -= this.bonus * ((this.bonusMult || 0) + 1)
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy.call(this))
 	},
 	
 	unsuspend() {
-		this.bonusMult = (game.skills.magicGrowthBoost ** this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build.call(this))
 		if (this.type && this.owned)
 			game.growth[POINT_TYPES[this.type]] += this.bonus * ((this.bonusMult || 0) + 1)

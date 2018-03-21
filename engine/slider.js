@@ -302,7 +302,7 @@ const sliderHandler = {
 	
 	updateFullVisibility() {
 		this.displayStats.map(y => {
-			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && (y.name != "power"))))
+			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && !this.stats[y.name])))
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget))
@@ -407,7 +407,7 @@ const sliderHandler = {
 			game.sliders.map(slider => {
 				if (slider == this || slider.clone) return
 				if (slider.channel.includes(n+1))
-					this.real[x] += slider.stats[x]
+					this.real[this.clone?"power":x] += slider.stats[x]
 			})
 			
 			if (this.channel.includes(n+1)) {

@@ -59,7 +59,7 @@ const SkillsTab = Template({
 			skill.dvDisplay.classList.toggle("owned", !!game.skills[skill.id])
 			skill.unknown = skill.science && game.resources.science < skill.science
 			skill.dvDesc.innerText = skill.unknown?"???":skill.desc
-			skill.dvCost.innerText = game.skills[skill.id]?"Unlocked":skill.unknown?"Science: "+skill.science:"EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + " / x" + (skill.mult || 1)
+			skill.dvCost.innerText = game.skills[skill.id]?"Unlocked":skill.unknown?"Science: "+displayNumber(skill.science):"EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + " / x" + (skill.mult || 1)
 		})
 		gui.dvExpMult.innerText = "Cost multiplier: x" + displayNumber(game.skillCostMult)
 	},

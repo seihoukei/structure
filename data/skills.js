@@ -188,8 +188,8 @@ const SKILLS = {
 	},
 	smartAuto: {
 		name: "Walk Away in Silence",
-		desc: "Sliders change target when dealing no damage and avoid such strong points",
-		req : ["autoTargetSelector"],
+		desc: "Sliders change target when dealing no damage and avoid such strong points when autotargetting",
+		req : ["autoTarget"],
 		res : ['science'],
 		map : 9,
 		mult : 1.1,
@@ -199,7 +199,7 @@ const SKILLS = {
 	autoTargetDistance: {
 		name: "Far from the end of the world",
 		desc: "Set distance-based priorities for autotargetting",
-		req : ["smartAuto"],
+		req : ["smartAuto","autoTargetSelector"],
 		res : ['science'],
 		map : 9,
 		mult : 1.5,

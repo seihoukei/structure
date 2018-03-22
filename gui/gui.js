@@ -234,6 +234,10 @@ const gui = {
 		this.tabs.toggleDisplay("skills", game.map.level)
 		this.tabs.toggleDisplay("management", game.skills.management)
 		this.tabs.toggleDisplay("stardust", game.skills.stardust)
+		if (game.skills.stardust) {
+			const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
+			gui.tabs.setTitle("stardust", freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust")
+		}
 //		this.tabs.toggleDisplay("magic", game.skills.magic)
 	},
 	

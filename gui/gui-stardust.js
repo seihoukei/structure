@@ -31,6 +31,8 @@ const StardustTab = Template({
 						})
 						this.sliders.map(y => y.update())
 					}
+					const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
+					gui.tabs.setTitle("stardust", freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust")
 				}
 			})
 		})

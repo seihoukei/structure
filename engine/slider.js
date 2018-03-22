@@ -379,7 +379,7 @@ const sliderHandler = {
 		if (game.skills.charge)
 			this.charge = Math.max(0, Math.min(1, free?this.charge + change:this.charge - change))
 		
-		if (game.skills.smartAuto && !this.real.attack) {
+		if (game.skills.smartAuto && this.target && !this.real.attack) {
 			this.autoTarget()
 		}
 	},

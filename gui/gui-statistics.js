@@ -72,7 +72,7 @@ const STATISTICS = {
 for (let i = 1; i <= POINT_MAX_LEVEL; i++) {
 	STATISTICS["point_level"+i] = {
 		name : "Points up to level "+i,
-		display : (x) => displayNumber(x),
+		display : (x) => x?displayNumber(x):"0",
 		visible : (x) => game.skills.upgradePoints
 	}
 }
@@ -82,7 +82,7 @@ Object.keys(BUILDINGS).map(x => {
 	STATISTICS["built_"+x] = {
 		name : "Built " + building.name,
 		display : (x) => pluralize(x, [" time"," times"]),
-		visible : (x) => game.skills["build"+building.level],
+		visible : (x) => game.skills["build"+building.level] && x,
 	}
 })
 

@@ -437,11 +437,6 @@ const mapMaker = {
 				if (point.parent == this.points[0] && point.type > 2 && this.level < 12 && !point.boss) point.type = 0
 			}
 			
-			this.points.sort((x,y) => x.distance - y.distance)
-			this.points.map((x,n) => x.index = n)
-			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
-			this.restoreState()
-
 			if (this.level == 5) {
 				//dark world
 				for (let n = 0; n <= 5; n++) {
@@ -483,6 +478,11 @@ const mapMaker = {
 					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 35, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 0, 1.5e24).boss = 3
 				}
 			}
+
+			this.points.sort((x,y) => x.distance - y.distance)
+			this.points.map((x,n) => x.index = n)
+			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
+			this.restoreState()
 
 			if (this.level > 5 && this.level % 5 == 1) {
 				const colonyIndex = this.points.length * 0.75 | 0

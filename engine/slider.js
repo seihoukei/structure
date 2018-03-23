@@ -400,6 +400,7 @@ const sliderHandler = {
 		if (!this.real.growth) this.real.growth = {}
 		this.real.usedMana = 0
 		this.real.expChange = 0
+		this.real.imbuement = this.target && this.target.index?this.imbuement:0
 		
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
@@ -430,12 +431,11 @@ const sliderHandler = {
 		this.real.spirit = this.target?this.target.getActiveSpirit(this):this.real.spirit
 		
 		if (game.skills.fear && !this.clone) this.real.power += this.real.spirit * game.resources.fears
-//		if (this.target && this.target.parent && this.target.parent.buildings.obelisk) this.real.spirit *= (this.target.parent.level || 0) + 1
 		
-		if (this.imbuement) {
+		if (this.real.imbuement) {
 			if (game.resources.mana > 1e-6) {
 				this.real.usedMana += Math.log10(this.real.power) ** 4 / 1000
-				this.real[POINT_TYPES[this.imbuement]] += this.real.power
+				this.real[POINT_TYPES[this.real.imbuement]] += this.real.power
 				this.real.power = 0
 			} else {
 				this.imbuements.set(0)

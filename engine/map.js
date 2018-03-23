@@ -192,7 +192,7 @@ const mapHandler = {
 			n++
 		}
 		this.points.map(point => point.suspend())
-		this.ownedRadius = this.points[n]?this.points[n].distance - this.points[n].size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE
+		this.ownedRadius = Math.max(20, this.points[n]?this.points[n].distance - this.points[n].size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE)
 		this.points.map(point => point.unsuspend())
 		
 		return this.ownedRadius
@@ -333,160 +333,228 @@ const mapMaker = {
 			points.push(output)	
 			return output
 		}
-		while (n--) {
-			let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount - n) ** 0.4) * Math.random()).toDigits(3)
-			let angle, spacing
+		if (this.level == 20) {
+			this.ascendCost = 0
+			let m = n/3 | 0
+			while(m--) {
+				const angle = Math.PI * (14 / 12 + Math.random() * 8 / 12 )
+				const size = 30
+				const spacing = 60
+				const type = 2
+				const point = createPoint(this.points, size, angle, spacing, type)
+				point.special = SPECIAL_RESIST
+			}
+			m = n - (n/3 | 0)
+			while(m--) {
+				const angle = Math.PI * (1 / 12 + Math.random() * 10 / 12 )
+				const size = 10
+				const spacing = 40
+				const type = m%4+3
+				const point = createPoint(this.points, size, angle, spacing, type)
+				point.special = m%10?SPECIAL_BLOCK:SPECIAL_CLONE
+			}
+			
+			for(let i = 0; i < 4; i++) {
+				const angle = Math.PI * (14 / 12 + i * 8 / 36)
+				const size = 100
+				const spacing = 120
+				const type = i + 3
+				const point = createPoint(this.points, size, angle, spacing, type, 1e33)
+				point.special = SPECIAL_RESIST				
+				point.key = i + 1
+			}
+
+			let lastPoint = null
+
+			for(let i = 0; i < 4; i++) {
+				const angle = 0
+				const size = 10
+				const spacing = i?12:400
+				const type = 0
+				const point = createPoint(this.points, size, angle, spacing, type, i?5e33:1e33)
+				point.lock = i + 1
+				if (lastPoint)
+					point.parent = lastPoint
+				lastPoint = point
+			}
+			
+			for(let i = 0; i < 10; i++) {
+				const angle = 0
+				const size = 10
+				const spacing = 12
+				const type = 0
+				const point = createPoint(this.points, size, angle, spacing, type, 10e33)
+				point.exit = 1
+				point.parent = lastPoint
+				lastPoint = point
+			}
+
+			{
+				const angle = 0
+				const size = 1000
+				const spacing = 750
+				const type = 1
+				const point = createPoint(this.points, size, angle, spacing, type, 10e33)
+				point.boss = 1
+				point.parent = lastPoint
+				lastPoint = point
+			}
+			this.boss = 1
+			this.points.sort((x,y) => x.distance - y.distance)
+			this.points.map((x,n) => x.index = n)
+			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
+			this.restoreState()
+		} else {
+			while (n--) {
+				let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount - n) ** 0.4) * Math.random()).toDigits(3)
+				let angle, spacing
+				
+				if (this.level == 5) {
+					//dark world 1
+					angle = n * 0.3
+					angle += (angle / 3.1415 | 0) * 3.1415
+					spacing = MAP_MINIMUM_DISTANCE 
+				
+				} else if (this.level == 10) {
+					angle = (n + 1) * 0.3
+					angle += (angle / (3.1415 * (0.4)) | 0) * 3.1415 * (0.6)
+					spacing = MAP_MINIMUM_DISTANCE 
+					
+				} else if (this.level == 15) {
+					angle = ((n - 2) * 2 + ((n - 2) / 3 | 0 % 1)) * Math.PI / 3
+					spacing = MAP_MINIMUM_DISTANCE 
+					
+				} else {
+					angle = (Math.random() * 6.29).toDigits(3)
+					spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
+				}
+				let type = n % 3
+				if (!type && this.level > 5) if ((n / 3 | 0) % 4 == 0) type = 4
+				if (!type && this.level > 10) if ((n / 3 | 0) % 4 == 1) type = 5
+				if (!type && this.level > 15) if ((n / 3 | 0) % 4 == 2) type = 3
+				if (!type && this.level > 15) if ((n / 3 | 0) % 4 == 3) type = 6
+				const point = createPoint(this.points, size, angle, spacing, type)
+				if (point.parent == this.points[0] && point.type > 2 && this.level < 12 && !point.boss) point.type = 0
+			}
 			
 			if (this.level == 5) {
-				//dark world 1
-				angle = n * 0.3
-				angle += (angle / 3.1415 | 0) * 3.1415
-				spacing = MAP_MINIMUM_DISTANCE 
-			
-			} else if (this.level == 10) {
-				angle = (n + 1) * 0.3
-				angle += (angle / (3.1415 * (0.4)) | 0) * 3.1415 * (0.6)
-				spacing = MAP_MINIMUM_DISTANCE 
-				
-			} else if (this.level == 15) {
-				angle = ((n - 2) * 2 + ((n - 2) / 3 | 0 % 1)) * Math.PI / 3
-				spacing = MAP_MINIMUM_DISTANCE 
-				
-			} else {
-				angle = (Math.random() * 6.29).toDigits(3)
-				spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
-			}
-			let type = n % 3
-			if (!type && this.level > 5) if ((n / 3 | 0) % 4 == 0) type = 4
-			if (!type && this.level > 10) if ((n / 3 | 0) % 4 == 1) type = 5
-			if (!type && this.level > 15) if ((n / 3 | 0) % 4 == 2) type = 3
-			if (!type && this.level > 15) if ((n / 3 | 0) % 4 == 3) type = 6
-			const point = createPoint(this.points, size, angle, spacing, type)
-			if (point.parent == this.points[0] && point.type > 2 && this.level < 12 && !point.boss) point.type = 0
-		}
-		
-		if (this.level == 5) {
-			//dark world
-			for (let n = 0; n <= 5; n++) {
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + n ** 2, -1.5708, MAP_MINIMUM_DISTANCE, [0,0,0,2,1,4][n]).boss = 1
-			}
-		}
-						
-		if (this.level == 10) {
-			//dark world
-			for (let n = 0; n <= 3; n++) {
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + ((n >> 1) * 2) ** 2, - Math.PI/4 + Math.PI * (n & 1), MAP_MINIMUM_DISTANCE, 0, this.basePower * (n > 1 ? 25 : 10)).boss = 1
-			}
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, - Math.PI/4 , MAP_MINIMUM_DISTANCE * 1.5, 4, this.basePower * 50).boss = 1
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, - Math.PI/4 + Math.PI/8 , MAP_MINIMUM_DISTANCE, 1, this.basePower * 50).boss = 1
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, - Math.PI/4 - Math.PI/8 , MAP_MINIMUM_DISTANCE, 2, this.basePower * 50).boss = 1
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, 3*Math.PI/4 , MAP_MINIMUM_DISTANCE * 1.5, 4, this.basePower * 50).boss = 1
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, 3*Math.PI/4 + Math.PI/8 , MAP_MINIMUM_DISTANCE, 1, this.basePower * 50).boss = 1
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, 3*Math.PI/4 - Math.PI/8 , MAP_MINIMUM_DISTANCE, 2, this.basePower * 50).boss = 1
-
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 15, - Math.PI/4 , MAP_MINIMUM_DISTANCE, 5, this.basePower * 200).boss = 2
-			createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 15, 3*Math.PI/4 , MAP_MINIMUM_DISTANCE, 5, this.basePower * 200).boss = 2
-		}
-						
-		if (this.level == 15) {
-			//dark world
-			for (let n = 0; n <= 5; n++) {
-				const point1 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 1)
-				point1.boss = 1
-				point1.special = SPECIAL_RESIST
-				const point2 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 6, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 2, 1e21)
-				point2.boss = 1
-				point2.special = SPECIAL_BLOCK
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 7, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 4, 200e21).boss = 1
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 8, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 5, 200e21).boss = 1
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 6, 500e21).boss = 2
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 6, 500e21).boss = 2
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 3, 1e24).boss = 3
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 3, 1e24).boss = 3
-				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 35, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 0, 1.5e24).boss = 3
-			}
-		}
-
-		this.points.sort((x,y) => x.distance - y.distance)
-		this.points.map((x,n) => x.index = n)
-		this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
-		this.restoreState()
-		
-		if (this.level > 5 && this.level % 5 == 1) {
-			const colonyIndex = this.points.length * 0.75 | 0
-			const colony = this.points[colonyIndex]
-			colony.special = SPECIAL_COLONY
-			this.markerIndexes = [colonyIndex]
-			this.markers = [colony]
-		}
-		
-		if (this.level > 12) {
-			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && x.depth > 2 && !x.special && !x.boss))
-			
-//			if (this.level < 15)
-			for (let i = 0; i < (this.level / 6 | 0) - 1; i++) {
-				const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
-				const colony = points[points.length * Math.random() | 0]
-				colony.special = SPECIAL_CLONE
-				canBlock.delete(colony)
-				let point = colony
-				while (point.parent && point.parent.index) 
-					canBlock.delete(point = point.parent)
-			}		
-			
-			for (let i = 0; i < (this.level | 0) - 10; i++) {
-				const point = [...canBlock][canBlock.size * Math.random()|0]
-				point.special = i&1?SPECIAL_RESIST:SPECIAL_BLOCK
-				canBlock.delete(point)
-			}
-		}		
-		
-		let ends = this.points.filter(x => !x.boss && !([...x.children].filter(y => !y.boss).length))
-		ends = ends.slice(Math.floor(ends.length / 2))
-		this.size = ends.reduce((v,x) => v + x.distance, 0)/ends.length
-		let sorted = [...this.points].filter(x => !x.boss).sort((x,y) => (y.depth * 5 - y.children.size * 100) - (x.depth * 5 - x.children.size * 100))
-		sorted.slice(0,this.exitsCount).map((pt,n) => pt.exit = true)
-		let free = new Set(sorted.filter(x => !x.exit && !x.boss))
-		
-		let clonePoint = this.points.filter(x => x.special == SPECIAL_CLONE).sort((x,y) => x.depth - y.depth)[0]
-		while (clonePoint && clonePoint.parent && clonePoint.parent.index) {
-			free.delete(clonePoint)
-			clonePoint = clonePoint.parent
-		}
-		
-		for (let k = 0; k < this.level; k++) {
-			let point1 = [...free][Math.floor(Math.random() * free.size)]
-			free.delete(point1)
-			let possible = new Set([...free].filter(x => x.depth > 1 && x.children.size && x.depth > point1.depth - 3 && !x.parents.has(point1)))
-			let point = point1
-			let clearPossible = (point) => {
-				while (point.parent && point.parent.index) {
-					point = point.parent
-					possible.delete(point)
-					if (point.lock) clearPossible(this.points.filter(x => x.key == point.lock)[0])
+				//dark world
+				for (let n = 0; n <= 5; n++) {
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + n ** 2, -1.5708, MAP_MINIMUM_DISTANCE, [0,0,0,2,1,4][n]).boss = 1
 				}
 			}
-			clearPossible(point)
-			let point2 = [...possible][Math.floor(Math.random() * possible.size)]
-			if (!point2) {
-				k--
-				continue
+							
+			if (this.level == 10) {
+				//dark world
+				for (let n = 0; n <= 3; n++) {
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + ((n >> 1) * 2) ** 2, - Math.PI/4 + Math.PI * (n & 1), MAP_MINIMUM_DISTANCE, 0, this.basePower * (n > 1 ? 25 : 10)).boss = 1
+				}
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, - Math.PI/4 , MAP_MINIMUM_DISTANCE * 1.5, 4, this.basePower * 50).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, - Math.PI/4 + Math.PI/8 , MAP_MINIMUM_DISTANCE, 1, this.basePower * 50).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, - Math.PI/4 - Math.PI/8 , MAP_MINIMUM_DISTANCE, 2, this.basePower * 50).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, 3*Math.PI/4 , MAP_MINIMUM_DISTANCE * 1.5, 4, this.basePower * 50).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, 3*Math.PI/4 + Math.PI/8 , MAP_MINIMUM_DISTANCE, 1, this.basePower * 50).boss = 1
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, 3*Math.PI/4 - Math.PI/8 , MAP_MINIMUM_DISTANCE, 2, this.basePower * 50).boss = 1
+	
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 15, - Math.PI/4 , MAP_MINIMUM_DISTANCE, 5, this.basePower * 200).boss = 2
+				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 15, 3*Math.PI/4 , MAP_MINIMUM_DISTANCE, 5, this.basePower * 200).boss = 2
 			}
-			free.delete(point2)
-			point1.key = k+1
-			point2.lock = k+1
-		}
-		let modified = true
-		while (modified) {
-			modified = false
-			this.points.map (point => {
-				if (point.key || point.lock || point.exit || point.boss || !point.parent || !point.parent.key) return
-				let lock = this.points.filter(x => x.lock == point.parent.key)[0]
-				if (lock.depth  + 3 < point.depth) return
-				point.key = point.parent.key
-				delete point.parent.key
-				modified = true
-			})
+							
+			if (this.level == 15) {
+				//dark world
+				for (let n = 0; n <= 5; n++) {
+					const point1 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 1)
+					point1.boss = 1
+					point1.special = SPECIAL_RESIST
+					const point2 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 6, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 2, 1e21)
+					point2.boss = 1
+					point2.special = SPECIAL_BLOCK
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 7, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 4, 200e21).boss = 1
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 8, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 5, 200e21).boss = 1
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 6, 500e21).boss = 2
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 9, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 6, 500e21).boss = 2
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/12+ Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 3, 1e24).boss = 3
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 10, Math.PI/4 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 1.5, 3, 1e24).boss = 3
+					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 35, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE * 2, 0, 1.5e24).boss = 3
+				}
+			}
+
+			if (this.level > 5 && this.level % 5 == 1) {
+				const colonyIndex = this.points.length * 0.75 | 0
+				const colony = this.points[colonyIndex]
+				colony.special = SPECIAL_COLONY
+				this.markerIndexes = [colonyIndex]
+				this.markers = [colony]
+			}
+			
+			if (this.level > 12) {
+				const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && x.depth > 2 && !x.special && !x.boss))
+				
+//				if (this.level < 15)
+				for (let i = 0; i < (this.level / 6 | 0) - 1; i++) {
+					const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
+					const colony = points[points.length * Math.random() | 0]
+					colony.special = SPECIAL_CLONE
+					canBlock.delete(colony)
+					let point = colony
+					while (point.parent && point.parent.index) 
+						canBlock.delete(point = point.parent)
+				}		
+				
+				for (let i = 0; i < (this.level | 0) - 10; i++) {
+					const point = [...canBlock][canBlock.size * Math.random()|0]
+					point.special = i&1?SPECIAL_RESIST:SPECIAL_BLOCK
+					canBlock.delete(point)
+				}
+			}		
+			
+			let ends = this.points.filter(x => !x.boss && !([...x.children].filter(y => !y.boss).length))
+			ends = ends.slice(Math.floor(ends.length / 2))
+			this.size = ends.reduce((v,x) => v + x.distance, 0)/ends.length
+			let sorted = [...this.points].filter(x => !x.boss).sort((x,y) => (y.depth * 5 - y.children.size * 100) - (x.depth * 5 - x.children.size * 100))
+			sorted.slice(0,this.exitsCount).map((pt,n) => pt.exit = true)
+			let free = new Set(sorted.filter(x => !x.exit && !x.boss))
+			
+			let clonePoint = this.points.filter(x => x.special == SPECIAL_CLONE).sort((x,y) => x.depth - y.depth)[0]
+			while (clonePoint && clonePoint.parent && clonePoint.parent.index) {
+				free.delete(clonePoint)
+				clonePoint = clonePoint.parent
+			}
+			
+			for (let k = 0; k < this.level; k++) {
+				let point1 = [...free][Math.floor(Math.random() * free.size)]
+				free.delete(point1)
+				let possible = new Set([...free].filter(x => x.depth > 1 && x.children.size && x.depth > point1.depth - 3 && !x.parents.has(point1)))
+				let point = point1
+				let clearPossible = (point) => {
+					while (point.parent && point.parent.index) {
+						point = point.parent
+						possible.delete(point)
+						if (point.lock) clearPossible(this.points.filter(x => x.key == point.lock)[0])
+					}
+				}
+				clearPossible(point)
+				let point2 = [...possible][Math.floor(Math.random() * possible.size)]
+				if (!point2) {
+					k--
+					continue
+				}
+				free.delete(point2)
+				point1.key = k+1
+				point2.lock = k+1
+			}
+			let modified = true
+			while (modified) {
+				modified = false
+				this.points.map (point => {
+					if (point.key || point.lock || point.exit || point.boss || !point.parent || !point.parent.key) return
+					let lock = this.points.filter(x => x.lock == point.parent.key)[0]
+					if (lock.depth  + 3 < point.depth) return
+					point.key = point.parent.key
+					delete point.parent.key
+					modified = true
+				})
+			}
 		}
 		this.restoreState()
 	},

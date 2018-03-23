@@ -712,6 +712,22 @@ canvas.foreground : {
 	cursor : pointer;
 }
 
+.gui-picker .all {
+	display : flex;
+	width : 40px;
+	height : 20px;
+	margin : 0 2px;
+	align-items : center;
+	justify-content : center;
+	border : 1px solid var(--darkframe);
+	cursor : pointer;
+	transition : background-color 0.2s;
+}
+
+.gui-picker .all:hover {
+	background-color : var(--shade12);
+}
+
 .gui-slider {
 	display : flex;
 	width : 350px;
@@ -1172,6 +1188,18 @@ canvas.foreground : {
 
 .tab.stardust .gui-slider-left, .tab.stardust .gui-slider-right {
 	width : 65px;
+}
+
+.tab.stardust  .button.equal {
+	padding : 10px;
+	margin : 10px 0 0 0;
+	border : 2px solid var(--lightframe);
+	cursor : pointer;
+	transition : background-color 0.2s;
+}
+
+.tab.stardust .button.equal:hover {
+	background-color : var(--shade12);
 }
 
 .hidden {

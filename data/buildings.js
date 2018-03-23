@@ -129,6 +129,44 @@ const BUILDINGS = {//function context == point
 		},
 		iconText : "M",
 		iconColor : "#113388"
+	},
+	powerTower : {
+		name : "The ivory tower",
+		desc : "Produces power equal to growth",
+		level : 3,
+		cost() {
+			return this.children.size?-1:this.power ** 0.5
+		},
+		info() {
+			return "Production: " + displayNumber(this.bonus * ((this.bonusMult || 0) + 1))
+		},
+		build() {
+			game.growth["power"] += this.bonus * ((this.bonusMult || 0) + 1)
+		},
+		destroy() {
+			game.growth["power"] -= this.bonus * ((this.bonusMult || 0) + 1)
+		},
+		iconText : "P",
+		iconColor : "#888833"
+	},
+	spiritTower : {
+		name : "Tower of infinity",
+		desc : "Produces spirit equal to growth",
+		level : 3,
+		cost() {
+			return this.children.size?this.power ** 0.5:-1
+		},
+		info() {
+			return "Production: " + displayNumber(this.bonus * ((this.bonusMult || 0) + 1))
+		},
+		build() {
+			game.growth["spirit"] += this.bonus * ((this.bonusMult || 0) + 1)
+		},
+		destroy() {
+			game.growth["spirit"] -= this.bonus * ((this.bonusMult || 0) + 1)
+		},
+		iconText : "S",
+		iconColor : "#338833"
 	}
 }
 

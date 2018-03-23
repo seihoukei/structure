@@ -20,15 +20,24 @@ const StardustTab = Template({
 				sliderClass : "bg-"+x,
 				onSet : () => {
 					const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
-					const scale = (game.resources.stardust - game.stardust[x]) / otherTotal
+					let otherDust = game.resources.stardust - game.stardust[x]
+					const scale = otherDust / otherTotal
 					if (scale < 1) {
 						POINT_TYPES.slice(3).map(y => {
 							if (y != x) {
 								game.stardust[y] *= scale
-								if (game.stardust[y] < 1e-2)
-									game.stardust[y] = 0
+								game.stardust[y] |= 0
+								otherDust -= game.stardust[y]
 							}
 						})
+						if (otherDust > 0) {
+							POINT_TYPES.slice(3).map(y => {
+								if (y != x && otherDust) {
+									otherDust--
+									game.stardust[y]++
+								}
+							})						
+						}
 						this.sliders.map(y => y.update())
 					}
 					const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
@@ -36,6 +45,20 @@ const StardustTab = Template({
 				}
 			})
 		})
+		this.dvEqual = createElement("div", "equal button", this.dvSliders, "Spread equally")
+		this.dvEqual.onclick = (event) => {
+			let number = POINT_TYPES.slice(3).reduce((v,x) => v + (game.growth[x]?1:0), 0)
+			let whole = game.resources.stardust / number | 0
+			let fract = game.resources.stardust % number
+			POINT_TYPES.slice(3).map(x => {
+				if (game.growth[x]) {
+					game.stardust[x] = whole + (fract?1:0)
+					fract = fract?fract-1:0
+				}
+			})
+			this.sliders.map(y => y.update())
+			gui.tabs.setTitle("stardust", "Stardust")
+		}
 	},
 	
 	onSet() {

@@ -148,6 +148,18 @@ const singlePickerHandler = {
 }
 
 const multiPickerHandler = {
+	_init() {
+		this.dvAll = createElement("div", "all", this.dvDisplay, "All")
+		this.dvAll.onclick = (event) => {
+			const visibles = this.attributes.filter((x, n) => !this.attributeVisible || this.attributeVisible(x.name, n))
+			if (this.container[this.value].length < visibles.length) {
+				visibles.map(x => this.set(x.index))
+			} else {
+				this.reset()
+			}
+		}
+	},
+	
 	switch(n) {
 		if (this.container[this.value].includes(n))
 			this.unset(n)

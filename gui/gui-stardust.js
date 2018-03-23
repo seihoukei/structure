@@ -45,7 +45,7 @@ const StardustTab = Template({
 				}
 			})
 		})
-		this.dvEqual = createElement("div", "equal button", this.dvSliders, "Spread equally")
+		this.dvEqual = createElement("div", "equal button", this.dvSliders, "Distribute equally")
 		this.dvEqual.onclick = (event) => {
 			let number = POINT_TYPES.slice(3).reduce((v,x) => v + (game.growth[x]?1:0), 0)
 			let whole = game.resources.stardust / number | 0

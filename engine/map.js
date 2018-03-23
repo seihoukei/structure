@@ -437,6 +437,11 @@ const mapMaker = {
 				if (point.parent == this.points[0] && point.type > 2 && this.level < 12 && !point.boss) point.type = 0
 			}
 			
+			this.points.sort((x,y) => x.distance - y.distance)
+			this.points.map((x,n) => x.index = n)
+			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
+			this.restoreState()
+
 			if (this.level == 5) {
 				//dark world
 				for (let n = 0; n <= 5; n++) {
@@ -555,8 +560,8 @@ const mapMaker = {
 					modified = true
 				})
 			}
+			this.restoreState()
 		}
-		this.restoreState()
 	},
 }
 

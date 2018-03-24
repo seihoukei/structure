@@ -125,6 +125,7 @@ let timeStringCodes = [{
 },{
 	name : ["week","weeks"]
 }]
+	
 function timeString(t = 0, start = 1) {
 	let step = 0
 	let value
@@ -147,6 +148,49 @@ function timeString(t = 0, start = 1) {
 		step++
 	}
 	return result
+}
+
+let shortTimeStringCodes = [{
+	divisor : 60,
+	name : "s"
+},{
+	divisor : 60,
+	name : "m"
+},{
+	divisor : 24,
+	name : "h"
+},{
+	divisor : 7,
+	name : "d"
+},{
+	name : "w"
+}]
+const shortTimeResult = []
+	
+function shortTimeString(t = 0, start = 0, length = 2) {
+	let step = 0
+	let value
+	shortTimeResult.length = 0
+	
+	if (t == Infinity || t == -Infinity) return "No damage dealt"
+	
+	for (let timeCode of shortTimeStringCodes) {
+		if (t == 0 && step > start) 
+			break
+		
+		if (timeCode.divisor) {
+			value = ~~(t % timeCode.divisor)
+			t = ~~(t /  timeCode.divisor)
+		} else {
+			value = ~~(t)
+		}
+		
+		if (step >= start && value) 
+			shortTimeResult.unshift(value + timeCode.name)
+		
+		step++
+	}
+	return shortTimeResult.slice(0, length).join(" ")
 }
 
 const displayValueTempLength = 5, displayValueRoundFix = 0.4999999 / 10 ** displayValueTempLength

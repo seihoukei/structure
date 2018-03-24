@@ -328,7 +328,7 @@ const pointInfoDisplayHandler = {
 		this.dvInfo1.innerText = this.point.index?(
 									"Type: " + knownType + "\n" + 
 									"Power: " + ((this.point.locked == 1)?"unknown":displayNumber(this.point.power)) + "\n" +
-									"Distance: " + (this.point.length || 0).toFixed(3)
+									(this.point.real.loss?"Rough ETA: " + shortTimeString(this.point.real.defence / this.point.real.loss):"")
 								):!game.skills.mining?"The starting point":"Golden mine\n" +
 									"Depth: " + displayNumber(this.point.mineDepth || 0) + "\n"
 		if (this.point.index && this.point.away && this.point.locked != 1) {

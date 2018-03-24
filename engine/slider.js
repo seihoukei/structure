@@ -445,6 +445,7 @@ const sliderHandler = {
 		this.real.attack = this.target?this.target.getActivePower(this):0
 		
 		this.real.attackTarget = gui.target.point?gui.target.point.getActivePower(this):0
+		if (this.target && this.target.real) this.target.real.loss += this.real.attack
 	},
 	
 	toJSON() {

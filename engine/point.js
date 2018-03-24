@@ -424,6 +424,7 @@ const pointHandler = {
 		if (!this.real) this.real = {}
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
+		this.real.loss = 0
 	},
 	
 	destroyDisplays() {

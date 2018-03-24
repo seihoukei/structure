@@ -16,6 +16,11 @@ const AboutTab = Template({
 		this.dvFallback = createElement("div", "credits", this.dvDisplay, "Fallback unicode font : 'Symbola' by George Douros")
 		this.dvChangelog = createElement("div", "changelog", this.dvDisplay, `Changelog
 		
+		-- 0.0.2 -- 24 March 2018 --
+		- Content up to Map level 20
+		- Rough ETA display
+		- Proper dark theme
+		
 		-- 0.0.1 -- 15 March 2018 --
 		- The first public release... I guess?
 		`)

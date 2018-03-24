@@ -253,7 +253,7 @@ const sliderHandler = {
 		}
 		
 		this.assignTarget(SELECTORS[this.atSelector](points))
-		if (this.target) game.iterations = 100
+		if (this.target) game.iterations = 25000
 	},
 	
 	setColor(color) {

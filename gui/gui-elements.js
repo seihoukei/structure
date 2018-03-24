@@ -334,8 +334,8 @@ const pointInfoDisplayHandler = {
 		if (this.point.index && this.point.away && this.point.locked != 1) {
 			let width = this.dvInfo2.offsetWidth
 			this.dvInfo2.style.backgroundPosition = "0 0, "+Math.round((width * ((this.point.progress || 0) - 1) / 2)) +"px 0"
-			this.dvInfo2.innerText = "Remaining defence: " + displayNumber(this.point.real.defence) + "\n" +
-									"Local power: " + displayNumber(this.point.real.localPower) + "\n" + 
+			this.dvInfo2.innerText = "Barrier: " + displayNumber(this.point.real.defence) + "\n" +
+									"Barrier power: " + displayNumber(this.point.real.localPower) + "\n" + 
 									"Progress: " + (this.point.progress * 100 || 0).toFixed(3) + "%"
 		} else if (this.point.locked == 1) {
 			let width = this.dvInfo2.offsetWidth

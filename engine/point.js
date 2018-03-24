@@ -250,11 +250,21 @@ const pointHandler = {
 	capture(slider) {
 		let attackers = [...this.attackers] //game.sliders.filter(x => x.target == this)
 
-		game.iterations = 100
+		game.iterations = 25000
 		
 		game.unlockStory("type_"+POINT_TYPES[this.type])
-		game.unlockStory("special_"+this.special)
+		if (this.special)
+			game.unlockStory("special_"+this.special)
+
+		if (this.exit)
+			game.unlockStory("special_star")
 		
+		if (this.key) 
+			game.unlockStory(game.story.special_lock?"special_lock_key":"special_key")
+		
+		if ([...this.children].filter(x => x.lock).length) 
+			game.unlockStory(game.story.special_key?"special_key_lock":"special_lock")
+
 		this.owned = true
 		for (let child of this.children) 
 			child.available = true
@@ -289,6 +299,8 @@ const pointHandler = {
 		if (this.exit) {
 			game.resources.stars++
 			game.addStatistic("stars")
+			if (game.resources.stars >= this.map.ascendCost)
+				game.unlockStory("m"+this.map.level.digits(3)+"_enough")
 		}
 		if (this.special == SPECIAL_CLONE) {
 			let baseStats = {}

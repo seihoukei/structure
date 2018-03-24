@@ -349,13 +349,16 @@ const game = {
 	},
 	
 	timeStep(time) {
-		this.iterations = 100
+		this.iterations = 25000
+		let totalIterations = 100000
 		while (time > 1e-6) {
 			this.iterations--
+			if (!--totalIterations)
+				this.iterations = 0
 		
 			const manaTime = (!this.resources.mana || this.real.production.mana >= 0) ? time : -(this.resources.mana / this.real.production.mana)
 			const expTime = (!this.resources.exp || this.real.production.exp >= 0) ? time : -(this.resources.exp / this.real.production.exp)
-			const deltaTime = this.iterations?Math.min(this.iterations < 50?this.iterations < 20?100:10:1, time, manaTime, expTime):time
+			const deltaTime = this.iterations?Math.min(this.iterations < 50?this.iterations < 20?1:0.5:0.1, time, manaTime, expTime):time
 						
 			const mul = deltaTime / 2
 			this.sliders.map(slider => slider.grow(mul))

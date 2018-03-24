@@ -233,7 +233,7 @@ const game = {
 	
 	unlockStory(x) {
 		if (!x || game.story[x]) return
-		game.story[x] = (this.statistics.onlineTime || 0) + (this.statistics.offlineTime || 0)
+		game.story[x] = Math.round((this.statistics.onlineTime || 0) + (this.statistics.offlineTime || 0))
 		if (gui.tabs.activeTab == "story") {
 			gui.story.updateStory()
 		}
@@ -286,6 +286,9 @@ const game = {
 					this.resources.stars = foundStars - this.map.ascendCost
 				}
 				if (game.map.complete) game.addStatistic("comleted_maps")
+				
+				this.animatingPoints.clear()
+				animations.reset()
 					
 				this.sliders.filter(x => x.clone).map (x => x.destroy())
 				this.sliders = this.sliders.filter (x => !x.clone)
@@ -444,6 +447,9 @@ const game = {
 		delete o.animatingPoints
 		delete o.real
 		delete o.renderData
+		delete o.offline
+		delete o.iterations
+		delete o.updateInterface
 		return o
 	},
 	

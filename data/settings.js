@@ -129,6 +129,27 @@ const SETTINGS = {
 			game.updateBackground = true
 		}
 	},
+	storyDisplay : {
+		group : "Story",
+		displayName : "Pop-up display",
+		default : 1,
+		choices : [{
+			text : "Everything",
+			value : 0
+		},{
+			text : "Main story",
+			value : 1
+		},{
+			text : "Mechanics-related only",
+			value : 2
+		},{
+			text : "Nothing",
+			value : 3
+		}],
+		onSet () {
+			game.updateBackground = true
+		}
+	},
 }
 
 Object.keys(SETTINGS).map(x => {

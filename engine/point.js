@@ -252,6 +252,9 @@ const pointHandler = {
 
 		game.iterations = 100
 		
+		game.unlockStory("type_"+POINT_TYPES[this.type])
+		game.unlockStory("special_"+this.special)
+		
 		this.owned = true
 		for (let child of this.children) 
 			child.available = true
@@ -310,7 +313,7 @@ const pointHandler = {
 				this.map.markerIndexes.splice(i, 1)
 				this.map.markers.splice(i, 1)
 			}
-			game.unlockStory("s"+game.sliders.length.digits(2)+"_join")
+			game.unlockStory("s"+game.sliders.filter(x => !x.clone).length.digits(2)+"_join")
 		}
 		if (this.special == SPECIAL_RESIST) {
 			game.addStatistic("special_resists")

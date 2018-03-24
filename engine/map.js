@@ -291,6 +291,7 @@ const mapMaker = {
 			available : true,
 		}))
 		function createPoint(points, size, angle, spacing, type, customPower) {
+			angle = angle.toDigits(3)
 			let c = Math.cos(angle)
 			let s = Math.sin(angle)
 			let r = (size + spacing)

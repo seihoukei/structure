@@ -190,7 +190,7 @@ function shortTimeString(t = 0, start = 0, length = 2) {
 		
 		step++
 	}
-	return shortTimeResult.slice(0, length).join(" ")
+	return shortTimeResult.slice(0, length).join(" ") || "<1s"
 }
 
 const displayValueTempLength = 5, displayValueRoundFix = 0.4999999 / 10 ** displayValueTempLength

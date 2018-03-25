@@ -174,7 +174,16 @@ const SKILLS = {
 		mult : 3,
 		req : ["magic"],
 		exp : 2e10,
-		science : 1.5e6,
+	},
+	smartHome: {
+		name: "Home at Last",
+		desc: "Sliders unable to find a target go to mine automatically",
+		req : ["autoTarget"],
+		res : ['science'],
+		map : 9,
+		mult : 1.1,
+		exp : 2e10,
+		science : 1.75e6,
 	},
 	buildAutomation: {
 		name : "Built to last",
@@ -189,7 +198,7 @@ const SKILLS = {
 	smartAuto: {
 		name: "Walk Away in Silence",
 		desc: "Sliders change target when dealing no damage and avoid such strong points when autotargetting",
-		req : ["autoTarget"],
+		req : ["autoTarget", "mining"],
 		res : ['science'],
 		map : 9,
 		mult : 1.1,
@@ -235,6 +244,14 @@ const SKILLS = {
 		mult : 3,
 		req : ["magic"],
 		exp : 4e12,
+	},
+	gild: {
+		name: "Golden Dawn",
+		desc: "Sliders produce gold by fighting and spending mana",
+		map : 18,
+		mult : 1.5,
+		req : ["magic"],
+		exp : 2e12,
 	},
 	build3: {
 		name: "Tomorrowland",

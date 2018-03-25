@@ -490,13 +490,13 @@ canvas.foreground : {
 	pointer-events : none;
 }
 
-.tab.sliders, .tab.skills, .tab.management {
+.tab.sliders, .tab.story, .tab.skills, .tab.management {
 	display : flex;
 	flex-direction : column;
 	overflow : hidden;
 }
 
-.tab.sliders .sliders, .tab.skills .skills {
+.tab.story .records, .tab.sliders .sliders, .tab.skills .skills {
 	overflow : auto;
 	overflow-x : hidden;
 	display : flex;
@@ -1039,6 +1039,128 @@ canvas.foreground : {
 
 .management .automation-text {
 	padding : 0 5px 0 0;
+}
+
+.tab.story .records {
+	align-content : flex-start;
+}
+
+.records .record {
+	width : 100%;
+	display : flex;
+	flex-direction : column;
+	align-items : center;
+	justify-content : center;
+	padding-top : 10px;
+	margin-top : -10px;
+}
+
+.records .record .title:not(:empty) {
+	text-align : left;
+	padding : 20px;
+	font-size : larger;
+	width : 700px;
+	background-color : var(--shade12)
+}
+
+.records .record .text:not(:empty) {
+	text-align : left;
+	padding : 10px;
+	margin : 0 50px 0 10px;
+	background-color : var(--shade14);
+	width : 600px;
+	text-indent : 30px;
+}
+
+.records .record .guide:not(:empty) {
+	text-align : left;
+	padding : 0 10px;
+	margin : 0 50px 0 10px;
+	background-color : var(--shade14);
+	font-size : smaller;
+	color : var(--shade5);
+	width : 600px;
+	text-indent : 30px;
+}
+
+.records .record .time:not(:empty) {
+	padding : 10px;
+	margin : 0 50px 10px 10px;
+	background-color : var(--shade13);
+	width : 600px;
+	text-align : right;
+}
+
+.records .record.unread {
+	background-color : var(--shade11);
+}
+
+.popup {
+	z-index : 10;
+	position : absolute;
+	width : 100%;
+	height : 100%;
+	background-color : rgba(0,0,0,0.3);
+}
+
+.popup .frame {
+	position : absolute;
+	left : calc(50% - 385px);
+	width : 770px;
+	top : calc(10% - 10px);
+	max-height : 80%;
+	display : flex;
+	flex-direction : column;
+	align-items : center;
+	align-content : flex-start;
+	justify-content : center;
+	overflow-y : hidden;
+	background-color : var(--background);
+	text-align : center;
+	border : 2px solid var(--darkframe);
+}
+
+.popup .frame .title {
+	color : var(--shade2);
+	font-size : 30px;
+}
+
+.popup .frame .button {
+	display : inline-block;
+	color : var(--shade2);
+	font-size : 20px;
+	padding : 10px;
+	margin : 10px;
+	border : 2px solid var(--lightframe);
+	cursor : pointer;
+	transition : background-color 0.2s;
+}
+
+.popup .frame .button:hover {
+	background-color : var(--shade12);
+}
+
+.popup .frame .hint {
+	color : var (--shade8);
+	font-size : smaller;
+}
+
+.popup .records {
+	flex-grow : 999;
+	margin : 20px;
+	overflow-y : auto;
+	overflow-x : hidden;
+	height : calc(80% - 300px);
+	background-color : var(--background);
+}
+
+.popup .records .record {
+	display : none;
+}
+
+.popup .records .record.unread {
+	display : flex;
+	background-color : inherit;
 }
 
 .tab.about {

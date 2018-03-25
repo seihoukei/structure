@@ -158,9 +158,18 @@ const SETTINGS = {
 			text : "Nothing",
 			value : 3
 		}],
-		onSet () {
-			game.updateBackground = true
-		}
+	},
+	storyTime : {
+		group : "Story",
+		displayName : "Story timing",
+		default : 60,
+		choices : [{
+			text : "World time",
+			value : 60
+		},{
+			text : "Game time",
+			value : 1
+		}],
 	},
 }
 

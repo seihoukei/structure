@@ -56,7 +56,7 @@ const STORY = {
 		forced : 0,
 		title : "Log record #0001",
 		text : `
-			Straight out of hell. That thing must have come straight out of hell, I tell ya. That reverse piramyd thingy hit the Moon and fell apart like a Millenium puzzle! Honestly, the pieces looked harmless. Except we could not get close to them. Scientists were spitting out some mumbo-jumbo about falling through space and time that did not make much sense, and in the end we did not make any progress towards it.
+			Straight out of hell. That thing must have come straight out of hell, I tell ya. That reverse pyramid thingy hit the Moon and fell apart like a Millenium puzzle! Honestly, the pieces looked harmless. Except we could not get close to them. Scientists were spitting out some mumbo-jumbo about falling through space and time that did not make much sense, and in the end we did not make any progress towards it.
 			However, that thing.. whatever it is... it was slowly making its progress towards us. It took us some time to notice. The flight times were off. The long-term forecasts were getting less and less accurate. The distances... became inconsistent. Soon, we were able to track some lines where anomalies happened. We figured out the pattern. We saw it before. The pieces of that thing on the moon were casting their evl shadow onto Earth.
 		`,
 	},

@@ -5,7 +5,7 @@ const AboutTab = Template({
 		this.dvDisplay = createElement("div", "about "+(this.className || ""), this.parent)
 		this.dvGameTitle = createElement("div", "title", this.dvDisplay, "Structure")
 		this.dvSubtitle = createElement("div", "subtitle", this.dvDisplay, "The incremental game")
-		this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.2 -- 24 March 2018")
+		this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.3 -- 26 March 2018")
 		this.dvAuthor = createElement("div", "author", this.dvDisplay, "by seihoukei")
 		this.dvLinks = createElement("div", "links", this.dvDisplay)
 		this.dvDiscord = createElement("div", "link", this.dvLinks, "TBA: Discord link")
@@ -13,8 +13,12 @@ const AboutTab = Template({
 		this.dvReddit = createElement("div", "link", this.dvLinks, "TBA: Subreddit link")
 		this.dvReddit.innerHTML = "<a href='https://www.reddit.com/r/structure_idle/'>Reddit</a>"
 		this.dvWiki = createElement("div", "link", this.dvLinks, "TBA: Wiki link")
+		this.dvWiki.innerHTML = "<a href='https://www.reddit.com/r/structure_idle/wiki/'>Wiki</a>"
 		this.dvFallback = createElement("div", "credits", this.dvDisplay, "Fallback unicode font : 'Symbola' by George Douros")
 		this.dvChangelog = createElement("div", "changelog", this.dvDisplay, `Changelog
+		
+		-- 0.0.3 -- 26 March 2018 --
+		- Story is up!
 		
 		-- 0.0.2 -- 24 March 2018 --
 		- Content up to Map level 20

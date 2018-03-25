@@ -270,7 +270,7 @@ function displayNumber(value, digits = -1, minimum = 1e-308) {
 }
 
 function storyTime(n) {
-	return timeString(n)
+	return timeString(n * settings.storyTime)
 }
 
 const superScripts = "⁰¹²³⁴⁵⁶⁷⁸⁹"

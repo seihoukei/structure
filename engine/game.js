@@ -26,6 +26,7 @@ const game = {
 	},
 	renderData: {},
 	story : {},
+	lastViewedStory : 0,
 	lastSave : performance.now(),
 	
 	updateRenderData() {	
@@ -234,9 +235,9 @@ const game = {
 	unlockStory(x) {
 		if (!x || game.story[x]) return
 		game.story[x] = Math.round((this.statistics.onlineTime || 0) + (this.statistics.offlineTime || 0))
-		if (gui.tabs.activeTab == "story") {
-			gui.story.updateStory()
-		}
+		gui.story.updateStory()
+		if (STORY[x] && STORY[x].forced >= settings.storyDisplay)
+			gui.story.popupStory()
 	},
 
 	update() {
@@ -358,7 +359,7 @@ const game = {
 		
 			const manaTime = (!this.resources.mana || this.real.production.mana >= 0) ? time : -(this.resources.mana / this.real.production.mana)
 			const expTime = (!this.resources.exp || this.real.production.exp >= 0) ? time : -(this.resources.exp / this.real.production.exp)
-			const deltaTime = this.iterations?Math.min(this.iterations < 50?this.iterations < 20?1:0.5:0.1, time, manaTime, expTime):time
+			const deltaTime = this.iterations?Math.min(this.iterations < 20000?this.iterations < 10000?5:1:0.25, time, manaTime, expTime):time
 						
 			const mul = deltaTime / 2
 			this.sliders.map(slider => slider.grow(mul))
@@ -434,6 +435,7 @@ const game = {
 		this.real.production.mana -= this.sliders.reduce((v,x) => v + (x.real && x.real.usedMana || 0), 0)
 		this.real.production.exp += this.sliders.reduce((v,x) => v + (x.real && x.real.expChange || 0), 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => x.target && !x.target.index?v + (x.real && x.real.attack || 0):v, 0)
+		this.real.production.gold += this.sliders.reduce((v,x) => v + (x.real && x.real.madeGold || 0), 0)
 	},
 		
 	toJSON() {
@@ -474,6 +476,7 @@ const game = {
 
 		this.story = save.story || {}
 		this.statistics = save.statistics || {}
+		this.lastViewedStory = save.lastViewedStory || 0
 		gui.story.updateStory()
 		RESOURCES.map(x => {
 			this.resources[x] = save.resources && save.resources[x] || 0
@@ -538,6 +541,8 @@ const game = {
 			buildings : {}
 		})
 		this.story = {}
+		gui.story.updateStory()
+		this.lastViewedStory = 0,
 		this.statistics = {
 			onlineTime : 1
 		}

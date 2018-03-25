@@ -91,6 +91,20 @@ const sliderHandler = {
 			//hide point info
 		}
 		
+		this.gild = this.gild || false
+
+		this.dvGild = createElement("div", "slider-switch", this.dvDisplay)
+		this.dvGSwitch = createElement("input", "slider-checkbox", this.dvGild)
+		this.dvGLabel = createElement("label", "slider-checkbox-label", this.dvGild, "Gilding touch")
+		this.dvGSwitch.id = "slider"+Math.random()
+		this.dvGSwitch.type = "checkbox"
+		this.dvGLabel.htmlFor = this.dvGSwitch.id
+		this.dvGSwitch.checked = this.gild
+		this.dvGSwitch.onclick = (event) => {
+			this.gild = this.dvGSwitch.checked
+			return true
+		}
+
 		this.imbuements = SingleAttributePicker({
 			parent : this.dvDisplay,
 			container : this,
@@ -248,7 +262,10 @@ const sliderHandler = {
 		points = points.filter(x => x[1] == points[0][1]).map(x => x[0])
 		
 		if (!points.length) {
-			this.assignTarget(null)
+			if (game.skills.mining && game.skills.smartHome && game.map) 
+				this.assignTarget(game.map.points[0])
+			else
+				this.assignTarget(null)
 			return
 		}
 		
@@ -305,6 +322,7 @@ const sliderHandler = {
 			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && !this.stats[y.name])))
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
+		this.dvGild.classList.toggle("hidden", !(game.skills.gild))
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget))
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.imbuements.updateVisibility()
@@ -399,8 +417,10 @@ const sliderHandler = {
 		if (!this.real) this.real = {}
 		if (!this.real.growth) this.real.growth = {}
 		this.real.usedMana = 0
+		this.real.madeGold = 0
 		this.real.expChange = 0
 		this.real.imbuement = this.target && this.target.index?this.imbuement:0
+		this.real.gild = this.target && this.target.index?this.gild:0
 		
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
@@ -444,8 +464,21 @@ const sliderHandler = {
 		
 		this.real.attack = this.target?this.target.getActivePower(this):0
 		
+		if (this.real.gild && game.skills.gild) {
+			if (game.resources.mana > 1e-6) {
+				this.real.usedMana += game.map.level 
+				this.real.madeGold += this.real.attack ** 0.5
+			} else {
+				this.setGild(false)
+			}
+		}		
+		
 		this.real.attackTarget = gui.target.point?gui.target.point.getActivePower(this):0
 		if (this.target && this.target.real) this.target.real.loss += this.real.attack
+	},
+	
+	setGild(x) {
+		this.gild = this.dvGSwitch.checked = x
 	},
 	
 	toJSON() {

@@ -129,6 +129,18 @@ const SETTINGS = {
 			game.updateBackground = true
 		}
 	},
+	eta : {
+		group : "Display",
+		displayName : "Rough ETA display",
+		default : 1,
+		choices : [{
+			text : "Off",
+			value : 0
+		},{
+			text : "On",
+			value : 1
+		}],
+	},
 	storyDisplay : {
 		group : "Story",
 		displayName : "Pop-up display",

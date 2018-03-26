@@ -1,5 +1,9 @@
 'use strict'
 
+function fixHomeAtLastBug() {
+	game.map.points[0].mineDepth = game.map.points.reduce((v,x) => v + x.level?x.bonus * 8 ** x.level / 2:0, 0) + game.resources.gold
+}
+
 function createElement(typ = "div", clas, parent, text) {
 	let element = document.createElement(typ)
 	if (clas) element.className = clas

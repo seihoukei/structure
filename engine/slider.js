@@ -60,7 +60,7 @@ const sliderHandler = {
 		
 		this.dvTarget = createElement("div", "slider")
 		this.dvTarget.onclick = (event) => {
-			this.target == gui.target.point?(this.target = null):this.assignTarget(gui.target.point)
+			this.target == gui.target.point?(this.assignTarget(null)):this.assignTarget(gui.target.point)
 		}
 
 		this.dvColor = createElement("div", "slider-color", this.dvTarget)
@@ -409,7 +409,7 @@ const sliderHandler = {
 		})
 	},
 	
-	getReal() {
+	getReal(noloss = false) { //noloss for updating amidst damage application
 		if (!this.real) this.real = {}
 		if (!this.real.growth) this.real.growth = {}
 		this.real.usedMana = 0
@@ -470,7 +470,7 @@ const sliderHandler = {
 		}		
 		
 		this.real.attackTarget = gui.target.point?gui.target.point.getActivePower(this):0
-		if (this.target && this.target.real) this.target.real.loss += this.real.attack
+		if (this.target && this.target.real && !noloss) this.target.real.loss += this.real.attack
 	},
 	
 	toJSON() {

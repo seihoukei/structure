@@ -198,7 +198,7 @@ const pointHandler = {
 		let currentPower = this.power * this.progress || 0
 		
 		if (!this.index) {
-			let power = Math.max(0, slider.real.power - 2 * Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2))
+			let power = Math.max(0, slider.real.power - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
 			return (power) ** 0.6 / 2e3
 		}
 		
@@ -339,7 +339,10 @@ const pointHandler = {
 			game.unlockStory("m"+this.map.level.digits(3)+"_full")
 		
 		game.update()
-		attackers.map(x => x.autoTarget())
+		attackers.map(x => {
+			x.autoTarget()
+			x.getReal(true)
+		})
 	},
 
 	animate (id, time) {

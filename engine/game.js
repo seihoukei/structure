@@ -225,7 +225,7 @@ const game = {
 		if (this.map)
 			this.map.destroyDisplays()
 		this.map = map
-		this.sliders.map(x => x.target = null)
+		this.sliders.map(x => x.assignTarget(null))
 		mouse.closest = null		
 		this.update()
 		gui.tabs.setTitle("map", "Map (Level " + map.level + ")")

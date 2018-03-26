@@ -93,18 +93,15 @@ const sliderHandler = {
 		
 		this.gild = this.gild || false
 
-		this.dvGild = createElement("div", "slider-switch", this.dvDisplay)
-		this.dvGSwitch = createElement("input", "slider-checkbox", this.dvGild)
-		this.dvGLabel = createElement("label", "slider-checkbox-label", this.dvGild, "Gilding touch")
-		this.dvGSwitch.id = "slider"+Math.random()
-		this.dvGSwitch.type = "checkbox"
-		this.dvGLabel.htmlFor = this.dvGSwitch.id
-		this.dvGSwitch.checked = this.gild
-		this.dvGSwitch.onclick = (event) => {
-			this.gild = this.dvGSwitch.checked
-			return true
-		}
-
+		this.cbGild = GuiCheckbox({
+			parent : this.dvDisplay,
+			container : this,
+			value : "gild",
+			visible : () => game.skills.gild,
+			title : "Gilding touch",
+			hint : "Spend mana to produce gold while fighting"
+		})
+		
 		this.imbuements = SingleAttributePicker({
 			parent : this.dvDisplay,
 			container : this,
@@ -159,17 +156,16 @@ const sliderHandler = {
 			return stat
 		})
 		
-		this.dvAutoTarget = createElement("div", "slider-switch", this.dvDisplay)
-		this.dvATSwitch = createElement("input", "slider-checkbox", this.dvAutoTarget)
-		this.dvATLabel = createElement("label", "slider-checkbox-label", this.dvAutoTarget, "Autotarget when free")
-		this.dvATSwitch.id = "slider"+Math.random()
-		this.dvATSwitch.type = "checkbox"
-		this.dvATLabel.htmlFor = this.dvATSwitch.id
-		this.dvATSwitch.checked = !this.atFilter.disabled
-		this.dvATSwitch.onclick = (event) => {
-			this.atFilter.disabled = !this.dvATSwitch.checked
-			return true
-		}
+		this.dvAutoTarget = createElement("div", "autotarget", this.dvDisplay)
+		this.cbAutoTarget = GuiCheckbox({
+			parent : this.dvAutoTarget,
+			container : this.atFilter,
+			value : "disabled",
+			reverse : true,
+			title : "Autotarget when free",
+			visible : () => game.skills.autoTarget,
+			hint : "Enables autotargetting"
+		})
 		
 		this.priorities = MultiAttributePicker({
 			parent : this.dvAutoTarget,
@@ -270,7 +266,7 @@ const sliderHandler = {
 		}
 		
 		this.assignTarget(SELECTORS[this.atSelector](points))
-		if (this.target) game.iterations = 25000
+		if (this.target) game.iterations = GAME_ADVANCE_ITERATIONS
 	},
 	
 	setColor(color) {
@@ -322,7 +318,7 @@ const sliderHandler = {
 			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && !this.stats[y.name])))
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
-		this.dvGild.classList.toggle("hidden", !(game.skills.gild))
+		this.cbGild.updateVisibility()
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget))
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.imbuements.updateVisibility()
@@ -469,16 +465,12 @@ const sliderHandler = {
 				this.real.usedMana += game.map.level 
 				this.real.madeGold += this.real.attack ** 0.5
 			} else {
-				this.setGild(false)
+				this.cbGild.set(false)
 			}
 		}		
 		
 		this.real.attackTarget = gui.target.point?gui.target.point.getActivePower(this):0
 		if (this.target && this.target.real) this.target.real.loss += this.real.attack
-	},
-	
-	setGild(x) {
-		this.gild = this.dvGSwitch.checked = x
 	},
 	
 	toJSON() {
@@ -489,6 +481,8 @@ const sliderHandler = {
 		delete o.imbuements
 		delete o.priorities
 		delete o.selector
+		delete o.cbGild
+		delete o.cbAutoTarget
 		delete o.channels
 		Object.keys(o).filter(x => x.substr(0,2) == "dv").map (x => {
 			delete o[x]

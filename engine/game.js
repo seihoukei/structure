@@ -1,5 +1,7 @@
 'use strict'
 const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds"]
+const GAME_ADVANCE_ITERATIONS = 1000
+const GAME_ADVANCE_ITERATIONS_MAX = 100000
 
 //l = 1,m = Array(51).fill().map((x,n) => Map(mapLevel(n), mapMaker)).map(m => m.points.map(x => x.power * x.length).filter(x => x)).map (x => (k=(Math.min(...x)/l),l=Math.max(...x),k)).slice(1), [Math.max(...m), Math.min(...m)]
 const game = {
@@ -350,8 +352,8 @@ const game = {
 	},
 	
 	timeStep(time) {
-		this.iterations = 25000
-		let totalIterations = 100000
+		this.iterations = GAME_ADVANCE_ITERATIONS
+		let totalIterations = GAME_ADVANCE_ITERATIONS_MAX
 		while (time > 1e-6) {
 			this.iterations--
 			if (!--totalIterations)
@@ -359,7 +361,7 @@ const game = {
 		
 			const manaTime = (!this.resources.mana || this.real.production.mana >= 0) ? time : -(this.resources.mana / this.real.production.mana)
 			const expTime = (!this.resources.exp || this.real.production.exp >= 0) ? time : -(this.resources.exp / this.real.production.exp)
-			const deltaTime = this.iterations?Math.min(this.iterations < 20000?this.iterations < 10000?5:1:0.25, time, manaTime, expTime):time
+			const deltaTime = this.iterations?Math.min(this.iterations < 100?this.iterations < 500?5:1:0.25, time, manaTime, expTime):time
 						
 			const mul = deltaTime / 2
 			this.sliders.map(slider => slider.grow(mul))

@@ -728,6 +728,24 @@ canvas.foreground : {
 	background-color : var(--shade12);
 }
 
+.gui-checkbox {
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+	justify-content : center;
+}
+
+.gui-checkbox .checkbox {
+	display : flex;
+	width : 20px;
+	height : 20px;
+	margin : 0 2px;
+	align-items : center;
+	justify-content : center;
+	border : 1px solid var(--darkframe);
+	cursor : pointer;
+}
+
 .gui-slider {
 	display : flex;
 	width : 350px;

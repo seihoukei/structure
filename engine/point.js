@@ -250,7 +250,7 @@ const pointHandler = {
 	capture(slider) {
 		let attackers = [...this.attackers] //game.sliders.filter(x => x.target == this)
 
-		game.iterations = 25000
+		game.iterations = GAME_ADVANCE_ITERATIONS
 		
 		game.unlockStory("type_"+POINT_TYPES[this.type])
 		if (this.special)

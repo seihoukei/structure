@@ -23,7 +23,7 @@ const gui = {
 		this.story = this.tabs.addTab("story", "Story", StoryTab)
 		this.menu = this.tabs.addTab("menu", "Menu", MenuTab)
 		
-		this.tabs.toggleDisplay("story", false)
+			this.tabs.toggleDisplay("story", false)
 		
 		//Header
 		this.dvHeader = createElement("div", "header", this.skills.dvDisplay)

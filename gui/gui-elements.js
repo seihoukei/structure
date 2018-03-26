@@ -77,6 +77,39 @@ const guiSliderHandler = {
 
 const GuiSlider = Template(guiSliderHandler)
 
+const guiCheckboxHandler = {
+	_init() {
+		this.dvDisplay = createElement("div", "gui-checkbox " + (this.className || 0), this.parent)
+		this.dvCheckbox = createElement("div", "checkbox", this.dvDisplay)
+		this.dvLabel = createElement("div", "caption", this.dvDisplay, this.title)
+		
+		this.dvDisplay.onclick = (event) => {
+			this.switch()
+		}
+		
+		this.update()
+	},
+	
+	update() {
+		this.dvCheckbox.innerText = this.container[this.value] ^ this.reverse?"✓\uFE0E":""
+	},
+	
+	switch() {
+		this.set(!this.container[this.value])
+	},
+	
+	set(x) {
+		this.container[this.value] = x
+		this.update()
+	},
+
+	updateVisibility() {
+		this.dvDisplay.classList.toggle("hidden", (this.visible && !this.visible())?1:0)
+	}
+}
+
+const GuiCheckbox = Template(guiCheckboxHandler)
+
 function createGrowthSlider(container, value, parent) {
 	return GuiSlider({
 		parent : parent,

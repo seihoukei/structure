@@ -113,12 +113,14 @@ const ManagementTab = Template({
 
 		this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
 
-		this.dvSortOften = createElement("div", "sort-often", this.dvSort)		
-		this.dvSortOftenCheckbox = createElement("input", "sort-often-checkbox", this.dvSortOften)		
-		this.dvSortOftenCheckbox.id = "sortOften"
-		this.dvSortOftenCheckbox.type = "checkbox"
-		this.dvSortOftenLabel = createElement("label", "sort-often-label", this.dvSortOften, "Re-sort upon change")
-		this.dvSortOftenLabel.htmlFor = "sortOften"
+		this.sortOften = false
+		
+		this.cbSortOften = GuiCheckbox({
+			parent : this.dvSort,
+			title : "Re-sort upon change",
+			container : this,
+			value : "sortOften"
+		})
 		
 		this.dvList = createElement("div", "list", this.dvDisplay)
 		
@@ -166,7 +168,7 @@ const managementPointElementHandler = {
 		this.dvLevelUp.onclick = (event) => {
 			if (this.point.costs.levelUp > game.resources.gold) return
 			this.point.levelUp()
-			if (gui.management.dvSortOftenCheckbox.checked) gui.management.update(true)
+			if (gui.management.sortOften) gui.management.update(true)
 			this.dvLevelUp.animate([
 				{
 					transform : "scale(0.8)",
@@ -205,7 +207,7 @@ const managementPointElementHandler = {
 		this.icons.map(x => {
 			x.dvDisplay.onclick = (event) => {
 				this.point.build(x.id)
-				if (gui.management.dvSortOftenCheckbox.checked) gui.management.update(true)
+				if (gui.management.sortOften) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
 				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info.call(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")

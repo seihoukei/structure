@@ -361,7 +361,7 @@ const game = {
 		
 			const manaTime = (!this.resources.mana || this.real.production.mana >= 0) ? time : -(this.resources.mana / this.real.production.mana)
 			const expTime = (!this.resources.exp || this.real.production.exp >= 0) ? time : -(this.resources.exp / this.real.production.exp)
-			const deltaTime = this.iterations?Math.min(this.iterations < 100?this.iterations < 500?5:1:0.25, time, manaTime, expTime):time
+			const deltaTime = this.iterations?Math.min(this.iterations < 500?this.iterations < 100?5:1:0.25, time, manaTime, expTime):time
 						
 			const mul = deltaTime / 2
 			this.sliders.map(slider => slider.grow(mul))

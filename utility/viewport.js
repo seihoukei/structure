@@ -141,11 +141,11 @@ let viewport = {
 			return
 		this.restrict("x",
 			Math.min(this.bounds.left + this.bounds.width / 2, this.bounds.left - MAP_MINIMUM_POINT_SIZE - 1 + this.halfWidth / this.target.zoom),
-			Math.max(this.bounds.left + this.bounds.width / 2, this.bounds.right + MAP_MINIMUM_POINT_SIZE + 1 - this.halfWidth / this.target.zoom),
+			Math.max(this.bounds.left + this.bounds.width / 2, this.bounds.right + MAP_MINIMUM_POINT_SIZE + 1 - this.halfWidth / this.target.zoom)
 		)
 		this.restrict("y",
 			Math.min(this.bounds.top + this.bounds.height / 2, this.bounds.top - MAP_MINIMUM_POINT_SIZE - 1 + this.halfHeight / this.target.zoom),
-			Math.max(this.bounds.top + this.bounds.height / 2, this.bounds.bottom + MAP_MINIMUM_POINT_SIZE + 1 - this.halfHeight / this.target.zoom),
+			Math.max(this.bounds.top + this.bounds.height / 2, this.bounds.bottom + MAP_MINIMUM_POINT_SIZE + 1 - this.halfHeight / this.target.zoom)
 		)
 	},
 	

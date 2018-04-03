@@ -22,7 +22,7 @@ const AboutTab = Template({
 		- Story is up!
 		*/""}
 		-- 0.0.2 -- 24 March 2018 --
-		- Content up to Map level 20
+		- Content up to GameMap level 20
 		- Rough ETA display
 		- Proper dark theme
 		

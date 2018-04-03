@@ -167,6 +167,67 @@ const BUILDINGS = {//function context == point
 		},
 		iconText : "S",
 		iconColor : "#338833"
+	},
+	rainbowTower : {
+		name : "Rainbow tower",
+		desc : "Produces all 4 elements equal to growth",
+		level : 4,
+		cost() {
+			return (this.children.size == 1)?this.power ** 0.6:-1
+		},
+		info() {
+			return "Production: " + displayNumber(this.bonus * ((this.bonusMult || 0) + 1))
+		},
+		build() {
+			game.growth["fire"] += this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth["ice"] += this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth["blood"] += this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth["metal"] += this.bonus * ((this.bonusMult || 0) + 1)
+		},
+		destroy() {
+			game.growth["fire"] -= this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth["ice"] -= this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth["blood"] -= this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth["metal"] -= this.bonus * ((this.bonusMult || 0) + 1)
+		},
+		iconText : "R",
+		iconColor : "#FF8844"
+	},
+	thunderstoneFactory : {
+		name : "Thunder spire",
+		desc : "Collects thunderstone power",
+		level : 4,
+		cost() {
+			return 1e22
+		},
+		info() {
+			return "Production: " + displayNumber((this.map.level - 10) ** 5 / 1e6 * this.depth)
+		},
+		build() {
+			game.production.thunderstone += (this.map.level - 10) ** 5 / 1e6 * this.depth
+		}, 
+		destroy() {
+			game.production.thunderstone -= (this.map.level - 10) ** 5 / 1e6 * this.depth
+		},
+		iconText : "T",
+		iconColor : "#4488FF"
+	},
+	earthquakeMachine : {
+		name : "Mean machine",
+		desc : "Constantly deals damage to nearby points",
+		level : 4,
+		cost() {
+			return [...this.children].filter(x => !x.owned && (x.special != SPECIAL_BLOCK) && !x.locked && (!x.boss || x.boss <= x.map.level) ).length?10 ** (10 + (this.map.level) / 2):-1
+		},
+		info() {
+			return ""
+		},
+		build() {
+		},
+		destroy() {
+		},
+		iconText : "M",
+		iconColor : "#883333"
 	}
 }
 

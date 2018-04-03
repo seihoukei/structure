@@ -41,14 +41,18 @@ const SELECTORS = {
 
 const sliderHandler = {
 	_init() {
-		this.color = this.color || ("hsl("+(Math.random()*360|0)+(this.clone?",30%,40%)":",100%,30%)"))
+		this.color = this.color || (this.element?(gui.theme.typeColors[this.element]):("hsl("+(Math.random()*360|0)+(this.clone?",30%,40%)":",100%,30%)")))
 		if (this.targetIndex !== undefined) this.assignTarget(game.map.points[this.targetIndex])
+		if (this.target) this.targetIndex = this.target.index
 		this.growth = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.growth || {})
 		this.stats = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?0:v[x]):v,v),this.stats || {})
 		this.charge = this.charge || 0
 		this.imbuement = this.imbuement || 0
+		this.safeImbuement = this.safeImbuement || 1
 		this.channel = this.channel || []
 		this.learn = this.learn || []
+		this.start = this.start || {}
+		this.end = this.end || {}
 		
 		this.atFilter = this.atFilter || {
 			types : [],
@@ -58,19 +62,22 @@ const sliderHandler = {
 		
 		this.atSelector = this.atSelector || "Random"
 		
-		this.dvTarget = createElement("div", "slider")
+		this.dvTarget = createElement("div", "slider"+(this.clone?" clone":""))
 		this.dvTarget.onclick = (event) => {
-			this.target == gui.target.point?(this.assignTarget(null)):this.assignTarget(gui.target.point)
+			if (this.clone == 2 && this.target == gui.target.point) {
+				this.fullDestroy()
+			} else
+				this.target == gui.target.point?(this.assignTarget(null)):this.assignTarget(gui.target.point)
 		}
 
 		this.dvColor = createElement("div", "slider-color", this.dvTarget)
 		this.dvInfo = createElement("div", "slider-info", this.dvTarget)
 		this.dvCharge = createElement("div", "slider-charge", this.dvTarget)
 		
-		this.dvDisplay = createElement("div", "slider", gui.sliders.dvSliders)
+		this.dvDisplay = createElement("div", "slider"+(this.clone?" clone":""), gui.sliders.dvSliders)
 		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
-		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?"CLONE":"")
-		this.dvBigColor.title = this.clone?"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
+		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?this.clone == 2?"SUMMON":"CLONE":"")
+		this.dvBigColor.title = this.clone?this.clone==2?"Summonned clones only exist while attacking specific node":"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
 		this.dvBigColor.ondblclick = (event) => {
 			this.dvBigColor.style.background = this.clone?'linear-gradient(to right, hsl(0,30%,40%), hsl(120,30%,40%), hsl(240,30%,40%), hsl(360,30%,40%) )':'linear-gradient(to right, hsl(0,100%,30%), hsl(120,100%,30%), hsl(240,100%,30%), hsl(360,100%,30%) )'
 			this.dvBigColor.onclick = (event) => {
@@ -82,12 +89,20 @@ const sliderHandler = {
 
 		this.dvTargetPoint = createElement("div", "slider-target", this.dvHeader)
 		this.dvTargetPoint.onmousemove = (event) => {
-			gui.sliders.hover.set(this.target, event.clientX, event.clientY)
+			if (gui.map.slider == this)
+				gui.hover.set(this.target, event.clientX, event.clientY)
+			else 
+				gui.sliders.hover.set(this.target, event.clientX, event.clientY)
+			this.hovered = true
 			//display point info
 		}
 		
 		this.dvTargetPoint.onmouseleave = this.dvTargetPoint.onmouseout = (event) => {
-			gui.sliders.hover.reset()
+			if (gui.map.slider == this)
+				gui.hover.reset()
+			else
+				gui.sliders.hover.reset()
+			this.hovered = false
 			//hide point info
 		}
 		
@@ -113,6 +128,14 @@ const sliderHandler = {
 				return (!n || game.growth[x])
 			},
 			visible : () =>	!(this.clone || !(game.skills.imbuement))
+		})
+		
+		this.safeImbuementsSwitch = GuiCheckbox({
+			parent : this.imbuements.dvDisplay,
+			container : this,
+			value: "safeImbuement",
+			title: "Safe",
+			hint : "Disable imbuement if less than 10 seconds available"
 		})
 		
 		this.channels = MultiAttributePicker({
@@ -224,6 +247,33 @@ const sliderHandler = {
 			this.autoTarget()
 		}
 		
+		this.dvMapIcon = createElement("div", "slider-icon"+(this.clone?" clone":""), gui.map.dvSliders)
+		this.dvMapIcon.onmousemove = (event) => {
+			gui.hover.set(this.target, event.x, event.y)
+		}
+		
+		this.dvMapIcon.onmousedown = (event) => {
+			if (gui.map.sliderInfo)
+				gui.map.sliderInfo.remove()
+			if (gui.map.slider == this) {
+				delete gui.map.sliderInfo
+				delete gui.map.slider
+				return
+			}
+			gui.map.sliderInfo = this.dvDisplay
+			gui.map.slider = this
+			this.updateFullVisibility()
+			this.displayStats.map(y => {
+				y.expSlider.update()
+			})
+			gui.map.dvSliders.appendChild(this.dvDisplay)
+			this.dvDisplay.style.left = event.x + "px"
+			this.dvDisplay.style.top = event.y + "px"
+		}
+		
+		this.dvMapIcon.onmouseleave = this.dvMapIcon.onmouseout = (event) => {
+			gui.hover.reset()
+		}
 		
 		this.sparks = new Set()
 		
@@ -242,14 +292,15 @@ const sliderHandler = {
 	},
 	
 	autoTarget() {
-		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && !this.real.attack)) return
+		if (this.clone == 2) return
+		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if (!game.skills.autoTarget || this.atFilter.disabled) {
 			this.assignTarget(null)
 			return
 		}
 		
-		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || x.real && x.getActivePower(this))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
+		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || x.real && (x.getActivePower(this) > 0))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
 												(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
 												(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
 												(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||
@@ -273,28 +324,35 @@ const sliderHandler = {
 		this.color = color
 		this.dvColor.style.backgroundColor = color
 		this.dvBigColor.style.backgroundColor = color
+		this.dvMapIcon.style.backgroundColor = color
 	},
 	
 	updateTarget(point) {
 		this.dvTarget.classList.toggle("active", this.target == point)
 		this.dvTarget.classList.toggle("free", this.isFree())
 		this.dvTarget.classList.toggle("notransition",false)
+		this.dvTarget.classList.toggle("hidden", this.clone == 2 && this.target != point)
 		this.dvColor.innerText = this.target?this.target.specialText?this.target.specialText:"⭕\uFE0E":""
 									
 		this.dvInfo.innerText = (!point.index?"Gold:" + displayNumber(this.real.attackTarget):"Attack: " + displayNumber(this.real.attackTarget)) + "/s\n" +
-								((point.boss || this.clone)?"":("Spirit: " + displayNumber(this.real.attackSpirit) + "\n"))
+								(this.clone == 2?"Click to unsummon":(point.boss || this.clone || game.skills.power)?"":("Spirit: " + displayNumber(this.real.attackSpirit) + "\n"))
 
-		this.dvTarget.classList.toggle("weak", !point.boss && !this.clone && point.real.localPower > this.real.attackSpirit)
+		this.dvTarget.classList.toggle("weak", !game.skills.power && !point.boss && !this.clone && point.real.localPower > this.real.attackSpirit)
 		if (game.skills.charge)
 			this.dvCharge.style.backgroundPosition = "0 " + ((1 - this.charge) * this.dvCharge.offsetHeight | 0) + "px"
 	},
 	
 	updateFullInfo() {
 		this.displayStats.map((x,n) => {
-			x.dvValue.innerText = displayNumber(this.stats[x.name]) + 
+			x.dvValue.innerText = displayNumber(this.stats[x.name] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x.name] || 0)) + 
 								  (this.clone?"":" (+" + displayNumber(this.real.growth[x.name]) + "/s)") + 
-								  ((this.real && (this.real[x.name] != this.stats[x.name]))?" => " + displayNumber(this.real[x.name]):"")
+								  ((this.real && (this.real[x.name] != this.stats[x.name] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x.name] || 0)))?" => " + displayNumber(this.real[x.name]):"")
 		})
+		if (this.real)
+			this.imbuements.attributes.slice(3).map(x => {
+				x.dvDisplay.classList.toggle("alert", game.resources.mana / this.real.imbuementCosts[x.name] < 10)
+				x.dvDisplay.title = x.name.capitalizeFirst() + ": " + displayNumber(this.real.imbuementCosts[x.name]) + " mana/s"
+			})
 		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
 		this.dvTargetPoint.style.backgroundColor = this.target?(gui.theme.typeColors[this.target.type]):gui.theme.background
 	}, 
@@ -319,7 +377,7 @@ const sliderHandler = {
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.cbGild.updateVisibility()
-		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget))
+		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.imbuements.updateVisibility()
 		this.channels.updateVisibility()
@@ -355,7 +413,7 @@ const sliderHandler = {
 		if (!this.target || !this.target.onscreen && (!this.target.parent || !this.target.parent.onscreen)) return
 		
 		const an = Math.random() * 6.29
-		const length = this.target.index?Math.random() * Math.min(10, (this.real.attack / this.target.power)) + 2:this.target.size * (0.5 + 0.5 * Math.random())
+		const length = this.target.index?(Math.random() * Math.min(10, (this.real.attack / this.target.power)) + 2) * (Math.random() * 0.5 + 0.5):this.target.size * (0.5 + 0.5 * Math.random())
 		const {x,y} = this.target.coordinatesOn(this.target.position, true)
 
 		this.sparks.add(animations.Spark(x, y, length, an))
@@ -365,35 +423,33 @@ const sliderHandler = {
 		return !this.target || (this.target.owned && !(!this.index && game.skills.mining))
 	},
 	
-	assignTarget(point) {
+	assignTarget(point, forced ) {
+		if (this.clone == 2 && !forced) point = this.target || game.map.points[this.targetIndex]
 		if (this.target) this.target.attackers.delete(this)
 		
 		if (!point) {
 			this.target = null
-			return
+			if (this.hovered) gui.sliders.hover.reset()
+		} else if (!(point.away > 1) && !(point.lock && !point.keyData.keyPoint.owned)) {
+			this.target = point
+			if (this.hovered) gui.sliders.hover.set(this.target, -1)
 		}
-
-		if (point.away > 1)
-			return
-
-		if (point.lock && !point.keyData.keyPoint.owned)
-			return
-
-		this.target = point
 		if (this.target) this.target.attackers.add(this)
+		if (this.dvMapIcon)
+			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
 	},
 		
 	advance (deltaTime) {
 		let free = this.isFree()
 		
-		if (!free)
-			this.target.attack(this, deltaTime)
+//		if (!free)
+//			this.target.attack(this, deltaTime)
 		
 		let change = deltaTime / 5
 		if (game.skills.charge)
 			this.charge = Math.max(0, Math.min(1, free?this.charge + change:this.charge - change))
 		
-		if (game.skills.smartAuto && this.target && !this.real.attack) {
+		if (game.skills.smartAuto && this.target && this.real.attack <= 0) {
 			this.autoTarget()
 		}
 	},
@@ -412,6 +468,7 @@ const sliderHandler = {
 	getReal(noloss = false) { //noloss for updating amidst damage application
 		if (!this.real) this.real = {}
 		if (!this.real.growth) this.real.growth = {}
+		if (!this.real.imbuementCosts) this.real.imbuementCosts = {}
 		this.real.usedMana = 0
 		this.real.madeGold = 0
 		this.real.expChange = 0
@@ -420,11 +477,11 @@ const sliderHandler = {
 		
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
-			this.real[x] = this.stats[x]
+			this.real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
 			game.sliders.map(slider => {
 				if (slider == this || slider.clone) return
 				if (slider.channel.includes(n+1))
-					this.real[this.clone?"power":x] += slider.stats[x]
+					this.real[this.clone?POINT_TYPES[this.element || 1]:x] += slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0)
 			})
 			
 			if (this.channel.includes(n+1)) {
@@ -448,9 +505,11 @@ const sliderHandler = {
 		
 		if (game.skills.fear && !this.clone) this.real.power += this.real.spirit * game.resources.fears
 		
+		POINT_TYPES.slice(3).map(x => this.real.imbuementCosts[x] = (Math.log10(this.real.power || 1) ** 4 / 1000) * Math.max(1,Math.min(this.real.power ** 0.5, this.real.power / (this.real[x] || 1) / 10))) || 0
+		
 		if (this.real.imbuement) {
-			if (game.resources.mana > 1e-6) {
-				this.real.usedMana += Math.log10(this.real.power) ** 4 / 1000
+			if (game.resources.mana > (this.safeImbuement?(this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0 * 10):1e-6)) {
+				this.real.usedMana += this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0
 				this.real[POINT_TYPES[this.real.imbuement]] += this.real.power
 				this.real.power = 0
 			} else {
@@ -470,7 +529,10 @@ const sliderHandler = {
 		}		
 		
 		this.real.attackTarget = gui.target.point?gui.target.point.getActivePower(this):0
-		if (this.target && this.target.real && !noloss) this.target.real.loss += this.real.attack
+		if (this.target && this.target.real && !noloss) {
+			game.attacked.add(this.target)
+			this.target.real.loss += this.real.attack
+		}
 	},
 	
 	toJSON() {
@@ -479,6 +541,7 @@ const sliderHandler = {
 		delete o.test
 		delete o.displayStats
 		delete o.imbuements
+		delete o.safeImbuementsSwitch
 		delete o.priorities
 		delete o.selector
 		delete o.cbGild
@@ -492,6 +555,7 @@ const sliderHandler = {
 		delete o.real
 		delete o.learns
 		delete o.charge
+		delete o.hovered
 		return o
 	},
 	
@@ -505,8 +569,38 @@ const sliderHandler = {
 			x.dvDisplay.remove()
 			delete x.dvDisplay
 		})
+		this.dvMapIcon.remove()
+		delete this.dvMapIcon
 		delete this.displayStats
+	},
+	
+	fullDestroy() {
+		this.destroy()
+		if (this.target)
+			this.target.attackers.delete(this)
+		const index = game.sliders.indexOf(this)
+		if (index > -1)
+			game.sliders.splice(index, 1)
+		gui.updateTabs()		
 	}
 }
 
 const Slider = Template(sliderHandler)
+
+function createSummon(target, element) {
+	if (!target) return
+	let baseStats = {[POINT_TYPES[element || 1]] : 0}
+	let sliders = game.sliders.filter(x => !x.clone)
+	sliders.map(x => {
+		Object.keys(x.stats).map(y => baseStats[POINT_TYPES[element || 1]] += x.stats[y] - (game.activeMap == "main"?0:x.start[game.activeMap][y]))
+	})
+	const summon = Slider({
+		stats : baseStats,
+		clone : 2,
+		element, target,
+		targetIndex : target.index
+	})
+	game.sliders.push(summon)
+	summon.assignTarget(target)
+	gui.updateTabs()
+}

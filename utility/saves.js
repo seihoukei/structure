@@ -1,5 +1,5 @@
 function saveState(slot = "_Autosave", nobackup = false, data = game) {
-	const saveData = btoa(compressSaveData(JSON.stringify(data)))+"|"+data.map.level+"|"+data.saveTime+"|"+((data.statistics.offlineTime || 0) + (data.statistics.onlineTime || 0) | 0)
+	const saveData = btoa(compressSaveData(JSON.stringify(data)))+"|"+(data.realMap?data.realMap.level:data.map?data.map.level:data.maps && data.maps.main?data.maps.main.level:0)+"|"+data.saveTime+"|"+Math.round((data.statistics.offlineTime || 0) + (data.statistics.onlineTime || 0))
 	if (!nobackup && localStorage[SAVE_PREFIX+slot])
 		localStorage[SAVE_PREFIX + "_Last deleted/overwritten save backup"] = localStorage[SAVE_PREFIX+slot]
 	localStorage[SAVE_PREFIX+slot] = saveData
@@ -22,6 +22,7 @@ function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
 	} catch(e) {
 		alert("Invalid save data")
 		console.log(e)
+		console.log(saveData)
 		return false
 	}
 }

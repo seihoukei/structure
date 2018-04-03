@@ -40,6 +40,7 @@ const pointHandler = {
 		this.parents = new Set()
 		this.attackers = new Set()
 		this.costs = this.costs || {}
+		this.manaCosts = this.manaCosts || {}
 		this.displays = this.displays || {}
 		this.buildings = this.buildings || {}
 	},
@@ -89,6 +90,7 @@ const pointHandler = {
 		
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
 		Object.values(BUILDINGS).map(x => this.costs[x.id] = x.cost.call(this))
+		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] ? x.cost.call(this) : -1)
 		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
 			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
@@ -112,8 +114,12 @@ const pointHandler = {
 				
 		this.unsuspend()
 		
-		game.update()
-		gui.target.updateUpgrades()
+		if (game.autoUpgrading)
+			game.autoUpgrading |= 2
+		else {
+			game.update()
+			gui.target.updateUpgrades()
+		}
 	},
 	
 	getDisplay(name) {
@@ -126,6 +132,17 @@ const pointHandler = {
 				parent : gui.management.dvList
 			})
 			this.displays["management"] = display
+			return display
+		}
+
+		if (name == "lowLoad") {
+			let display = PointInfoDisplay ({
+				point : this,
+				parent : gui.map.dvLowLoad,
+				className : "point-info"
+			})
+			display.dvDisplay.onclick = (event) => (this.locked || gui.target.point == this)?gui.target.reset():gui.target.set(this, event.x, event.y)
+			this.displays["lowLoad"] = display
 			return display
 		}
 	},
@@ -143,8 +160,24 @@ const pointHandler = {
 		BUILDINGS[name].build.call(this)
 		game.addStatistic("built_"+name)
 		this.buildings[name] = 1
+		if (game.autoUpgrading)
+			game.autoUpgrading |= 4
+		else {
+			game.update()
+			gui.target.updateUpgrades()
+			gui.management.update()
+		}
+	},
+	
+	cast (name) {
+		if (!SPELLS[name]) return
+		if (SPELLS[name].type != SPELL_TYPE_POINT) return
+		if (this.manaCosts[name] < 0 || this.manaCosts[name] > game.resources.mana) return
+		game.resources.mana -= this.manaCosts[name]
+		SPELLS[name].cast.call(this)
 		game.update()
-		gui.target.updateUpgrades()
+		gui.target.updateUpgrades()		
+		game.addStatistic("cast_"+name)
 	},
 	
 	suspend() {
@@ -202,14 +235,22 @@ const pointHandler = {
 			return (power) ** 0.6 / 2e3
 		}
 		
+		const chapter = this.map.level > 20 || this.map.virtual ? 1 : 0
+		const weak = chapter ? 0 : 0.5
+		const strong = chapter ? 1 : 4
+		const neutral = chapter ? 0.1 : 1
+		const itself = chapter ? -1 : 0
+		const phys = chapter ? 0.001 : 1
+		
 		const spirit = slider.real.spirit//getActiveSpirit(slider)
 		let spiritPenalty = (this.boss || slider.clone)?0:Math.max(0,(currentPower - spirit) * 2)
-		let fire = slider.real.fire * [1,1,1,0.5,0,4,1][this.type]
-		let ice = slider.real.ice * [1,1,1,1,0.5,0,4][this.type]
-		let blood = slider.real.blood * [1,1,1,0,4,1,0.5][this.type]
-		let metal = slider.real.metal * [1,1,1,4,1,0.5,0][this.type]
+		let fire  = slider.real.fire *  [1,1,1, weak, itself, strong, neutral][this.type]
+		let ice   = slider.real.ice *   [1,1,1, neutral, weak, itself, strong][this.type]
+		let blood = slider.real.blood * [1,1,1, itself, strong, neutral, weak][this.type]
+		let metal = slider.real.metal * [1,1,1, strong, neutral, weak, itself][this.type]
 		
-		let physical = slider.real.power		
+		let physical = slider.real.power * (this.type > 2 ? phys : 1)
+		let superphysical = 0
 		
 		let elemental = fire + ice + blood + metal
 		let superelemental = 0
@@ -218,22 +259,29 @@ const pointHandler = {
 		if (game.skills.ice  ) superelemental += ice  , elemental -= ice  
 		if (game.skills.blood) superelemental += blood, elemental -= blood
 		if (game.skills.metal) superelemental += metal, elemental -= metal
+		if (game.skills.power) superphysical = physical, physical = 0
 		
-		if (this.special == SPECIAL_RESIST && game.skills.pierceResist)
-			return physical
+/*		if (this.special == SPECIAL_RESIST && game.skills.pierceResist)
+			return physical*/
 
 		elemental = Math.max(0, elemental) * (this.special == SPECIAL_RESIST ? 0 : 1)
-		superelemental = Math.max(0, superelemental) * (this.special == SPECIAL_RESIST ? 0 : 1)
-		physical = Math.max(0, physical + elemental - spiritPenalty)
+		physical = Math.max(0, physical) * (this.special == SPECIAL_BLOCK ? 0 : 1)
+		
+		superelemental = superelemental * (this.special == SPECIAL_RESIST ? 0 : 1)
+		superphysical = superphysical * (this.special == SPECIAL_BLOCK ? 0 : 1)
 
-		return this.special == SPECIAL_BLOCK?elemental + superelemental:(physical + superelemental)
+		return Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical
 	},
 	
 	highlight() {
 	},
 	
-	attack(slider, time) {
-		let power = slider.real.attack * time
+	attack(time) {
+		if (this.real.loss < 0) {
+			this.real.loss = 0
+			return
+		}
+		let power = this.real.loss * time
 		if (!this.index) {
 			this.mineDepth = (this.mineDepth || 0) + power
 			return
@@ -243,11 +291,11 @@ const pointHandler = {
 		const end = Math.min(this.totalPower, start + power)
 		this.progress = (end / this.totalPower) ** 0.5
 		if (this.progress >= 1-1e-9) {
-			this.capture(slider)
+			this.capture()
 		}
 	},
 	
-	capture(slider) {
+	capture() {
 		let attackers = [...this.attackers] //game.sliders.filter(x => x.target == this)
 
 		game.iterations = GAME_ADVANCE_ITERATIONS
@@ -266,8 +314,18 @@ const pointHandler = {
 			game.unlockStory(game.story.special_key?"special_key_lock":"special_lock")
 
 		this.owned = true
-		for (let child of this.children) 
+		
+		if (game.slowMode && this.displays["lowLoad"]) {
+			this.displays["lowLoad"].dvDisplay.remove()
+			if (gui.target.point == this)
+				gui.target.reset()
+		}
+		
+		for (let child of this.children) {
 			child.available = true
+			if (game.slowMode)
+				child.getDisplay("lowLoad")
+		}
 		this.map.updateAways()
 
 		if (gui.target.point == this) {
@@ -278,8 +336,8 @@ const pointHandler = {
 		}
 
 		if (game.activeRender) {
-			if (slider)
-				animations.Fireworks(this.x, this.y, slider.color, 5 * this.size, this.size * 0.8)
+//			if (slider)
+//				animations.Fireworks(this.x, this.y, slider.color, 5 * this.size, this.size * 0.8)
 			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
 			
 			for (let child of this.children) {
@@ -297,10 +355,15 @@ const pointHandler = {
 		game.resources.exp += (this.power * this.length) ** 0.5
 
 		if (this.exit) {
-			game.resources.stars++
-			game.addStatistic("stars")
-			if (game.resources.stars >= this.map.ascendCost)
-				game.unlockStory("m"+this.map.level.digits(3)+"_enough")
+			if (this.map.virtual) {
+				game.resources.stardust++
+				game.addStatistic("stardust")
+			} else {
+				game.resources.stars++
+				game.addStatistic("stars")
+				if (game.resources.stars >= this.map.ascendCost)
+					game.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"_enough")
+			}
 		}
 		if (this.special == SPECIAL_CLONE) {
 			let baseStats = {}
@@ -310,7 +373,7 @@ const pointHandler = {
 			})
 			game.sliders.push(Slider({
 				stats : baseStats,
-				clone : true
+				clone : 1
 			}))
 			this.special = 0
 			game.addStatistic("special_clones")
@@ -336,12 +399,20 @@ const pointHandler = {
 		game.addStatistic("points")
 		
 		if (!this.map.points.filter(x => !x.owned).length)
-			game.unlockStory("m"+this.map.level.digits(3)+"_full")
+			game.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"_full")
 		
 		game.update()
 		attackers.map(x => {
-			x.autoTarget()
-			x.getReal(true)
+			if (x.clone == 2) {
+				const outs = [...this.children].filter(x => !x.locked && (!x.boss || x.boss <= this.map.boss))
+				if (!outs.length)
+					x.fullDestroy()
+				else
+					x.assignTarget(outs[outs.length * Math.random() | 0], true)
+			} else {
+				x.autoTarget()
+				x.getReal(true)
+			}
 		})
 	},
 
@@ -427,7 +498,9 @@ const pointHandler = {
 		if (!this.real) this.real = {}
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
-		this.real.loss = 0
+		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
+			(this.parent.bonus * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1)):0
+		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},
 	
 	destroyDisplays() {
@@ -468,6 +541,7 @@ const pointHandler = {
 		delete o.animating
 		delete o.attackers
 		delete o.costs
+		delete o.manaCosts
 		delete o.displays
 		delete o.animationTime
 		delete o.animationProgress

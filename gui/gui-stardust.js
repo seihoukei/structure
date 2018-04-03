@@ -3,7 +3,8 @@
 const StardustTab = Template({
 	_init() {
 		this.dvDisplay = createElement("div", "stardust "+(this.className || ""), this.parent)
-		this.dvSliders = createElement("div", "stardust-growth", this.dvDisplay)
+		this.dvSubdisplay = createElement("div", "stardusts ", this.dvDisplay)
+		this.dvSliders = createElement("div", "stardust-growth", this.dvSubdisplay)
 		this.dvGrowthTitle = createElement("div", "stardust-title", this.dvSliders, "Growth boost")
 		this.sliders = POINT_TYPES.slice(3).map(x => {
 			return GuiSlider({
@@ -19,7 +20,7 @@ const StardustTab = Template({
 				className : "stardust",
 				sliderClass : "bg-"+x,
 				onSet : () => {
-					const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
+				const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
 					let otherDust = game.resources.stardust - game.stardust[x]
 					const scale = otherDust / otherTotal
 					if (scale < 1) {
@@ -41,7 +42,7 @@ const StardustTab = Template({
 						this.sliders.map(y => y.update())
 					}
 					const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
-					gui.tabs.setTitle("stardust", freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust")
+					gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
 				}
 			})
 		})
@@ -57,8 +58,94 @@ const StardustTab = Template({
 				}
 			})
 			this.sliders.map(y => y.update())
-			gui.tabs.setTitle("stardust", "Stardust")
+			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + ("Stardust"))
 		}
+		
+		this.dvVirtual = createElement("div", "virtual", this.dvSubdisplay)
+		this.dvVirtualTitle = createElement("div", "virtual-title", this.dvVirtual, "Virtual maps")
+		this.dvVirtualHint = createElement("div", "virtual-hint", this.dvVirtual, ``)
+		this.dvVirtualCreate = createElement("div", "virtual-create", this.dvVirtual)
+		
+		this.newMapLevel = 20
+		this.newMapFocus = 0
+		
+		this.dvVirtualCreateTitle = createElement("div", "virtual-create-title", this.dvVirtualCreate, "Virtual map level:")
+		
+		this.newMapLevelSlider = GuiSlider({
+			parent : this.dvVirtualCreate,
+			container : this,
+			value : "newMapLevel",
+			min : 0,
+			max : 20,
+			steps : 20,
+			digits : 0,
+			onSet : () => {
+				this.dvVirtualCreateCost.innerText = "Cost: " + virtualMapCost(this.newMapLevel) + " stardust"
+			}
+		})
+		
+		this.dvFocusSelector = createElement("div", "selectors", this.dvVirtualCreate)
+		
+		this.selector = ListPicker({
+			parent : this.dvFocusSelector,
+			container : this,
+			className : "selector",
+			value : "newMapFocus",
+			name : "Focus",
+			values : Object.keys(POINT_TYPES),
+			texts : POINT_TYPES.map(x => x.capitalizeFirst()),
+			expanded : false,
+			onSet : () => {
+				this.selector.expanded = !this.selector.expanded && this.selector.same
+				if (this.selector.expanded) {
+					this.selector.buttons.map((x,n) => {
+						if (n != this.selector.index)
+							x.dvDisplay.style.top = -25 * (this.selector.index - n) + "px"
+                        x.dvDisplay.style.height = "15px"
+//						x.dvDisplay.classList.toggle("bg-"+POINT_TYPES[n], true)
+					})
+				} else {
+					this.selector.buttons.map((x,n) => {
+						x.dvDisplay.style.height = (this.selector.index == n)?"15px":0
+						x.dvDisplay.style.top = 0
+					})
+				}
+			},
+		})
+		
+		this.dvFocusSelector.onmouseleave = /*this.dvATSelector.onmouseout = */(event) => {
+			if (!this.selector.expanded) return
+			this.selector.buttons.map((x,n) => {
+				x.dvDisplay.style.height = (this.selector.index == n)?"15px":0
+				x.dvDisplay.style.top = 0
+			})
+			this.selector.expanded = false
+		}
+
+		this.dvVirtualCreateCost = createElement("div", "virtual-create-cost", this.dvVirtualCreate, "Cost:")
+		this.dvVirtualCreateButton = createElement("div", "button", this.dvVirtualCreate, "Create")
+		
+		this.dvVirtualCreateButton.onclick = (event) => {
+			const name = Array(Math.min(5, game.realMap.level - 20)).fill().map((x,n) => "virtual"+n).filter(x => !game.maps[x])[0]
+			if (!name) return
+			if (game.resources.stardust < virtualMapCost(this.newMapLevel)) return
+			game.resources.stardust -= virtualMapCost(this.newMapLevel)
+			
+			let stardustTotal = POINT_TYPES.slice(1).reduce((v, y) => v + game.stardust[y], 0)
+			
+			let n = -1
+			while (stardustTotal > game.resources.stardust) {
+				n++
+				if (!game.stardust[POINT_TYPES[n % 4 + 2]]) continue
+				game.stardust[POINT_TYPES[n % 4 + 2]]--
+				stardustTotal--
+			}
+			
+			game.createMap(name, this.newMapLevel, true, this.newMapFocus)
+			this.update(true)
+		}
+
+		this.dvVirtualMaps = createElement("div", "virtual-maps", this.dvVirtual)
 	},
 	
 	onSet() {
@@ -68,13 +155,82 @@ const StardustTab = Template({
 	
 	update(forced) {
 		if (forced) {
+			const maxMaps = Math.max(0,Math.min(5, game.realMap.level - 20))
+			const freeMaps = Array(maxMaps).fill().map((x,n) => "virtual"+n).filter(x => !game.maps[x]).length
+			this.dvVirtualTitle.innerText = "Virtual maps (" + (maxMaps - freeMaps) + "/" + maxMaps + ")"
+			this.dvVirtual.classList.toggle("hidden", !game.skills.virtualMaps)
+			if (game.skills.virtualMaps) {
+				this.dvVirtualCreateButton.classList.toggle("enabled", !!freeMaps)
+			}
+			this.dvFocusSelector.classList.toggle("hidden", !game.skills.virtualMapFocus)
+			if (!game.skills.virtualMapFocus) this.newMapFocus = 0
 			this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + game.resources.stardust + ")"
 			this.sliders.map(x => {
 				x.setMax(game.resources.stardust)
 				x.steps = game.resources.stardust
 				x.dvRight.innerText = game.resources.stardust
 				x.dvDisplay.classList.toggle("hidden", !game.growth[x.value])
+				x.update()
 			})
+			if (game.skills.virtualMaps) {
+				this.newMapLevelSlider.setMax (game.realMap.level)
+				this.newMapLevelSlider.steps = game.realMap.level
+				this.newMapLevelSlider.dvRight.innerText = game.realMap.level
+				this.newMapLevelSlider.update()
+				this.selector.update(true)
+				this.dvVirtualCreateCost.innerText = "Cost: " + virtualMapCost(this.newMapLevel) + " stardust"
+				
+				while (this.dvVirtualMaps.firstChild)
+					this.dvVirtualMaps.firstChild.remove()
+				
+				this.realMap = MapDisplay({
+					parent : this.dvVirtualMaps,
+					name : "main"
+				})
+				
+				this.virtualMaps = Object.keys(game.maps).filter(x => x.substr(0,7) == "virtual").map(x => MapDisplay({
+					parent : this.dvVirtualMaps,
+					name : x
+				}))
+			}
 		}
 	}
 })
+
+function virtualMapCost(level) {
+	return Math.min((game.realMap.level - level) * 7, mapLevel(level).exitsCount)
+}
+
+const mapDisplayHandler = {
+	_init() {
+		this.dvDisplay = createElement("div", "virtual-map"+(game.activeMap == this.name?" active":""), this.parent)
+		this.dvTitle = createElement("div", "virtual-map-title", this.dvDisplay, this.name == "main"?"Real":this.name.capitalizeFirst())
+		const stars = game.maps[this.name].points.filter(x => x.exit && x.owned).length
+		const progress = game.maps[this.name].points.filter(x => x.owned).length / game.maps[this.name].points.length * 100
+		const exits = game.maps[this.name].exitsCount
+		this.dvLevel = createElement("div", "virtual-map-level", this.dvDisplay, "Level "+game.maps[this.name].level+", "+progress.toFixed(0)+(this.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+(game.maps[this.name].level == game.realMap.level?"???":exits))
+		const focus = game.maps[this.name].focus?POINT_TYPES[game.maps[this.name].focus]:0
+		this.dvFocus = createElement("div", "virtual-map-focus"+(focus?" bg-"+focus:""), this.dvDisplay, focus?focus.capitalizeFirst():"")
+		this.dvGo = createElement("div", "button" + (game.activeMap == this.name?"":" enabled"), this.dvDisplay, "Visit")
+		if (this.name != game.activeMap) {
+			this.dvGo.onclick = (event) => {
+				game.setMap(this.name, true)
+				gui.tabs.setTab("map")
+			}
+		}
+
+		this.dvDelete = createElement("div", "button" + (this.name == "main"?"":" enabled"), this.dvDisplay, "Delete")
+		
+		if (this.name != "main"){
+			this.dvDelete.onclick = (event) => {
+				let ask = !game.skills.retainVirtualBonus?"You will lose all bonuses from this virtual map\n":""
+				ask += game.maps[this.name].points.filter(x => x.exit && !x.owned).length?"You have not collected all the stardust on this virtual map\n":""
+				if (ask && !confirm(ask+"Are you sure you want to delete it?")) return
+				game.deleteMap(this.name, game.skills.retainVirtualBonus)
+				gui.stardust.update(true)
+			}
+		}
+	}
+}
+
+const MapDisplay = Template(mapDisplayHandler)

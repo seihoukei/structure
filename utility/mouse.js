@@ -20,6 +20,12 @@ const mouse = {
 	},
 	
 	onmousedown(event) {
+		if (gui.map.sliderInfo) gui.map.sliderInfo.remove()
+		if (gui.map.slider) delete gui.map.slider
+		if (game.slowMode) {
+			gui.target.reset()
+			return
+		}
 		this.down = true
 		this.moved = false
 		this.button = event.button
@@ -65,6 +71,8 @@ const mouse = {
 	onmousemove(event) {
 		this.x = event.offsetX
 		this.y = event.offsetY
+		if (game.slowMode) 
+			return
 		if (this.down) {
 			this.mapX = (this.x - viewport.halfWidth ) / viewport.current.zoom + this.start.mapX
 			this.mapY = (this.y - viewport.halfHeight) / viewport.current.zoom + this.start.mapY
@@ -85,15 +93,17 @@ const mouse = {
 		}
 				
 		if (!this.down) {
-			if (game.map.renderedPoints) {
-				let closest = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x)
-				this.closest = closest[1] < (closest[0].size * 3) ** 2 && closest[0] != gui.target.point? closest[0] : null
+			if (game.map.renderedPoints && game.map.renderedPoints.length) {
+				let closest = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x, null)
+				this.closest = closest && closest[1] < (closest[0].size * 3) ** 2 && closest[0] != gui.target.point? closest[0] : null
 				gui.hover.set(this.closest, this.x, this.y)
 			}
 		}
 	},
 	
 	onwheel(event) {
+		if (game.slowMode) 
+			return
 		if (event.deltaY && !mouse.down) {
 			if (this.state == MOUSE_STATE_FREE) {
 				let oldZoom = viewport.current.zoom

@@ -92,6 +92,7 @@ const saveCompression = {
 }
 
 function compressSaveData(s) {
+	s = s.replace(RegExp("#","g"), "&&")
 	for (let [s2, s1] of Object.entries(saveCompression))
 		s = s.replace(RegExp(s1,"g"), s2)
 	return s
@@ -100,6 +101,7 @@ function compressSaveData(s) {
 function uncompressSaveData(s) {
 	for (let [s1, s2] of Object.entries(saveCompression))
 		s = s.replace(RegExp(s1,"g"), s2)
+	s = s.replace(RegExp("&&","g"), "#")
 	return s
 }
 
@@ -134,7 +136,6 @@ function timeString(t = 0, start = 1) {
 	let step = 0
 	let value
 	let result = ""
-	
 	for (let timeCode of timeStringCodes) {
 		if (t == 0 && step > start) 
 			break
@@ -174,6 +175,7 @@ const shortTimeResult = []
 function shortTimeString(t = 0, start = 0, length = 2) {
 	let step = 0
 	let value
+	if (t > 24.192e5) return "months"
 	shortTimeResult.length = 0
 	
 	if (t == Infinity || t == -Infinity) return "No damage dealt"

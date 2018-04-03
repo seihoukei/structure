@@ -73,6 +73,7 @@ const animations = {
 	},
 	
 	freeSpark(spark) {
+		if (this.sparkPool.length < 100)
 		this.sparkPool.push(spark)
 	},
 	

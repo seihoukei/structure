@@ -30,7 +30,7 @@ const SkillsTab = Template({
 		Object.values(this.skills).map(skill => {
 			let available = !game.skills[skill.id] && 
 							(game.resources.exp >= skill.exp * game.skillCostMult) && 
-							(!skill.map || game.map.level >= skill.map) && 
+							(!skill.map || game.realMap.level >= skill.map) && 
 							(!skill.sliders || game.sliders.filter(x => !x.clone).length >= skill.sliders) && 
 							(!skill.science || game.resources.science >= skill.science) &&
 							(!skill.req || skill.req.reduce((v,x) => v && game.skills[x], true)) &&
@@ -51,7 +51,7 @@ const SkillsTab = Template({
 	updateSkills() {
 		Object.values(this.skills).map(skill => {
 			let visible = true
-			if (visible && skill.map) visible = game.map.level >= skill.map
+			if (visible && skill.map) visible = game.realMap.level >= skill.map
 			if (visible && skill.req) visible = skill.req.reduce((v,x) => v && game.skills[x], visible)
 			if (visible && skill.res) visible = skill.res.reduce((v,x) => v && game.resources[x], visible)
 			if (visible && skill.sliders) visible = game.sliders.filter(x => !x.clone).length >= skill.sliders

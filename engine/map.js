@@ -3,7 +3,7 @@
 const MAP_MINIMUM_POINT_SIZE = 5
 const MAP_MINIMUM_DISTANCE = 16
 
-function mapLevel(level) {
+function mapLevel(level, virtual) {
 	return {
 		level,
 		pointsCount : Math.round(25 * 1.07 ** level),
@@ -12,17 +12,20 @@ function mapLevel(level) {
 		basePower : 20 * 8 ** level * ((1.09 + (level / 700) ** 2) ** level ** (1.55 + 0.25 * 1.01 ** (level ** 0.98 ))),
 		size : 100 * 1.07 ** (level / 1.8),
 		boss : 0,
+		virtual
 	}
 }
-//Balance data: Array(51).fill().map((x,n) => Map(mapLevel(n), mapMaker)).map(x => x.points.map(y => y.power)).map(x => [Math.min(...x), Math.max(...x),x.length]).map((x,n,a) => n+":  \t"+[x[2],x[0] / (a[n-1]||[0,0])[1], x[1]/x[0], x[1] / (a[n-1]||[0,0])[1]].map(y => y.toFixed(2)).join(",  \t")).join("\n")
+//Balance data: Array(51).fill().map((x,n) => GameMap(mapLevel(n), mapMaker)).map(x => x.points.map(y => y.power)).map(x => [Math.min(...x), Math.max(...x),x.length]).map((x,n,a) => n+":  \t"+[x[2],x[0] / (a[n-1]||[0,0])[1], x[1]/x[0], x[1] / (a[n-1]||[0,0])[1]].map(y => y.toFixed(2)).join(",  \t")).join("\n")
 //Mean balance data: 
-//stats = Array(10).fill().map(z => Array(51).fill().map((x,n) => Map(mapLevel(n), mapMaker)).map(x => x.points.map(y => y.power)).map(x => [Math.min(...x), Math.max(...x),x.length]).map((x,n,a) => [x[2],x[0] / (a[n-1]||[0,0])[1], x[1]/x[0], x[1] / (a[n-1]||[0,0])[1]]))
+//stats = Array(10).fill().map(z => Array(51).fill().map((x,n) => GameMap(mapLevel(n), mapMaker)).map(x => x.points.map(y => y.power)).map(x => [Math.min(...x), Math.max(...x),x.length]).map((x,n,a) => [x[2],x[0] / (a[n-1]||[0,0])[1], x[1]/x[0], x[1] / (a[n-1]||[0,0])[1]]))
 //stats[0].map((x,n) => n + ":  \t" + x.map((y,m) => (stats.reduce((v,z) => v + z[n][m], 0)/stats.length).toFixed(2)).join(" \t")).join("\n")
 
 
 const mapHandler = {
 	renderMap(c) {
 		const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
+
+		c.lineWidth = Math.max(1, 1.5/viewport.current.zoom)
 
 		function drawOutline(point) {
 			c.save()
@@ -32,6 +35,13 @@ const mapHandler = {
 			if (point.locked != 1 || game.dev && game.dev.seeAll) {
 				c.moveTo(point.size, 0)
 				c.arc(0, 0, point.size, 0, 6.29)
+			}
+			c.restore()
+		}
+		function drawExtra(point) {
+			c.save()
+			c.translate(point.x, point.y)
+			if (point.locked != 1 || game.dev && game.dev.seeAll) {
 				if (point.special == SPECIAL_COLONY) {
 					const an = 0.5
 					const ac = Math.cos(an)
@@ -125,9 +135,17 @@ const mapHandler = {
 		
 		c.save()
 		c.beginPath()
-		c.lineWidth = 0.5
+		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
 		c.strokeStyle = gui.theme.shades[7]
 		this.renderedPoints.filter(x => x.owned && x.level).map(drawLevel)
+		c.stroke()
+		c.restore()
+
+		c.save()
+		c.beginPath()
+		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
+		c.strokeStyle = gui.theme.shades[5]
+		this.renderedPoints.filter(x => x.special && (x.away == 1 || x.owned)).map(drawExtra)
 		c.stroke()
 		c.restore()
 
@@ -218,8 +236,9 @@ const mapHandler = {
 			point.updateText()
 		})		
 		this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
-		if (this.complete) game.unlockStory("m"+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
+		if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		this.updateAways()
+		this.nearbyPoints = this.points.filter(x => (!x.boss || x.boss <= this.boss) && x.away == 1 || (game.skills.mining && !x.index))
 	},
 	
 	updateAways() {
@@ -234,10 +253,10 @@ const mapHandler = {
 			visiblePoints = this.points
 		else
 			visiblePoints = this.points.filter(x => (x.away < (game.skills.sensor?3:2)) && (x.locked < 2) && !(x.locked && x.away == 2) && (!x.boss || x.boss <= this.boss))
-		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.size))
-		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.size))
-		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.size))
-		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.size))
+		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.size), -this.ownedRadius || 0)
+		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.size), this.ownedRadius || 0)
+		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.size), -this.ownedRadius || 0)
+		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.size), this.ownedRadius || 0)
 		this.bounds.width = this.bounds.right - this.bounds.left
 		this.bounds.height = this.bounds.bottom - this.bounds.top
 	},
@@ -256,6 +275,7 @@ const mapHandler = {
 		let o = Object.assign({},this)
 		delete o.bounds
 		delete o.renderedPoints
+		delete o.nearbyPoints
 		delete o.keys
 		delete o.markers
 		delete o.complete
@@ -290,6 +310,7 @@ const mapMaker = {
 			owned : true,
 			available : true,
 		}))
+		
 		function createPoint(points, size, angle, spacing, type, customPower) {
 			angle = angle.toDigits(3)
 			let c = Math.cos(angle)
@@ -334,7 +355,32 @@ const mapMaker = {
 			points.push(output)	
 			return output
 		}
-		if (this.level == 20) {
+		
+		if (this.level == 25 && !this.virtual) {
+			this.ascendCost = 20
+			this.exitsCount = 30
+			for (let d = 0; d < 21; d++)
+				for (let a = 0; a < 5; a++) {
+					const parent = this.points[Math.max(0, d * 5 + a - 4)]
+					const point = Point({
+						angle : (Math.PI * 2 * a / 5 + (d) / 5).toDigits(3),
+						distance : (d + 1) * 60 * (2 - d/30),
+						size : (Math.random() * 10 + 25 + (d==20?40:0)+(d==20?40:0)).toDigits(3),
+						parent, 
+						depth : parent.depth + 1,
+						type : d & 1 ? 2 : [1,3,4,5,6][a],
+						special : [SPECIAL_BLOCK, SPECIAL_RESIST, 0][Math.random()*3|0],
+						boss : d==9?1:d==20?2:0,
+						exit : [7,8,18].includes(d)?1:0
+					})
+					this.points.push(point)
+				}
+
+				this.points.sort((x,y) => x.distance - y.distance)
+			this.points.map((x,n) => x.index = n)
+			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
+			this.restoreState()
+		} else if (this.level == 20 && !this.virtual) {
 			this.ascendCost = 0
 			let m = n/3 | 0
 			while(m--) {
@@ -406,46 +452,85 @@ const mapMaker = {
 			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
 			this.restoreState()
 		} else {
-			while (n--) {
-				let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount - n) ** 0.4) * Math.random()).toDigits(3)
-				let angle, spacing
-				
-				if (this.level == 5) {
-					//dark world 1
-					angle = n * 0.3
-					angle += (angle / 3.1415 | 0) * 3.1415
-					spacing = MAP_MINIMUM_DISTANCE 
-				
-				} else if (this.level == 10) {
-					angle = (n + 1) * 0.3
-					angle += (angle / (3.1415 * (0.4)) | 0) * 3.1415 * (0.6)
-					spacing = MAP_MINIMUM_DISTANCE 
-					
-				} else if (this.level == 15) {
-					angle = ((n - 2) * 2 + ((n - 2) / 3 | 0 % 1)) * Math.PI / 3
-					spacing = MAP_MINIMUM_DISTANCE 
-					
-				} else {
-					angle = (Math.random() * 6.29).toDigits(3)
-					spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
+			if (this.virtual) {
+				const baseSize = 5 + this.level / 10
+				const distance = baseSize * 8
+				const taken = new Map()
+				taken.set("0,0", this.points[0])
+				n = n * 1.5 | 0
+				while (n--) {
+					let x = 0
+					let y = 0
+					while (taken.get(x+","+y)) {
+						parent = taken.get(x+","+y)
+						if (Math.random() < 0.5) 
+							x += Math.random() < 0.5?1:-1
+						else
+							y += Math.random() < 0.5?1:-1
+					}
+					const point = Point({
+						parent,
+						angle : Math.atan2(y, x),
+						distance : Math.hypot(x, y) * distance,
+						size : (1 + Math.random() / 2) * baseSize,
+						type : n % 6 + 1,
+						depth : parent.depth + 1
+					})
+					taken.set(x+","+y, point)
+					if (Math.random() < 0.5) 
+						x += Math.random() < 0.5?1:-1
+					else
+						y += Math.random() < 0.5?1:-1
+					taken.set(x+","+y, taken.get(x+","+y) || point)
+					this.points.push(point)
 				}
-				let type = n % 3
-				if (!type && this.level > 5) if ((n / 3 | 0) % 4 == 0) type = 4
-				if (!type && this.level > 10) if ((n / 3 | 0) % 4 == 1) type = 5
-				if (!type && this.level > 15) if ((n / 3 | 0) % 4 == 2) type = 3
-				if (!type && this.level > 15) if ((n / 3 | 0) % 4 == 3) type = 6
-				const point = createPoint(this.points, size, angle, spacing, type)
-				if (point.parent == this.points[0] && point.type > 2 && this.level < 12 && !point.boss) point.type = 0
+			} else {
+				while (n--) {
+					let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount - n) ** 0.4) * Math.random()).toDigits(3)
+					let angle, spacing
+					
+					if (this.level == 5 && !this.virtual) {
+						//dark world 1
+						angle = n * 0.3
+						angle += (angle / 3.1415 | 0) * 3.1415
+						spacing = MAP_MINIMUM_DISTANCE 
+					
+					} else if (this.level == 10 && !this.virtual) {
+						angle = (n + 1) * 0.3
+						angle += (angle / (3.1415 * (0.4)) | 0) * 3.1415 * (0.6)
+						spacing = MAP_MINIMUM_DISTANCE 
+						
+					} else if (this.level == 15 && !this.virtual) {
+						angle = ((n - 2) * 2 + ((n - 2) / 3 | 0 % 1)) * Math.PI / 3
+						spacing = MAP_MINIMUM_DISTANCE 
+						
+					} else {
+						angle = (Math.random() * 6.29).toDigits(3)
+						spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
+					}
+					let type = n % (this.virtual?6:3)
+					if (!this.virtual) {
+						if (!type && (this.level > 5 ) && (n / 3 | 0) % 4 == 0) type = 4
+						if (!type && (this.level > 10) && (n / 3 | 0) % 4 == 1) type = 5
+						if (!type && (this.level > 15) && (n / 3 | 0) % 4 == 2) type = 3
+						if (!type && (this.level > 15) && (n / 3 | 0) % 4 == 3) type = 6
+					} else {
+						type++
+						if (this.focus && Math.random() < 0.5) type = this.focus
+					}
+					const point = createPoint(this.points, size, angle, spacing, type)
+					if (!this.virtual && point.parent == this.points[0] && point.type > 2 && this.level < 12 && !point.boss) point.type = 0
+				}
 			}
 			
-			if (this.level == 5) {
+			if (this.level == 5 && !this.virtual) {
 				//dark world
 				for (let n = 0; n <= 5; n++) {
 					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + n ** 2, -1.5708, MAP_MINIMUM_DISTANCE, [0,0,0,2,1,4][n]).boss = 1
 				}
 			}
 							
-			if (this.level == 10) {
+			if (this.level == 10 && !this.virtual) {
 				//dark world
 				for (let n = 0; n <= 3; n++) {
 					createPoint(this.points, MAP_MINIMUM_POINT_SIZE + ((n >> 1) * 2) ** 2, - Math.PI/4 + Math.PI * (n & 1), MAP_MINIMUM_DISTANCE, 0, this.basePower * (n > 1 ? 25 : 10)).boss = 1
@@ -461,7 +546,7 @@ const mapMaker = {
 				createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 15, 3*Math.PI/4 , MAP_MINIMUM_DISTANCE, 5, this.basePower * 200).boss = 2
 			}
 							
-			if (this.level == 15) {
+			if (this.level == 15 && !this.virtual) {
 				//dark world
 				for (let n = 0; n <= 5; n++) {
 					const point1 = createPoint(this.points, MAP_MINIMUM_POINT_SIZE + 5, Math.PI/6 + Math.PI / 3 * n, MAP_MINIMUM_DISTANCE, 1)
@@ -485,7 +570,7 @@ const mapMaker = {
 			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
 			this.restoreState()
 
-			if (this.level > 5 && this.level % 5 == 1) {
+			if (this.level > 5 && this.level % 5 == 1 && !this.virtual) {
 				const colonyIndex = this.points.length * 0.75 | 0
 				const colony = this.points[colonyIndex]
 				colony.special = SPECIAL_COLONY
@@ -493,10 +578,9 @@ const mapMaker = {
 				this.markers = [colony]
 			}
 			
-			if (this.level > 12) {
-				const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && x.depth > 2 && !x.special && !x.boss))
+			const canBlock = new Set(this.points.filter (x => x.index && x.parent && x.parent.index && x.depth > 2 && !x.special && !x.boss))
+			if (this.level > 12 && this.level < 21 && !this.virtual) {
 				
-//				if (this.level < 15)
 				for (let i = 0; i < (this.level / 6 | 0) - 1; i++) {
 					const points = this.points.filter (x => !x.special && !x.boss && x.depth > 2)
 					const colony = points[points.length * Math.random() | 0]
@@ -506,8 +590,10 @@ const mapMaker = {
 					while (point.parent && point.parent.index) 
 						canBlock.delete(point = point.parent)
 				}		
-				
-				for (let i = 0; i < (this.level | 0) - 10; i++) {
+			}
+			
+			if (this.level > 12 || this.virtual){				
+				for (let i = 0; i < (this.level | 0) - (this.virtual?0:10); i++) {
 					const point = [...canBlock][canBlock.size * Math.random()|0]
 					point.special = i&1?SPECIAL_RESIST:SPECIAL_BLOCK
 					canBlock.delete(point)
@@ -566,4 +652,4 @@ const mapMaker = {
 	},
 }
 
-const Map = Template(mapHandler)
+const GameMap = Template(mapHandler)

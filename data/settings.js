@@ -171,6 +171,83 @@ const SETTINGS = {
 			value : 1
 		}],
 	},
+	dataFPS: {
+		group : "Performance",
+		displayName : "Game processing speed",
+		default : 10,
+		choices: [{
+			text : "Once per second",
+			value : 1
+		},{
+			text : "Ten times per second",
+			value : 10
+		},{
+			text : "Thirty times per second",
+			value : 30
+		}],
+		onSet () {
+			if (!game.slowMode)
+				game.worker.postMessage({
+					name : "setFPS",
+					value : settings.dataFPS
+				})
+		}
+	},
+	slowDataFPS: {
+		group : "Performance",
+		displayName : "Slow mode processing speed",
+		default : 1,
+		choices: [{
+			text : "Once per five seconds",
+			value : 0.2
+		},{
+			text : "Once per second",
+			value : 1
+		},{
+			text : "Ten times per second",
+			value : 10
+		}],
+		onSet () {
+			if (game.slowMode)
+				game.worker.postMessage({
+					name : "setFPS",
+					value : settings.slowDataFPS
+				})
+		}
+	},
+	slowModeBackground : {
+		group : "Performance",
+		displayName : "Automatic low load mode when not active window",
+		default : 1,
+		choices: [{
+			text : "Off",
+			value : 0
+		},{
+			text : "On",
+			value : 1
+		}],
+	},
+	slowModeIdle : {
+		group : "Performance",
+		displayName : "Automatic low load mode when idling",
+		default : 60000,
+		choices: [{
+			text : "Off",
+			value : 0
+		},{
+			text : "1 minute",
+			value : 60000
+		},{
+			text : "5 minutes",
+			value : 300000
+		},{
+			text : "30 minutes",
+			value : 1800000
+		},{
+			text : "1 hour",
+			value : 3600000
+		}],
+	}
 }
 
 Object.keys(SETTINGS).map(x => {

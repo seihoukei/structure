@@ -80,6 +80,7 @@ const GuiSlider = Template(guiSliderHandler)
 const guiCheckboxHandler = {
 	_init() {
 		this.dvDisplay = createElement("div", "gui-checkbox " + (this.className || 0), this.parent)
+		this.dvDisplay.title = this.hint
 		this.dvCheckbox = createElement("div", "checkbox", this.dvDisplay)
 		this.dvLabel = createElement("div", "caption", this.dvDisplay, this.title)
 		
@@ -100,6 +101,8 @@ const guiCheckboxHandler = {
 	
 	set(x) {
 		this.container[this.value] = x
+		
+		this.onSet && this.onSet(x)
 		this.update()
 	},
 
@@ -339,6 +342,11 @@ const guiPointElementHandler = {
 		this.dvDisplay.classList.toggle("hidden", true)
 		
 		this.onReset && this.onReset()
+	},
+	
+	destroy() {
+		this.dvDisplay.remove()
+		delete this.dvDisplay
 	}
 }
 
@@ -351,6 +359,7 @@ const pointInfoDisplayHandler = {
 	
 	update() {
 		if (!this.point) return
+		if (!this.point.real) return
 		
 		let knownType = (this.point.index)?(this.point.locked == 1)?"unknown":POINT_TYPES[this.point.type]:"home"
 		
@@ -368,7 +377,7 @@ const pointInfoDisplayHandler = {
 			let width = this.dvInfo2.offsetWidth
 			this.dvInfo2.style.backgroundPosition = "0 0, "+Math.round((width * ((this.point.progress || 0) - 1) / 2)) +"px 0"
 			this.dvInfo2.innerText = "Barrier: " + displayNumber(this.point.real.defence) + "\n" +
-									"Barrier power: " + displayNumber(this.point.real.localPower) + "\n" + 
+									(game.skills.power?this.point.real && this.point.real.passiveDamage?"Passive damage: "+displayNumber(this.point.real.passiveDamage)+"/s":"":"Barrier power: " + displayNumber(this.point.real.localPower)) + "\n" + 
 									"Progress: " + (this.point.progress * 100 || 0).toFixed(3) + "%"
 		} else if (this.point.locked == 1) {
 			let width = this.dvInfo2.offsetWidth

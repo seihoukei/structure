@@ -1,16 +1,16 @@
 'use strict'
-const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds"]
+const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds","thunderstone"]
 const GAME_ADVANCE_ITERATIONS = 1000
 const GAME_ADVANCE_ITERATIONS_MAX = 100000
+const GAME_AUTOMATION_PERIOD = 1000
 
-//l = 1,m = Array(51).fill().map((x,n) => Map(mapLevel(n), mapMaker)).map(m => m.points.map(x => x.power * x.length).filter(x => x)).map (x => (k=(Math.min(...x)/l),l=Math.max(...x),k)).slice(1), [Math.max(...m), Math.min(...m)]
+//l = 1,m = Array(51).fill().map((x,n) => GameMap(mapLevel(n), mapMaker)).map(m => m.points.map(x => x.power * x.length).filter(x => x)).map (x => (k=(Math.min(...x)/l),l=Math.max(...x),k)).slice(1), [Math.max(...m), Math.min(...m)]
 const game = {
 	updateBackground : false,
 	skillCostMult : 1,
 	sliders : [],
 	animatingPoints : new Set(),
 	frame : 0,
-	frameTime : 100,
 	growth : POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 0 : v, v), {}),
 	multi : POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 1 : v, v), {}),
 	skills : Object.keys(SKILLS).reduce((v,x) => (v[x] = 0,v),{}),
@@ -22,6 +22,7 @@ const game = {
 		buildings: {}
 	},
 	production : {},
+	attacked : new Set(),
 	stardust : {},
 	statistics : {
 		onlineTime : 1
@@ -32,6 +33,7 @@ const game = {
 	lastSave : performance.now(),
 	
 	updateRenderData() {	
+		if (!viewport.width || !viewport.height) return
 		if (!this.renderData.radarCV) {
 			this.renderData.radarCV = document.createElement("canvas")
 		}
@@ -60,15 +62,20 @@ const game = {
 		this.frame++
 
 		if (gui.tabs.activeTab == "map") {
-			if (this.updateBackground) {
-				this.renderBackground(gui.backgroundContext)
-				this.updateBackground = false
-			}
-			this.renderForeground(gui.foregroundContext)
-			
-			if (this.updateInterface) {
-				gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?"+":"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
-				gui.map.updateGrowth()
+			if (this.slowMode) {
+				if (this.updateInterface) 
+					gui.map.updateLowLoad()
+			} else {
+				if (this.updateBackground) {
+					this.renderBackground(gui.backgroundContext)
+					this.updateBackground = false
+				}
+				this.renderForeground(gui.foregroundContext)
+				
+				if (this.updateInterface) {
+					gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?"+":"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
+					gui.map.updateGrowth()
+				}
 			}
 		}
 
@@ -221,16 +228,60 @@ const game = {
 		}		
 	},
 	
-	setMap(map) {
-		if (this.map)
+	setMap(name, retain = false) {
+		if (this.map) {
 			this.map.destroyDisplays()
-		this.map = map
-		this.sliders.map(x => x.assignTarget(null))
+		}
+	
+		const oldMap = this.activeMap
+		
+		if (this.maps[this.activeMap] && retain)
+			this.maps[this.activeMap] = JSON.parse(JSON.stringify(this.maps[this.activeMap]))
+
+		this.animatingPoints.clear()
+		animations.reset()
+
+		//FIX BEHAVIOR FOR TRANSITION IF CLONES AVAILABLE BY THE TIME
+		//VIRTUAL MAPS ARE ON
+
+		const depth = retain ? this.map.points[0].mineDepth || 0 : 0
+		const miners = retain ? this.sliders.filter(x => x.target && x.target.index == 0) : []
+		if (retain)
+			this.production.mana += this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
+				
+		this.activeMap = name
+		this.maps[name] = this.map = GameMap(this.maps[name], mapLoader)
+		if (name == "main") this.realMap = this.map
+
+		if (retain) {
+			this.sliders.filter (x => x.clone == 2).map(x => x.fullDestroy())
+			this.production.mana -= this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
+			this.sliders.map(x => x.assignTarget(null))
+			miners.map(x => x.assignTarget(this.map.points[0]))
+
+			if (name != "main") {
+				this.sliders.map(slider => {
+					Object.keys(slider.stats).map(x => {
+						if (slider.end[name] && slider.end[name][x]) {
+							slider.start[name][x] += slider.stats[x] - slider.end[name][x]
+						}
+					})
+				})				
+			}
+			if (oldMap != "main")
+				this.sliders.map(slider => slider.end[oldMap] = Object.assign({}, slider.stats))			
+
+			this.sliders.map(x => x.autoTarget())
+			this.map.points[0].mineDepth = depth
+		}
+		gui.target.reset()
+		gui.hover.reset()
+
 		mouse.closest = null		
 		this.update()
-		gui.tabs.setTitle("map", "Map (Level " + map.level + ")")
+		gui.tabs.setTitle("map", (this.map.virtual?"Virtual map":"Map")+" (Level " + this.map.level + ")")
 		gui.skills.updateSkills()
-		this.unlockStory("m"+this.map.level.digits(3)+"")
+		this.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"")
 		viewport.init()
 	},
 	
@@ -252,24 +303,24 @@ const game = {
 		this.updateRenderData()
 	},
 	
-	ascend() {
+	ascend(repeat = false) {
 		if (this.map.markers && this.map.markers.length) 
 			return
 			
 		if (this.resources.stars >= this.map.ascendCost && !this.map.boss || this.map.boss && !this.map.points.filter(x => x.boss == this.map.boss && !x.owned).length) {
 			
-			if (!confirm("Ascend to the next map?")) 
+			if (!this.map.virtual && !confirm(this.map.virtual?"Abandon this virtual map?":"Ascend to the next map?")) 
 				return
 			
 			gui.hover.reset()
 			gui.target.reset()
 
-			let bossPoints = this.map.points.filter(x => x.boss && x.boss > game.map.boss && !x.owned)
+			let bossPoints = this.map.points.filter(x => x.boss && x.boss > this.map.boss && !x.owned)
 			if (bossPoints.length) {
-				if (!this.map.boss) {
+				if (!this.map.boss && !this.map.virtual) {
 					const foundStars = this.map.points.filter(x => x.exit && x.owned).length
 					this.resources.stardust += this.resources.stars - foundStars
-					game.addStatistic("stardust", this.resources.stars - foundStars)
+					this.addStatistic("stardust", this.resources.stars - foundStars)
 					this.resources.stars = foundStars - this.map.ascendCost
 				}
 				
@@ -278,32 +329,34 @@ const game = {
 				if (game.skills.sensor)
 					this.map.points.filter(x => x.away == 2 && (!x.boss || x.boss <= x.map.boss) && x.parent && x.parent.boss && (x.parent.boss == this.map.boss)).map(x => x.animate(2, 120))
 				this.update()
-				this.unlockStory("m"+this.map.level.digits(3)+"b"+this.map.boss.digits(1)+"a")
+				this.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"b"+this.map.boss.digits(1)+"a")
 			} else {
-				saveState("_Autosave before ascension")
+				if (!this.map.virtual)
+					saveState("_Autosave before ascension")
 				
-				if (!this.map.boss) {
+				if (!this.map.boss && !this.map.virtual) {
 					const foundStars = this.map.points.filter(x => x.exit && x.owned).length
 					this.resources.stardust += this.resources.stars - foundStars
-					game.addStatistic("stardust", this.resources.stars - foundStars)
+					this.addStatistic("stardust", this.resources.stars - foundStars)
 					this.resources.stars = foundStars - this.map.ascendCost
 				}
-				if (game.map.complete) game.addStatistic("comleted_maps")
-				
-				this.animatingPoints.clear()
-				animations.reset()
-					
-				this.sliders.filter(x => x.clone).map (x => x.destroy())
-				this.sliders = this.sliders.filter (x => !x.clone)
-				const depth = this.map.points[0].mineDepth
-				const miners = this.sliders.filter(x => x.target && x.target.index == 0)
-
-				this.production.mana += this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
-				this.setMap(Map(mapLevel(this.map.level+1), mapMaker))
-				this.map.points[0].mineDepth = depth
-				miners.map(x => x.assignTarget(this.map.points[0]))
-				gui.target.reset()
-				gui.hover.reset()
+				if (this.map.complete) this.addStatistic(this.virtual?"comleted_virtual_maps":"comleted_maps")
+			
+				if (this.map.virtual) {
+					if (repeat) {
+						let name = this.activeMap
+						let level = this.map.level
+						this.deleteMap(name, true)
+						this.createMap(name, level, true)
+						this.setMap(name)
+					} else {
+						this.setMap("main", true)
+					}
+				} else {
+					this.sliders.filter(x => x.clone).map (x => x.fullDestroy())
+					this.createMap("main", this.realMap.level+(repeat?0:1), false)
+					this.setMap("main", true)
+				}
 			}
 			this.map.points.map(x => x.getReal())
 			this.sliders.map(x => x.autoTarget())
@@ -312,17 +365,49 @@ const game = {
 		}
 	},
 	
+	createMap(name, level, virtual, focus) {
+		this.maps[name] = GameMap(mapLevel(level, virtual), {focus}, mapMaker)	
+		this.sliders.map (x => {
+			x.start[name] = Object.assign({}, x.stats)
+			x.end[name] = Object.assign({}, x.stats)
+		})
+		return this.maps[name]
+	},
+	
+	deleteMap(name, keepStats = false) {
+		if (this.activeMap == name)
+			this.setMap("main", true)
+		if (!keepStats) {
+			const map = GameMap(this.maps[name], mapLoader)
+			map.points.map(point => point.suspend())
+		} else {
+			const map = GameMap(this.maps[name], mapLoader)
+			this.production.mana += this.skills.magic?(map.level ** 2) * (map.ownedRadius ** 2) / 1e8:0	
+		}
+		delete this.maps[name]
+	},
+	
 	advance(deltaTime) {
+		const tempOffline = (deltaTime > 60000) && !this.offline
+		if (tempOffline) this.offline = true
 		if (game.dev && game.dev.boost) deltaTime *= game.dev.boost
 		
-		this.activeRender = !document.hidden && gui.tabs.activeTab == "map"
+		this.activeRender = !document.hidden && gui.tabs.activeTab == "map" && !this.slowMode
+		
+		if (settings.slowModeIdle && performance.now() - this.lastAction > settings.slowModeIdle)
+			this.enableSlowMode(1)
 		
 		if (performance.now() - this.lastSave > 5000) {
-			this.autoUpgrade()
 			saveState("_Autosave", 1)
 			this.lastSave = performance.now()
 		}		
 		
+/*		this.autoTimer = (this.autoTimer || GAME_AUTOMATION_PERIOD) - deltaTime
+		if (this.autoTimer <= 0) {
+			this.autoUpgrade()
+			this.autoTimer = GAME_AUTOMATION_PERIOD
+		}*/
+
 		if (this.offline)
 			this.addStatistic("offlineTime", deltaTime)
 		else
@@ -330,11 +415,14 @@ const game = {
 		
 		this.timeStep(deltaTime / 1000)
 				
+		if (tempOffline) this.offline = false
+
 		this.updateInterface = true
 	},
 	
 	autoUpgrade() {
 		const upgradablePoints = this.map.points.filter(x => x.index && x.owned && !x.boss)
+		this.autoUpgrading = 1
 		if (game.skills.automation){
 			let points = upgradablePoints.filter(x => this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
 			while (points[0] && points[0].costs.levelUp <= this.resources.gold * this.automation.maxCost * 0.01) points.shift().levelUp()
@@ -349,6 +437,14 @@ const game = {
 				})
 			})
 		}
+		if (this.autoUpgrading > 1) {
+			this.update()
+			gui.target.updateUpgrades()
+			if (this.autoUpgrading & 2) {
+				if (gui.management.sortOften && gui.tabs.activeTab == "management") gui.management.update(true)
+			}
+		}
+		this.autoUpgrading = 0
 	},
 	
 	timeStep(time) {
@@ -361,15 +457,27 @@ const game = {
 		
 			const manaTime = (!this.resources.mana || this.real.production.mana >= 0) ? time : -(this.resources.mana / this.real.production.mana)
 			const expTime = (!this.resources.exp || this.real.production.exp >= 0) ? time : -(this.resources.exp / this.real.production.exp)
-			const deltaTime = this.iterations?Math.min(this.iterations < 500?this.iterations < 100?5:1:0.25, time, manaTime, expTime):time
+			const damageTime = [...this.attacked].reduce((v, point) => {
+				if (!point.index || !point.real || point.real.loss <= 0) {
+					point.real.loss = 0
+					return v
+				}
+				return Math.min(v, Math.max(0.1, point.real.defence / point.real.loss / 10))
+			}, 60)
+			
+			const deltaTime = this.iterations?Math.min(damageTime, time, manaTime, expTime):time
 						
 			const mul = deltaTime / 2
 			this.sliders.map(slider => slider.grow(mul))
 
 			this.getReal()
+			
+			this.attacked.clear()
 			this.map.points.map (point => point.getReal())
 			this.sliders.map (slider => slider.getReal())
 			this.getRealProduction()
+			
+			for (let point of this.attacked) point.attack(deltaTime)
 
 			this.sliders.map(slider => slider.advance(deltaTime))
 			
@@ -381,6 +489,12 @@ const game = {
 				if (this.resources[x] < 1e-8) this.resources[x] = 0
 			})
 			
+
+			this.autoTimer = (this.autoTimer || GAME_AUTOMATION_PERIOD) - deltaTime * (this.offline?100000:1000)
+			if (this.autoTimer <= 0) {
+				this.autoUpgrade()
+				this.autoTimer = GAME_AUTOMATION_PERIOD
+			}
 
 			this.getReal()
 			this.map.points.map (point => point.getReal())
@@ -396,7 +510,7 @@ const game = {
 		if (!free) {
 			if (game.resources.exp < SKILLS[skill].exp * game.skillCostMult) 
 				return
-			if (SKILLS[skill].map && game.map.level < SKILLS[skill].map) 
+			if (SKILLS[skill].map && game.realMap.level < SKILLS[skill].map) 
 				return
 			if (SKILLS[skill].sliders && game.sliders.length < SKILLS[skill].sliders) 
 				return
@@ -426,7 +540,7 @@ const game = {
 		if (!this.real.production) this.real.production = {}
 		
 		Object.keys(this.growth).map(x => {
-			this.real.multi[x] = this.multi[x] * (1 + 1 * this.stardust[x] * this.resources.clouds)
+			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
 	},
@@ -440,6 +554,51 @@ const game = {
 		this.real.production.gold += this.sliders.reduce((v,x) => v + (x.real && x.real.madeGold || 0), 0)
 	},
 		
+	enableSlowMode(x = 1) {
+//		console.log("Set slow mode "+x)
+		if (this.slowMode) {
+			this.slowMode = Math.max(this.slowMode, x)
+			return
+		}
+		this.slowMode = x
+		this.worker.postMessage({
+			name : "setFPS",
+			value : settings.slowDataFPS
+		})
+		gui.oldTab = gui.tabs.activeTab
+		gui.tabs.setTab("map")
+//		gui.map.foreground.classList.toggle("hidden", this.slowMode)
+//		gui.map.background.classList.toggle("hidden", this.slowMode)
+		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
+		gui.map.dvResources.classList.toggle("hidden", this.slowMode)
+		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
+		gui.map.dvSliders.classList.toggle("hidden", this.slowMode)
+		gui.map.dvLowLoad.classList.toggle("hidden", !this.slowMode)
+		gui.map.updateLowLoad(true)
+		gui.hover.reset()
+		gui.target.reset()
+	},
+	
+	disableSlowMode() {
+//		console.log("Unset slow mode")
+		this.slowMode = 0
+		this.worker.postMessage({
+			name : "setFPS",
+			value : settings.dataFPS
+		})
+		gui.tabs.setTab(gui.oldTab || "map")
+//		gui.map.foreground.classList.toggle("hidden", this.slowMode)
+//		gui.map.background.classList.toggle("hidden", this.slowMode)
+		gui.map.dvLowLoad.classList.toggle("hidden", !this.slowMode)
+		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
+		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
+		gui.map.dvResources.classList.toggle("hidden", this.slowMode)
+		gui.map.dvSliders.classList.toggle("hidden", this.slowMode)
+		this.updateBackground = true
+		this.updateInterface = true
+		this.updateRenderData()
+	},
+	
 	toJSON() {
 		this.saveTime = Date.now()
 		let o = Object.assign({}, this)
@@ -448,13 +607,18 @@ const game = {
 		delete o.updateBackground
 		delete o.dev
 		delete o.frame
-		delete o.frameTime
 		delete o.lastSave
+		delete o.slowMode
 		delete o.activeRender
 		delete o.animatingPoints
+		delete o.attacked
+		delete o.autoTimer
 		delete o.real
+		delete o.realMap
+		delete o.map
 		delete o.renderData
 		delete o.offline
+		delete o.autoUpgrading
 		delete o.iterations
 		delete o.updateInterface
 		return o
@@ -476,6 +640,9 @@ const game = {
 		this.multi = save.multi || POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 1 : v, v), {}),
 		Object.assign(this.automation, save.automation)
 
+		this.attacked.clear()
+		this.autoTimer = GAME_AUTOMATION_PERIOD
+
 		this.story = save.story || {}
 		this.statistics = save.statistics || {}
 		this.lastViewedStory = save.lastViewedStory || 0
@@ -490,7 +657,12 @@ const game = {
 		
 		save.saveSkills.map(x => this.skills[x] = 1)
 
-		this.setMap(Map(save.map, mapLoader))
+		this.maps = save.maps || {"main" : save.map}
+		const activeMap = save.activeMap || "main"
+		
+		this.realMap = this.maps["main"]
+		this.setMap(activeMap, false)
+		
 		this.sliders = save.sliders.map(x => Slider(x))
 
 		this.sliders.map(x => x.target && x.autoTarget())
@@ -520,6 +692,10 @@ const game = {
 		
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		gui.tabs.setTab("map")
+
+		gui.stardust.newMapLevelSlider.setMax(this.realMap.level)
+		gui.stardust.newMapLevelSlider.steps = this.realMap.level
+		gui.stardust.newMapLevelSlider.setValue(this.realMap.level)
 	},
 	
 	reset(auto) {
@@ -553,9 +729,11 @@ const game = {
 		Object.keys(this.resources).map(x => this.resources[x] = 0)
 		Object.keys(this.stardust).map(x => this.stardust[x] = 0)
 		Object.keys(this.production).map(x => this.production[x] = 0)
-		let map = Map(mapLevel(0), mapMaker)
-	
-		this.setMap(map)
+		this.autoTimer = GAME_AUTOMATION_PERIOD
+		
+		this.maps = {}
+		let map = this.createMap("main", 0, false)
+		this.setMap("main", false)
 	
 		let sliders = Array(1).fill().map(x => Slider({
 			stats : {
@@ -573,6 +751,7 @@ const game = {
 
 		this.skillCostMult = 1
 		gui.skills.updateSkills()
+		this.attacked.clear()
 
 		this.getReal()
 		this.map.points.map (point => point.getReal())

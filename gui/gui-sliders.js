@@ -8,6 +8,7 @@ const SlidersTab = Template({
 			parent : this.dvDisplay,
 			className : "point-info hidden",
 			align(x, y) {
+				if (x == -1) return
 				let width = this.dvDisplay.offsetWidth
 				let height = this.dvDisplay.offsetHeight
 				x = ((x + width + 5< viewport.width) ? (x + 5) : (x - 5 - width))
@@ -25,6 +26,7 @@ const SlidersTab = Template({
 	onSet() {
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
 		game.sliders.map(slider => {
+			this.dvSliders.appendChild(slider.dvDisplay)
 			slider.updateFullVisibility()
 			slider.displayStats.map(y => {
 				y.expSlider.update()

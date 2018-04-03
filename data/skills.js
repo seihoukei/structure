@@ -129,7 +129,7 @@ const SKILLS = {
 		mult: 1.3, 
 		exp : 1286008230.452675,
 		req : ['build1'],
-		onGet: () => game.production.gold *= game.map.level ** 2 / 16.9,
+		onGet: () => game.production.gold *= game.realMap.level ** 2 / 16.9,
 	},
 	fear : {
 		name : "Reign of fear",
@@ -260,6 +260,74 @@ const SKILLS = {
 		map : 19,
 		mult: 2,
 		exp : 1e13
+	},
+	power: {
+		name: "Absolute power",
+		desc: "Physical attack ignores spirit penalty",
+		map : 21,
+		mult: 2,
+		exp : 1e17
+	},
+	spellcasting : {
+		name: "Secrets of the Magick Grimoire",
+		desc: "Ability to learn and cast spells",
+		sliders : 5,
+		mult : 2,
+		exp : 1e18
+	},
+	book_summons1 : {
+		name: "The warrior's spell",
+		desc: "Spellbook - Summon clones to attack chosen point",
+		req : ["spellcasting"],
+		science : 10e12,
+		exp : 1e19,
+		mult : 1,
+	},
+	virtualMaps: {
+		name : "Virtual empire",
+		desc : "Use stardust to create and explore virtual maps",
+		map : 22,
+		mult : 2,
+		exp : 2e20
+	},
+	book_dispels1 : {
+		name: "Breaking the law",
+		desc: "Spellbook - Break protected point shields",
+		req : ["spellcasting"],
+		map : 23,
+		science : 30e12,
+		exp : 1e19,
+		mult : 1,
+	},
+	build4: {
+		name : "Angry machines",
+		desc : "Build at level 4 points",
+		map : 24,
+		mult : 3,
+		exp : 1e22
+	},
+	retainVirtualBonus: {
+		name : "Beyond Reality",
+		desc : "Retain virtual map bonuses when deleting them",
+		map : 25,
+		mult : 2,
+		exp : 2e22
+	},
+	virtualMapFocus: {
+		name : "Heavenseeker",
+		desc : "Create focused virtual maps",
+		sliders : 6,
+		mult : 2,
+		exp : 2e21
+	},
+	book_summons2 : {
+		name: "Elements of Creation",
+		desc: "Spellbook - Summon elementals to attack chosen point",
+		req : ["spellcasting"],
+		map : 27,
+		science : 10e12,
+		exp : 1e19,
+		mult : 1,
 	},
 	pierceResist: {
 		name : "Witchbane", //rename

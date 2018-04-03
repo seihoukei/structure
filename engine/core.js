@@ -26,7 +26,8 @@ window.onload = (event) => {
 //			autoSkills : ["autoTarget", "sensor"],
 //			seeAll : true,
 			setMap(n, v) {
-				game.setMap(Map(mapLevel(n, v), mapMaker))
+				game.createMap("dev", n, v)
+				game.setMap("dev", 1)
 			},
 		}
 
@@ -36,6 +37,7 @@ window.onload = (event) => {
 	if (!loadState("_Autosave", false, true))
 		game.reset(true)
 
+	initEvents()
 //	viewport.init()
 
 	let worker = new Worker ("./utility/worker.js")
@@ -62,13 +64,42 @@ window.onload = (event) => {
 
 	worker.postMessage({
 		name : "start",
-		frameTime : game.frameTime
+		frameTime : 1000 / settings.dataFPS
 	})
+	
+	game.worker = worker
 
 	requestAnimationFrame(frame)
 }
 
-window.onresize = (event) => {
-	getSize()
-	game.updateBackground = true
+function initEvents() {
+	window.onresize = (event) => {
+		getSize()
+		game.updateBackground = true
+		game.lastAction = performance.now()
+	}
+	
+	window.onblur = (event) => {
+		if (game && settings.slowModeBackground)
+			game.enableSlowMode(2)
+	}
+	
+	window.onmousemove = (event) => {
+		game.lastAction = performance.now()
+		if (game.slowMode == 1)
+			game.disableSlowMode()
+	}
+	
+	window.onkeydown = (event) => {
+		game.lastAction = performance.now()
+		if (game.slowMode == 1)
+			game.disableSlowMode()
+	}
+	
+	window.onfocus = (event) => {
+		game.lastAction = performance.now()
+		if (game.slowMode == 2 || game.slowMode == 1)
+			game.disableSlowMode()
+	}
 }
+

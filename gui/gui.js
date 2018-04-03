@@ -9,14 +9,14 @@ const gui = {
 			name : "main"
 		})
 		
-		this.dvTabs = createElement("div", "tabs", document.body)
+//		this.dvTabs = createElement("div", "tabs", document.body)
 		
 		this.map = this.tabs.addTab("map", "Map", MapTab)
 		this.sliders = this.tabs.addTab("sliders", "Sliders", SlidersTab)
 		this.skills = this.tabs.addTab("skills", "Skills", SkillsTab)
 		this.management = this.tabs.addTab("management", "Management", ManagementTab)	
 		
-		this.tabs.addTab("stardust", "Stardust", StardustTab)
+		this.stardust = this.tabs.addTab("stardust", "Stardust", StardustTab)
 		//this.tabs.addTab("magic", "Magic")
 		this.tabs.addFiller()
 
@@ -44,15 +44,24 @@ const gui = {
 			
 			_init() {
 				this.dvDisplay.onmousemove = (event) => gui.hover.reset()
+				this.dvDisplay.onclick = (event) => event.target == this.dvDisplay?this.reset():0
+				
 				this.pointDisplay = PointInfoDisplay({
 					className : "point-info",
 					parent : this.dvDisplay,
 				})
-				this.dvSliders = createElement("div", "sliders", this.dvDisplay)
+				this.dvButtons = createElement("div", "buttons", this.dvDisplay)
+				this.dvSliders = createElement("div", "sliders", this.dvButtons)
 				this.dvSliders.onclick = (event) => event.target == this.dvSliders?this.reset():0
 				
 				this.dvHint = createElement("div", "target-hint", this.dvSliders, "Click to assign/free:")
-				this.dvUpgrades = createElement("div", "upgrades", this.dvDisplay)
+				this.dvAll = createElement("div", "target-all", this.dvHint, "All")
+				this.dvAll.onclick = (event) => game.sliders.map(x => x.assignTarget(this.point || null))
+				this.dvReal = createElement("div", "target-all", this.dvHint, "Real")
+				this.dvReal.onclick = (event) => game.sliders.filter(x => !x.clone).map(x => x.assignTarget(this.point || null))
+				this.dvClones = createElement("div", "target-all", this.dvHint, "Clones")
+				this.dvClones.onclick = (event) => game.sliders.filter(x => x.clone).map(x => x.assignTarget(this.point || null))
+				this.dvUpgrades = createElement("div", "upgrades", this.dvButtons)
 				this.dvUpgrades.onclick = (event) => event.target == this.dvUpgrades?this.reset():0
 				
 				this.buttons = {}
@@ -93,13 +102,43 @@ const gui = {
 						text: () => x.name + "\n" + (this.point?this.point.buildings[x.id]?x.info.call(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 					})
 				})
+
+				this.dvSpells = createElement("div", "spells", this.dvButtons)
+				this.dvSpells.onclick = (event) => event.target == this.dvSpells?this.reset():0
+				
+				this.spellButtons = {}
+
+				Object.values(SPELLS).map(x => {
+					if (x.type != SPELL_TYPE_POINT) return
+					this.spellButtons[x.id] = IconButton({
+						parent: this.dvSpells,
+						onclick: (event) => {
+							if (this.point) {
+								this.point.cast(x.id)
+							}
+						},
+						available: () => (this.point && this.point.manaCosts[x.id] <= game.resources.mana),
+						visible: () => game.skills["book_"+x.book] && this.point && (this.point.manaCosts[x.id] >= 0),
+						owned: () => false,
+						iconText: x.iconText,
+						iconColor: x.iconColor,
+						desc : x.desc,
+						text: () => this.point?x.name + "\n" + "Mana: "+displayNumber(this.point.manaCosts[x.id]):""
+					})
+				})
+
 			},
 			
 			align(x, y) {
 				let width = this.dvDisplay.offsetWidth
 				let height = this.dvDisplay.offsetHeight
-				x = ((x + width + 5< viewport.width) ? (x + 5) : (x - 5 - width))
-				y = y - height / 2
+				if (x == -1) {
+					x = parseInt(this.dvDisplay.style.left || "0")
+					y = parseInt(this.dvDisplay.style.top || "0")
+				} else {
+					x = ((x + width + 5 < viewport.width) ? (x + 5) : (x - 5 - width))
+					y = y - height / 2
+				}
 				x = Math.max(1, Math.min(viewport.width - width - 1, x))
 				y = Math.max(1, Math.min(viewport.height - height - 1, y))
 				this.dvDisplay.style.left = x + "px"
@@ -127,6 +166,8 @@ const gui = {
 					slider.dvTarget.classList.toggle("notransition",true)
 					this.dvSliders.appendChild(slider.dvTarget)
 					slider.dvTarget.offsetWidth && slider.dvTarget.classList.toggle("notransition",false)
+					slider.getReal(true)
+					slider.updateTarget(this.point)
 				})
 				
 				Object.values(this.buttons).map (x => x.dvDisplay.classList.toggle("notransition", true))
@@ -144,7 +185,11 @@ const gui = {
 							0
 				
 				const displaySliders = mode == 1 || mode == 2
+				this.dvAll.classList.toggle("hidden", !displaySliders || game.sliders.length < 2)
+				this.dvReal.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone).length)
+				this.dvClones.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone).length)
 				this.dvSliders.classList.toggle("hidden", !displaySliders)
+				this.dvSpells.classList.toggle("hidden", !game.skills.spellcasting || !this.point || !(Object.values(this.point.manaCosts).filter(x => x > -1).length))
 	
 				if (displaySliders)
 					game.sliders.map(slider => slider.updateTarget(this.point))
@@ -153,10 +198,12 @@ const gui = {
 				if (mode == 3) {
 					Object.values(this.buttons).map(x => x.updateAvailability())
 				}
+				Object.values(this.spellButtons).map(x => x.updateAvailability())
 			},
 			
 			updateUpgrades() {
 				Object.values(this.buttons).map(x => x.update())
+				Object.values(this.spellButtons).map(x => x.update())
 			},
 			
 			onReset() {
@@ -223,20 +270,20 @@ const gui = {
 
 	updateTabs() {
 		let distress = game.map.markers && game.map.markers.length
-		this.map.dvAscend.innerText = distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
-		this.map.dvAscend.classList.toggle("disabled",distress || game.resources.stars < game.map.ascendCost && !game.map.boss || game.map.boss && game.map.points.filter(x => !x.owned && x.boss == game.map.boss).length)
+		this.map.dvAscend.innerText = game.map.virtual?"Leave":distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
+		this.map.dvAscend.classList.toggle("disabled",!game.map.virtual && (distress || game.resources.stars < game.map.ascendCost && !game.map.boss || game.map.boss && game.map.points.filter(x => !x.owned && x.boss == game.map.boss).length))
 		this.map.dvAscend.classList.toggle("hidden", !game.statistics.stars)
 		this.dvMana.classList.toggle("hidden", !game.skills.magic)
 		this.dvScience.classList.toggle("hidden", !game.resources.science)
 		this.map.dvDisplay.classList.toggle("dark", !!game.map.boss)
 		this.map.dvDisplay.classList.toggle("complete", !!game.map.complete)
 		this.tabs.setTitle("sliders", game.sliders.length > 1?game.sliders.length+" "+"Sliders":"Slider")
-		this.tabs.toggleDisplay("skills", game.map.level)
+		this.tabs.toggleDisplay("skills", game.realMap.level)
 		this.tabs.toggleDisplay("management", game.skills.management)
 		this.tabs.toggleDisplay("stardust", game.skills.stardust)
 		if (game.skills.stardust) {
 			const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
-			gui.tabs.setTitle("stardust", freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust")
+			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
 		}
 //		this.tabs.toggleDisplay("magic", game.skills.magic)
 	},

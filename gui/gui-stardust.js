@@ -214,6 +214,9 @@ const mapDisplayHandler = {
 		this.dvGo = createElement("div", "button" + (game.activeMap == this.name?"":" enabled"), this.dvDisplay, "Visit")
 		if (this.name != game.activeMap) {
 			this.dvGo.onclick = (event) => {
+				const summons = game.sliders.filter(x => x.clone == 2).length
+				if (summons && !confirm("You have " + pluralize(summons, ["summon", "summons"]) + ". \n Changing map will make "+pluralize(summons, ["it","them"], true)+" disappear. \n Do you really want to go?")) 
+					return
 				game.setMap(this.name, true)
 				gui.tabs.setTab("map")
 			}

@@ -136,6 +136,53 @@ const SPELLS = {//function context == point
 		iconText : "M",
 		iconColor : "gray",
 	},
+	destroyNoclone : {
+		name : "Dispel summon shield",
+		desc : "Removes shield from summon-protected point",
+		book : "dispels2",
+		type : SPELL_TYPE_POINT,
+		cost() { 
+			return this.owned?-1:this.special == SPECIAL_NOCLONE?(this.bonus ** 0.5 / 10):-1
+		},
+		cast() {
+			delete this.special
+			game.updateBackground = true
+		},
+		iconText : "D",
+		iconColor : "#DD55DD",
+	},
+	destroyNobuild : {
+		name : "Dispel build shield",
+		desc : "Removes shield from building-preventing point",
+		book : "dispels2",
+		type : SPELL_TYPE_POINT,
+		cost() { 
+			return this.owned?-1:this.special == SPECIAL_NOBUILD?(this.bonus ** 0.5 / 10):-1
+		},
+		cast() {
+			delete this.special
+			game.updateBackground = true
+		},
+		iconText : "D",
+		iconColor : "#DD55DD",
+	},
+	destroyLock : {
+		name : "Rest in keys",
+		desc : "Unlock the nearby locked points",
+		book : "unlocks1",
+		type : SPELL_TYPE_POINT,
+		cost() { 
+			const locks = [...this.children].filter(x => !x.owned && x.locked == 1).length
+			return this.owned && locks?(this.bonus ** 0.5 / 10)* 1.5 ** ((this.map.unlocked || 0) + locks - 1):-1
+		},
+		cast() {
+			for (let child of this.children)
+				if (child.locked == 1) child.unlocked = true
+			game.update()
+		},
+		iconText : "⚷\uFE0E",
+		iconColor : "#DD55DD",
+	},
 }
 
 Object.keys(SPELLS).map(x => SPELLS[x].id = x)

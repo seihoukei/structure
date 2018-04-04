@@ -46,7 +46,7 @@ const mouse = {
 			gui.target.reset()
 		} else if (event.button == 0) {
 			if (this.closest) {
-				if (this.closest.lock && !this.closest.keyData.keyPoint.owned) {
+				if (this.closest.locked == 1 && !this.closest.keyData.keyPoint.owned) {
 					let key = this.closest.keyData.keyPoint
 					if (key.away == 1) {
 						if (key.onscreen)

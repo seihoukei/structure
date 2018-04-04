@@ -430,7 +430,7 @@ const sliderHandler = {
 		if (!point) {
 			this.target = null
 			if (this.hovered) gui.sliders.hover.reset()
-		} else if (!(point.away > 1) && !(point.lock && !point.keyData.keyPoint.owned)) {
+		} else if (!(point.away > 1) && !(point.locked == 1)) {
 			this.target = point
 			if (this.hovered) gui.sliders.hover.set(this.target, -1)
 		}

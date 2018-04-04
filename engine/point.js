@@ -26,6 +26,8 @@ const SPECIAL_BLOCK = 1
 const SPECIAL_COLONY = 2
 const SPECIAL_CLONE = 3
 const SPECIAL_RESIST = 4
+const SPECIAL_NOBUILD = 5
+const SPECIAL_NOCLONE = 6
 
 const pointHandler = {
 	_init() {
@@ -89,8 +91,10 @@ const pointHandler = {
 		this.outs = [...this.children].filter(x => !x.owned && (!x.boss || x.boss <= this.map.boss)).length
 		
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
-		Object.values(BUILDINGS).map(x => this.costs[x.id] = x.cost.call(this))
-		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] ? x.cost.call(this) : -1)
+		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
+		Object.values(BUILDINGS).map(x => this.costs[x.id] = this.nobuild?-1:x.cost.call(this))
+		this.noclone = this.special == SPECIAL_NOCLONE
+		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost.call(this) : -1)
 		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
 			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
@@ -197,7 +201,7 @@ const pointHandler = {
 	updateText() {
 		let s = []
 		if (this.key) s.push("⚷\uFE0E" + this.key)
-		if (this.lock) s.push((this.keyData.keyPoint.owned?"🔓\uFE0E":"🔒\uFE0E") + this.lock)
+		if (this.lock) s.push((this.keyData.keyPoint.owned || this.unlocked?"🔓\uFE0E":"🔒\uFE0E") + this.lock)
 		if (this.exit) s.push("🌟\uFE0E")
 		if (this.boss) s.push("⚔\uFE0E")
 		if (!this.index) s.push(game && game.skills.mining?"⛏\uFE0E":"🏠\uFE0E")
@@ -207,11 +211,11 @@ const pointHandler = {
 	updateAway() {
 		this.away = 0
 		let pt = this
-		this.locked = (this.lock && !this.keyData.keyPoint.owned) ? 1 : 0
+		this.locked = (this.lock && !this.unlocked && !this.keyData.keyPoint.owned) ? 1 : 0
 		while (!pt.owned && pt.parent && pt.parent != pt) {
 			this.away++
 			pt = pt.parent
-			if (pt.lock && !pt.keyData.keyPoint.owned)
+			if (pt.lock && !pt.unlocked && !pt.keyData.keyPoint.owned)
 				this.locked = 2
 		}
 		return this.away
@@ -396,6 +400,14 @@ const pointHandler = {
 		if (this.special == SPECIAL_BLOCK) {
 			game.addStatistic("special_blocks")
 		}
+		if (this.special == SPECIAL_NOCLONE) {
+			game.addStatistic("special_noclones")
+			this.special = 0
+		}
+		if (this.special == SPECIAL_NOBUILD) {
+			game.addStatistic("special_nobuilds")
+			this.special = 0
+		}
 		game.addStatistic("points")
 		
 		if (!this.map.points.filter(x => !x.owned).length)
@@ -404,7 +416,7 @@ const pointHandler = {
 		game.update()
 		attackers.map(x => {
 			if (x.clone == 2) {
-				const outs = [...this.children].filter(x => !x.locked && (!x.boss || x.boss <= this.map.boss))
+				const outs = [...this.children].filter(x => !x.locked && (!x.boss || x.boss <= this.map.boss) && x.special != SPECIAL_NOCLONE)
 				if (!outs.length)
 					x.fullDestroy()
 				else

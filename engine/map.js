@@ -83,6 +83,20 @@ const mapHandler = {
 					c.arc(size3 * 0.75, -point.renderSize * 0.75, size3 * 1.5, 2 * pi3, 3 * pi3)
 					c.arc(0, point.renderSize * 1.5, size3 * 1.5, 4 * pi3, 5 * pi3)
 				}
+				if (point.special == SPECIAL_NOCLONE) {
+					c.moveTo(point.renderSize * 0.8, 0)
+					for (let i = 0; i < 17; i++) {
+						c.lineTo((point.renderSize * (i&1?1.6:0.8)) * Math.cos(i * 3.1415 / 8), (point.renderSize * (i&1?1.6:0.8)) * Math.sin(i * 3.1415 / 8))
+					}
+				}
+				if (point.special == SPECIAL_NOBUILD) {
+					c.rect(point.renderSize * 1.3, point.renderSize * 1.2, -point.renderSize * 2.6, -point.renderSize * 0.6)
+					c.rect(point.renderSize * 1.6, point.renderSize * 0.6, -point.renderSize * 2.6, -point.renderSize * 0.6)
+					c.rect(point.renderSize * 1.0, -point.renderSize * 0.6, -point.renderSize * 2.6,  point.renderSize * 0.6)
+					c.rect(point.renderSize * 1.3, -point.renderSize * 1.2, -point.renderSize * 2.6,  point.renderSize * 0.6)
+					c.moveTo(0, -point.renderSize * 1.2)
+					c.lineTo(0, point.renderSize * 1.2)
+				}
 			}
 			c.restore()
 		}
@@ -145,7 +159,10 @@ const mapHandler = {
 		c.beginPath()
 		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
 		c.strokeStyle = gui.theme.shades[5]
-		this.renderedPoints.filter(x => x.special && (x.away == 1 || x.owned)).map(drawExtra)
+		if (game.dev && game.dev.seeAll)
+			this.renderedPoints.map(drawExtra)
+		else
+			this.renderedPoints.filter(x => x.special && (x.away == 1 || x.owned)).map(drawExtra)
 		c.stroke()
 		c.restore()
 
@@ -217,6 +234,7 @@ const mapHandler = {
 	},
 	
 	restoreState() {
+		this.unlocked = this.unlocked || 0
 		this.keys = Array(this.level + 1).fill().map(x => ({}))
 		this.points.map((point,index) => {
 			point.index = index
@@ -452,21 +470,28 @@ const mapMaker = {
 			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
 			this.restoreState()
 		} else {
-			if (this.virtual) {
+			if ((this.virtual && this.level <= 30) || (!this.virtual && this.level >= 30)) {
 				const baseSize = 5 + this.level / 10
-				const distance = baseSize * 8
+				const distance = baseSize * 8 
 				const taken = new Map()
 				taken.set("0,0", this.points[0])
-				n = n * 1.5 | 0
+				if (this.virtual) n = n * 1.5 | 0
+				if (this.level == 30 && !this.virtual) n = 284
 				while (n--) {
 					let x = 0
 					let y = 0
 					while (taken.get(x+","+y)) {
 						parent = taken.get(x+","+y)
-						if (Math.random() < 0.5) 
+						if (Math.random() < 0.5) {
 							x += Math.random() < 0.5?1:-1
-						else
+							if (this.level == 30 && !this.virtual)
+								x = Math.max(-8 + (Math.abs(y) == 8 ? 1 : 0), Math.min(8 - (Math.abs(y) == 8 ? 1 : 0), x))
+						} else {
 							y += Math.random() < 0.5?1:-1
+							if (this.level == 30 && !this.virtual)
+								y = Math.max(-8 + (Math.abs(x) == 8 ? 1 : 0), Math.min(8 - (Math.abs(x) == 8 ? 1 : 0), y))
+						}
+						
 					}
 					const point = Point({
 						parent,
@@ -476,15 +501,94 @@ const mapMaker = {
 						type : n % 6 + 1,
 						depth : parent.depth + 1
 					})
+					
+					if (this.level == 30 && !this.virtual) {
+						if (point.distance < 200) {
+							point.type = 2
+						} else {
+							point.type = x < 0  && y <= 0?3:
+										 x <= 0  && y > 0?4:
+										 x > 0  && y >= 0?5:
+										 6
+						}
+						if (Math.abs(x) == 3 || Math.abs(y) == 7) point.special = (!point.special || Math.random() < 0.5) ? SPECIAL_RESIST : point.special
+						if (Math.abs(y) == 3 || Math.abs(x) == 7) point.special = (!point.special || Math.random() < 0.5) ? SPECIAL_BLOCK : point.special
+						if (Math.abs(x) == 5 && Math.abs(y) <= 5 || Math.abs(y) == 5 && Math.abs(x) <= 5) point.special = (!point.special || Math.random() < 0.5) ? SPECIAL_NOBUILD : point.special
+						if (Math.abs(x) == 5 && Math.abs(y) > 5 || Math.abs(y) == 5 && Math.abs(x) > 5) point.special = (!point.special || Math.random() < 0.5) ? SPECIAL_NOCLONE : point.special
+					}
+					
 					taken.set(x+","+y, point)
-					if (Math.random() < 0.5) 
-						x += Math.random() < 0.5?1:-1
-					else
-						y += Math.random() < 0.5?1:-1
-					taken.set(x+","+y, taken.get(x+","+y) || point)
+					if (this.level != 30 || this.virtual) {
+						if (Math.random() < 0.5) 
+							x += Math.random() < 0.5?1:-1
+						else
+							y += Math.random() < 0.5?1:-1
+						taken.set(x+","+y, taken.get(x+","+y) || point)
+					}
 					this.points.push(point)
 				}
+				
+				if (this.level == 30 && !this.virtual) {
+					for (let i = 0; i < 4; i++) {
+						let x = (i&1)?-8:8
+						let y = (i&2)?-8:8
+						const parent = Math.random() < 0.5?taken.get((x + ((i&1)?1:-1))+","+y):taken.get(x + "," + (y + ((i&2)?1:-1)))
+						const point = Point({
+							parent,
+							angle : Math.atan2(y, x),
+							distance : Math.hypot(x, y) * distance,
+							size : 4 * baseSize,
+							type : 1,
+							depth : parent.depth + 1,
+							boss : 1,
+							special : SPECIAL_NOCLONE,
+							customPower : this.basePower * 1000
+						})
+						taken.set(x+","+y, point)
+						this.points.push(point)
+						x *= 12/8
+						y *= 12/8
+						const point2 = Point({
+							parent : point,
+							angle : Math.atan2(y, x),
+							distance : Math.hypot(x, y) * distance,
+							size : 8 * baseSize,
+							type : 1,
+							depth : point.depth + 1,
+							boss : 3,
+							customPower : this.basePower * 5000
+						})
+						taken.set(x+","+y, point2)
+						this.points.push(point2)
+					}
+					for (let i = 0; i < 4; i++) {
+						for (let j = 0; j < 5; j++) {
+							let x = [-12,0,12,0][i]
+							let y = [0,12,0,-12][i]
+							let px = x ? j ? x : x * 8 / 12 : [0,-4,4,-8,8][Math.max(j-2, 0)]
+							let py = y ? j ? y : y * 8 / 12 : [0,-4,4,-8,8][Math.max(j-2, 0)]
+							x = x || [0,-4,4,-8,8][j]
+							y = y || [0,-4,4,-8,8][j]
+							const parent = taken.get(px+","+py)
+							const point = Point({
+								parent,
+								angle : Math.atan2(y, x),
+								distance : Math.hypot(x, y) * distance,
+								size : (j?8:10) * baseSize,
+								type : i + 3,
+								depth : parent.depth + 1,
+								boss : j ? 3 : 2,
+								customPower : this.basePower * (j ? 3500 : 2000)
+							})
+							taken.set(x+","+y, point)
+							this.points.push(point)
+						}
+					}
+					this.boss = 1
+				}
+					
 			} else {
+				if (this.virtual) n = n * 1.5 | 0
 				while (n--) {
 					let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount - n) ** 0.4) * Math.random()).toDigits(3)
 					let angle, spacing
@@ -592,10 +696,18 @@ const mapMaker = {
 				}		
 			}
 			
-			if (this.level > 12 || this.virtual){				
+			if ((this.level > 12 && this.level != 30) || this.virtual){				
 				for (let i = 0; i < (this.level | 0) - (this.virtual?0:10); i++) {
 					const point = [...canBlock][canBlock.size * Math.random()|0]
 					point.special = i&1?SPECIAL_RESIST:SPECIAL_BLOCK
+					canBlock.delete(point)
+				}
+			}		
+
+			if (this.level > 25 && this.level != 30){				
+				for (let i = 0; i < (this.level | 0) - (this.virtual?10:20); i++) {
+					const point = [...canBlock][canBlock.size * Math.random()|0]
+					point.special = i&1?SPECIAL_NOBUILD:SPECIAL_NOCLONE
 					canBlock.delete(point)
 				}
 			}		

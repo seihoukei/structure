@@ -18,7 +18,7 @@ const AboutTab = Template({
 		this.dvFallback = createElement("div", "credits", this.dvDisplay, "Fallback unicode font : 'Symbola' by George Douros")
 		this.dvChangelog = createElement("div", "changelog", this.dvDisplay, `Changelog
 		
-		-- 0.0.3 -- 26 March 2018 --
+		-- 0.0.3 -- 03 April 2018 --
 		- UI improvements
 		- Low load mode
 		- Improved offline progress calculation

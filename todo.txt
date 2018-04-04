@@ -1,34 +1,37 @@
-Important: 
+Important v0.0.3:
+- Skill/Spell : deal with resist without dispel (24, building?)
+- Skill : virtual map looping (26+)
+- Spell : lockbreaker (26+)
+- Spell : create shield (limit points)
+- GameMap 30 design
+...
+
+- Skill : Harvesting ? (30+)
+- Skill : Virtual harvesting ? (30+)
+- Skill : Autoharvesting ? (Science) (30+)
+- Skill : Autocast ?(Science)
+
 - Notifications (ran out of exp / mana, achievement, offline progress)
+- Story
+- Wiki
+- Cloud saves
 
 ...
-- Map : Hover/target icons scaling to text length
-- Map : Fix fallback icon scaling
-- Story : store last viewed
+- GameMap : Hover/target icons scaling to text length
+- GameMap : Fix fallback icon scaling
+- GameMap : Better resources display
+- GameMap : Better target position for lock => key
 
-- Map : Better resources display
-- Map : Better target position for lock => key
-
-- Skill : Power ignore spirit
-
-- Buildings : level 3 (2-3)
 - Buildings : level 4 (2-3)
 
 - Management : Sorting by time
 
 - Stardust investition (resources)
-- Magic (into imbuements)
-- Virtual maps
-- Artifacts (mine depth)
-- Story
+- Artifacts (mine depth) (20-s)
 - Achievements
-- Agglomerations (mend captured points into huge growth sources
+- Harvesting points into building the new world (31+)
 
-- Map : Backgrounds
-- Map : Low load mode + setting for auto
-
-- World : Map 20 boss (world tree)
-- World break
+- GameMap : Backgrounds
 
 - Keyboard : ESC - reset target window
 
@@ -36,3 +39,5 @@ Important:
 - Mobile : Ascend button workaround
 
 - Statistics : Finish
+
+- Sliders : better color picker

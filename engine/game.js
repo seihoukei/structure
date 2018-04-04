@@ -247,7 +247,7 @@ const game = {
 		const depth = retain ? this.map.points[0].mineDepth || 0 : 0
 		const miners = retain ? this.sliders.filter(x => x.target && x.target.index == 0) : []
 		if (retain)
-			this.production.mana += this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
+			this.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
 				
 		this.activeMap = name
 		this.maps[name] = this.map = GameMap(this.maps[name], mapLoader)
@@ -255,7 +255,7 @@ const game = {
 
 		if (retain) {
 			this.sliders.filter (x => x.clone == 2).map(x => x.fullDestroy())
-			this.production.mana -= this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
+			this.production.mana -= this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
 			this.sliders.map(x => x.assignTarget(null))
 			miners.map(x => x.assignTarget(this.map.points[0]))
 
@@ -382,7 +382,7 @@ const game = {
 			map.points.map(point => point.suspend())
 		} else {
 			const map = GameMap(this.maps[name], mapLoader)
-			this.production.mana += this.skills.magic?(map.level ** 2) * (map.ownedRadius ** 2) / 1e8:0	
+			this.production.mana += this.skills.magic?(map.manaBase) * (map.ownedRadius ** 2):0
 		}
 		delete this.maps[name]
 	},
@@ -547,7 +547,7 @@ const game = {
 	
 	getRealProduction() {
 		RESOURCES.map (x => this.real.production[x] = this.production[x])
-		this.real.production.mana += this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
+		this.real.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
 		this.real.production.mana -= this.sliders.reduce((v,x) => v + (x.real && x.real.usedMana || 0), 0)
 		this.real.production.exp += this.sliders.reduce((v,x) => v + (x.real && x.real.expChange || 0), 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => x.target && !x.target.index?v + (x.real && x.real.attack || 0):v, 0)

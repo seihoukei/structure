@@ -243,6 +243,7 @@ const mapHandler = {
 				point.parent = this.points[point.parentIndex]
 			point.restoreState()
 		})
+		this.manaBase = this.level ** 2 / 1e8//this.basePower ** 0.25 / 10 ** (9.2 + (Math.abs(this.level - 11)/2.5) ** (1 - (Math.max(0, this.level - 22))/200))
 		this.update()
 	},
 

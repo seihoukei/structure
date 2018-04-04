@@ -327,7 +327,7 @@ const pointHandler = {
 		
 		for (let child of this.children) {
 			child.available = true
-			if (game.slowMode)
+			if (game.slowMode && (!child.boss || child.boss <= this.map.boss))
 				child.getDisplay("lowLoad")
 		}
 		this.map.updateAways()

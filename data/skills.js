@@ -315,14 +315,14 @@ const SKILLS = {
 	},
 	virtualMapFocus: {
 		name : "Heavenseeker",
-		desc : "Create focused virtual maps",
+		desc : "Create virtual maps focused on specific attribute",
 		sliders : 6,
 		mult : 2,
 		exp : 2e21
 	},
 	book_summons2 : {
-		name: "Elements of Creation",
-		desc: "Spellbook - Summon elementals to attack chosen point",
+		name: "Master of puppets",
+		desc: "Spellbook - Summon specific elementals to attack chosen point",
 		req : ["spellcasting"],
 		map : 27,
 		science : 10e12,

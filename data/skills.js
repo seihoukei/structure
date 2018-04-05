@@ -306,13 +306,7 @@ const SKILLS = {
 		mult : 3,
 		exp : 1e22
 	},
-	retainVirtualBonus: {
-		name : "Beyond Reality",
-		desc : "Retain virtual map bonuses when deleting them",
-		map : 25,
-		mult : 2,
-		exp : 2e22
-	},
+	//map:25 better mana
 	virtualMapFocus: {
 		name : "Heavenseeker",
 		desc : "Create virtual maps focused on specific attribute",
@@ -320,12 +314,20 @@ const SKILLS = {
 		mult : 2,
 		exp : 2e21
 	},
+	//sliders:6 enchanted mines
+	retainVirtualBonus: {
+		name : "Beyond Reality",
+		desc : "Retain virtual map bonuses when deleting them",
+		map : 27,
+		mult : 2,
+		exp : 2e22
+	},
 	book_summons2 : {
 		name: "Master of puppets",
 		desc: "Spellbook - Summon specific elementals to attack chosen point",
 		req : ["spellcasting"],
 		map : 27,
-		science : 50e12,
+		science : 2e14,
 		exp : 1e19,
 		mult : 1,
 	},
@@ -334,7 +336,7 @@ const SKILLS = {
 		desc: "Spellbook - Break advanced point shields",
 		req : ["spellcasting"],
 		map : 28,
-		science : 70e12,
+		science : 5e14,
 		exp : 2e19,
 		mult : 1,
 	},
@@ -343,7 +345,7 @@ const SKILLS = {
 		desc: "Spellbook - Unlock all the ways from chosen point",
 		req : ["spellcasting"],
 		map : 28,
-		science : 90e12,
+		science : 1e15,
 		exp : 2e19,
 		mult : 1,
 	},

@@ -376,8 +376,8 @@ const mapMaker = {
 		}
 		
 		if (this.level == 25 && !this.virtual) {
-			this.ascendCost = 20
-			this.exitsCount = 30
+			this.ascendCost = 15
+			this.exitsCount = 20
 			for (let d = 0; d < 21; d++)
 				for (let a = 0; a < 5; a++) {
 					const parent = this.points[Math.max(0, d * 5 + a - 4)]
@@ -390,7 +390,7 @@ const mapMaker = {
 						type : d & 1 ? 2 : [1,3,4,5,6][a],
 						special : [SPECIAL_BLOCK, SPECIAL_RESIST, 0][Math.random()*3|0],
 						boss : d==9?1:d==20?2:0,
-						exit : [7,8,18].includes(d)?1:0
+						exit : [5, 7,8,18].includes(d)?1:0
 					})
 					this.points.push(point)
 				}

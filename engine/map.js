@@ -390,7 +390,7 @@ const mapMaker = {
 						type : d & 1 ? 2 : [1,3,4,5,6][a],
 						special : [SPECIAL_BLOCK, SPECIAL_RESIST, 0][Math.random()*3|0],
 						boss : d==9?1:d==20?2:0,
-						exit : [5, 7,8,18].includes(d)?1:0
+						exit : [5,7,8,18].includes(d)?1:0
 					})
 					this.points.push(point)
 				}
@@ -591,7 +591,7 @@ const mapMaker = {
 			} else {
 				if (this.virtual) n = n * 1.5 | 0
 				while (n--) {
-					let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount - n) ** 0.4) * Math.random()).toDigits(3)
+					let size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount * (this.virtual?1.5:1) - n) ** 0.4) * Math.random()).toDigits(3)
 					let angle, spacing
 					
 					if (this.level == 5 && !this.virtual) {

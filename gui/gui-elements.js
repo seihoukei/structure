@@ -434,7 +434,7 @@ const listPickerHandler = {
 		if (forced) {
 			this.buttons.map(x => {
 				x.dvDisplay.classList.toggle("active", x.value == this.container[this.value])
-				x.dvDisplay.classList.toggle("hidden", this.itemVisibility && !this.itemVisibility(x))
+				x.dvDisplay.classList.toggle("hidden", !!(this.itemVisibility && !this.itemVisibility(x)))
 			})
 		}
 		this.onUpdate && this.onUpdate(forced)

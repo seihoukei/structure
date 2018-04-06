@@ -45,6 +45,7 @@ const pointHandler = {
 		this.manaCosts = this.manaCosts || {}
 		this.displays = this.displays || {}
 		this.buildings = this.buildings || {}
+		this.production = this.production || {}
 	},
 	
 	calculateStats() {
@@ -92,12 +93,15 @@ const pointHandler = {
 		
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
 		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
-		Object.values(BUILDINGS).map(x => this.costs[x.id] = this.nobuild?-1:x.cost.call(this))
+		Object.values(BUILDINGS).map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
 		this.noclone = this.special == SPECIAL_NOCLONE
-		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost.call(this) : -1)
+		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
 		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
 			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+		
+		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
+		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 
 		this.updateDisplay("management", true)
 	},
@@ -161,7 +165,7 @@ const pointHandler = {
 		if (this.buildings[name]) return
 		if (!this.costs[name] || this.costs[name] > game.resources.gold || this.costs[name] < 0) return
 		game.resources.gold -= this.costs[name]
-		BUILDINGS[name].build.call(this)
+		BUILDINGS[name].build(this)
 		game.addStatistic("built_"+name)
 		this.buildings[name] = 1
 		if (game.autoUpgrading)
@@ -178,7 +182,9 @@ const pointHandler = {
 		if (SPELLS[name].type != SPELL_TYPE_POINT) return
 		if (this.manaCosts[name] < 0 || this.manaCosts[name] > game.resources.mana) return
 		game.resources.mana -= this.manaCosts[name]
-		SPELLS[name].cast.call(this)
+		if (SPELLS[name].recalc) this.suspend()
+		SPELLS[name].cast(this)
+		if (SPELLS[name].recalc) this.unsuspend()
 		game.update()
 		gui.target.updateUpgrades()		
 		game.addStatistic("cast_"+name)
@@ -188,12 +194,12 @@ const pointHandler = {
 		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		if (this.type && this.owned)
 			game.growth[POINT_TYPES[this.type]] -= this.bonus * ((this.bonusMult || 0) + 1)
-		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy.call(this))
+		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy(this))
 	},
 	
 	unsuspend() {
 		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build.call(this))
+		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build(this))
 		if (this.type && this.owned)
 			game.growth[POINT_TYPES[this.type]] += this.bonus * ((this.bonusMult || 0) + 1)
 	},
@@ -511,7 +517,7 @@ const pointHandler = {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
 		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1)):0
+			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1)):0
 		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},
 	
@@ -555,6 +561,7 @@ const pointHandler = {
 		delete o.costs
 		delete o.manaCosts
 		delete o.displays
+		delete o.production
 		delete o.animationTime
 		delete o.animationProgress
 		if (!o.owned) delete o.owned

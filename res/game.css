@@ -53,6 +53,9 @@
 	--sort-down-bg: maroon;
 	--sort-up-bg: green;
 	--sort-active : white;
+	--enchantgold : #999955;
+	--enchantgrowth : #559999;
+	--enchantmana : #995599;
 }
 
 body.dark {
@@ -108,6 +111,9 @@ body.dark {
 	--sort-down-bg: maroon;
 	--sort-up-bg: green;
 	--sort-active : white;
+	--enchantgold : #AAAA66;
+	--enchantgrowth : #66AAAA;
+	--enchantmana : #AA66AA;
 }
 
 /*body.light.light-boss {
@@ -404,7 +410,7 @@ canvas.foreground : {
 	cursor : default;
 	/*border-radius : 10px;*/
 	transform : scale(1);
-	z-index : 2;
+	z-index : 1;
 }
 
 .icon-button.available {
@@ -526,6 +532,7 @@ canvas.foreground : {
 .map .growth .growth-value, .stardust .growth .growth-value {
 	display : inline-block;
 	padding : 0 0 0 3px;
+	white-space: nowrap;
 }
 
 .map > .sliders {
@@ -565,6 +572,7 @@ canvas.foreground : {
 	top : 31px;
 	left : 3px;
 	z-index : 4;
+	white-space: nowrap;
 	pointer-events : none;
 }
 
@@ -1101,6 +1109,7 @@ canvas.foreground : {
 }
 
 .management .point .level {
+    box-sizing: border-box;
 	width : 40px;
 	height : 40px;
 	font-size : 25px;
@@ -1111,6 +1120,22 @@ canvas.foreground : {
 	align-items : center;
 	justify-content : center;
 }
+
+.management .point .level.enchant-gold {
+	border-radius : 23px;
+	border : 5px solid var(--enchantgold);
+}
+
+.management .point .level.enchant-growth {
+	border-radius : 23px;
+	border : 5px solid var(--enchantgrowth);
+}
+
+.management .point .level.enchant-mana {
+	border-radius : 23px;
+	border : 5px solid var(--enchantmana);
+}
+
 
 .management .point .info {
 	width : 160px;
@@ -1141,6 +1166,18 @@ canvas.foreground : {
 	opacity : 0.25;
 	transform : scale(0.8);
 	transition : transform 0.2s, opacity 0.2s;
+}
+
+.management .point .icons .divider {
+	width : 50px;
+}
+
+.management .point .icons .icon.spell {
+	display : none;
+}
+
+.management .point .icons .icon.spell.visible {
+	display : flex;
 }
 
 .management .point .icons .icon.visible.available, .management .automation .icon.visible {

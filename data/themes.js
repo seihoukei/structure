@@ -13,6 +13,12 @@ const THEMES = {
 				"#00FFFF",
 				"#BBBBBB",
 			],
+			enchantmentColors : [
+				"#777777",
+				"#999955",
+				"#559999",
+				"#995599"
+			],
 			icons : {
 				levelUp : "#003300"
 			},
@@ -36,6 +42,12 @@ const THEMES = {
 				"#FF8C00",
 				"#00FFFF",
 				"#BBBBBB",
+			],
+			enchantmentColors : [
+				"#777777",
+				"#999955",
+				"#559999",
+				"#995599"
 			],
 			icons : {
 				levelUp : "#003300"
@@ -78,6 +90,12 @@ const THEMES = {
 				"#0066AA",
 				"#666666",
 			],    
+			enchantmentColors : [
+				"#858585",
+				"#AAAA66",
+				"#66AAAA",
+				"#AA66AA"
+			],
 			icons : {
 				levelUp : "#003300"
 			},
@@ -108,6 +126,12 @@ const THEMES = {
 					  "#3A3A3A", 
 					  "#2E2E2E", 
 					  "#222222"],
+			enchantmentColors : [
+				"#858585",
+				"#AAAA66",
+				"#66AAAA",
+				"#AA66AA"
+			],
 			typeColors : [
 				"#444444",
 				"#AAAA00",

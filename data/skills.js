@@ -294,7 +294,7 @@ const SKILLS = {
 		name: "Breaking the law",
 		desc: "Spellbook - Break protected point shields",
 		req : ["spellcasting"],
-		map : 23,
+			map : 23,
 		science : 30e12,
 		exp : 1e19,
 		mult : 1,
@@ -306,7 +306,23 @@ const SKILLS = {
 		mult : 3,
 		exp : 1e22
 	},
-	//map:25 better mana
+	book_enchantments1: {
+		name : "Symphony of enchanted lands II",
+		desc : "Spellbook - Use mana to enchant captured points",
+		map : 25,
+		req : ["spellcasting"],
+		science : 1e14,
+		exp : 2e21,
+		mult : 1		
+	},
+	magicManagement : {
+		name : "Wishmaster",
+		desc : "Add magic elements to management",
+		req : ["book_enchantments1", "management"],
+		science : 1e15,
+		exp : 1e20,
+		mult : 1.5
+	},
 	virtualMapFocus: {
 		name : "Heavenseeker",
 		desc : "Create virtual maps focused on specific attribute",

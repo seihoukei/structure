@@ -95,6 +95,8 @@ const mouse = {
 		if (!this.down) {
 			if (game.map.renderedPoints && game.map.renderedPoints.length) {
 				let closest = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x, null)
+				window.tmpv = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2])
+				window.lastc = closest
 				this.closest = closest && closest[1] < (closest[0].size * 3) ** 2 && closest[0] != gui.target.point? closest[0] : null
 				gui.hover.set(this.closest, this.x, this.y)
 			}

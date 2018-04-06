@@ -5,17 +5,20 @@ const BUILDINGS = {//function context == point
 		name : "Gold factory",
 		desc : "Produces gold",
 		level : 1,
-		cost() { 
-			return this.depth * 68400
+		production(point) {
+			return(point.depth * point.map.level ** 2 * ((point.level || 0) + 1) * (game.skills.greed ? point.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (point.distance < point.map.ownedRadius)?(point.map.ownedRadius - point.distance + 1):1))**(point.enchanted == ENCHANT_GOLD?point.map.level/10:1)
 		},
-		info() {
-			return "Production: " + displayNumber(this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? this.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)) + "/s"
+		cost(point) { 
+			return point.depth * 68400
 		},
-		build() {
-			game.production.gold += this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? this.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
+		info(point) {
+			return "Production: " + displayNumber(this.production(point)) + "/s"
 		},
-		destroy() {
-			game.production.gold -= this.depth * this.map.level ** 2 * ((this.level || 0) + 1) * (game.skills.greed ? this.map.level ** 2 / 16.9 : 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?(this.map.ownedRadius - this.distance + 1):1)
+		build(point) {
+			game.production.gold += this.production(point)
+		},
+		destroy(point) {
+			game.production.gold -= this.production(point)
 		},
 		iconText : "G",
 		iconColor : "gold",
@@ -24,17 +27,20 @@ const BUILDINGS = {//function context == point
 		name : "Science lab",
 		desc : "Produces science",
 		level : 1,
-		cost() { 
-			return this.depth * 1000000
+		cost(point) { 
+			return point.depth * 1000000
 		},
-		info() {
-			return "Production: " + displayNumber(this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?this.map.ownedRadius * (this.map.ownedRadius - this.distance + 1):1))
+		production(point) {
+			return point.depth * point.map.level ** 2 / 1e5 * ((point.level || 0) + 1) * (game.skills.magicBoost1 && (point.distance < point.map.ownedRadius)?point.map.ownedRadius * (point.map.ownedRadius - point.distance + 1):1)
 		},
-		build() {
-			game.production.science += this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?this.map.ownedRadius * (this.map.ownedRadius - this.distance + 1):1)
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
 		},
-		destroy() {
-			game.production.science -= this.depth * this.map.level ** 2 / 1e5 * ((this.level || 0) + 1) * (game.skills.magicBoost1 && (this.distance < this.map.ownedRadius)?this.map.ownedRadius * (this.map.ownedRadius - this.distance + 1):1)
+		build(point) {
+			game.production.science += this.production(point)
+		},
+		destroy(point) {
+			game.production.science -= this.production(point)
 		},
 		iconText : "S",
 		iconColor : "purple",
@@ -43,14 +49,14 @@ const BUILDINGS = {//function context == point
 		name : "Ironhearted flag",
 		desc : "Increases spirit for nearby sliders",
 		level : 1,
-		cost() { 
-			return (this.depth * this.outs * 1000000) || -1
+		cost(point) { 
+			return (point.depth * point.outs * 1000000) || -1
 		},
-		info() {
-			return "Spirit bonus: x" + ((this.level || 0) + 1)
+		info(point) {
+			return "Spirit bonus: x" + ((point.level || 0) + 1)
 		},
-		build() {},
-		destroy() {},
+		build(point) {},
+		destroy(point) {},
 		iconText : "⚑\uFE0E",
 		iconColor : "#ADFF2F",
 	},
@@ -58,17 +64,20 @@ const BUILDINGS = {//function context == point
 		name : "Flag of punishment",
 		desc : "Increases global power growth bonus",
 		level : 2,
-		cost() {
-			return this.depth * 1e9
+		cost(point) {
+			return point.depth * 1e9
 		},
-		info() {
-			return "Power bonus: x" + displayNumber((this.depth * this.bonus) ** 0.5 / 1e5)
+		production (point) {
+			return (point.depth * point.bonus) ** 0.5 / 1e5
 		},
-		build() {
-			game.multi.power = (game.multi.power || 1) + (this.depth * this.bonus) ** 0.5 / 1e5
+		info(point) {
+			return "Power bonus: x" + displayNumber(this.production(point))
 		},
-		destroy() {
-			game.multi.power = (game.multi.power || 1) - (this.depth * this.bonus) ** 0.5 / 1e5
+		build(point) {
+			game.multi.power = (game.multi.power || 1) + this.production(point)
+		},
+		destroy(point) {
+			game.multi.power = (game.multi.power || 1) - this.production(point)
 		},
 		iconText : "⚑\uFE0E",
 		iconColor : "#FFFF55"
@@ -77,17 +86,20 @@ const BUILDINGS = {//function context == point
 		name : "Fear factory",
 		desc : "Extracts fears from physically protected points",
 		level : 2,
-		cost() {
-			return (this.special == SPECIAL_BLOCK)?100e9:-1
+		cost(point) {
+			return (point.special == SPECIAL_BLOCK)?100e9:-1
 		},
-		info() {
-			return "Production: " + displayNumber(1e-10 * this.map.level ** 6)
+		production(point){
+			return 1e-10 * point.map.level ** 6
 		},
-		build() {
-			game.production.fears += 1e-10 * this.map.level ** 6
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
+		},
+		build(point) {
+			game.production.fears += this.production(point)
 		}, 
-		destroy() {
-			game.production.fears -= 1e-10 * this.map.level ** 6
+		destroy(point) {
+			game.production.fears -= this.production(point)
 		},
 		iconText : "F",
 		iconColor : "#FF44CC"
@@ -96,17 +108,20 @@ const BUILDINGS = {//function context == point
 		name : "Cloud factory",
 		desc : "Collects clouds from magically protected points",
 		level : 2,
-		cost() {
-			return (this.special == SPECIAL_RESIST)?100e9:-1
+		cost(point) {
+			return (point.special == SPECIAL_RESIST)?100e9:-1
 		},
-		info() {
-			return "Production: " + displayNumber(2e-11 * this.map.level ** 6)
+		production(point){
+			return 2e-11 * point.map.level ** 6
 		},
-		build() {
-			game.production.clouds += 2e-11 * this.map.level ** 6
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
+		},
+		build(point) {
+			game.production.clouds += this.production(point)
 		}, 
-		destroy() {
-			game.production.clouds -= 2e-11 * this.map.level ** 6
+		destroy(point) {
+			game.production.clouds -= this.production(point)
 		},
 		iconText : "C",
 		iconColor : "#44CCFF"
@@ -115,17 +130,20 @@ const BUILDINGS = {//function context == point
 		name : "Black obelisk",
 		desc : "Produces mana",
 		level : 3,
-		cost() {
-			return this.distance < this.map.ownedRadius?1e15:-1
+		production(point) {
+			return point.depth * point.map.level / 1000 * (1 + (point.map.ownedRadius - point.distance) / 100) * (point.enchanted == ENCHANT_MANA?point.map.level ** (point.map.level / 10):1)
 		},
-		info() {
-			return "Production: " + displayNumber(this.depth * this.map.level / 1000 * (1 + (this.map.ownedRadius - this.distance) / 100))
+		cost(point) {
+			return point.distance < point.map.ownedRadius?1e15:-1
 		},
-		build() {
-			game.production.mana += this.depth * this.map.level / 1000 * (1 + (this.map.ownedRadius - this.distance) / 100)
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
 		},
-		destroy() {
-			game.production.mana -= this.depth * this.map.level / 1000 * (1 + (this.map.ownedRadius - this.distance) / 100)
+		build(point) {
+			game.production.mana += this.production(point)
+		},
+		destroy(point) {
+			game.production.mana -= this.production(point)
 		},
 		iconText : "M",
 		iconColor : "#113388"
@@ -134,17 +152,20 @@ const BUILDINGS = {//function context == point
 		name : "The ivory tower",
 		desc : "Produces power equal to growth",
 		level : 3,
-		cost() {
-			return this.children.size?-1:this.power ** 0.5
+		cost(point) {
+			return point.children.size?-1:point.power ** 0.5
 		},
-		info() {
-			return "Production: " + displayNumber(this.bonus * ((this.bonusMult || 0) + 1))
+		production(point){
+			return point.bonus * ((point.bonusMult || 0) + 1)
 		},
-		build() {
-			game.growth["power"] += this.bonus * ((this.bonusMult || 0) + 1)
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
 		},
-		destroy() {
-			game.growth["power"] -= this.bonus * ((this.bonusMult || 0) + 1)
+		build(point) {
+			game.growth["power"] += this.production(point)
+		},
+		destroy(point) {
+			game.growth["power"] -= this.production(point)
 		},
 		iconText : "P",
 		iconColor : "#888833"
@@ -153,17 +174,20 @@ const BUILDINGS = {//function context == point
 		name : "Tower of infinity",
 		desc : "Produces spirit equal to growth",
 		level : 3,
-		cost() {
-			return this.children.size?this.power ** 0.5:-1
+		cost(point) {
+			return point.children.size?point.power ** 0.5:-1
 		},
-		info() {
-			return "Production: " + displayNumber(this.bonus * ((this.bonusMult || 0) + 1))
+		production(point){
+			return point.bonus * ((point.bonusMult || 0) + 1)
 		},
-		build() {
-			game.growth["spirit"] += this.bonus * ((this.bonusMult || 0) + 1)
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
 		},
-		destroy() {
-			game.growth["spirit"] -= this.bonus * ((this.bonusMult || 0) + 1)
+		build(point) {
+			game.growth["spirit"] += this.production(point)
+		},
+		destroy(point) {
+			game.growth["spirit"] -= this.production(point)
 		},
 		iconText : "S",
 		iconColor : "#338833"
@@ -172,23 +196,28 @@ const BUILDINGS = {//function context == point
 		name : "Rainbow tower",
 		desc : "Produces all 4 elements equal to growth",
 		level : 4,
-		cost() {
-			return (this.children.size == 1)?this.power ** 0.6:-1
+		cost(point) {
+			return (point.children.size == 1)?point.power ** 0.6:-1
 		},
-		info() {
-			return "Production: " + displayNumber(this.bonus * ((this.bonusMult || 0) + 1))
+		production(point){
+			return point.bonus * ((point.bonusMult || 0) + 1)
 		},
-		build() {
-			game.growth["fire"] += this.bonus * ((this.bonusMult || 0) + 1)
-			game.growth["ice"] += this.bonus * ((this.bonusMult || 0) + 1)
-			game.growth["blood"] += this.bonus * ((this.bonusMult || 0) + 1)
-			game.growth["metal"] += this.bonus * ((this.bonusMult || 0) + 1)
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
 		},
-		destroy() {
-			game.growth["fire"] -= this.bonus * ((this.bonusMult || 0) + 1)
-			game.growth["ice"] -= this.bonus * ((this.bonusMult || 0) + 1)
-			game.growth["blood"] -= this.bonus * ((this.bonusMult || 0) + 1)
-			game.growth["metal"] -= this.bonus * ((this.bonusMult || 0) + 1)
+		build(point) {
+			const value = this.production(point)
+			game.growth["fire"]  += value
+			game.growth["ice"]   += value
+			game.growth["blood"] += value
+			game.growth["metal"] += value
+		},
+		destroy(point) {
+			const value = this.production(point)
+			game.growth["fire"]  -= value
+			game.growth["ice"]   -= value
+			game.growth["blood"] -= value
+			game.growth["metal"] -= value
 		},
 		iconText : "R",
 		iconColor : "#FF8844"
@@ -197,34 +226,37 @@ const BUILDINGS = {//function context == point
 		name : "Thunder spire",
 		desc : "Collects thunderstone power",
 		level : 4,
-		cost() {
+		cost(point) {
 			return 1e22
 		},
-		info() {
-			return "Production: " + displayNumber((this.map.level - 10) ** 5 / 1e6 * this.depth)
+		production(point){
+			return (point.map.level - 10) ** 5 / 1e6 * point.depth
 		},
-		build() {
-			game.production.thunderstone += (this.map.level - 10) ** 5 / 1e6 * this.depth
+		info(point) {
+			return "Production: " + displayNumber(this.production(point))
+		},
+		build(point) {
+			game.production.thunderstone += this.production(point) 
 		}, 
-		destroy() {
-			game.production.thunderstone -= (this.map.level - 10) ** 5 / 1e6 * this.depth
+		destroy(point) {
+			game.production.thunderstone -= this.production(point)
 		},
 		iconText : "T",
 		iconColor : "#4488FF"
 	},
 	earthquakeMachine : {
 		name : "Mean machine",
-		desc : "Constantly deals damage to nearby points",
+		desc : "Constantly deals damage to nearby points proportional to thunderstone power and experience multiplier",
 		level : 4,
-		cost() {
-			return [...this.children].filter(x => !x.owned && (x.special != SPECIAL_BLOCK) && !x.locked && (!x.boss || x.boss <= x.map.level) ).length?10 ** (10 + (this.map.level) / 2):-1
+		cost(point) {
+			return [...point.children].filter(x => !x.owned && (x.special != SPECIAL_BLOCK) && !x.locked && (!x.boss || x.boss <= x.map.level) ).length?10 ** (10 + (point.map.level) / 2):-1
 		},
-		info() {
+		info(point) {
 			return ""
 		},
-		build() {
+		build(point) {
 		},
-		destroy() {
+		destroy(point) {
 		},
 		iconText : "M",
 		iconColor : "#883333"

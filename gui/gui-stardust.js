@@ -42,6 +42,7 @@ const StardustTab = Template({
 						this.sliders.map(y => y.update())
 					}
 					const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
+					this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + (game.resources.stardust - freeDust) + "/" + game.resources.stardust + ")"
 					gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
 				}
 			})
@@ -58,6 +59,7 @@ const StardustTab = Template({
 				}
 			})
 			this.sliders.map(y => y.update())
+			this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + game.resources.stardust + "/" + game.resources.stardust + ")"
 			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + ("Stardust"))
 		}
 		
@@ -164,7 +166,9 @@ const StardustTab = Template({
 			}
 			this.dvFocusSelector.classList.toggle("hidden", !game.skills.virtualMapFocus)
 			if (!game.skills.virtualMapFocus) this.newMapFocus = 0
-			this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + game.resources.stardust + ")"
+			const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
+			this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + (game.resources.stardust - freeDust) + "/" + game.resources.stardust + ")"
+			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
 			this.sliders.map(x => {
 				x.setMax(game.resources.stardust)
 				x.steps = game.resources.stardust
@@ -198,7 +202,9 @@ const StardustTab = Template({
 })
 
 function virtualMapCost(level) {
-	return Math.min((game.realMap.level - level) * 7, mapLevel(level).exitsCount)
+	if (game.realMap.level == level) return 0
+	if (game.realMap.level == level + 1) return Math.ceil(mapLevel(level).exitsCount / 2)
+	return mapLevel(level).exitsCount
 }
 
 const mapDisplayHandler = {

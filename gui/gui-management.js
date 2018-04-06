@@ -5,6 +5,8 @@ const SORT_METHODS = {
 	"Level" : (x,y) => ((x.level || 0) - (y.level || 0)) || (x.depth - y.depth) || (x.bonus - y.bonus),
 	"Growth" : (x,y) => x.bonus - y.bonus,
 	"Depth" : (x,y) => (x.depth - y.depth) || (x.bonus - y.bonus),
+	"Gold" : (x,y) => (x.production.gold || 0) - (y.production.gold || 0),
+	"Mana" : (x,y) => (x.production.mana || 0) - (y.production.mana || 0),
 }
 
 const ManagementTab = Template({
@@ -102,6 +104,7 @@ const ManagementTab = Template({
 			name : "Sort by",
 			values : Object.values(SORT_METHODS),
 			texts : Object.keys(SORT_METHODS),
+			itemVisibility : (x) => x.index < 4 || game.skills.magicManagement,
 			onSame : () => {
 				this.sorting.sortDir = -this.sorting.sortDir
 				this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
@@ -210,13 +213,13 @@ const managementPointElementHandler = {
 				if (gui.management.sortOften) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
-				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info.call(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
+				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 			}
 			x.dvDisplay.onmouseenter = (event) => {
 				gui.management.dvHover.classList.toggle("hidden", false)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
-				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" +  (this.point?this.point.buildings[x.id]?x.building.info.call(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
+				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" +  (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 			}
 			x.dvDisplay.onmousemove = (event) => {
 				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > viewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
@@ -224,6 +227,31 @@ const managementPointElementHandler = {
 			}
 			x.dvDisplay.onmouseleave = x.dvDisplay.onmouseout = (event) => gui.management.dvHover.classList.toggle("hidden", true)
 		})
+
+		this.dvDivider = createElement("div", "divider", this.dvIcons)
+
+		this.spellIcons = Object.keys(SPELLS).map(x => SpellIcon(x, this.dvIcons))
+		this.spellIcons.map(x => {
+			x.dvDisplay.onclick = (event) => {
+				this.point.cast(x.id)
+				if (gui.management.sortOften) gui.management.update(true)
+				gui.management.dvHover.classList.toggle("bought", !!x.bought)
+				gui.management.dvHover.classList.toggle("available", !!x.available)
+				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
+			}
+			x.dvDisplay.onmouseenter = (event) => {
+				gui.management.dvHover.classList.toggle("hidden", false)
+				gui.management.dvHover.classList.toggle("bought", !!x.bought)
+				gui.management.dvHover.classList.toggle("available", !!x.available)
+				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
+			}
+			x.dvDisplay.onmousemove = (event) => {
+				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > viewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
+				gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > viewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
+			}
+			x.dvDisplay.onmouseleave = x.dvDisplay.onmouseout = (event) => gui.management.dvHover.classList.toggle("hidden", true)
+		})
+
 		this.update(true)
 	},
 	
@@ -231,11 +259,17 @@ const managementPointElementHandler = {
 		if (forced) {
 			this.dvInfo.innerText = "Power : " + displayNumber(this.point.power) + "\n" +
 									"Growth : " + displayNumber(this.point.bonus) + "\n" +
-									"Depth : " + this.point.depth
+									"Depth : " + this.point.depth// + (this.point.enchanted?" ("+["None", "Gold", "Growth", "Mana"][this.point.enchanted]+")":"")
 			this.dvIcon.innerText = this.point.level || "0"
+			if (game.skills.magicManagement)
+				this.dvIcon.classList.toggle(["enchant-none", "enchant-gold", "enchant-growth", "enchant-mana"][this.point.enchanted || 0], 1)
 			this.dvLevelUp.classList.toggle("visible", !this.point.boss && (!this.point.level || this.point.level < POINT_MAX_LEVEL))
 			this.icons.map(x => {
 				x.visible = !this.point.boss && this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])
+				x.dvDisplay.classList.toggle("visible", !!x.visible)
+			})
+			this.spellIcons.map(x => {
+				x.visible = !this.point.boss && game.skills.magicManagement && (this.point.manaCosts[x.id] > -1) && (game.skills["book_"+x.spell.book])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)
 			})
 		}
@@ -245,6 +279,11 @@ const managementPointElementHandler = {
 			x.bought = this.point.buildings && this.point.buildings[x.id]
 			x.available = !x.bought && (this.point.costs[x.id] <= game.resources.gold)
 			x.dvDisplay.classList.toggle("bought", !!x.bought)
+			x.dvDisplay.classList.toggle("available", !!x.available)
+		})
+		this.spellIcons.map(x => {
+			if (!x.visible) return
+			x.available = (this.point.manaCosts[x.id] <= game.resources.mana)
 			x.dvDisplay.classList.toggle("available", !!x.available)
 		})
 	},

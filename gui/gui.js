@@ -99,7 +99,7 @@ const gui = {
 						iconText: x.iconText,
 						iconColor: x.iconColor,
 						desc : x.desc,
-						text: () => x.name + "\n" + (this.point?this.point.buildings[x.id]?x.info.call(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
+						text: () => x.name + "\n" + (this.point?this.point.buildings[x.id]?x.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 					})
 				})
 

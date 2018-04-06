@@ -148,11 +148,13 @@ const mapHandler = {
 		this.renderedPoints = this.renderedPoints.filter(pt => (pt.onscreen || pt.parent && pt.parent.onscreen) && !pt.animating)
 		
 		c.save()
-		c.beginPath()
 		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
-		c.strokeStyle = gui.theme.shades[7]
-		this.renderedPoints.filter(x => x.owned && x.level).map(drawLevel)
-		c.stroke()
+		for (let i = 0; i < 4; i++) {
+			c.beginPath()
+			c.strokeStyle = gui.theme.enchantmentColors[i]
+			this.renderedPoints.filter(x => x.owned && x.level && (x.enchanted == i || !i && !x.enchanted)).map(drawLevel)
+			c.stroke()
+		}
 		c.restore()
 
 		c.save()
@@ -272,10 +274,10 @@ const mapHandler = {
 			visiblePoints = this.points
 		else
 			visiblePoints = this.points.filter(x => (x.away < (game.skills.sensor?3:2)) && (x.locked < 2) && !(x.locked && x.away == 2) && (!x.boss || x.boss <= this.boss))
-		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.size), -this.ownedRadius || 0)
-		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.size), this.ownedRadius || 0)
-		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.size), -this.ownedRadius || 0)
-		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.size), this.ownedRadius || 0)
+		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.size), game.skills.magic?-this.ownedRadius || 0 : 0)
+		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.size), game.skills.magic?this.ownedRadius || 0 : 0)
+		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.size), game.skills.magic?-this.ownedRadius || 0 : 0)
+		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.size), game.skills.magic?this.ownedRadius || 0 : 0)
 		this.bounds.width = this.bounds.right - this.bounds.left
 		this.bounds.height = this.bounds.bottom - this.bounds.top
 	},
@@ -390,7 +392,8 @@ const mapMaker = {
 						type : d & 1 ? 2 : [1,3,4,5,6][a],
 						special : [SPECIAL_BLOCK, SPECIAL_RESIST, 0][Math.random()*3|0],
 						boss : d==9?1:d==20?2:0,
-						exit : [5,7,8,18].includes(d)?1:0
+						exit : [5,7,8,18].includes(d)?1:0,
+						customPower : this.basePower * 10 ** ((d + 1)/10) * (d==9 || d==20?10:1)
 					})
 					this.points.push(point)
 				}

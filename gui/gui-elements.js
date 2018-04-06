@@ -370,7 +370,7 @@ const pointInfoDisplayHandler = {
 		this.dvInfo1.innerText = this.point.index?(
 									"Type: " + knownType + "\n" + 
 									"Power: " + ((this.point.locked == 1)?"unknown":displayNumber(this.point.power)) + "\n" +
-									(this.point.real.loss > 0 && settings.eta?"Rough ETA: " + shortTimeString(this.point.real.defence / this.point.real.loss):"")
+									(this.point.owned && this.point.enchanted?"Enchantment: "+["None", "Gold", "Growth", "Mana"][this.point.enchanted]:this.point.real.loss > 0 && settings.eta && !this.point.owned?"Rough ETA: " + shortTimeString(this.point.real.defence / this.point.real.loss):"")
 								):!game.skills.mining?"The starting point":"Golden mine\n" +
 									"Depth: " + displayNumber(this.point.mineDepth || 0) + "\n"
 		if (this.point.index && this.point.away && this.point.locked != 1) {
@@ -408,6 +408,7 @@ const listPickerHandler = {
 		this.index = this.values.indexOf(this.container[this.value])
 		this.buttons = this.values.map ((x,n) => {
 			let button = {
+				index : n,
 				name : this.texts[n],
 				value : x,
 			}
@@ -430,8 +431,12 @@ const listPickerHandler = {
 	},
 	
 	update(forced) {
-		if (forced)
-			this.buttons.map(x => x.dvDisplay.classList.toggle("active", x.value == this.container[this.value]))
+		if (forced) {
+			this.buttons.map(x => {
+				x.dvDisplay.classList.toggle("active", x.value == this.container[this.value])
+				x.dvDisplay.classList.toggle("hidden", this.itemVisibility && !this.itemVisibility(x))
+			})
+		}
 		this.onUpdate && this.onUpdate(forced)
 	}
 }

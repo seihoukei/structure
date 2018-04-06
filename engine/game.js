@@ -296,11 +296,13 @@ const game = {
 	update() {
 		this.map.update()
 		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
-		viewport.getLimits(this.map.bounds)
-		this.updateBackground = true
-		gui.updateTabs()
-		gui.skills.updateSkills()
-		this.updateRenderData()
+		if (!this.offline) {
+			viewport.getLimits(this.map.bounds)
+			this.updateBackground = true
+			gui.updateTabs()
+			gui.skills.updateSkills()
+			this.updateRenderData()
+		}
 	},
 	
 	ascend(repeat = false) {
@@ -415,7 +417,10 @@ const game = {
 		
 		this.timeStep(deltaTime / 1000)
 				
-		if (tempOffline) this.offline = false
+		if (tempOffline) {
+			this.offline = false
+			this.update()
+		}
 
 		this.updateInterface = true
 	},
@@ -490,7 +495,7 @@ const game = {
 			})
 			
 
-			this.autoTimer = (this.autoTimer || GAME_AUTOMATION_PERIOD) - deltaTime * (this.offline?100000:1000)
+			this.autoTimer = (this.autoTimer || GAME_AUTOMATION_PERIOD) - deltaTime * (this.offline?10:1000)
 			if (this.autoTimer <= 0) {
 				this.autoUpgrade()
 				this.autoTimer = GAME_AUTOMATION_PERIOD
@@ -689,6 +694,7 @@ const game = {
 		} else 
 			this.advance(1)
 		this.offline = false
+		this.update()
 		
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		gui.tabs.setTab("map")
@@ -759,6 +765,7 @@ const game = {
 		this.getRealProduction()
 
 		this.advance(1)
+		this.update()
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		gui.tabs.setTab("map")
 	}

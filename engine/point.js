@@ -49,53 +49,60 @@ const pointHandler = {
 	},
 	
 	calculateStats() {
-		if (this.key) {
-			this.keyData = this.map.keys[this.key]
-			this.keyData.keyPoint = this
+		if (!this.initialized) {
+			if (this.key) {
+				this.keyData = this.map.keys[this.key]
+				this.keyData.keyPoint = this
+			}
+			if (this.lock) {
+				this.keyData = this.map.keys[this.lock]
+				this.keyData.lockPoint = this
+			}
+			if (this.parent) {
+				this.parent.children.add(this)
+				this.dx = this.parent.x - this.x
+				this.dy = this.parent.y - this.y
+				this.length = Math.hypot(this.dy, this.dx)
+				this.pathLength = this.length - this.size - this.parent.size
+			}
+			this.sdx = this.edx = this.x + this.dx * (this.size + 0.45) / this.length
+			this.sdy = this.edy = this.y + this.dy * (this.size + 0.45) / this.length
+			if (this.parent) {
+				this.sdx = this.parent.x - this.dx * (this.parent.size + 0.45) / this.length
+				this.sdy = this.parent.y - this.dy * (this.parent.size + 0.45) / this.length
+			}
+			let depth = 0
+			let pt = this
+			while (pt.parent && pt.parent != pt) {
+				depth++
+				pt = pt.parent
+				this.parents.add(pt)
+			}
+			this.depth = depth
+			let locks = 0
+			pt = this
+			while (pt.parent && pt.parent != pt) {
+				if (pt.lock) locks++
+				pt = pt.parent
+			}				
+			this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
+			this.totalPower = this.power * this.length * 0.5
+			this.initialized = true
 		}
-		if (this.lock) {
-			this.keyData = this.map.keys[this.lock]
-			this.keyData.lockPoint = this
-		}
-		if (this.parent) {
-			this.parent.children.add(this)
-			this.dx = this.parent.x - this.x
-			this.dy = this.parent.y - this.y
-			this.length = Math.hypot(this.dy, this.dx)
-			this.pathLength = this.length - this.size - this.parent.size
-			this.available = this.parent.owned
-		}
-		this.sdx = this.edx = this.x + this.dx * (this.size + 0.45) / this.length
-		this.sdy = this.edy = this.y + this.dy * (this.size + 0.45) / this.length
-		if (this.parent) {
-			this.sdx = this.parent.x - this.dx * (this.parent.size + 0.45) / this.length
-			this.sdy = this.parent.y - this.dy * (this.parent.size + 0.45) / this.length
-		}
-		let depth = 0
-		let pt = this
-		while (pt.parent && pt.parent != pt) {
-			depth++
-			pt = pt.parent
-			this.parents.add(pt)
-		}
-		this.depth = depth
-		let locks = 0
-		pt = this
-		while (pt.parent && pt.parent != pt) {
-			if (pt.lock) locks++
-			pt = pt.parent
-		}				
-		this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
-		this.totalPower = this.power * this.length * 0.5
 		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
 		
 		this.outs = [...this.children].filter(x => !x.owned && (!x.boss || x.boss <= this.map.boss)).length
 		
+		if (this.parent)
+			this.available = this.parent.owned
+
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
 		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
 		Object.values(BUILDINGS).map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
+
 		this.noclone = this.special == SPECIAL_NOCLONE
 		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
+
 		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
 			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
@@ -103,7 +110,8 @@ const pointHandler = {
 		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 
-		this.updateDisplay("management", true)
+		if (!game.offline)
+			this.updateDisplay("management", true)
 	},
 	
 	levelUp() {
@@ -564,6 +572,7 @@ const pointHandler = {
 		delete o.production
 		delete o.animationTime
 		delete o.animationProgress
+		delete o.initialized
 		if (!o.owned) delete o.owned
 		return o
 	},

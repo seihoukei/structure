@@ -253,11 +253,13 @@ const mapHandler = {
 		this.points.map((point,index) => {
 			point.calculateStats()
 		})		
-		this.points.map((point,index) => {
-			point.updateText()
-		})		
-		this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
-		if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
+		if (!game.offline) {
+			this.points.map((point,index) => {
+				point.updateText()
+			})		
+			this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
+			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
+		}
 		this.updateAways()
 		this.nearbyPoints = this.points.filter(x => (!x.boss || x.boss <= this.boss) && x.away == 1 || (game.skills.mining && !x.index))
 	},
@@ -284,7 +286,8 @@ const mapHandler = {
 	
 	update() {
 		this.updatePoints()
-		this.updateBounds()
+		if (!game.offline)
+			this.updateBounds()
 		this.getOwnedRadius()
 	},
 	

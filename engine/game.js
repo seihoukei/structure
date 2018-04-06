@@ -750,6 +750,7 @@ const game = {
 		this.sliders && this.sliders.map(x => x.destroy())
 		this.sliders = sliders
 		
+		console.log(this.map.points)
 		let firstTarget = [...this.map.points[0].children][0]
 		firstTarget.type = 1
 		this.sliders[0].assignTarget(firstTarget)

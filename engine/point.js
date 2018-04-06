@@ -49,7 +49,7 @@ const pointHandler = {
 	},
 	
 	calculateStats() {
-		if (!this.initialized) {
+		if (!this.initialized || this.initialized < 5) {
 			if (this.key) {
 				this.keyData = this.map.keys[this.key]
 				this.keyData.keyPoint = this
@@ -87,7 +87,7 @@ const pointHandler = {
 			}				
 			this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
 			this.totalPower = this.power * this.length * 0.5
-			this.initialized = true
+			this.initialized = (this.initialized || 0) + 1
 		}
 		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
 		

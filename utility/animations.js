@@ -78,6 +78,7 @@ const animations = {
 	},
 	
 	Fireworks(x, y, color, sparks, power) {
+		if (game.offline) return
 		this.effects.add(Fireworks({
 			x, y, color, count : sparks, power
 		}))

@@ -305,7 +305,7 @@ const gui = {
 				this.dvScience.innerText = "Science: " + displayNumber(game.resources.science) + (game.real.production.science?(game.real.production.science>0?" (+":" (")+displayNumber(game.real.production.science)+"/s)":"")
 		}
 		
-		if (this.tabs.activeTab == "management")
+		if (this.tabs.activeTab == "management" || this.tabs.activeTab == "sliders")
 			this.dvGold.innerText = "Gold: " + displayNumber(game.resources.gold) + (game.real.production.gold?(game.real.production.gold>0?" (+":" (")+displayNumber(game.real.production.gold)+"/s)":"")
 		
 		this.target.update()

@@ -626,7 +626,7 @@ canvas.foreground : {
 }
 
 .tab.sliders .header .exp-mult, .tab.sliders .header .science, .tab.skills .header .mana,
-.tab.sliders .header .gold, .tab.skills .header .gold, .tab.management .header .exp-mult {
+.tab.skills .header .gold, .tab.management .header .exp-mult {
 	display : none;
 }
 

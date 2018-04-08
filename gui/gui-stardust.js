@@ -143,7 +143,7 @@ const StardustTab = Template({
 				stardustTotal--
 			}
 			
-			game.createMap(name, this.newMapLevel, true, this.newMapFocus)
+			game.createMap(name, Math.round(this.newMapLevel), true, this.newMapFocus)
 			this.update(true)
 		}
 

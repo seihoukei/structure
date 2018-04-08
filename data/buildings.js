@@ -156,7 +156,7 @@ const BUILDINGS = {//function context == point
 			return point.children.size?-1:point.power ** 0.5
 		},
 		production(point){
-			return point.bonus * ((point.bonusMult || 0) + 1)
+			return point.totalBonus
 		},
 		info(point) {
 			return "Production: " + displayNumber(this.production(point))
@@ -178,7 +178,7 @@ const BUILDINGS = {//function context == point
 			return point.children.size?point.power ** 0.5:-1
 		},
 		production(point){
-			return point.bonus * ((point.bonusMult || 0) + 1)
+			return point.totalBonus
 		},
 		info(point) {
 			return "Production: " + displayNumber(this.production(point))
@@ -200,7 +200,7 @@ const BUILDINGS = {//function context == point
 			return (point.children.size == 1)?point.power ** 0.6:-1
 		},
 		production(point){
-			return point.bonus * ((point.bonusMult || 0) + 1)
+			return point.totalBonus
 		},
 		info(point) {
 			return "Production: " + displayNumber(this.production(point))

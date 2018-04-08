@@ -3,7 +3,7 @@
 const SORT_METHODS = {
 	"Power" : (x,y) => x.power - y.power,
 	"Level" : (x,y) => ((x.level || 0) - (y.level || 0)) || (x.depth - y.depth) || (x.bonus - y.bonus),
-	"Growth" : (x,y) => x.bonus - y.bonus,
+	"Growth" : (x,y) => (x.totalBonus) - (y.totalBonus),
 	"Depth" : (x,y) => (x.depth - y.depth) || (x.bonus - y.bonus),
 	"Gold" : (x,y) => (x.production.gold || 0) - (y.production.gold || 0),
 	"Mana" : (x,y) => (x.production.mana || 0) - (y.production.mana || 0),
@@ -258,7 +258,7 @@ const managementPointElementHandler = {
 	update(forced) {
 		if (forced) {
 			this.dvInfo.innerText = "Power : " + displayNumber(this.point.power) + "\n" +
-									"Growth : " + displayNumber(this.point.bonus) + "\n" +
+									"Growth : " + displayNumber(this.point.totalBonus) + "\n" +
 									"Depth : " + this.point.depth// + (this.point.enchanted?" ("+["None", "Gold", "Growth", "Mana"][this.point.enchanted]+")":"")
 			this.dvIcon.innerText = this.point.level || "0"
 			if (game.skills.magicManagement)

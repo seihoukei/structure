@@ -581,6 +581,11 @@ const sliderHandler = {
 		const index = game.sliders.indexOf(this)
 		if (index > -1)
 			game.sliders.splice(index, 1)
+		game.map.update()
+		if (gui.target.point) {
+			gui.target.update()
+			gui.target.updateUpgrades()
+		}
 		gui.updateTabs()		
 	}
 }

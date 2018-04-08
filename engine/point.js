@@ -110,6 +110,9 @@ const pointHandler = {
 		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 
+//		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1)
+		
 		if (!game.offline)
 			this.updateDisplay("management", true)
 	},
@@ -199,17 +202,18 @@ const pointHandler = {
 	},
 	
 	suspend() {
-		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+//		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		if (this.type && this.owned)
-			game.growth[POINT_TYPES[this.type]] -= this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth[POINT_TYPES[this.type]] -= this.totalBonus
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].destroy(this))
 	},
 	
 	unsuspend() {
 		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1)
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build(this))
 		if (this.type && this.owned)
-			game.growth[POINT_TYPES[this.type]] += this.bonus * ((this.bonusMult || 0) + 1)
+			game.growth[POINT_TYPES[this.type]] += this.totalBonus
 	},
 
 	updateText() {
@@ -573,6 +577,8 @@ const pointHandler = {
 		delete o.animationTime
 		delete o.animationProgress
 		delete o.initialized
+		delete o.totalBonus
+		delete o.bonusMult
 		if (!o.owned) delete o.owned
 		return o
 	},

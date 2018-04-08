@@ -386,7 +386,7 @@ const pointInfoDisplayHandler = {
 		} else {
 			let width = this.dvInfo2.offsetWidth
 			this.dvInfo2.style.backgroundPosition = "0 0, " + Math.round(width/2) + "px 0"
-			this.dvInfo2.innerText = (this.point.index?(this.point.type?"Growth: " + displayNumber(this.point.bonus * ((this.point.bonusMult || 0) + 1)) + "\n":"") +
+			this.dvInfo2.innerText = (this.point.index?(this.point.type?"Growth: " + displayNumber(this.point.totalBonus) + "\n":"") +
 									(game.skills.upgradePoints?"Level: " + (this.point.level || 0) + "\n":""):"")										 
 		}
 	}				

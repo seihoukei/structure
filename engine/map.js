@@ -502,9 +502,9 @@ const mapMaker = {
 					}
 					const point = Point({
 						parent,
-						angle : Math.atan2(y, x),
-						distance : Math.hypot(x, y) * distance,
-						size : (1 + Math.random() / 2) * baseSize,
+						angle : Math.atan2(y, x).toDigits(3),
+						distance : (Math.hypot(x, y) * distance).toDigits(3),
+						size : ((1 + Math.random() / 2) * baseSize).toDigits(3),
 						type : n % 6 + 1,
 						depth : parent.depth + 1
 					})

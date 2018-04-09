@@ -579,6 +579,10 @@ const pointHandler = {
 		delete o.initialized
 		delete o.totalBonus
 		delete o.bonusMult
+		delete o.noclone
+		delete o.nobuild
+		if (!o.boss) delete o.boss
+		if (!o.exit) delete o.exit
 		if (!o.owned) delete o.owned
 		return o
 	},

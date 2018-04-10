@@ -214,6 +214,7 @@ const sliderHandler = {
 			values : Object.keys(SELECTORS),
 			texts : Object.keys(SELECTORS),
 			expanded : false,
+			itemVisibility: (x) => (x.index < 5 || game.skills.autoTargetDistance),
 			onSet : () => {
 				this.selector.expanded = !this.selector.expanded && this.selector.same
 				if (this.selector.expanded) {
@@ -221,7 +222,7 @@ const sliderHandler = {
 						if (n != this.selector.index)
 							x.dvDisplay.style.top = -25 * (this.selector.index - n) + "px"
                         x.dvDisplay.style.height = "15px"
-						x.dvDisplay.classList.toggle("hidden", n > 4 && !game.skills.autoTargetDistance)
+//						x.dvDisplay.classList.toggle("hidden", n > 4 && !game.skills.autoTargetDistance)
 					})
 				} else {
 					this.selector.buttons.map((x,n) => {

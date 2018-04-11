@@ -5,6 +5,49 @@ const SavesTab = Template({
 		this.saves = {}
 		this.dvDisplay = createElement("div", "saves "+(this.className || ""), this.parent)
 		
+		this.dvCloud = createElement("div", "cloud", this.dvDisplay)
+		this.dvCloudLogin = createElement("div", "cloud-login button", this.dvCloud, "Connect")
+		this.dvCloudStatus = createElement("div", "cloud-status", this.dvCloud, "Currently not connected to the cloud")
+		this.dvCloudName = createElement("div", "cloud-username", this.dvCloud)
+		this.dvCloudUpdate = createElement("div", "cloud-update", this.dvCloud)
+		this.dvCloudLogin.onclick = (event) => {
+			if (cloud.local.token)
+				cloud.logout()
+			else
+				this.dvLoginHolder.classList.toggle("hidden", false)
+			//	cloud.login("seihoukei", "structure31415")
+		}
+		
+		this.dvLoginHolder = createElement("div", "login-holder hidden", document.body)
+		this.dvLoginHolder.onclick = (event) => {
+			if (event.target == this.dvLoginHolder)
+				this.dvLoginHolder.classList.toggle("hidden", true)				
+		}
+		this.dvLoginForm = createElement("div", "login-form", this.dvLoginHolder)
+		this.dvLoginNameTitle = createElement("div", "login-caption", this.dvLoginForm, "Login")
+		this.dvLoginName = createElement("input", "login-input", this.dvLoginForm)
+		this.dvLoginPassTitle = createElement("div", "login-caption", this.dvLoginForm, "Password")
+		this.dvLoginPass = createElement("input", "login-input", this.dvLoginForm)
+		this.dvLoginPass.type = "password"
+		this.dvLoginStatus = createElement("div", "login-status", this.dvLoginForm)
+		this.dvLoginButtons = createElement("div", "login-buttons", this.dvLoginForm)
+		this.dvLoginLogin = createElement("div", "button", this.dvLoginButtons, "Log in")
+		this.dvLoginRegister = createElement("div", "button", this.dvLoginButtons, "Register")
+		
+		this.dvLoginLogin.onclick = (event) => {
+			if (this.loggingin) return
+			this.dvLoginStatus.innerText = "Attempting login..."
+			this.loggingin = true
+			cloud.login(this.dvLoginName.value, this.dvLoginPass.value)
+		}
+		
+		this.dvLoginRegister.onclick = (event) => {
+			if (this.loggingin) return
+			this.dvLoginStatus.innerText = "Attempting register..."
+			this.loggingin = true
+			cloud.login(this.dvLoginName.value, this.dvLoginPass.value, true)
+		}
+		
 		this.dvSaveList = createElement("div", "savelist", this.dvDisplay)
 
 		this.dvSaveButtons = createElement("div", "buttons", this.dvDisplay)

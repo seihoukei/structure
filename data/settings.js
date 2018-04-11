@@ -247,7 +247,70 @@ const SETTINGS = {
 			text : "1 hour",
 			value : 3600000
 		}],
-	}
+	},
+	autosavePeriod : {
+		group : "Saves",
+		displayName: "Autosave period",
+		default : 15000,
+		choices : [{
+			text : "Off",
+			value : 0,
+		},{
+			text : "15 seconds",
+			value : 15000,
+		},{
+			text : "1 minute",
+			value : 60000,
+		},{
+			text : "10 minutes",
+			value : 600000,
+		}]
+	},
+	cloudPeriod : {
+		group : "Saves",
+		displayName: "Cloud save period",
+		default : 600000,
+		choices : [{
+			text : "Off",
+			value : 0,
+		},{
+			text : "10 minutes",
+			value : 600000,
+		},{
+			text : "30 minutes",
+			value : 1800000,
+		},{
+			text : "1 hour",
+			value : 3600000,
+		}]
+	},
+	cloudUpdate : {
+		group : "Saves",
+		displayName: "Upload cloud saves if logged in",
+		default : true,
+		choices : [{
+			text : "On",
+			value : true,
+		},{
+			text : "Off",
+			value : false,
+		}]
+	},
+	cloudAutoload : {
+		group : "Saves",
+		displayName: "Autoload cloud save if newer one found",
+		default : 1,
+		choices : [{
+			text : "Off",
+			value : 0,
+		},{
+			text : "On",
+			value : 1,
+		},{
+			text : "Hiberload",
+			value : 2,
+		}]
+	},
 }
 
 Object.keys(SETTINGS).map(x => {

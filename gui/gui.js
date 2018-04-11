@@ -17,6 +17,7 @@ const gui = {
 		this.management = this.tabs.addTab("management", "Management", ManagementTab)	
 		
 		this.stardust = this.tabs.addTab("stardust", "Stardust", StardustTab)
+		this.artifacts = this.tabs.addTab("artifacts", "Artifacts", ArtifactsTab)
 		//this.tabs.addTab("magic", "Magic")
 		this.tabs.addFiller()
 
@@ -281,6 +282,7 @@ const gui = {
 		this.tabs.toggleDisplay("skills", game.realMap.level)
 		this.tabs.toggleDisplay("management", game.skills.management)
 		this.tabs.toggleDisplay("stardust", game.skills.stardust)
+		this.tabs.toggleDisplay("artifacts", game.skills.artifacts)
 		if (game.skills.stardust) {
 			const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
 			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))

@@ -319,18 +319,24 @@ const SKILLS = {
 		name : "Wishmaster",
 		desc : "Add magic elements to management",
 		req : ["book_enchantments1", "management"],
-		science : 1e15,
-		exp : 1e20,
+		science : 4e14,
+		exp : 1e22,
 		mult : 1.5
 	},
 	virtualMapFocus: {
-		name : "Heavenseeker",
-		desc : "Create virtual maps focused on specific attribute",
+		name : "Hidden treasure (WIP)",
+		desc : "Research artifacts found during mining",
 		sliders : 6,
 		mult : 2,
-		exp : 2e21
+		exp : 5e22
 	},
-	//sliders:6 enchanted mines
+	artifacts: {
+		name : "Heavenseeker",
+		desc : "Create virtual maps focused on specific attribute",
+		map : 26,
+		mult : 2,
+		exp : 5e22
+	},
 	retainVirtualBonus: {
 		name : "Beyond Reality",
 		desc : "Retain virtual map bonuses when deleting them",

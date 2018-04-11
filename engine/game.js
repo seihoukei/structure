@@ -31,6 +31,7 @@ const game = {
 	story : {},
 	lastViewedStory : 0,
 	lastSave : performance.now(),
+	lastCloudSave : performance.now(),
 	
 	updateRenderData() {	
 		if (!viewport.width || !viewport.height) return
@@ -399,9 +400,15 @@ const game = {
 		if (settings.slowModeIdle && performance.now() - this.lastAction > settings.slowModeIdle)
 			this.enableSlowMode(1)
 		
-		if (performance.now() - this.lastSave > 5000) {
+		if (settings.autosavePeriod && performance.now() - this.lastSave > settings.autosavePeriod) {
 			saveState("_Autosave", 1)
 			this.lastSave = performance.now()
+		}		
+		
+		if (settings.cloudPeriod && performance.now() - this.lastCloudSave > settings.cloudPeriod) {
+			if (settings.cloudUpdate)
+				saveState("_Cloud save", 1)
+			this.lastCloudSave = performance.now()
 		}		
 		
 /*		this.autoTimer = (this.autoTimer || GAME_AUTOMATION_PERIOD) - deltaTime
@@ -613,6 +620,7 @@ const game = {
 		delete o.dev
 		delete o.frame
 		delete o.lastSave
+		delete o.lastCloudSave
 		delete o.slowMode
 		delete o.activeRender
 		delete o.animatingPoints
@@ -677,6 +685,7 @@ const game = {
 		this.update()
 		gui.skills.updateSkills()
 		this.lastSave = performance.now()
+		this.lastCloudSave = performance.now()
 
 		this.getReal()
 		this.map.points.map (point => point.getReal())
@@ -750,7 +759,6 @@ const game = {
 		this.sliders && this.sliders.map(x => x.destroy())
 		this.sliders = sliders
 		
-		console.log(this.map.points)
 		let firstTarget = [...this.map.points[0].children][0]
 		firstTarget.type = 1
 		this.sliders[0].assignTarget(firstTarget)

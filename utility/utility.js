@@ -56,6 +56,14 @@ function Template(...data) {
 	}
 }
 
+function httpStatus(response) {  
+	if (response.status >= 200 && response.status < 300) {  
+		return Promise.resolve(response)  
+	} else {  
+		return Promise.reject(new Error(response.statusText))  
+	}  
+}
+
 const saveCompression = {
 	"#01" : `"goldFactory"`,
 	"#02" : `"scienceLab"`,
@@ -293,6 +301,7 @@ function superScript(n) {
 	}
 	return n > 0 ? result : ("⁻" + result)
 }
+
 ///\uFE0E - selector
 //✓ - tick
 //⭕ - circle (plain point)

@@ -64,8 +64,9 @@ const MapTab = Template({
 	},
 	
 	update(forced) {
-		if (this.slider)
+		if (this.slider) {
 			this.slider.updateFullInfo()
+		}
 		if (forced && game.sliders)
 			game.sliders.map(slider => slider.dvMapIcon.innerText = slider.target?(slider.target.specialText || "⭕\uFE0E"):"")
 	},

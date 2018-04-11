@@ -74,7 +74,7 @@ const sliderHandler = {
 		this.dvInfo = createElement("div", "slider-info", this.dvTarget)
 		this.dvCharge = createElement("div", "slider-charge", this.dvTarget)
 		
-		this.dvDisplay = createElement("div", "slider"+(this.clone?" clone":""), gui.sliders.dvSliders)
+		this.dvDisplay = createElement("div", "slider"+(this.clone?" clone":""), this.clone?gui.sliders.dvClones:gui.sliders.dvReal)
 		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
 		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?this.clone == 2?"SUMMON":"CLONE":"")
 		this.dvBigColor.title = this.clone?this.clone==2?"Summonned clones only exist while attacking specific node":"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
@@ -263,11 +263,9 @@ const sliderHandler = {
 			}
 			gui.map.sliderInfo = this.dvDisplay
 			gui.map.slider = this
-			this.updateFullVisibility()
-			this.displayStats.map(y => {
-				y.expSlider.update()
-			})
 			gui.map.dvSliders.appendChild(this.dvDisplay)
+			this.updateFullVisibility()
+			this.updateSliders()
 			this.dvDisplay.style.left = event.x + "px"
 			this.dvDisplay.style.top = event.y + "px"
 		}

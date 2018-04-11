@@ -4,6 +4,8 @@ const SlidersTab = Template({
 	_init() {
 		this.dvDisplay = createElement("div", "sliders "+(this.className || ""), this.parent)
 		this.dvSliders = createElement("div", "sliders", this.dvDisplay)
+		this.dvReal = createElement("div", "sliders-real", this.dvSliders)
+		this.dvClones = createElement("div", "sliders-clones", this.dvSliders)
 		this.hover = PointInfoDisplay({
 			parent : this.dvDisplay,
 			className : "point-info hidden",
@@ -26,7 +28,11 @@ const SlidersTab = Template({
 	onSet() {
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
 		game.sliders.map(slider => {
-			this.dvSliders.appendChild(slider.dvDisplay)
+			//this.dvSliders.appendChild(slider.dvDisplay)
+			if (slider.clone)
+				this.dvClones.appendChild(slider.dvDisplay)
+			else
+				this.dvReal.appendChild(slider.dvDisplay)
 			slider.updateFullVisibility()
 			slider.displayStats.map(y => {
 				y.expSlider.update()

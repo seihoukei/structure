@@ -595,6 +595,9 @@ canvas.foreground : {
 	right : 3px;
 	top : 3px;
 	z-index : 4;
+	padding : 0 5px;
+	border-radius : 5px;
+	background-color : var(--background);
 }
 
 .tab.sliders, .tab.story, .tab.skills, .tab.management {
@@ -612,6 +615,18 @@ canvas.foreground : {
 	flex-wrap : wrap;
 	padding: 10px 0 10px 0;
 	flex-grow : 999;
+}
+
+.tab.sliders .sliders {
+	align-items : start;
+	flex-direction : row;
+}
+
+.tab.sliders .sliders-clones, .tab.sliders .sliders-real {
+	align-items : center;
+	justify-content : center;
+	display : flex;
+	flex-wrap : wrap;
 }
 
 .header {
@@ -1003,18 +1018,45 @@ canvas.foreground : {
 	font-weight : normal;
 }
 
+.cloud {
+	display : flex;
+	flex-direction : row;
+	margin : 5px 15px -15px 15px;
+	align-items : center;
+}
+
+.cloud .button.cloud-login {
+	padding : 5px 10px;
+}
+
+.cloud-username {
+	padding : 0 5px;
+	font-weight : bold;
+}
+
+.cloud-update {
+	margin-left : auto;
+	padding : 0 5px;
+}
+
 .saves .buttons {
 	display : flex;
 	flex-wrap : wrap;
 	padding : 0 15px;
+	margin : -15px 0;
 }
 
-.saves .button {
+.saves .button, .login-form .button {
 	display : inline-block;
 	border : 2px solid var(--lightframe);
 	padding : 10px;
 	margin : 5px;
 	cursor : pointer;
+	transition : background-color 0.2s;
+}
+
+.saves .button:hover, .login-form .button:hover {
+	background-color : var(--shade12);
 }
 
 .button.reset {
@@ -1586,4 +1628,39 @@ canvas.foreground : {
 
 .notransition {
 	transition: none !important;
+}
+
+.login-holder {
+	z-index : 10;
+	background-color : rgba(0,0,0,0.5);
+	position : absolute;
+	width : 100%;
+	height : 100%;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.login-form {
+	display : flex;
+	width : 400px;
+	padding : 20px;
+	flex-direction : column;
+	border : 2px solid var(--lightframe);
+	background-color : var(--background);
+}
+
+.login-input {
+	border : 2px solid var(--lightframe);
+	background-color : var(--background);	
+	color : var(--foreground);	
+	margin : 0 0 20px;
+	font-size : 30px;
+}
+
+.login-buttons {
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+	justify-content : space-between;
 }

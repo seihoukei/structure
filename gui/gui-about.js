@@ -5,7 +5,7 @@ const AboutTab = Template({
 		this.dvDisplay = createElement("div", "about "+(this.className || ""), this.parent)
 		this.dvGameTitle = createElement("div", "title", this.dvDisplay, "Structure")
 		this.dvSubtitle = createElement("div", "subtitle", this.dvDisplay, "The incremental game")
-		this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.3 -- 03 April 2018")
+		this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.4 -- 11 April 2018")
 		//this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.2 -- 25 March 2018")
 		this.dvAuthor = createElement("div", "author", this.dvDisplay, "by seihoukei")
 		this.dvLinks = createElement("div", "links", this.dvDisplay)
@@ -17,6 +17,10 @@ const AboutTab = Template({
 		this.dvWiki.innerHTML = "<a href='https://www.reddit.com/r/structure_idle/wiki/'>Wiki</a>"
 		this.dvFallback = createElement("div", "credits", this.dvDisplay, "Fallback unicode font : 'Symbola' by George Douros")
 		this.dvChangelog = createElement("div", "changelog", this.dvDisplay, `Changelog
+		
+		-- 0.0.4 -- 11 April 2018 --
+		- Maps up to 34 are "safe" (no more content after 28 though)
+		- Cloud saves and save compression
 		
 		-- 0.0.3 -- 03 April 2018 --
 		- UI improvements

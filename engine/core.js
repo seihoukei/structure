@@ -32,6 +32,7 @@ window.onload = (event) => {
 		}
 
 	gui.init()
+	cloud.init()
 	animations.init()
 	
 	if (!loadState("_Autosave", false, true))

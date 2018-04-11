@@ -128,13 +128,18 @@ const cloud = {
 //					this.local.lastLocalSave = data.thissavetime
 					this.local.lastCloudSave = data.lastsavetime
 					this.local.lastCloudSaveID = data.lastsaveid
-					gui.menu.saves.dvCloudUpdate.innerText = "Latest cloud save found: "+(new Date((+this.local.lastCloudSave + (new Date().getTimezoneOffset())) * 1000).toString().split(" ").slice(1,5).join(" "))
+					
+					gui.menu.saves.dvCloudUpdate.innerText = this.local.lastCloudSave?"Latest cloud save found: "+(new Date((+this.local.lastCloudSave + (new Date().getTimezoneOffset())) * 1000).toString().split(" ").slice(1,5).join(" ")):"No cloud save found, trying to create..."
+					
+					if (!this.local.lastCloudSave) {
+						saveState("_Cloud save")
+					}
+					
 					if (this.local.lastCloudSave && (!this.local.lastLocalSave || this.local.lastLocalSave < this.local.lastCloudSave))
 						this.load(this.local.lastCloudSaveID)
 					this.saveLocal()
 
 					gui.menu.saves.dvLoginHolder.classList.toggle("hidden", true)
-					
 
 					gui.menu.saves.dvCloudStatus.innerText = "Currently connected as"
 					gui.menu.saves.dvCloudName.innerText = this.local.username

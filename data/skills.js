@@ -323,14 +323,14 @@ const SKILLS = {
 		exp : 1e22,
 		mult : 1.5
 	},
-	virtualMapFocus: {
+	artifacts: {
 		name : "Hidden treasure (WIP)",
 		desc : "Research artifacts found during mining",
 		sliders : 6,
 		mult : 2,
 		exp : 5e22
 	},
-	artifacts: {
+	virtualMapFocus: {
 		name : "Heavenseeker",
 		desc : "Create virtual maps focused on specific attribute",
 		map : 26,

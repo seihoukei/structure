@@ -321,6 +321,8 @@ const mapMaker = {
 	_init() {
 		this.points = []
 		this.boss = 0
+		this.focus = +this.focus || 0
+		if (!this.focus) delete this.focus
 		let n = this.pointsCount - 1
 		this.points.push(Point({
 			x : 0,
@@ -505,7 +507,7 @@ const mapMaker = {
 						angle : Math.atan2(y, x).toDigits(3),
 						distance : (Math.hypot(x, y) * distance).toDigits(3),
 						size : ((1 + Math.random() / 2) * baseSize).toDigits(3),
-						type : n % 6 + 1,
+						type : (this.focus && Math.random() < 0.5)?this.focus:n % 6 + 1,
 						depth : parent.depth + 1
 					})
 					

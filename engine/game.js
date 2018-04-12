@@ -22,6 +22,7 @@ const game = {
 		buildings: {}
 	},
 	production : {},
+	research : {},
 	attacked : new Set(),
 	stardust : {},
 	statistics : {
@@ -495,7 +496,12 @@ const game = {
 			
 			this.sliders.map(slider => slider.grow(mul))
 	
-			RESOURCES.map(x => this.resources[x] += this.real.production[x] * mul * 2)
+			RESOURCES.map(x => {
+				if (x == 'science' && this.researching)
+					advanceResearch(this.real.production[x] * mul * 2)
+				else
+					this.resources[x] += this.real.production[x] * mul * 2
+			})
 
 			RESOURCES.map(x => {
 				if (this.resources[x] < 1e-8) this.resources[x] = 0
@@ -669,6 +675,10 @@ const game = {
 		})
 		
 		save.saveSkills.map(x => this.skills[x] = 1)
+		
+		this.researching = save.researching
+
+		Object.keys(ARTIFACTS).map(x => this.research[x] = Object.assign({}, createArtifactResearch(x), save.research && save.research[x]))
 
 		this.maps = save.maps || {"main" : save.map}
 		const activeMap = save.activeMap || "main"
@@ -739,6 +749,9 @@ const game = {
 		this.statistics = {
 			onlineTime : 1
 		}
+		Object.keys(ARTIFACTS).map(x => this.research[x] = createArtifactResearch(x))
+		this.researching = false
+
 		Object.keys(this.growth).map(x => this.growth[x] = 0)
 		Object.keys(this.multi).map(x => this.multi[x] = 1)
 		Object.keys(this.resources).map(x => this.resources[x] = 0)

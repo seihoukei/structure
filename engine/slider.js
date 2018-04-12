@@ -53,6 +53,9 @@ const sliderHandler = {
 		this.learn = this.learn || []
 		this.start = this.start || {}
 		this.end = this.end || {}
+		this.artifactSlots = (this.level || 0) + 2
+		this.artifacts = this.artifacts || {}
+		Object.entries(this.artifacts).map(x => this.equip(x[0], x[1]))
 		
 		this.atFilter = this.atFilter || {
 			types : [],
@@ -534,10 +537,63 @@ const sliderHandler = {
 		}
 	},
 	
+	equip(name, slot = 0) {
+		if (this.clone) 
+			return 0
+		let artifact = ARTIFACTS[name]
+		
+		if (!game.research[name].done)
+			return 0
+		
+		if (!artifact)
+			return 0
+		if (this.artifacts[name]){
+			artifact.equipped = this
+			return this.artifacts[name]
+		}
+		
+
+		if (!slot) {
+			const freeSlots = Array(this.artifactSlots+1).fill(1)
+			Object.values(this.artifacts).map(x => freeSlots[x] = 0)
+			slot = freeSlots.reduceRight((v,x,n) => (x && !v)?n:v,0)
+		}
+
+		if (!slot) 
+			return 0
+		
+		Object.entries(this.artifacts).map(x => {
+			if (x[1] == slot) this.unequip(x[0])
+		})
+		
+		if ((artifact.equipped) && (artifact.equipped.artifacts) && (artifact.equipped.artifacts[name]) && (artifact.equipped.unequip))
+			artifact.equipped.unequip(name)
+		
+		this.artifacts[name] = slot
+		artifact.equipped = this
+		
+		return slot
+//		artifact.onEquip && artifact.onEquip(this)
+	},
+	
+	unequip(name) {
+		if (!ARTIFACTS[name])
+			return
+		
+		if (!this.artifacts[name])
+			return
+		
+//		artifact.onUnequip && artifact.onUnequip(this)
+		let artifact = ARTIFACTS[name]
+		delete artifact.equipped
+		delete this.artifacts[name]
+	},
+	
 	toJSON() {
 		let o = Object.assign({}, this)
 		delete o.sparks
 		delete o.test
+		delete o.slots
 		delete o.displayStats
 		delete o.imbuements
 		delete o.safeImbuementsSwitch
@@ -559,6 +615,7 @@ const sliderHandler = {
 	},
 	
 	destroy() {
+		Object.keys(this.artifacts).map(x => this.unequip(x))
 		this.dvTarget.remove()
 		delete this.dvTarget
 		this.dvDisplay.remove()

@@ -302,6 +302,10 @@ function superScript(n) {
 	return n > 0 ? result : ("⁻" + result)
 }
 
+const letters = Array(26).fill(0).map((x,n) => String.fromCharCode(n+65))
+const letterPairs = Array(26*26).fill(0).map((x,n) => letters[n/26|0]+letters[n%26])
+
+		
 ///\uFE0E - selector
 //✓ - tick
 //⭕ - circle (plain point)
@@ -319,4 +323,6 @@ function superScript(n) {
 //× - multi
 //⁰¹²³⁴⁵⁶⁷⁸⁹ - superscripts
 //⚑ - flag 
-//✓⭕🌟⚷🔒🔓⚔🏠⛏📡⇮⇓⇑⁰¹²³⁴⁵⁶⁷⁸⁹×⚑
+//🗡️ - knife/sword
+//🔮 - orb
+//✓⭕🌟⚷🔒🔓⚔🏠⛏📡⇮⇓⇑⁰¹²³⁴⁵⁶⁷⁸⁹×⚑🗡️🔮

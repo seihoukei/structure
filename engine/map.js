@@ -205,7 +205,7 @@ const mapHandler = {
 		if (game.dev && game.dev.seeAll)
 			fillPoints(this.renderedPoints, x => x.away > 1, "rgba(255,255,255,0.7)")
 		else
-			fillPoints(this.renderedPoints, x => x.away == 2, gui.theme.shades[11])
+			fillPoints(this.renderedPoints, x => x.away == 2, gui.theme.shades[13])
 
 //		c.font = "3.5px" + fontName
 		c.textBaseline = "middle"

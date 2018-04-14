@@ -53,7 +53,7 @@ const sliderHandler = {
 		this.learn = this.learn || []
 		this.start = this.start || {}
 		this.end = this.end || {}
-		if (game.maps) Object.keys(game.maps).map(x => {
+		if (game.maps && !this.clone) Object.keys(game.maps).map(x => {
 			if (x == "main") return
 			this.start[x] = this.start[x] || Object.assign({}, this.stats)
 			this.end[x] = this.end[x] || Object.assign({}, this.stats)

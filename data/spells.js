@@ -8,40 +8,6 @@ const ENCHANT_GROWTH = 2
 const ENCHANT_MANA = 3
 
 const SPELLS = {//function context == point
-	summonPower : {
-		name : "Power elemental",
-		desc : "Summons a clone to attack point node",
-		book : "summons1",
-		type : SPELL_TYPE_POINT,
-		cost(point) { 
-			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
-			return point.owned?-1:(point.bonus ** 0.5 / 100)
-		},
-		cast(point) {
-			createSummon(point, 1)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
-		},
-		iconText : "P",
-		iconColor : "gray",
-	},
-	summonRandom : {
-		name : "Random elemental",
-		desc : "Summons random elemental clone to attack point node",
-		book : "summons1",
-		type : SPELL_TYPE_POINT,
-		cost(point) { 
-			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
-			return point.owned?-1:(point.bonus ** 0.5 / 50)
-		},
-		cast(point) {
-			createSummon(point, 3 + Math.random() * 4 | 0)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
-		},
-		iconText : "R",
-		iconColor : "gray",
-	},
 	destroyResist : {
 		name : "Dispel magical shield",
 		desc : "Removes shield from magically protected point",
@@ -71,74 +37,6 @@ const SPELLS = {//function context == point
 		},
 		iconText : "D",
 		iconColor : "#DD55DD",
-	},
-	summonBlood : {
-		name : "Blood elemental",
-		desc : "Summons blood elemental clone to attack point node",
-		book : "summons2",
-		type : SPELL_TYPE_POINT,
-		cost(point) { 
-			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
-			return point.owned?-1:(point.bonus ** 0.5 / 10)
-		},
-		cast(point) {
-			createSummon(point, 3)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
-		},
-		iconText : "B",
-		iconColor : "gray",
-	},
-	summonFire : {
-		name : "Fire elemental",
-		desc : "Summons fire elemental clone to attack point node",
-		book : "summons2",
-		type : SPELL_TYPE_POINT,
-		cost(point) { 
-			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
-			return point.owned?-1:(point.bonus ** 0.5 / 10)
-		},
-		cast(point) {
-			createSummon(point, 4)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
-		},
-		iconText : "F",
-		iconColor : "gray",
-	},
-	summonIce : {
-		name : "Ice elemental",
-		desc : "Summons ice elemental clone to attack point node",
-		book : "summons2",
-		type : SPELL_TYPE_POINT,
-		cost(point) { 
-			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
-			return point.owned?-1:(point.bonus ** 0.5 / 10)
-		},
-		cast(point) {
-			createSummon(point, 5)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
-		},
-		iconText : "I",
-		iconColor : "gray",
-	},
-	summonMetal : {
-		name : "Metal elemental",
-		desc : "Summons metal elemental clone to attack point node",
-		book : "summons2",
-		type : SPELL_TYPE_POINT,
-		cost(point) { 
-			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
-			return point.owned?-1:(point.bonus ** 0.5 / 10)
-		},
-		cast(point) {
-			createSummon(point, 6)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
-		},
-		iconText : "M",
-		iconColor : "gray",
 	},
 	destroyNoclone : {
 		name : "Dispel summon shield",
@@ -186,6 +84,108 @@ const SPELLS = {//function context == point
 		},
 		iconText : "⚷\uFE0E",
 		iconColor : "#DD55DD",
+	},
+	summonPower : {
+		name : "Power elemental",
+		desc : "Summons a clone to attack point node",
+		book : "summons1",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
+			return point.owned?-1:(point.bonus ** 0.5 / 100)
+		},
+		cast(point) {
+			createSummon(point, 1)
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "P",
+		iconColor : "var(--bg-power)",
+	},
+	summonRandom : {
+		name : "Random elemental",
+		desc : "Summons random elemental clone to attack point node",
+		book : "summons1",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
+			return point.owned?-1:(point.bonus ** 0.5 / 50)
+		},
+		cast(point) {
+			createSummon(point, 3 + Math.random() * 4 | 0)
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "R",
+		iconColor : "gray",
+	},
+	summonBlood : {
+		name : "Blood elemental",
+		desc : "Summons blood elemental clone to attack point node",
+		book : "summons2",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
+			return point.owned?-1:(point.bonus ** 0.5 / 10)
+		},
+		cast(point) {
+			createSummon(point, 3)
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "B",
+		iconColor : "var(--bg-blood)",
+	},
+	summonFire : {
+		name : "Fire elemental",
+		desc : "Summons fire elemental clone to attack point node",
+		book : "summons2",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
+			return point.owned?-1:(point.bonus ** 0.5 / 10)
+		},
+		cast(point) {
+			createSummon(point, 4)
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "F",
+		iconColor : "var(--bg-fire)",
+	},
+	summonIce : {
+		name : "Ice elemental",
+		desc : "Summons ice elemental clone to attack point node",
+		book : "summons2",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
+			return point.owned?-1:(point.bonus ** 0.5 / 10)
+		},
+		cast(point) {
+			createSummon(point, 5)
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "I",
+		iconColor : "var(--bg-ice)",
+	},
+	summonMetal : {
+		name : "Metal elemental",
+		desc : "Summons metal elemental clone to attack point node",
+		book : "summons2",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
+			return point.owned?-1:(point.bonus ** 0.5 / 10)
+		},
+		cast(point) {
+			createSummon(point, 6)
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "M",
+		iconColor : "var(--bg-metal)",
 	},
 	enchantGold: {
 		name: "Land of gold",

@@ -56,6 +56,9 @@
 	--enchantgold : #999955;
 	--enchantgrowth : #559999;
 	--enchantmana : #995599;
+	--tablet-unknown : #DDDDDD;
+	--tablet-present : #00AF00;
+	--tablet-absent : #FFAAAA;
 }
 
 body.dark {
@@ -114,6 +117,9 @@ body.dark {
 	--enchantgold : #AAAA66;
 	--enchantgrowth : #66AAAA;
 	--enchantmana : #AA66AA;
+	--tablet-unknown : #333333;
+	--tablet-present : #22FF22;
+	--tablet-absent : #AF3333;
 }
 
 /*body.light.light-boss {
@@ -276,6 +282,8 @@ canvas.foreground : {
 	margin : 0;
 	display : flex;
 	flex-wrap : wrap;
+	align-items : start;
+	align-content : start;
 	width : 418px;
 }
 
@@ -600,13 +608,13 @@ canvas.foreground : {
 	background-color : var(--background);
 }
 
-.tab.sliders, .tab.story, .tab.skills, .tab.management {
+.tab.sliders, .tab.story, .tab.skills, .tab.management, .tab.artifacts {
 	display : flex;
 	flex-direction : column;
 	overflow : hidden;
 }
 
-.tab.story .records, .tab.sliders .sliders, .tab.skills .skills, .tab.stardust .stardusts {
+.tab.story .records, .tab.sliders .sliders, .tab.skills .skills, .tab.stardust .stardusts, .tab.artifacts .artifacts {
 	overflow : auto;
 	overflow-x : hidden;
 	display : flex;
@@ -1046,16 +1054,17 @@ canvas.foreground : {
 	margin : -15px 0;
 }
 
-.saves .button, .login-form .button {
+.saves .button, .login-form .button, .artifacts .button {
 	display : inline-block;
 	border : 2px solid var(--lightframe);
 	padding : 10px;
 	margin : 5px;
 	cursor : pointer;
 	transition : background-color 0.2s;
+	text-align : center;
 }
 
-.saves .button:hover, .login-form .button:hover {
+.saves .button:hover, .login-form .button:hover, .artifact .button:hover {
 	background-color : var(--shade12);
 }
 
@@ -1102,6 +1111,10 @@ canvas.foreground : {
 
 .management .filter .name {
 	padding : 0 20px 0 0;
+}
+
+.management .sort .gui-checkbox {
+	margin-left : 20px;
 }
 
 .management .sorter {
@@ -1630,12 +1643,14 @@ canvas.foreground : {
 	transition: none !important;
 }
 
-.login-holder {
+.login-holder, .tablet-holder {
 	z-index : 10;
 	background-color : rgba(0,0,0,0.5);
 	position : absolute;
 	width : 100%;
 	height : 100%;
+	left : 0;
+	top : 0;
 	display : flex;
 	align-items : center;
 	justify-content : center;
@@ -1663,4 +1678,198 @@ canvas.foreground : {
 	flex-direction : row;
 	align-items : center;
 	justify-content : space-between;
+}
+
+.tablet {
+	display : flex;
+	flex-direction : column;
+	align-items : center;
+	position : absolute;
+	width : 740px;
+	height : 570px;
+	background-color : var(--background);
+	border : 2px solid var(--lightframe);
+}
+
+.tablet-title {
+	font-size : 25px;
+	font-weight : bolder;
+	padding : 10px;
+}
+
+.tablet-glyphs {
+	display : flex;
+	flex-direction : column;
+	width : 700px;
+}
+
+.tablet-row {
+	height : 17px;
+	display : flex;
+	flex-direction : row;
+	justify-content : space-between;
+}
+
+.tablet-cell {
+	color : var(--tablet-unknown);
+	width : 25px;
+	font-size : 13px;
+	font-weight : bold;
+	text-align : center;
+}
+
+.tablet-cell.present {
+	color : var(--tablet-present);
+}
+
+.tablet-cell.absent {
+	color : var(--tablet-absent);
+}
+
+.tablet-controls {
+	margin-top : 10px;
+}
+
+.tablet-input {
+	padding : 5px;
+	background-color : var(--background);
+	color : var(--foreground);
+	border : 2px solid var(--lightframe);
+	font-size : 20px;
+	text-transform : uppercase;
+}
+
+.artifact {
+	display : flex;
+	flex-direction : column;
+	width : 300px;
+	min-height : 200px;
+	padding : 10px;
+	margin : 20px 0 0 20px;
+	border : 2px solid var(--lightframe);
+	order : 2;
+	align-items : stretch;
+}
+
+.artifact-research {
+	margin-top : auto;
+	display : flex;
+	flex-direction : column;
+	align-items : stretch;
+}
+
+.artifact-this  {
+	margin : 5px 0;
+	align-self : left;
+}
+
+.artifact.researched {
+	order : 1;
+}
+
+.artifact-header {
+	display : flex;
+	flex-direction : row;
+	height : 40px;
+	align-items : center;
+}
+
+.artifact-icon-holder {
+	width : 40px;
+	height : 20px;
+	background-color : var(--shade12);
+	border-radius : 50%;
+	position : relative;
+	top : 10px;
+	text-align : center;
+}
+
+.artifact-icon {
+	position : relative;
+	top : -25px;
+	font-size : 30px;
+}
+
+.artifact-title {
+	text-align : center;
+	font-weight : bold;
+	font-size : 20px;
+	flex-grow : 999;
+}
+
+.artifact-effect {
+	flex-grow : 999;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	text-align : center;
+}
+
+.equip-holder {
+	position : absolute;
+	top : 0;
+	left : 0;
+	width : 100%;
+	height : 100%;
+	z-index : 10;
+}
+
+.equip-menu {
+	display : flex;
+	flex-direction : column;
+	position : absolute;
+	background-color : var(--background);
+	border : 2px solid var(--lightframe);
+	max-height : 400px;
+	overflow-y : auto;
+	overflow-x : hidden;
+}
+
+.equip-item {
+	display : flex;
+	flex-shrink : 0;
+	flex-direction : row;
+	width : 200px;
+	height : 20px;
+	transition : background-color 0.2s;
+	padding : 2px;
+}
+
+.equip-item:hover {
+	background-color : var(--shade12);
+}
+
+.equip-icon {
+	display : flex;
+	width : 20px;
+	height : 20px;
+	font-size :20px;
+	align-items : center;
+	justify-content : center;
+}
+
+.equipment {
+	display : flex;
+	flex-direction : row;
+	margin : 5px 0 15px 0;
+	align-items : center;
+}
+
+.equipment-slot {
+	margin : auto;
+	height : 20px;
+	background-color : var(--shade12);
+	border-radius : 50%;
+	position : relative;
+	top : 10px;
+	text-align : center;
+	cursor : pointer;
+}
+
+.equipment-icon {
+	position : relative;
+	top : -25px;
+	font-size : 30px;
+	width : 30px;
+	height : 30px;
 }

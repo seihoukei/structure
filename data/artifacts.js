@@ -1,55 +1,204 @@
 'use strict'
 
-//Emerald sword - spirit => unblockable damage
-//
-//Staffs:
-//- All elements 2% pierce resist
-//- Fire 5% pierce resist
-//- Ice 5% pierce resist
-//- Blood 5% pierce resist
-//- Metal 5% pierce resist
-//- Null target node's element on self
-//
-//Orbs: 
-//- Grow through chanelling
-//- Focus growth in power
-//- All elemental growth => fire
-//- All elemental growth => ice
-//- All elemental growth => blood
-//- All elemental growth => metal
-//
-//Shields:
-//- Create a magical shield upon conquered point
-//- Create a physical shield around conquered point
-
-	const ARTIFACTS = {
-	emeraldSword: {
-		name : "Emerald Sword",
-		desc : "Fear-based damage ignores all kinds of resistance",
+const ARTIFACTS = {
+	expOrb: {
+		name : "Orb of experience",
+		desc : "Triples equipped slider's gained experience",
 		codeLength : 5,
-		codeCost : 1e8,
-		depth : 1e3,
-		iconText : "🗡️\uFE0E",
-		iconTextColor : "var(--spirit)"
-	},
-	channelOrb: {
-		name : "Sphere of Time",
-		desc : "Channelling does not prevent growth",
-		codeLength : 5,
-		codeCost : 1e9,
-		depth : 1e6,
+		codeCost : 1e7,
+		depth : 1.43e2,
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
-	nullRod: {
-		name : "Mirror staff",
-		desc : "Target node's attribute is zeroed on slider while attacking",
+	pickaxe: {
+		name: "Radiant pickaxe",
+		desc: "Slider digs a lot more efficiently",
+		codeLength : 5,
+		codeCost : 3e7,
+		depth : 2.341e4,
+		iconText: "⛏️\uFE0E",
+		iconTextColor: "var(--foreground)"
+	},
+	powerOrb: {
+		name : "Orb of power",
+		desc : "All the slider's growth is focused in power",
+		codeLength : 6,
+		codeCost : 1e8,
+		depth : 3.141e6,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-power)"
+	},
+	iceRod: {
+		name : "Rod of ice",
+		desc : "Deals unblockable 5% of slider's ice damage",
+		codeLength : 6,
+		codeCost : 3e8,
+		depth : 8.231e8,
+		iconText: "/️",
+		iconTextColor : "var(--bg-ice)"
+	},
+	channelReceiver: {
+		name: "Student's amulet",
+		desc: "Slider receives double bonus from channelling",
 		codeLength : 7,
-		codeCost : 1e9,
-		depth : 1e9,
+		codeCost : 5e8,
+		depth : 2.515e10,
+		iconText: "V",
+		iconTextColor: "var(--foreground)"
+	},
+	fireRod: {
+		name : "Rod of fire",
+		desc : "Deals unblockable 5% of slider's fire damage",
+		codeLength : 8,
+		codeCost : 3e8,
+		depth : 8.326e11,
+		iconText: "/️",
+		iconTextColor : "var(--bg-fire)"
+	},
+	bloodOrb: {
+		name : "Orb of blood",
+		desc : "All the slider's elemental growth is focused in blood",
+		codeLength : 8,
+		codeCost : 3e8,
+		depth : 6.264e12,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-blood)"
+	},
+	metalRod: {
+		name : "Rod of metal",
+		desc : "Deals unblockable 5% of slider's metal damage",
+		codeLength : 9,
+		codeCost : 4e8,
+		depth : 7.272e13,
+		iconText: "/️",
+		iconTextColor : "var(--bg-metal)"
+	},
+	iceOrb: {
+		name : "Orb of ice",
+		desc : "All the slider's elemental growth is focused in ice",
+		codeLength : 9,
+		codeCost : 5e8,
+		depth : 9.326e14,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-ice)"
+	},
+	bloodRod: {
+		name : "Rod of blood",
+		desc : "Deals unblockable 5% of slider's blood damage",
+		codeLength : 9,
+		codeCost : 5e8,
+		depth : 5.251e15,
+		iconText: "/️",
+		iconTextColor : "var(--bg-blood)"
+	},
+	channelOrb: {
+		name : "Channeller's orb",
+		desc : "Channelling does not prevent growth",
+		codeLength : 12,
+		codeCost : 2e9,
+		depth : 7.777e16,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--foreground)"
+	},
+	fireOrb: {
+		name : "Orb of fire",
+		desc : "All the slider's elemental growth is focused in fire",
+		codeLength : 9,
+		codeCost : 4e8,
+		depth : 4.91e17,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-fire)"
+	},
+	metalOrb: {
+		name : "Orb of metal",
+		desc : "All the slider's elemental growth is focused in metal",
+		codeLength : 9,
+		codeCost : 6e8,
+		depth : 1.61e18,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-metal)"
+	},
+	emeraldSword: {
+		name : "Emerald sword",
+		desc : "Deals extra spirit and fear based damage that ignores all kinds of resistance",
+		codeLength : 11,
+		codeCost : 23e9,
+		depth : 6.666e19,
+		iconText : "T",
+		iconTextColor : "var(--bg-spirit)"
+	},
+	growthOrb: {
+		name : "Orb of growth",
+		desc : "Triples equipped slider's actual growth",
+		codeLength : 13,
+		codeCost : 32e9,
+		depth : 2.627e21,
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--enchantgrowth)"
+	},
+	pierceRod: {
+		name : "Rod of elements",
+		desc : "Deals unblockable 2% of slider's elemental damage",
+		codeLength : 14,
+		codeCost : 3e9,
+		depth : 1.234e23,
+		iconText: "/️",
+		iconTextColor : "var(--foreground)"
+	},
+	channelCrown: {
+		name : "Leader's crown",
+		desc : "Sliders attacking same point as this slider get channelling bonus from this slider",
+		codeLength : 10,
+		codeCost : 25e9,
+		depth : 7.651e25,
+		iconText : "👑\uFE0E",
+		iconTextColor : "var(--foreground)"
+	},
+	nullRod: {
+		name : "Staff of suppression",
+		desc : "Target node's attribute is zeroed on slider while attacking",
+		codeLength : 20,
+		codeCost : 1e11,
+		depth : 1.51e27,
 		iconText : "/",
 		iconTextColor : "var(--shade13)"
-	}
+	},
+	goldShield: {
+		name : "Shield of gold",
+		desc : "Points captured with the slider get enchanted for gold",
+		codeLength : 12,
+		codeCost : 5e9,
+		depth : 5.015e27,
+		iconText : "O",
+		iconTextColor : "var(--enchantgold)"
+	},
+	manaShield: {
+		name : "Shield of mana",
+		desc : "Points captured with the slider get enchanted for mana",
+		codeLength : 12,
+		codeCost : 5e9,
+		depth : 1.724e28,
+		iconText : "O",
+		iconTextColor : "var(--enchantmana)"
+	},
+	physicalShield: {
+		name : "Shield of fears",
+		desc : "Unprotected points captured with the slider gain a physical shield",
+		codeLength : 17,
+		codeCost : 1e10,
+		depth : 1.313e29,
+		iconText : "O",
+		iconTextColor : "#DD88DD"
+	},
+	magicalShield: {
+		name : "Shield of clouds",
+		desc : "Unprotected points captured with the slider gain a magical shield",
+		codeLength : 16,
+		codeCost : 12e9,
+		depth : 7.663e29,
+		iconText : "O",
+		iconTextColor : "#DD55DD"
+	},
 }
 
 Object.keys(ARTIFACTS).map(x => ARTIFACTS[x].id = x)
@@ -94,9 +243,11 @@ function advanceResearch(value) {
 			available.delete(pair)
 		}
 		if (available.size == 0) {
+			research.progress = 0
 			delete game.researching 
 		}
 		gui.artifacts.update(true)
+		gui.artifacts.updateTablet(name)
 	}
 	return
 }
@@ -105,8 +256,11 @@ function finalizeResearch(name, word) {
 	const artifact = ARTIFACTS[name]
 	const research = game.research[name]
 	if (!artifact || !research || !word || word.toUpperCase() != research.codeword) 
-		return
+		return false
 	research.done = true
 	research.tablet = {}
-	gui.artifacts.update(true)
+	research.progress = 0
+	if (game.researching == name) 
+		game.researching = ""
+	return true
 }

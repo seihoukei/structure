@@ -93,6 +93,7 @@ const guiCheckboxHandler = {
 	
 	update() {
 		this.dvCheckbox.innerText = this.container[this.value] ^ this.reverse?"✓\uFE0E":""
+		this.dvDisplay.classList.toggle("hidden", !((!this.visibility && !this.visible) || this.visibility && this.visibility() || this.visible && this.visible()))
 	},
 	
 	switch() {

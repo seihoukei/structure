@@ -125,6 +125,17 @@ const ManagementTab = Template({
 			value : "sortOften"
 		})
 		
+		this.hideEnchanted = false
+		
+		this.cbHideEnchanted = GuiCheckbox({
+			parent : this.dvSort,
+			title : "Hide enchanted",
+			container : this,
+			visibility : () => !!game.skills.magicManagement,
+			value : "hideEnchanted",
+			onSet : () => this.update(true)
+		})
+		
 		this.dvList = createElement("div", "list", this.dvDisplay)
 		
 		this.dvHover = createElement("div", "list-hover hidden", this.dvDisplay)
@@ -138,6 +149,7 @@ const ManagementTab = Template({
 	update(forced) {
 		if (forced) {
 			this.dvAutomation.classList.toggle("hidden", !game.skills.automation)
+			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			if (game.skills.automation) {
 				this.maxLevel.update()
@@ -155,6 +167,7 @@ const ManagementTab = Template({
 				if (visible)
 					x.dvDisplay.classList.toggle("active", !!game.automation.buildings[x.id])
 			})
+			this.cbHideEnchanted.update()
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
 	}
@@ -257,6 +270,11 @@ const managementPointElementHandler = {
 	
 	update(forced) {
 		if (forced) {
+			if (this.point.enchanted && gui.management.hideEnchanted) {
+				this.dvDisplay.classList.toggle("hidden", true)
+				return
+			} else
+				this.dvDisplay.classList.toggle("hidden", false)				
 			this.dvInfo.innerText = "Power : " + displayNumber(this.point.power) + "\n" +
 									"Growth : " + displayNumber(this.point.totalBonus) + "\n" +
 									"Depth : " + this.point.depth// + (this.point.enchanted?" ("+["None", "Gold", "Growth", "Mana"][this.point.enchanted]+")":"")
@@ -265,7 +283,7 @@ const managementPointElementHandler = {
 				this.dvIcon.classList.toggle(["enchant-none", "enchant-gold", "enchant-growth", "enchant-mana"][this.point.enchanted || 0], 1)
 			this.dvLevelUp.classList.toggle("visible", !this.point.boss && (!this.point.level || this.point.level < POINT_MAX_LEVEL))
 			this.icons.map(x => {
-				x.visible = !this.point.boss && this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])
+				x.visible = this.point.buildings && this.point.buildings[x.id] || !this.point.boss && this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)
 			})
 			this.spellIcons.map(x => {

@@ -324,7 +324,7 @@ const SKILLS = {
 		mult : 1.5
 	},
 	artifacts: {
-		name : "Hidden treasure (WIP)",
+		name : "Hidden treasure",
 		desc : "Research artifacts found during mining",
 		sliders : 6,
 		mult : 2,

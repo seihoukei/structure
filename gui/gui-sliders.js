@@ -37,6 +37,7 @@ const SlidersTab = Template({
 			slider.displayStats.map(y => {
 				y.expSlider.update()
 			})
+			slider.equipList.update()
 		})
 	},
 	

@@ -96,6 +96,19 @@ const mapHandler = {
 					c.rect(point.renderSize * 1.3, -point.renderSize * 1.2, -point.renderSize * 2.6,  point.renderSize * 0.6)
 					c.moveTo(0, -point.renderSize * 1.2)
 					c.lineTo(0, point.renderSize * 1.2)
+					
+				}
+				if (point.owned && point.nobuild) {
+					c.moveTo( point.renderSize * 0.8, point.renderSize * 1.2)
+					c.lineTo( point.renderSize * 1.2, point.renderSize * 0.8)
+					c.lineTo(-point.renderSize * 0.8,-point.renderSize * 1.2)
+					c.lineTo(-point.renderSize * 1.2,-point.renderSize * 0.8)
+					c.lineTo( point.renderSize * 0.8, point.renderSize * 1.2)
+					c.moveTo( point.renderSize * 0.8,-point.renderSize * 1.2)
+					c.lineTo( point.renderSize * 1.2,-point.renderSize * 0.8)
+					c.lineTo(-point.renderSize * 0.8, point.renderSize * 1.2)
+					c.lineTo(-point.renderSize * 1.2, point.renderSize * 0.8)
+					c.lineTo( point.renderSize * 0.8,-point.renderSize * 1.2)
 				}
 			}
 			c.restore()
@@ -164,7 +177,7 @@ const mapHandler = {
 		if (game.dev && game.dev.seeAll)
 			this.renderedPoints.map(drawExtra)
 		else
-			this.renderedPoints.filter(x => x.special && (x.away == 1 || x.owned)).map(drawExtra)
+			this.renderedPoints.filter(x => (x.special || x.owned && x.nobuild) && (x.away == 1 || x.owned)).map(drawExtra)
 		c.stroke()
 		c.restore()
 

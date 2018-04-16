@@ -114,8 +114,13 @@ const sliderHandler = {
 			//hide point info
 		}
 		
+		this.equipList = EquipList({
+			parent : this.dvDisplay,
+			slider : this,
+			visible : () => !(this.clone || !game.skills.artifacts)
+		})
+		
 		this.gild = this.gild || false
-
 		this.cbGild = GuiCheckbox({
 			parent : this.dvDisplay,
 			container : this,
@@ -367,7 +372,7 @@ const sliderHandler = {
 	updateSliders() {
 		if (!this.displayStats) return
 		this.displayStats.map((x, n) => {
-			const channel = this.channel.includes(n+1)
+			const channel = this.channel.includes(n+1) && !this.artifacts.channelOrb
 			const boost = this.learn.includes(n+1) && !channel
 			x.expSlider.dvDisplay.classList.toggle("boost", boost)
 			x.expSlider.dvDisplay.classList.toggle("channel", channel)
@@ -467,7 +472,7 @@ const sliderHandler = {
 		
 		POINT_TYPES.map((x,n) => {
 			if (!n) return
-			if (this.channel.includes(n)) return
+			if (this.channel.includes(n) && !this.artifacts.channelOrb) return
 			this.stats[x] += this.real.growth[x] * mul
 		})
 	},
@@ -481,28 +486,34 @@ const sliderHandler = {
 		this.real.expChange = 0
 		this.real.imbuement = this.target && this.target.index?this.imbuement:0
 		this.real.gild = this.target && this.target.index?this.gild:0
+		this.real.absoluteDamage = 0
 		
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
 			this.real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
 			game.sliders.map(slider => {
 				if (slider == this || slider.clone) return
-				if (slider.channel.includes(n+1))
-					this.real[this.clone?POINT_TYPES[this.element || 1]:x] += slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0)
+				let times = 0
+				if (slider.artifacts.channelCrown && slider.target == this.target) times++
+				if (slider.channel.includes(n+1)) times++
+				if (times) {
+					if (this.artifacts.channelReceiver) times *= 2
+					this.real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
+				}
 			})
 			
-			if (this.channel.includes(n+1)) {
+			if (this.channel.includes(n+1) && !this.artifacts.channelOrb) {
 				this.real.growth[x] = 0
 			} else if (this.learn.includes(n+1)) {
 				if (game.resources.exp > 1e-6) {
 					this.real.expChange -= this.real.growth[x]
-					this.real.growth[x] *= 3
+					this.real.growth[x] *= 3 * (this.artifacts.growthOrb?3:1)
 				} else {
 					this.learns.reset()
 				}				
 			} else {
-				this.real.expChange += this.real.growth[x] * (1 - this.growth[x])
-				this.real.growth[x] *= this.growth[x]
+				this.real.expChange += this.real.growth[x] * (1 - this.growth[x]) * (this.artifacts.expOrb?3:1)
+				this.real.growth[x] *= this.growth[x] * (this.artifacts.growthOrb?3:1)
 			}
 		})
 		if (game.skills.charge && !this.clone) this.real.spirit *= this.charge?2:1
@@ -510,7 +521,11 @@ const sliderHandler = {
 		this.real.attackSpirit = gui.target.point?gui.target.point.getActiveSpirit(this):0
 		this.real.spirit = this.target?this.target.getActiveSpirit(this):this.real.spirit
 		
-		if (game.skills.fear && !this.clone) this.real.power += this.real.spirit * game.resources.fears
+		if (game.skills.fear && !this.clone) {
+			this.real.power += this.real.spirit * game.resources.fears
+			if (this.artifacts.emeraldSword)
+				this.real.absoluteDamage += this.real.spirit * game.resources.fears
+		}
 		
 		POINT_TYPES.slice(3).map(x => this.real.imbuementCosts[x] = (Math.log10(this.real.power || 1) ** 4 / 1000) * Math.max(1,Math.min(this.real.power ** 0.5, this.real.power / (this.real[x] || 1) / 10))) || 0
 		
@@ -523,6 +538,38 @@ const sliderHandler = {
 				this.imbuements.set(0)
 			}
 		}
+		
+		if (this.artifacts.fireRod)   {this.real.absoluteDamage += 0.05 * this.real.fire }
+		if (this.artifacts.iceRod)    {this.real.absoluteDamage += 0.05 * this.real.ice  }
+		if (this.artifacts.bloodRod)  {this.real.absoluteDamage += 0.05 * this.real.blood}
+		if (this.artifacts.metalRod)  {this.real.absoluteDamage += 0.05 * this.real.metal}
+		if (this.artifacts.pierceRod) {this.real.absoluteDamage += 0.02 * (this.real.metal + this.real.blood +  this.real.fire + this.real.ice) * 0.02}
+		
+		if (this.artifacts.powerOrb) {
+			this.real.growth.power += this.real.growth.spirit + this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
+			this.real.growth.metal = this.real.growth.ice = this.real.growth.blood = this.real.growth.fire = this.real.growth.spirit = 0
+		}
+		
+		if (this.artifacts.fireOrb) {
+			this.real.growth.fire = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
+			this.real.growth.metal = this.real.growth.ice = this.real.growth.blood = 0
+		}
+		
+		if (this.artifacts.iceOrb) {
+			this.real.growth.ice = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
+			this.real.growth.metal = this.real.growth.blood = this.real.growth.fire = 0
+		}
+		
+		if (this.artifacts.metalOrb) {
+			this.real.growth.metal = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
+			this.real.growth.ice = this.real.growth.blood = this.real.growth.fire = 0
+		}
+		
+		if (this.artifacts.bloodOrb) {
+			this.real.growth.blood = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
+			this.real.growth.metal = this.real.growth.ice = this.real.growth.fire = 0
+		}
+		
 		
 		this.real.attack = this.target?this.target.getActivePower(this):0
 		
@@ -547,16 +594,21 @@ const sliderHandler = {
 			return 0
 		let artifact = ARTIFACTS[name]
 		
-		if (!game.research[name].done)
+		if (!artifact || !game.research[name] || !game.research[name].done)
 			return 0
-		
-		if (!artifact)
-			return 0
+
 		if (this.artifacts[name]){
 			artifact.equipped = this
+			if (slot) {
+				Object.entries(this.artifacts).map(x => {
+					if (x[1] == slot) {
+						this.artifacts[x[0]] = this.artifacts[name]
+					}
+				})
+				this.artifacts[name] = slot
+			}
 			return this.artifacts[name]
 		}
-		
 
 		if (!slot) {
 			const freeSlots = Array(this.artifactSlots+1).fill(1)
@@ -576,6 +628,7 @@ const sliderHandler = {
 		
 		this.artifacts[name] = slot
 		artifact.equipped = this
+		this.updateSliders()
 		
 		return slot
 //		artifact.onEquip && artifact.onEquip(this)
@@ -592,6 +645,14 @@ const sliderHandler = {
 		let artifact = ARTIFACTS[name]
 		delete artifact.equipped
 		delete this.artifacts[name]
+		this.updateSliders()
+	},
+	
+	unequipSlot(slot) {
+		Object.entries(this.artifacts).map(x => {
+			if (x[1] == slot)
+				this.unequip(x[0])
+		})
 	},
 	
 	toJSON() {
@@ -599,6 +660,7 @@ const sliderHandler = {
 		delete o.sparks
 		delete o.test
 		delete o.slots
+		delete o.equipList
 		delete o.displayStats
 		delete o.imbuements
 		delete o.safeImbuementsSwitch

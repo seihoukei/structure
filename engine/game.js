@@ -75,7 +75,7 @@ const game = {
 				this.renderForeground(gui.foregroundContext)
 				
 				if (this.updateInterface) {
-					gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?"+":"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
+					gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
 					gui.map.updateGrowth()
 				}
 			}
@@ -172,6 +172,24 @@ const game = {
 			c.lineTo(end.x, end.y)
 			c.restore()
 		}
+		function renderQuake(point) {
+			c.save()
+			const end = {
+				x : (point.edx - point.sdx) / 10,
+				y : (point.edy - point.sdy) / 10,
+			}
+			c.moveTo(point.sdx, point.sdy)
+			for (let i = 0; i < 10; i++) {
+				c.lineTo(point.sdx + i * (end.x + Math.random() - 0.5), point.sdy + i * (end.y + Math.random() - 0.5))
+			}
+			c.lineTo(point.edx, point.edy)
+			
+			c.restore()
+		}
+		c.strokeStyle = gui.theme.lightning
+		c.beginPath()
+		this.map.renderedPoints.filter(x => !x.owned && x.parent && x.parent.buildings && x.parent.buildings.earthquakeMachine && x.real && x.real.passiveDamage).map(renderQuake)
+		c.stroke()
 		c.strokeStyle = gui.theme.progress
 		c.beginPath()
 		this.map.renderedPoints.filter(x => !x.owned && x.progress > 0).map(renderProgress)
@@ -311,7 +329,7 @@ const game = {
 		if (this.map.markers && this.map.markers.length) 
 			return
 			
-		if (this.resources.stars >= this.map.ascendCost && !this.map.boss || this.map.boss && !this.map.points.filter(x => x.boss == this.map.boss && !x.owned).length) {
+		if ((this.resources.stars >= this.map.ascendCost || this.map.virtual) && !this.map.boss || this.map.boss && !this.map.points.filter(x => x.boss == this.map.boss && !x.owned).length) {
 			
 			if (!this.map.virtual && !confirm(this.map.virtual?"Abandon this virtual map?":"Ascend to the next map?")) 
 				return
@@ -678,7 +696,11 @@ const game = {
 		
 		this.researching = save.researching
 
-		Object.keys(ARTIFACTS).map(x => this.research[x] = Object.assign({}, createArtifactResearch(x), save.research && save.research[x]))
+		Object.keys(ARTIFACTS).map(x => {
+			this.research[x] = Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
+			if (this.research[x].codeword.length != ARTIFACTS[x].codeLength)
+				this.research[x] = createArtifactResearch(x)
+		})
 
 		this.maps = save.maps || {"main" : save.map}
 		const activeMap = save.activeMap || "main"

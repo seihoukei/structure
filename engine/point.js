@@ -246,7 +246,7 @@ const pointHandler = {
 	},
 	
 	getActiveSpirit(slider) {
-		return slider.real.spirit * ((this.parent && this.parent.buildings && this.parent.buildings.obelisk)?(this.parent.level || 0) + 1:1)
+		return slider.artifacts.nullRod && this.type==2?0:slider.real.spirit * ((this.parent && this.parent.buildings && this.parent.buildings.obelisk)?(this.parent.level || 0) + 1:1)
 	},
 	
 	getActivePower(slider) {
@@ -254,7 +254,7 @@ const pointHandler = {
 		
 		if (!this.index) {
 			let power = Math.max(0, slider.real.power - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
-			return (power) ** 0.6 / 2e3
+			return (power) ** (slider.artifacts.pickaxe?0.63:0.6) / 2e3
 		}
 		
 		const chapter = this.map.level > 20 || this.map.virtual ? 1 : 0
@@ -266,12 +266,13 @@ const pointHandler = {
 		
 		const spirit = slider.real.spirit//getActiveSpirit(slider)
 		let spiritPenalty = (this.boss || slider.clone)?0:Math.max(0,(currentPower - spirit) * 2)
-		let fire  = slider.real.fire *  [1,1,1, weak, itself, strong, neutral][this.type]
-		let ice   = slider.real.ice *   [1,1,1, neutral, weak, itself, strong][this.type]
-		let blood = slider.real.blood * [1,1,1, itself, strong, neutral, weak][this.type]
-		let metal = slider.real.metal * [1,1,1, strong, neutral, weak, itself][this.type]
+
+		let fire  = slider.artifacts.nullRod && this.type==4?0:slider.real.fire *  [1,1,1, weak, itself, strong, neutral][this.type]
+		let ice   = slider.artifacts.nullRod && this.type==5?0:slider.real.ice *   [1,1,1, neutral, weak, itself, strong][this.type]
+		let blood = slider.artifacts.nullRod && this.type==3?0:slider.real.blood * [1,1,1, itself, strong, neutral, weak][this.type]
+		let metal = slider.artifacts.nullRod && this.type==6?0:slider.real.metal * [1,1,1, strong, neutral, weak, itself][this.type]
 		
-		let physical = slider.real.power * (this.type > 2 ? phys : 1)
+		let physical = slider.artifacts.nullRod && this.type==1?0:slider.real.power * (this.type > 2 ? phys : 1)
 		let superphysical = 0
 		
 		let elemental = fire + ice + blood + metal
@@ -292,7 +293,7 @@ const pointHandler = {
 		superelemental = superelemental * (this.special == SPECIAL_RESIST ? 0 : 1)
 		superphysical = superphysical * (this.special == SPECIAL_BLOCK ? 0 : 1)
 
-		return Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical
+		return Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + slider.real.absoluteDamage
 	},
 	
 	highlight() {
@@ -431,7 +432,37 @@ const pointHandler = {
 		if (!this.map.points.filter(x => !x.owned).length)
 			game.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"_full")
 		
+		let wantSpecial = 0
+		if (!this.special)
+			attackers.map(x => {
+				if (x.artifacts.magicalShield) wantSpecial |= 1
+				if (x.artifacts.physicalShield) wantSpecial |= 2
+			})
+		
+		if (wantSpecial == 3)
+			this.special = Math.random() < 0.5?SPECIAL_RESIST:SPECIAL_BLOCK
+		else if (wantSpecial == 1)
+			this.special = SPECIAL_RESIST
+		else if (wantSpecial == 2)
+			this.special = SPECIAL_BLOCK
+
+		let wantEnchant = 0
+		if (!this.special)
+			attackers.map(x => {
+				if (x.artifacts.goldShield) wantEnchant |= 1
+				if (x.artifacts.manaShield) wantEnchant |= 2
+			})
+		
+		if (wantEnchant == 3)
+			this.enchanted = Math.random() < 0.5?ENCHANT_GOLD:ENCHANT_MANA
+		else if (wantEnchant == 1)
+			this.enchanted = ENCHANT_GOLD
+		else if (wantEnchant == 2)
+			this.enchanted = ENCHANT_MANA
+
+
 		game.update()
+		
 		attackers.map(x => {
 			if (x.clone == 2) {
 				const outs = [...this.children].filter(x => !x.locked && (!x.boss || x.boss <= this.map.boss) && x.special != SPECIAL_NOCLONE)

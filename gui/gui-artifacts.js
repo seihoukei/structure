@@ -56,7 +56,7 @@ const ArtifactsTab = Template({
 			display.dvResearchHolder = createElement("div", "artifact-research", display.dvDisplay)
 			display.dvResearchCost = createElement("div", "artifact-info", display.dvResearchHolder, "Research cost: "+displayNumber(artifact.codeCost)+" science per glyph")
 //			display.dvResearchProgress = createElement("div", "artifact-info", display.dvResearchHolder, "Current glyph progress: 0%")
-			display.dvLength = createElement("div", "artifact-info", display.dvResearchHolder, "Code length: "+displayNumber(artifact.codeLength, 0)+" symbols")
+			display.dvLength = createElement("div", "artifact-info", display.dvResearchHolder, "Code length: "+artifact.codeLength+" symbols")
 			display.researched = false
 			display.cbResearched = GuiCheckbox({
 				parent : display.dvResearchHolder,
@@ -223,6 +223,10 @@ const equipListHandler = {
 			slot.dvIcon.style.color = artifact.iconTextColor
 			slot.dvDisplay.title = artifact.name + " - " + artifact.desc
 		})
+	},
+	
+	updateVisibility() {
+		this.dvDisplay.classList.toggle("hidden", !(!this.visible || this.visible()))
 	}
 }
 

@@ -356,6 +356,12 @@ const game = {
 				if (!this.map.virtual)
 					saveState("_Autosave before ascension")
 				
+				if (this.map.virtual) {
+					const summons = game.sliders.filter(x => x.clone == 2).length
+					if (summons && !confirm("You have " + pluralize(summons, ["summon", "summons"]) + ". \n Changing map will make "+pluralize(summons, ["it","them"], true)+" disappear. \n Do you really want to go?")) 
+						return
+				}
+				
 				if (!this.map.boss && !this.map.virtual) {
 					const foundStars = this.map.points.filter(x => x.exit && x.owned).length
 					this.resources.stardust += this.resources.stars - foundStars

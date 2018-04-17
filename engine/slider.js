@@ -258,7 +258,7 @@ const sliderHandler = {
 		this.dvATApply = createElement("div", "apply button", this.dvATSelector, "Autotarget now")
 		this.dvATApply.onclick = (event) => {
 			this.assignTarget(null)
-			this.autoTarget()
+			this.autoTarget(true)
 		}
 		
 		this.dvMapIcon = createElement("div", "slider-icon"+(this.clone?" clone":""), gui.map.dvSliders)
@@ -303,11 +303,11 @@ const sliderHandler = {
 		}
 	},
 	
-	autoTarget() {
+	autoTarget(forced) {
 		if (this.clone == 2) return
 		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
-		if (!game.skills.autoTarget || this.atFilter.disabled) {
+		if ((!game.skills.autoTarget || this.atFilter.disabled) && !forced) {
 			this.assignTarget(null)
 			return
 		}
@@ -391,6 +391,7 @@ const sliderHandler = {
 		this.cbGild.updateVisibility()
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
+		this.equipList.updateVisibility()
 		this.imbuements.updateVisibility()
 		this.channels.updateVisibility()
 		this.priorities.updateVisibility()

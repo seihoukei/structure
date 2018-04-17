@@ -20,7 +20,8 @@ const StardustTab = Template({
 				className : "stardust",
 				sliderClass : "bg-"+x,
 				onSet : () => {
-				const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
+					game.stardust[x] = Math.round(game.stardust(x))
+					const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
 					let otherDust = game.resources.stardust - game.stardust[x]
 					const scale = otherDust / otherTotal
 					if (scale < 1) {

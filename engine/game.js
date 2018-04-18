@@ -708,8 +708,8 @@ const game = {
 
 		Object.keys(ARTIFACTS).map(x => {
 			this.research[x] = Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
-			if (this.research[x].codeword.length != ARTIFACTS[x].codeLength)
-				this.research[x] = createArtifactResearch(x)
+			while (this.research[x].codeword.length != ARTIFACTS[x].codeLength || badCodeWord(this.research[x].codeword))
+				this.research[x] = createArtifactResearch(x, this.research[x].tablet)
 		})
 
 		this.maps = save.maps || {"main" : save.map}

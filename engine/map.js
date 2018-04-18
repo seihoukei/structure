@@ -295,10 +295,10 @@ const mapHandler = {
 			visiblePoints = this.points
 		else
 			visiblePoints = this.points.filter(x => (x.away < (game.skills.sensor?3:2)) && (x.locked < 2) && !(x.locked && x.away == 2) && (!x.boss || x.boss <= this.boss))
-		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.size), game.skills.magic?-this.ownedRadius || 0 : 0)
-		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.size), game.skills.magic?this.ownedRadius || 0 : 0)
-		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.size), game.skills.magic?-this.ownedRadius || 0 : 0)
-		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.size), game.skills.magic?this.ownedRadius || 0 : 0)
+		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.renderSize), game.skills.magic?-this.ownedRadius || 0 : 0) - 10
+		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.renderSize), game.skills.magic?this.ownedRadius || 0 : 0) + 10
+		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.renderSize), game.skills.magic?-this.ownedRadius || 0 : 0) - 10
+		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.renderSize), game.skills.magic?this.ownedRadius || 0 : 0) + 10
 		this.bounds.width = this.bounds.right - this.bounds.left
 		this.bounds.height = this.bounds.bottom - this.bounds.top
 	},

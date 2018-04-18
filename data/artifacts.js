@@ -221,7 +221,7 @@ const ARTIFACTS = {
 
 Object.keys(ARTIFACTS).map(x => ARTIFACTS[x].id = x)
 
-function createArtifactResearch(name) {
+function createArtifactResearch(name, baseTablet) {
 	const artifact = ARTIFACTS[name]
 	if (!artifact) 
 		return
@@ -229,10 +229,15 @@ function createArtifactResearch(name) {
 	const result = {}
 
 	const a = new Uint8Array(artifact.codeLength)
-	crypto.getRandomValues(a, artifact.codeLength)
 	
-	result.codeword = a.reduce((v,x) => v + String.fromCharCode(x % 26 + 65),"")
+	while (!result.codeword || badCodeWord(result.codeword)) {
+		crypto.getRandomValues(a, artifact.codeLength)
+		result.codeword = a.reduce((v,x) => v + String.fromCharCode(x % 26 + 65),"")
+	} 
+		
 	result.tablet = {}
+	if (baseTablet)
+		Object.keys(baseTablet).map(x => result.tablet[x] = result.codeword.includes(x))
 	
 	return result
 }
@@ -281,4 +286,10 @@ function finalizeResearch(name, word) {
 	if (game.researching == name) 
 		game.researching = ""
 	return true
+}
+
+function badCodeWord(s) {
+	if (s[0] == s[s.length-1]) return true
+	if (Math.max(...letters.map(x => (s.match(RegExp(x, "g")) || []).length)) > 2) return true
+	return false
 }

@@ -368,6 +368,8 @@ const pointInfoDisplayHandler = {
 		this.dvPoint.innerText = this.point.specialText
 		
 		knownType = knownType.capitalizeFirst()
+
+
 		this.dvInfo1.innerText = this.point.index?(
 									"Type: " + knownType + "\n" + 
 									"Power: " + ((this.point.locked == 1)?"unknown":displayNumber(this.point.power)) + "\n" +

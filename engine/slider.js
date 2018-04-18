@@ -296,7 +296,7 @@ const sliderHandler = {
 		}
 		
 		if (game && game.map && game.real) {
-			this.getReal()
+			this.getReal(true)
 			if (!this.target)
 				this.autoTarget()
 			this.getReal()

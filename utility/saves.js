@@ -7,6 +7,7 @@ function saveState(slot = "_Autosave", nobackup = false, data = game) {
 	if (slot == "_Cloud save" && settings.cloudUpdate)
 		cloud.save()
 	gui.updateSaves()
+	delete game.badSave	
 }
 
 function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
@@ -32,6 +33,7 @@ function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
 		return true
 	} catch(e) {
 		alert("Invalid save data")
+		game.badSave = true
 		console.log(e)
 		console.log(saveData)
 		return false
@@ -79,6 +81,7 @@ function importState(saveData) {
 		return loadState("_Last imported save")
 	} catch(e) {
 		alert("Invalid save data")
+		game.badSave = true
 		console.log(e)
 		console.log(saveData)
 	}

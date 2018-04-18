@@ -91,6 +91,7 @@ const SPELLS = {//function context == point
 		book : "summons1",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
+			if (point.noclone) return -1
 			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 100)
 		},
@@ -108,6 +109,7 @@ const SPELLS = {//function context == point
 		book : "summons1",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
+			if (point.noclone) return -1
 			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 50)
 		},
@@ -125,6 +127,7 @@ const SPELLS = {//function context == point
 		book : "summons2",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
+			if (point.noclone) return -1
 			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
@@ -142,6 +145,7 @@ const SPELLS = {//function context == point
 		book : "summons2",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
+			if (point.noclone) return -1
 			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
@@ -159,6 +163,7 @@ const SPELLS = {//function context == point
 		book : "summons2",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
+			if (point.noclone) return -1
 			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
@@ -176,6 +181,7 @@ const SPELLS = {//function context == point
 		book : "summons2",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
+			if (point.noclone) return -1
 			if (game.sliders.filter(x => x.clone == 2).length >= 10) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},

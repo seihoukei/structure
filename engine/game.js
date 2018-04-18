@@ -425,12 +425,12 @@ const game = {
 		if (settings.slowModeIdle && performance.now() - this.lastAction > settings.slowModeIdle)
 			this.enableSlowMode(1)
 		
-		if (settings.autosavePeriod && performance.now() - this.lastSave > settings.autosavePeriod) {
+		if (!this.badSave && settings.autosavePeriod && performance.now() - this.lastSave > settings.autosavePeriod) {
 			saveState("_Autosave", 1)
 			this.lastSave = performance.now()
 		}		
 		
-		if (settings.cloudPeriod && performance.now() - this.lastCloudSave > settings.cloudPeriod) {
+		if (!this.badSave && settings.cloudPeriod && performance.now() - this.lastCloudSave > settings.cloudPeriod) {
 			if (settings.cloudUpdate)
 				saveState("_Cloud save", 1)
 			this.lastCloudSave = performance.now()
@@ -513,7 +513,7 @@ const game = {
 			this.map.points.map (point => point.getReal())
 			this.sliders.map (slider => slider.getReal())
 			this.getRealProduction()
-			
+						
 			for (let point of this.attacked) point.attack(deltaTime)
 
 			this.sliders.map(slider => slider.advance(deltaTime))
@@ -663,6 +663,7 @@ const game = {
 		delete o.offline
 		delete o.autoUpgrading
 		delete o.iterations
+		delete o.badSave
 		delete o.updateInterface
 		return o
 	},
@@ -672,6 +673,8 @@ const game = {
 		
 		if (!auto)
 			saveState("_Autosave before load", 1)
+
+		delete game.badSave
 
 		animations.reset()
 		this.animatingPoints.clear()
@@ -755,6 +758,8 @@ const game = {
 		if (!auto)
 			saveState("_Autosave before reset", 1)
 
+		delete game.badSave
+		
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = this.dev && this.dev.autoSkills && this.dev.autoSkills.includes(x)?1:0)

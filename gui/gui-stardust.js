@@ -244,3 +244,4 @@ const mapDisplayHandler = {
 }
 
 const MapDisplay = Template(mapDisplayHandler)
+

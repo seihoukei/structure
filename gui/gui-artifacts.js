@@ -162,14 +162,15 @@ const ArtifactsTab = Template({
 				display.dvDisplay.classList.toggle("hidden",!!(!game || !game.map || !game.map.points || !game.map.points[0] || !game.map.points[0].mineDepth || game.map.points[0].mineDepth < display.artifact.depth))
 				const research = game.research[display.id]
 				display.dvDisplay.classList.toggle("researched", !!research.done)
-				display.dvDisplay.classList.toggle("researching", game.researching === display.id)
+//				display.dvDisplay.classList.toggle("researching", game.researching === display.id)
 				display.dvTitle.innerText = research.done?display.artifact.name:"???"
 
 				display.dvEffect.classList.toggle("hidden", !research.done)
 				display.dvEffect.innerText = "Effect: "+(research.done?display.artifact.desc:"???")
 				display.dvResearchHolder.classList.toggle("hidden", !!research.done)
 //				console.log(display.artifact.id, Object.keys(game.research[display.artifact.id].tablet).length < letterPairs.length, display.cbResearched.visible())
-				display.cbResearched.updateVisibility()
+				display.researched = (game.researching == display.id)
+				display.cbResearched.update()
 				display.dvProgressInfo.innerText = "Glyphs: "+Object.keys(research.tablet).length+"/"+letterPairs.length + (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/display.artifact.codeCost) + "%)":"")
 				this.updateTablet(display.id)
 			})

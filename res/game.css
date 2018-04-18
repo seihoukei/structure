@@ -56,6 +56,7 @@
 	--enchantgold : #999955;
 	--enchantgrowth : #559999;
 	--enchantmana : #995599;
+	--enchantdoom : #995555;
 	--tablet-unknown : #DDDDDD;
 	--tablet-present : #00AF00;
 	--tablet-absent : #FFAAAA;
@@ -117,6 +118,7 @@ body.dark {
 	--enchantgold : #AAAA66;
 	--enchantgrowth : #66AAAA;
 	--enchantmana : #AA66AA;
+	--enchantdoom : #AA6666;
 	--tablet-unknown : #333333;
 	--tablet-present : #22FF22;
 	--tablet-absent : #AF3333;
@@ -670,6 +672,7 @@ canvas.foreground : {
 .skill .title {
 	font-size : larger;
 	padding : 10px;
+	text-align : center;
 }
 
 .skill .desc {
@@ -1189,6 +1192,11 @@ canvas.foreground : {
 .management .point .level.enchant-mana {
 	border-radius : 23px;
 	border : 5px solid var(--enchantmana);
+}
+
+.management .point .level.enchant-doom {
+	border-radius : 23px;
+	border : 5px solid var(--enchantdoom);
 }
 
 
@@ -1837,6 +1845,7 @@ canvas.foreground : {
 	height : 20px;
 	transition : background-color 0.2s;
 	padding : 2px;
+	white-space : nowrap;
 }
 
 .equip-item:hover {
@@ -1844,6 +1853,7 @@ canvas.foreground : {
 }
 
 .equip-icon {
+	flex-shrink : 0;
 	display : flex;
 	width : 20px;
 	height : 20px;

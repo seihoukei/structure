@@ -121,6 +121,12 @@ const mapHandler = {
 				c.moveTo(point.size + 0.25 + i * 2, 0)
 				c.arc(0, 0, point.size + 0.25 + i * 2, 0, 6.29)
 			}
+			if (point.enchanted && !point.level) {
+				for (let i = 1; i < 4; i++) {
+					c.moveTo(point.size + 0.25 + i*0.5, 0)
+					c.arc(0, 0, point.size + 0.25 + i*0.5, 0, 6.29)
+				}
+			}
 			c.restore()
 		}
 		function drawPoint(point) {
@@ -162,10 +168,10 @@ const mapHandler = {
 		
 		c.save()
 		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
-		for (let i = 0; i < 4; i++) {
+		for (let i = 0; i < 5; i++) {
 			c.beginPath()
 			c.strokeStyle = gui.theme.enchantmentColors[i]
-			this.renderedPoints.filter(x => x.owned && x.level && (x.enchanted == i || !i && !x.enchanted)).map(drawLevel)
+			this.renderedPoints.filter(x => (x.owned && x.level || x.enchanted) && (x.enchanted == i || !i && !x.enchanted)).map(drawLevel)
 			c.stroke()
 		}
 		c.restore()

@@ -20,10 +20,10 @@ const SELECTORS = {
 		return points.sort((x, y) => y.power - x.power)[0]
 	},
 	["Least defended"](points) {
-		return points.sort((x, y) => x.real.defence - y.real.defence)[0]
+		return points.sort((x, y) => (x.real?x.real.defence:x.power*x.length) - (y.real?y.real.defence:y.power*y.length))[0]
 	},	
 	["Most defended"](points) {
-		return points.sort((x, y) => y.real.defence - x.real.defence)[0]
+		return points.sort((x, y) => (y.real?y.real.defence:y.power*y.length) - (x.real?x.real.defence:x.power*x.length))[0]
 	},	
 	Closest(points) {
 		return points.sort((x, y) => x.distance - y.distance)[0]
@@ -53,12 +53,16 @@ const sliderHandler = {
 		this.learn = this.learn || []
 		this.start = this.start || {}
 		this.end = this.end || {}
+		this.onSame = this.onSame || 0
+		this.victoryTimer = this.victoryTimer || 0
+		this.lastTarget = this.lastTarget || this.targetIndex
+		
 		if (game.maps && !this.clone) Object.keys(game.maps).map(x => {
 			if (x == "main") return
 			this.start[x] = this.start[x] || Object.assign({}, this.stats)
 			this.end[x] = this.end[x] || Object.assign({}, this.stats)
 		})
-		this.artifactSlots = (this.level || 0) + 2
+		this.artifactSlots = ((this.level || 0) / 2 + 2 )| 0
 		this.artifacts = this.artifacts || {}
 		Object.entries(this.artifacts).map(x => this.equip(x[0], x[1]))
 		
@@ -471,6 +475,15 @@ const sliderHandler = {
 		if (game.skills.smartAuto && this.target && this.real.attack <= 0) {
 			this.autoTarget()
 		}
+
+		if (this.target && this.target.index && this.target.index == this.lastTarget) {
+			this.onSame += deltaTime
+		} else {
+			this.onSame = 0
+		}
+		this.lastTarget = this.target?this.target.index:0
+		
+		this.victoryTimer = Math.max(0, (this.victoryTimer || 0) - deltaTime)
 	},
 	
 	grow (mul) {

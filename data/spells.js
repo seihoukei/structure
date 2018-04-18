@@ -6,6 +6,7 @@ const SPELL_TYPE_GLOBAL = 2
 const ENCHANT_GOLD = 1
 const ENCHANT_GROWTH = 2
 const ENCHANT_MANA = 3
+const ENCHANT_DOOM = 4
 
 const SPELLS = {//function context == point
 	destroyResist : {
@@ -75,7 +76,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			const locks = [...point.children].filter(x => !x.owned && x.locked == 1).length
-			return point.owned && locks?(point.bonus ** 0.5 / 10)* 1.5 ** ((point.map.unlocked || 0) + locks - 1):-1
+			return point.owned && locks?(point.baseCost ** 0.5 / 10)* 1.5 ** ((point.map.unlocked || 0) + locks - 1):-1
 		},
 		cast(point) {
 			for (let child of point.children)
@@ -200,28 +201,13 @@ const SPELLS = {//function context == point
 		type: SPELL_TYPE_POINT,
 		recalc : true,
 		cost(point) {
-			return point.owned && !point.enchanted && point.buildings.goldFactory?point.bonus ** 0.4/10:-1
+			return point.owned && !point.enchanted && point.buildings.goldFactory?point.baseCost ** 0.4/10:-1
 		},
 		cast(point) {
 			point.enchanted = ENCHANT_GOLD
 		},
 		iconText : "G",
 		iconColor : "#888866"
-	},
-	enchantGrowth: {
-		name: "Land of growth",
-		desc: "Growth production is boosted",
-		book: "enchantments2",
-		type: SPELL_TYPE_POINT,
-		recalc : true,
-		cost(point) {
-			return point.owned && !point.enchanted?point.bonus ** 0.4/10:-1
-		},
-		cast(point) {
-			point.enchanted = ENCHANT_GROWTH
-		},
-		iconText : "G",
-		iconColor : "#668888"
 	},
 	enchantMana: {
 		name: "Land of mana",
@@ -230,13 +216,43 @@ const SPELLS = {//function context == point
 		type: SPELL_TYPE_POINT,
 		recalc : true,
 		cost(point) {
-			return point.owned && !point.enchanted && point.buildings.manalith?point.bonus ** 0.4/10:-1
+			return point.owned && !point.enchanted && point.buildings.manalith?point.baseCost ** 0.4/10:-1
 		},
 		cast(point) {
 			point.enchanted = ENCHANT_MANA
 		},
 		iconText : "M",
 		iconColor : "#886688"
+	},
+	enchantGrowth: {
+		name: "Land of growth",
+		desc: "Growth production is boosted",
+		book: "enchantments2",
+		type: SPELL_TYPE_POINT,
+		recalc : true,
+		cost(point) {
+			return point.owned && !point.enchanted?point.baseCost ** 0.4/10:-1
+		},
+		cast(point) {
+			point.enchanted = ENCHANT_GROWTH
+		},
+		iconText : "G",
+		iconColor : "#668888"
+	},
+	enchantDoom: {
+		name: "Land of doom",
+		desc: "Damage dealt to the point is greatly boosted. Doomed points provide extra science.",
+		book: "enchantments2",
+		type: SPELL_TYPE_POINT,
+		recalc : true,
+		cost(point) {
+			return !point.enchanted?point.baseCost ** 0.4/10:-1
+		},
+		cast(point) {
+			point.enchanted = ENCHANT_DOOM
+		},
+		iconText : "D",
+		iconColor : "#330000"
 	},
 }
 

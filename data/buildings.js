@@ -31,7 +31,7 @@ const BUILDINGS = {//function context == point
 			return point.depth * 1000000
 		},
 		production(point) {
-			return point.depth * point.map.level ** 2 / 1e5 * ((point.level || 0) + 1) * (game.skills.magicBoost1 && (point.distance < point.map.ownedRadius)?point.map.ownedRadius * (point.map.ownedRadius - point.distance + 1):1)
+			return point.depth * point.map.level ** 2 / 1e5 * ((point.level || 0) + 1) * (game.skills.magicBoost1 && (point.distance < point.map.ownedRadius)?point.map.ownedRadius * (point.map.ownedRadius - point.distance + 1):1) * (point.enchanted == ENCHANT_DOOM?point.map.level:1)
 		},
 		info(point) {
 			return "Production: " + displayNumber(this.production(point))

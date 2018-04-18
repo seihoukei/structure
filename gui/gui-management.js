@@ -7,6 +7,7 @@ const SORT_METHODS = {
 	"Depth" : (x,y) => (x.depth - y.depth) || (x.bonus - y.bonus),
 	"Gold" : (x,y) => (x.production.gold || 0) - (y.production.gold || 0),
 	"Mana" : (x,y) => (x.production.mana || 0) - (y.production.mana || 0),
+	"Science" : (x,y) => (x.production.science || 0) - (y.production.science || 0),
 }
 
 const ManagementTab = Template({
@@ -270,17 +271,18 @@ const managementPointElementHandler = {
 	
 	update(forced) {
 		if (forced) {
-			if (this.point.enchanted && gui.management.hideEnchanted) {
+			if (this.point.enchanted && gui.management.hideEnchanted || this.point.boss || gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type)) {
 				this.dvDisplay.classList.toggle("hidden", true)
 				return
-			} else
-				this.dvDisplay.classList.toggle("hidden", false)				
+			} else {
+				this.dvDisplay.classList.toggle("hidden", false)
+			}
 			this.dvInfo.innerText = "Power : " + displayNumber(this.point.power) + "\n" +
 									"Growth : " + displayNumber(this.point.totalBonus) + "\n" +
 									"Depth : " + this.point.depth// + (this.point.enchanted?" ("+["None", "Gold", "Growth", "Mana"][this.point.enchanted]+")":"")
 			this.dvIcon.innerText = this.point.level || "0"
 			if (game.skills.magicManagement)
-				this.dvIcon.classList.toggle(["enchant-none", "enchant-gold", "enchant-growth", "enchant-mana"][this.point.enchanted || 0], 1)
+				this.dvIcon.classList.toggle(["enchant-none", "enchant-gold", "enchant-growth", "enchant-mana", "enchant-doom"][this.point.enchanted || 0], 1)
 			this.dvLevelUp.classList.toggle("visible", !this.point.boss && (!this.point.level || this.point.level < POINT_MAX_LEVEL))
 			this.icons.map(x => {
 				x.visible = this.point.buildings && this.point.buildings[x.id] || !this.point.boss && this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])

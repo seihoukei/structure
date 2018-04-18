@@ -331,6 +331,15 @@ const SKILLS = {
 		exp : 1e22,
 		mult : 1.5
 	},
+	smartSummons : {
+		name : "For those who walk the path forlorn",
+		desc : "Summons choose new target in a more smart way",
+		req : ["book_summons1"],
+		science : 3e14,
+		map : 27,
+		exp : 1e22,
+		mult : 1.1
+	},
 	artifacts: {
 		name : "Hidden treasure",
 		desc : "Research artifacts found during mining",
@@ -366,7 +375,7 @@ const SKILLS = {
 		desc: "Spellbook - Break advanced point shields",
 		req : ["spellcasting"],
 		map : 28,
-		science : 5e14,
+		science : 6e14,
 		exp : 2e19,
 		mult : 1,
 	},
@@ -378,6 +387,15 @@ const SKILLS = {
 		science : 1e15,
 		exp : 2e19,
 		mult : 1,
+	},
+	book_enchantments2: {
+		name : "Into the enchanted chamber",
+		desc : "Spellbook - More enchantments for points",
+		map : 28,
+		req : ["book_enchantments1","spellcasting"],
+		science : 5e14,
+		exp : 2e20,
+		mult : 1	
 	},
 	pierceResist: {
 		name : "Witchbane", //rename

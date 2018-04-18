@@ -90,6 +90,7 @@ const pointHandler = {
 			this.initialized = (this.initialized || 0) + 1
 //		}
 		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
+		this.baseCost = Math.sqrt(this.power) * 25.6
 		
 		this.outs = [...this.children].filter(x => !x.owned && (!x.boss || x.boss <= this.map.boss)).length
 		
@@ -111,7 +112,7 @@ const pointHandler = {
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1)
+		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1)
 		
 		if (!game.offline)
 			this.updateDisplay("management", true)
@@ -210,7 +211,7 @@ const pointHandler = {
 	
 	unsuspend() {
 		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1)
+		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1)
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build(this))
 		if (this.type && this.owned)
 			game.growth[POINT_TYPES[this.type]] += this.totalBonus
@@ -292,8 +293,12 @@ const pointHandler = {
 		
 		superelemental = superelemental * (this.special == SPECIAL_RESIST ? 0 : 1)
 		superphysical = superphysical * (this.special == SPECIAL_BLOCK ? 0 : 1)
+		
+		let finalMult = (this.enchanted == ENCHANT_DOOM?this.map.level:1)
+		if (slider.artifacts.warAmulet && slider.lastTarget == this.index) finalMult *= 1 + slider.onSame / 600
+		if (slider.artifacts.victoryAmulet && slider.victoryTimer) finalMult *= 1 + this.map.level / 10
 
-		return Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + slider.real.absoluteDamage
+		return (Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + slider.real.absoluteDamage)*finalMult
 	},
 	
 	highlight() {
@@ -304,6 +309,11 @@ const pointHandler = {
 			this.real.loss = 0
 			return
 		}
+/*		if (this.enchanted == ENCHANT_DOOM) {
+			this.real.loss *= this.map.level
+			this.real.passiveDamage *= this.map.level
+		}*/
+		
 		let power = this.real.loss * time
 		if (!this.index) {
 			this.mineDepth = (this.mineDepth || 0) + power
@@ -464,12 +474,18 @@ const pointHandler = {
 		game.update()
 		
 		attackers.map(x => {
+			x.victoryTimer = 60 * this.map.level
 			if (x.clone == 2) {
-				const outs = [...this.children].filter(x => !x.locked && (!x.boss || x.boss <= this.map.boss) && x.special != SPECIAL_NOCLONE)
+				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || y.type != x.element))
 				if (!outs.length)
 					x.fullDestroy()
-				else
-					x.assignTarget(outs[outs.length * Math.random() | 0], true)
+				else {
+					if (game.skills.smartSummons) {
+						x.assignTarget(outs.sort((y,z) => z.getActivePower(x) - y.getActivePower(x))[0], true)						
+					} else {
+						x.assignTarget(outs[outs.length * Math.random() | 0], true)
+					}
+				}
 			} else {
 				x.autoTarget()
 				x.getReal(true)
@@ -560,7 +576,7 @@ const pointHandler = {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
 		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1)):0
+			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1):0
 		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},
 	
@@ -610,6 +626,7 @@ const pointHandler = {
 		delete o.initialized
 		delete o.totalBonus
 		delete o.bonusMult
+		delete o.baseCost
 		delete o.noclone
 		delete o.nobuild
 		if (!o.boss) delete o.boss

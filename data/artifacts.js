@@ -180,6 +180,24 @@ const ARTIFACTS = {
 		depth : 1.724e28,
 		iconText : "O",
 		iconTextColor : "var(--enchantmana)"
+	},	
+	warAmulet: {
+		name : "Amulet of endless battles",
+		desc : "Slider accumulates bonus damage while attacking same point",
+		codeLength : 12,
+		codeCost : 1e10,
+		depth : 3.126e28,
+		iconText : "V",
+		iconTextColor : "var(--bg-power)"
+	},
+	victoryAmulet: {
+		name : "Amulet of victory",
+		desc : "Slider deals bonus damage after capturing a point for a minute per map level",
+		codeLength : 11,
+		codeCost : 12e9,
+		depth : 6.654e28,
+		iconText : "V",
+		iconTextColor : "var(--bg-blood)"
 	},
 	physicalShield: {
 		name : "Shield of fears",

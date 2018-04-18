@@ -315,6 +315,14 @@ const SKILLS = {
 		exp : 2e21,
 		mult : 1		
 	},
+	masterSlider : {
+		name : "The art of war",
+		desc : "Add tools to control all sliders at once",
+		sliders : 4,
+		science : 2e14,
+		exp : 1e18,
+		mult : 1.05
+	},
 	magicManagement : {
 		name : "Wishmaster",
 		desc : "Add magic elements to management",

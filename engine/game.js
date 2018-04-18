@@ -645,6 +645,7 @@ const game = {
 		this.saveTime = Date.now()
 		let o = Object.assign({}, this)
 		o.saveSkills = Object.keys(o.skills).filter(x => o.skills[x])
+		o.masterSlider = masterSlider
 		delete o.skills
 		delete o.updateBackground
 		delete o.dev
@@ -717,11 +718,14 @@ const game = {
 		this.realMap = this.maps["main"]
 		this.setMap(activeMap, false)
 		
+		Object.assign(masterSlider, baseMasterSlider, save.masterSlider)
+
 		this.sliders = save.sliders.map(x => Slider(x))
 
 		this.sliders.map(x => x.target && x.autoTarget())
 
 		this.map.getOwnedRadius()
+		
 		
 		this.update()
 		gui.skills.updateSkills()
@@ -795,7 +799,9 @@ const game = {
 		this.maps = {}
 		let map = this.createMap("main", 0, false)
 		this.setMap("main", false)
-	
+
+		Object.assign(masterSlider, baseMasterSlider)
+		
 		let sliders = Array(1).fill().map(x => Slider({
 			stats : {
 				power : map.basePower,

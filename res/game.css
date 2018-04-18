@@ -1639,6 +1639,10 @@ canvas.foreground : {
 	display : none !important;
 }
 
+.faded {
+	opacity : 0.5 !important;
+}
+
 .notransition {
 	transition: none !important;
 }
@@ -1872,4 +1876,29 @@ canvas.foreground : {
 	font-size : 30px;
 	width : 30px;
 	height : 30px;
+}
+
+.sliders .master {
+	display : flex;
+	flex-direction : row;
+	align-items : start;
+	justify-content : center;
+	margin : 10px 10px 0 10px;
+	padding : 10px;
+	border : 2px solid var(--lightframe);
+	flex-shrink : 0;
+}
+
+.sliders .master-pair, .sliders .master-autotarget {
+	display : flex;
+	flex-direction : column;
+	align-items : middle;
+	width : 250px;
+}
+
+.sliders .button.master-apply{
+	width : 200px;
+	align-self : center;
+	text-align : center;
+	height : auto;
 }

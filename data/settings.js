@@ -141,6 +141,21 @@ const SETTINGS = {
 			value : 1
 		}],
 	},
+	masterHide : {
+		group : "Display",
+		displayName : "Show overriden controls",
+		default : 1,
+		choices : [{
+			text : "Show",
+			value : 0
+		},{
+			text : "Fade",
+			value : 1
+		},{
+			text : "Hide",
+			value : 2
+		}],
+	},
 	storyDisplay : {
 		group : "Story",
 		displayName : "Pop-up display",

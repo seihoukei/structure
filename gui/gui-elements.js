@@ -93,7 +93,8 @@ const guiCheckboxHandler = {
 	
 	update() {
 		this.dvCheckbox.innerText = this.container[this.value] ^ this.reverse?"✓\uFE0E":""
-		this.dvDisplay.classList.toggle("hidden", !((!this.visibility && !this.visible) || this.visibility && this.visibility() || this.visible && this.visible()))
+		this.dvDisplay.classList.toggle("hidden", !((!this.visibility && !this.visible) || this.visibility && this.visibility() || this.visible && this.visible()) || !!(settings.masterHide == 2 && this.override && this.override()))
+		this.dvDisplay.classList.toggle("faded", !!(settings.masterHide == 1 && this.override && this.override()))
 	},
 	
 	switch() {
@@ -108,7 +109,8 @@ const guiCheckboxHandler = {
 	},
 
 	updateVisibility() {
-		this.dvDisplay.classList.toggle("hidden", (this.visible && !this.visible())?1:0)
+		this.dvDisplay.classList.toggle("hidden", !((!this.visibility && !this.visible) || this.visibility && this.visibility() || this.visible && this.visible()) || !!(settings.masterHide == 2 && this.override && this.override()))
+		this.dvDisplay.classList.toggle("faded", !!(settings.masterHide == 1 && this.override && this.override()))
 	}
 }
 
@@ -151,7 +153,8 @@ const attributePickerHandler = {
 	},
 
 	updateVisibility() {
-		this.dvDisplay.classList.toggle("hidden", (this.visible && !this.visible())?1:0)
+		this.dvDisplay.classList.toggle("hidden", !((!this.visibility && !this.visible) || this.visibility && this.visibility() || this.visible && this.visible()) || !!(settings.masterHide == 2 && this.override && this.override()))
+		this.dvDisplay.classList.toggle("faded", !!(settings.masterHide == 1 && this.override && this.override()))
 		this.attributes.map((x, n) => x.dvDisplay.classList.toggle("hidden", this.attributeVisible && !this.attributeVisible(x.name, n)))
 	},
 }

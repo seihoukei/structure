@@ -62,11 +62,11 @@ const sliderHandler = {
 		this.artifacts = this.artifacts || {}
 		Object.entries(this.artifacts).map(x => this.equip(x[0], x[1]))
 		
-		this.atFilter = this.atFilter || {
+		this.atFilter = Object.assign({
 			types : [],
 			specials : [],
 			disabled : false
-		}
+		}, this.atFilter)
 		
 		this.atSelector = this.atSelector || "Random"
 		
@@ -126,6 +126,7 @@ const sliderHandler = {
 			container : this,
 			value : "gild",
 			visible : () => game.skills.gild,
+			override : () => masterSlider.masterGild,
 			title : "Gilding touch",
 			hint : "Spend mana to produce gold while fighting"
 		})
@@ -140,7 +141,8 @@ const sliderHandler = {
 				if (n && n < 3) return false
 				return (!n || game.growth[x])
 			},
-			visible : () =>	!(this.clone || !(game.skills.imbuement))
+			visible : () =>	!(this.clone || !(game.skills.imbuement)),
+			override : () => (masterSlider.masterImbuement)
 		})
 		
 		this.safeImbuementsSwitch = GuiCheckbox({
@@ -161,6 +163,7 @@ const sliderHandler = {
 				return (n && game.growth[x])
 			},
 			visible : () =>	!(this.clone || !(game.skills.channel)),
+			override : () => (masterSlider.masterChannel),
 			onUpdate : () => {
 				this.updateSliders()
 			},
@@ -193,6 +196,7 @@ const sliderHandler = {
 		})
 		
 		this.dvAutoTarget = createElement("div", "autotarget", this.dvDisplay)
+		
 		this.cbAutoTarget = GuiCheckbox({
 			parent : this.dvAutoTarget,
 			container : this.atFilter,
@@ -255,7 +259,7 @@ const sliderHandler = {
 			this.selector.expanded = false
 		}
 
-		this.dvATApply = createElement("div", "apply button", this.dvATSelector, "Autotarget now")
+		this.dvATApply = createElement("div", "apply button", this.dvDisplay, "Autotarget now")
 		this.dvATApply.onclick = (event) => {
 			this.assignTarget(null)
 			this.autoTarget(true)
@@ -372,7 +376,7 @@ const sliderHandler = {
 	updateSliders() {
 		if (!this.displayStats) return
 		this.displayStats.map((x, n) => {
-			const channel = this.channel.includes(n+1) && !this.artifacts.channelOrb
+			const channel = (masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb
 			const boost = this.learn.includes(n+1) && !channel
 			x.expSlider.dvDisplay.classList.toggle("boost", boost)
 			x.expSlider.dvDisplay.classList.toggle("channel", channel)
@@ -389,7 +393,9 @@ const sliderHandler = {
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.cbGild.updateVisibility()
-		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
+		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2 || !!(settings.masterHide == 2 && masterSlider.masterAutotarget))
+		this.dvATApply.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
+		this.dvAutoTarget.classList.toggle("faded", !!(settings.masterHide == 1 && masterSlider.masterAutotarget))
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.equipList.updateVisibility()
 		this.imbuements.updateVisibility()
@@ -485,8 +491,8 @@ const sliderHandler = {
 		this.real.usedMana = 0
 		this.real.madeGold = 0
 		this.real.expChange = 0
-		this.real.imbuement = this.target && this.target.index?this.imbuement:0
-		this.real.gild = this.target && this.target.index?this.gild:0
+		this.real.imbuement = this.target && this.target.index?(masterSlider.masterImbuement?masterSlider.imbuement:this.imbuement):0
+		this.real.gild = this.target && this.target.index?(masterSlider.masterGild?masterSlider.gild:this.gild):0
 		this.real.absoluteDamage = 0
 		
 		Object.keys(this.stats).map((x,n) => {
@@ -496,14 +502,14 @@ const sliderHandler = {
 				if (slider == this || slider.clone) return
 				let times = 0
 				if (slider.artifacts.channelCrown && slider.target == this.target) times++
-				if (slider.channel.includes(n+1)) times++
+				if ((masterSlider.masterChannel?masterSlider.channel:slider.channel).includes(n+1)) times++
 				if (times) {
 					if (this.artifacts.channelReceiver) times *= 2
 					this.real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
 				}
 			})
 			
-			if (this.channel.includes(n+1) && !this.artifacts.channelOrb) {
+			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb) {
 				this.real.growth[x] = 0
 			} else if (this.learn.includes(n+1)) {
 				if (game.resources.exp > 1e-6) {
@@ -531,12 +537,13 @@ const sliderHandler = {
 		POINT_TYPES.slice(3).map(x => this.real.imbuementCosts[x] = (Math.log10(this.real.power || 1) ** 4 / 1000) * Math.max(1,Math.min(this.real.power ** 0.5, this.real.power / (this.real[x] || 1) / 10))) || 0
 		
 		if (this.real.imbuement) {
-			if (game.resources.mana > (this.safeImbuement?(this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0 * 10):1e-6)) {
+			if (game.resources.mana > ((masterSlider.masterImbuement?masterSlider.safeImbuement:this.safeImbuement)?(this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0 * 10):1e-6)) {
 				this.real.usedMana += this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0
 				this.real[POINT_TYPES[this.real.imbuement]] += this.real.power
 				this.real.power = 0
 			} else {
-				this.imbuements.set(0)
+				if (!masterSlider.masterImbuement)
+					this.imbuements.set(0)
 			}
 		}
 		
@@ -579,7 +586,10 @@ const sliderHandler = {
 				this.real.usedMana += game.map.level 
 				this.real.madeGold += this.real.attack ** 0.5
 			} else {
-				this.cbGild.set(false)
+				if (masterSlider.masterGild)
+					gui.sliders.master.cbGild.set(false)
+				else
+					this.cbGild.set(false)
 			}
 		}		
 		
@@ -733,3 +743,17 @@ function createSummon(target, element) {
 	summon.assignTarget(target)
 	gui.updateTabs()
 }
+
+const baseMasterSlider = {
+	masterImbuement : false,
+	imbuement : 0,
+	safeImbuement : true,
+	masterGild : false,
+	gild : false,
+	masterChannel: false,
+	channel : [],
+	masterAutotarget : false,
+	atFilter : [],
+}
+
+const masterSlider = Object.assign({}, baseMasterSlider)

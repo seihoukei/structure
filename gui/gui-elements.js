@@ -383,7 +383,7 @@ const pointInfoDisplayHandler = {
 			let width = this.dvInfo2.offsetWidth
 			this.dvInfo2.style.backgroundPosition = "0 0, "+Math.round((width * ((this.point.progress || 0) - 1) / 2)) +"px 0"
 			this.dvInfo2.innerText = "Barrier: " + displayNumber(this.point.real.defence) + "\n" +
-									(game.skills.power?this.point.real && this.point.real.passiveDamage?"Passive damage: "+displayNumber(this.point.real.passiveDamage)+"/s":"":"Barrier power: " + displayNumber(this.point.real.localPower)) + "\n" + 
+									(game.skills.power || this.point.boss?this.point.real && this.point.real.passiveDamage?"Passive damage: "+displayNumber(this.point.real.passiveDamage)+"/s":"":"Barrier power: " + displayNumber(this.point.real.localPower)) + "\n" + 
 									"Progress: " + (this.point.progress * 100 || 0).toFixed(3) + "%"
 		} else if (this.point.locked == 1) {
 			let width = this.dvInfo2.offsetWidth

@@ -436,7 +436,7 @@ const sliderHandler = {
 		if (!this.target || !this.target.onscreen && (!this.target.parent || !this.target.parent.onscreen)) return
 		
 		const an = Math.random() * 6.29
-		const length = this.target.index?(Math.random() * Math.min(10, (this.real.attack / this.target.power)) + 2) * (Math.random() * 0.5 + 0.5):this.target.size * (0.5 + 0.5 * Math.random())
+		const length = this.target.index?(Math.random() * Math.min(10, Math.abs(this.real.attack / this.target.power)) + 2) * (Math.random() * 0.5 + 0.5):this.target.size * (0.5 + 0.5 * Math.random())
 		const {x,y} = this.target.coordinatesOn(this.target.position, true)
 
 		this.sparks.add(animations.Spark(x, y, length, an))

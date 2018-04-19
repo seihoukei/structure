@@ -175,6 +175,7 @@ const pointHandler = {
 	build (name) {
 		if (!BUILDINGS[name]) return
 		if (this.buildings[name]) return
+		if (!this.level || this.level < BUILDINGS[name].level) return
 		if (!this.costs[name] || this.costs[name] > game.resources.gold || this.costs[name] < 0) return
 		game.resources.gold -= this.costs[name]
 		BUILDINGS[name].build(this)

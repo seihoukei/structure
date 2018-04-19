@@ -375,7 +375,7 @@ const pointInfoDisplayHandler = {
 
 		this.dvInfo1.innerText = this.point.index?(
 									"Type: " + knownType + "\n" + 
-									"Power: " + ((this.point.locked == 1)?"unknown":displayNumber(this.point.power)) + "\n" +
+									"Power: " + ((this.point.locked == 1)?"Unknown":displayNumber(this.point.power)) + "\n" +
 									(this.point.owned && this.point.enchanted?"Enchanted: "+["None", "Gold", "Growth", "Mana", "Doom"][this.point.enchanted]:this.point.real.loss > 0 && settings.eta && !this.point.owned?"Rough ETA: " + shortTimeString(this.point.real.defence / this.point.real.loss):"")
 								):!game.skills.mining?"The starting point":"Golden mine\n" +
 									"Depth: " + displayNumber(this.point.mineDepth || 0) + "\n"

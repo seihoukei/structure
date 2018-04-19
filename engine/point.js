@@ -477,7 +477,7 @@ const pointHandler = {
 		attackers.map(x => {
 			x.victoryTimer = 60 * this.map.level
 			if (x.clone == 2) {
-				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || y.type != x.element))
+				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !x.element || x.element < 3 || y.type != x.element))
 				if (!outs.length)
 					x.fullDestroy()
 				else {

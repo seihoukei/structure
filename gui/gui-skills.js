@@ -6,6 +6,8 @@ const SkillsTab = Template({
 		
 		this.dvSkills = createElement("div", "skills", this.dvDisplay)
 		this.skills = {}
+		this.scienceSkills = []
+		this.expSkills = []
 		
 		Object.keys(SKILLS).map(x => {
 			let skill = Object.assign({} , SKILLS[x])
@@ -49,6 +51,8 @@ const SkillsTab = Template({
 	},
 	
 	updateSkills() {
+		this.scienceSkills.length = 0
+		this.expSkills.length = 0
 		Object.values(this.skills).map(skill => {
 			let visible = true
 			if (visible && skill.map) visible = game.realMap.level >= skill.map
@@ -56,14 +60,29 @@ const SkillsTab = Template({
 			if (visible && skill.res) visible = skill.res.reduce((v,x) => v && game.resources[x], visible)
 			if (visible && skill.sliders) visible = game.sliders.filter(x => !x.clone).length >= skill.sliders
 			skill.dvDisplay.classList.toggle("hidden", !visible)
-			skill.dvDisplay.classList.toggle("owned", !!game.skills[skill.id])
-			skill.unknown = skill.science && game.resources.science < skill.science
-			skill.dvDesc.innerText = skill.unknown?"???":skill.desc
-			skill.dvCost.innerText = game.skills[skill.id]?"Unlocked":skill.unknown?"Science: "+displayNumber(skill.science):"EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + " / x" + (skill.mult || 1)
+			if (visible) {
+				skill.dvDisplay.classList.toggle("owned", !!game.skills[skill.id])
+				skill.unknown = skill.science && game.resources.science < skill.science
+				if (skill.unknown) 
+					this.scienceSkills.push(skill) 
+				else if (!game.skills[skill.id]) 
+					this.expSkills.push(skill)
+				
+				skill.dvDesc.innerText = skill.unknown?"???":skill.desc
+				skill.dvCost.innerText = game.skills[skill.id]?"Unlocked":skill.unknown?"Science: "+displayNumber(skill.science):"EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + " / x" + (skill.mult || 1)
+			}
 		})
 		gui.dvExpMult.innerText = "Cost multiplier: x" + displayNumber(game.skillCostMult)
 	},
 	
 	update(forced) {
+		this.scienceSkills.map(skill => {
+			if (game.real)
+				skill.dvCost.innerText = "Science: "+displayNumber(skill.science) + " (" + shortTimeString((skill.science - game.resources.science) / game.real.production.science) + ")"
+		})
+		this.expSkills.map(skill => {
+			if (game.real)
+				skill.dvCost.innerText = "EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + (game.resources.exp < skill.exp * game.skillCostMult && game.real.production.exp > 0?" (" + shortTimeString((skill.exp * game.skillCostMult - game.resources.exp)/game.real.production.exp) + ")":"") +" / x" + (skill.mult || 1)
+		})
 	}
 })

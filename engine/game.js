@@ -322,6 +322,7 @@ const game = {
 			gui.updateTabs()
 			gui.skills.updateSkills()
 			this.updateRenderData()
+			this.getFullMoney()
 		}
 	},
 	
@@ -484,6 +485,14 @@ const game = {
 		this.autoUpgrading = 0
 	},
 	
+	getFullMoney() {
+//	calculate full autobuild cost
+		const buildings = Object.entries(this.automation.buildings).filter(x => x[1]).map(x => x[0])
+		const toFinish = this.map.points.filter(x => x.index && x.owned && (!x.level || x.level < 4 || buildings.filter(b => !x.buildings[b] && x.costs[b] > 0).length))
+		this.fullMoney = toFinish.reduce((v, point) => v + point.costs.levelUp * ([0,1,9,73,585][4-(point.level || 0)]), 0)
+		this.fullMoney += toFinish.reduce((v, point) => v + buildings.filter(b => !point.buildings[b] && point.costs[b] > 0).reduce((v,b) => v + point.costs[b],0), 0)
+	},
+	
 	timeStep(time) {
 		this.iterations = GAME_ADVANCE_ITERATIONS
 		let totalIterations = GAME_ADVANCE_ITERATIONS_MAX
@@ -608,7 +617,8 @@ const game = {
 			value : settings.slowDataFPS
 		})
 		gui.oldTab = gui.tabs.activeTab
-		gui.tabs.setTab("map")
+		if (settings.slowModeMap || gui.tabs.activeTab == "map")
+			gui.tabs.setTab("map")
 //		gui.map.foreground.classList.toggle("hidden", this.slowMode)
 //		gui.map.background.classList.toggle("hidden", this.slowMode)
 		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
@@ -628,7 +638,8 @@ const game = {
 			name : "setFPS",
 			value : settings.dataFPS
 		})
-		gui.tabs.setTab(gui.oldTab || "map")
+		if (settings.slowModeMap || gui.tabs.activeTab == "map")
+			gui.tabs.setTab(gui.oldTab || "map")
 //		gui.map.foreground.classList.toggle("hidden", this.slowMode)
 //		gui.map.background.classList.toggle("hidden", this.slowMode)
 		gui.map.dvLowLoad.classList.toggle("hidden", !this.slowMode)
@@ -666,6 +677,7 @@ const game = {
 		delete o.iterations
 		delete o.badSave
 		delete o.updateInterface
+		delete o.fullMoney
 		return o
 	},
 	

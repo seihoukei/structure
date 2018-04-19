@@ -67,9 +67,11 @@ const ManagementTab = Template({
 		this.buildings.map(x => {
 			x.dvDisplay.onclick = (event) => {
 				game.automation.buildings[x.id] = game.automation.buildings[x.id]?0:1
+				game.getFullMoney()
 				this.update(true)
 			}
 		})
+		this.dvBuildAutomationETA = createElement("div", "automation-eta", this.dvBuildAutomation)
 
 		this.sorting = {
 			minLevel : 0,
@@ -171,6 +173,7 @@ const ManagementTab = Template({
 			this.cbHideEnchanted.update()
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
+		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.real && game.real.production.gold?"Estimated finish time: "+shortTimeString(game.fullMoney/game.real.production.gold):"")
 	}
 })
 

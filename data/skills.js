@@ -397,20 +397,6 @@ const SKILLS = {
 		exp : 2e20,
 		mult : 1	
 	},
-	pierceResist: {
-		name : "Witchbane", //rename
-		desc : "Remove spirit penalty from points with elemental resistance",
-		map : 50,
-		mult : 2,
-		exp : 2e10
-	},
-	modifyPoints: {
-		name: "Paint it black",
-		desc: "Ability to convert point types",
-		map : 50,
-		mult : 2,
-		exp : 1e16
-	}
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

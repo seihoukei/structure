@@ -1108,6 +1108,11 @@ canvas.foreground : {
 	margin : -1px -28px 1px 20px;
 }
 
+.automation-eta {
+	text-align : right;
+	margin : -1px 10px 1px auto;
+}
+
 .management .filter {
 	width : auto;
 }

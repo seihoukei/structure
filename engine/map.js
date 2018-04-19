@@ -241,14 +241,10 @@ const mapHandler = {
 	},
 	
 	getOwnedRadius() {
-		let n = 1
-		let lastRadius = 0
-		while (this.points[n] && (this.points[n].owned || this.points[n].boss)) {
-			lastRadius = this.points[n].distance - this.points[n].size
-			n++
-		}
+		const block = this.points.filter(x => !x.owned).sort((x,y) => (x.distance-x.size) - (y.distance - y.size))[0]
+	
 		this.points.map(point => point.suspend())
-		this.ownedRadius = Math.max(20, this.points[n]?this.points[n].distance - this.points[n].size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE)
+		this.ownedRadius = Math.max(20, block?block.distance - block.size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE)
 		this.points.map(point => point.unsuspend())
 		
 		return this.ownedRadius

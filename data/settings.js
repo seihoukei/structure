@@ -156,22 +156,49 @@ const SETTINGS = {
 			value : 2
 		}],
 	},
-	storyDisplay : {
+	storyMainDisplay : {
 		group : "Story",
-		displayName : "Pop-up display",
-		default : 1,
+		displayName : "Main story display",
+		default : 2,
 		choices : [{
-			text : "Everything",
+			text : "Hide",
 			value : 0
 		},{
-			text : "Main story",
+			text : "Log",
 			value : 1
 		},{
-			text : "Mechanics-related only",
+			text : "Popup",
 			value : 2
+		}],
+	},
+	storySideDisplay : {
+		group : "Story",
+		displayName : "Side story display",
+		default : 2,
+		choices : [{
+			text : "Hide",
+			value : 0
 		},{
-			text : "Nothing",
-			value : 3
+			text : "Log",
+			value : 1
+		},{
+			text : "Popup",
+			value : 2
+		}],
+	},
+	mechanicsDisplay : {
+		group : "Story",
+		displayName : "Mechanics guide display",
+		default : 2,
+		choices : [{
+			text : "Hide",
+			value : 0
+		},{
+			text : "Log",
+			value : 1
+		},{
+			text : "Popup",
+			value : 2
 		}],
 	},
 	storyTime : {
@@ -262,6 +289,18 @@ const SETTINGS = {
 			text : "1 hour",
 			value : 3600000
 		}],
+	},
+	slowModeMap : {
+		group : "Performance",
+		displayName : "Display map progress while in automatic low load mode",
+		default : 1,
+		choices: [{
+			text : "From Map tab only",
+			value : 0
+		},{
+			text : "From any tab",
+			value : 1
+		}]
 	},
 	autosavePeriod : {
 		group : "Saves",

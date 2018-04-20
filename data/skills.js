@@ -397,6 +397,13 @@ const SKILLS = {
 		exp : 2e19,
 		mult : 1.5,
 	},
+	spiritStar : {
+		name : "Stargazer",
+		desc : "Spirit growth is boosted by stars times stardust",
+		map : 28,
+		exp : 2e28,
+		mult : 2
+	}
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

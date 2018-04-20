@@ -259,6 +259,15 @@ const pointHandler = {
 			return (power) ** (slider.artifacts.pickaxe?0.63:0.6) / 2e3
 		}
 		
+		let absoluteDamage = slider.real.absoluteDamage
+		
+		if (slider.artifacts.loneSword && (this.attackers.size == 0 || this.attackers.size == 1 && this.attackers.has(slider))) {
+			absoluteDamage += (slider.real.fire  
+							+  slider.real.ice   
+							+  slider.real.blood 
+							+  slider.real.metal)
+		}			
+		
 		const chapter = this.map.level > 20 || this.map.virtual ? 1 : 0
 		const weak = chapter ? 0 : 0.5
 		const strong = chapter ? 1 : 4
@@ -299,7 +308,7 @@ const pointHandler = {
 		if (slider.artifacts.warAmulet && slider.lastTarget == this.index) finalMult *= 1 + slider.onSame / 600
 		if (slider.artifacts.victoryAmulet && slider.victoryTimer) finalMult *= 1 + this.map.level / 10
 
-		return (Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + slider.real.absoluteDamage)*finalMult
+		return (Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + absoluteDamage)*finalMult
 	},
 	
 	highlight() {
@@ -320,12 +329,33 @@ const pointHandler = {
 			this.mineDepth = (this.mineDepth || 0) + power
 			return
 		}
+		let oldProgress0 = (this.progress || 0) * 100 | 0
 		this.progress = this.progress || 0
 		const start = this.totalPower * this.progress ** 2
 		const end = Math.min(this.totalPower, start + power)
 		this.progress = (end / this.totalPower) ** 0.5
 		if (this.progress >= 1-1e-9) {
 			this.capture()
+		}
+		const hasSummons = [...this.attackers].filter(x => x.clone == 2).length
+		const canSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.summonAmulet.equipped)
+		const canMasterSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.masterSummonAmulet.equipped)
+		if (canSummon || canMasterSummon) {
+			while (oldProgress0 < (this.progress* 100|0)) {
+				oldProgress0++
+				if (canSummon && (Math.random() * (ARTIFACTS.summonAmulet.equipped.onSame + 900) < ARTIFACTS.summonAmulet.equipped.onSame)) {
+					if (game.sliders.filter(x => x.clone == 2).length >= 10) break
+					createSummon(this, 1)
+					break
+				}
+				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
+					if (game.sliders.filter(x => x.clone == 2).length >= 10) break
+					let element = Math.random() * 4 + 3 | 0
+					while (element == this.type) element = Math.random() * 4 + 3 | 0
+					createSummon(this, element)
+					break
+				}
+			}
 		}
 	},
 	

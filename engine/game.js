@@ -91,6 +91,7 @@ const game = {
 
 		if (!(this.frame % 60)) {
 			gui.skills.updateExp()
+			gui.artifacts.updateTitle()
 		}		
 
 		this.updateInterface = false
@@ -751,6 +752,7 @@ const game = {
 		
 		this.update()
 		gui.skills.updateSkills()
+		gui.artifacts.updateTitle()
 		this.lastSave = performance.now()
 		this.lastCloudSave = performance.now()
 
@@ -841,6 +843,7 @@ const game = {
 
 		this.skillCostMult = 1
 		gui.skills.updateSkills()
+		gui.artifacts.updateTitle()
 		this.attacked.clear()
 
 		this.getReal()

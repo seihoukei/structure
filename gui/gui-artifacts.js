@@ -171,12 +171,15 @@ const ArtifactsTab = Template({
 //				console.log(display.artifact.id, Object.keys(game.research[display.artifact.id].tablet).length < letterPairs.length, display.cbResearched.visible())
 				display.researched = (game.researching == display.id)
 				display.cbResearched.update()
+				display.cbResearched.dvLabel.innerText = "Research this (" + shortTimeString(((letterPairs.length - Object.keys(research.tablet).length) * display.artifact.codeCost - (research.progress || 0))/game.real.production.science) + ")"
 				display.dvProgressInfo.innerText = "Glyphs: "+Object.keys(research.tablet).length+"/"+letterPairs.length + (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/display.artifact.codeCost) + "%)":"")
 				this.updateTablet(display.id)
 			})
 		}
-		if (game.researching && game.research[game.researching])
+		if (game.researching && game.research[game.researching]) {
+			ARTIFACTS[game.researching].display.cbResearched.dvLabel.innerText = "Research this (" + shortTimeString(((letterPairs.length - Object.keys(game.research[game.researching].tablet).length) * ARTIFACTS[game.researching].codeCost - (game.research[game.researching].progress || 0))/game.real.production.science) + ")"
 			ARTIFACTS[game.researching].display.dvProgressInfo.innerText = "Glyphs: "+Object.keys(game.research[game.researching].tablet).length+"/"+letterPairs.length + (game.research[game.researching].progress?" (Next: "+displayNumber(100*(game.research[game.researching].progress || 0)/ARTIFACTS[game.researching].codeCost) + "%)":"")
+		}
 	},
 	
 	showEquipMenu(slider, slot, x, y) {
@@ -190,6 +193,12 @@ const ArtifactsTab = Template({
 			artifact.menuItem.dvDisplay.classList.toggle("hidden", !research.done)
 			artifact.menuItem.dvTitle.innerText = artifact.name + (artifact.equipped == slider?" (T)":artifact.equipped?" (E)":"")
 		})
+	},
+	
+	updateTitle() {
+		if (!game || !game.map || !game.map.points || !game.map.points[0]) return
+		const toResearch = Object.values(ARTIFACTS).filter(x => x.depth < game.map.points[0].mineDepth && !game.research[x.id].done).length
+		gui.tabs.setTitle("artifacts", "Artifacts" + (toResearch?" ("+toResearch+")":""))
 	}
 })
 
@@ -228,7 +237,8 @@ const equipListHandler = {
 	
 	updateVisibility() {
 		this.dvDisplay.classList.toggle("hidden", !(!this.visible || this.visible()))
-	}
+	},
+	
 }
 
 const EquipList = Template(equipListHandler)

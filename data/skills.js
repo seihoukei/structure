@@ -370,6 +370,15 @@ const SKILLS = {
 		exp : 1e19,
 		mult : 1,
 	},
+	book_enchantments2: {
+		name : "Into the enchanted chamber",
+		desc : "Spellbook - More enchantments for points",
+		map : 28,
+		req : ["book_enchantments1","spellcasting"],
+		science : 5e14,
+		exp : 2e20,
+		mult : 1.5
+	},
 	book_dispels2 : {
 		name: "Break the silence",
 		desc: "Spellbook - Break advanced point shields",
@@ -377,7 +386,7 @@ const SKILLS = {
 		map : 28,
 		science : 6e14,
 		exp : 2e19,
-		mult : 1,
+		mult : 1.5,
 	},
 	book_unlocks1 : {
 		name: "Keeper of the seven keys",
@@ -386,16 +395,7 @@ const SKILLS = {
 		map : 28,
 		science : 1e15,
 		exp : 2e19,
-		mult : 1,
-	},
-	book_enchantments2: {
-		name : "Into the enchanted chamber",
-		desc : "Spellbook - More enchantments for points",
-		map : 28,
-		req : ["book_enchantments1","spellcasting"],
-		science : 5e14,
-		exp : 2e20,
-		mult : 1	
+		mult : 1.5,
 	},
 }
 

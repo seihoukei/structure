@@ -199,6 +199,7 @@ const SPELLS = {//function context == point
 		desc: "Factory produces more gold",
 		book: "enchantments1",
 		type: SPELL_TYPE_POINT,
+		managed :true,
 		recalc : true,
 		cost(point) {
 			return point.owned && !point.enchanted && point.buildings.goldFactory?point.baseCost ** 0.4/10:-1
@@ -214,6 +215,7 @@ const SPELLS = {//function context == point
 		desc: "Obelisk mana production is boosted",
 		book: "enchantments1",
 		type: SPELL_TYPE_POINT,
+		managed :true,
 		recalc : true,
 		cost(point) {
 			return point.owned && !point.enchanted && point.buildings.manalith?point.baseCost ** 0.4/10:-1
@@ -229,6 +231,7 @@ const SPELLS = {//function context == point
 		desc: "Growth production is boosted",
 		book: "enchantments2",
 		type: SPELL_TYPE_POINT,
+		managed :true,
 		recalc : true,
 		cost(point) {
 			return point.owned && !point.enchanted?point.baseCost ** 0.4/10:-1
@@ -244,6 +247,7 @@ const SPELLS = {//function context == point
 		desc: "Damage dealt to the point is greatly boosted. Doomed points provide extra science.",
 		book: "enchantments2",
 		type: SPELL_TYPE_POINT,
+		managed :true,
 		recalc : true,
 		cost(point) {
 			return !point.enchanted?point.baseCost ** 0.4/10:-1

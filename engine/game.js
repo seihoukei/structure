@@ -479,7 +479,7 @@ const game = {
 			this.update()
 			gui.target.updateUpgrades()
 			if (this.autoUpgrading & 2) {
-				if (gui.management.sortOften && gui.tabs.activeTab == "management") gui.management.update(true)
+				if (gui.management.sorting.sortOften && gui.tabs.activeTab == "management") gui.management.update(true)
 			}
 		}
 		this.autoUpgrading = 0
@@ -657,6 +657,7 @@ const game = {
 		let o = Object.assign({}, this)
 		o.saveSkills = Object.keys(o.skills).filter(x => o.skills[x])
 		o.masterSlider = masterSlider
+		o.managementSorting = gui.management.sorting
 		delete o.skills
 		delete o.updateBackground
 		delete o.dev
@@ -694,7 +695,7 @@ const game = {
 		Object.keys(this.skills).map(x => this.skills[x] = 0)
 		this.sliders.map(x => x.destroy())
 		
-		this.skillCostMult = save.skillCostMult || this.skillCostMult
+		//this.skillCostMult = save.skillCostMult || this.skillCostMult
 		this.growth = save.growth || POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 0 : v, v), {}),
 		this.multi = save.multi || POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 1 : v, v), {}),
 		Object.assign(this.automation, save.automation)
@@ -714,7 +715,13 @@ const game = {
 			this.stardust[x] = save.stardust && save.stardust[x] || 0
 		})
 		
-		save.saveSkills.map(x => this.skills[x] = 1)
+		Object.assign(gui.management.sorting, BASE_SORTING, save.managementSorting)
+
+		this.skillCostMult = 1
+		save.saveSkills.map(x => {
+			this.skills[x] = 1
+			this.skillCostMult *= SKILLS[x].mult
+		})
 		
 		this.researching = save.researching
 
@@ -792,6 +799,7 @@ const game = {
 			maxCost : 100,
 			buildings : {}
 		})
+		Object.assign(gui.management.sorting, BASE_SORTING)
 		this.story = {}
 		gui.story.updateStory()
 		this.lastViewedStory = 0,

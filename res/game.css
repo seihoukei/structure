@@ -1240,14 +1240,6 @@ canvas.foreground : {
 	width : 50px;
 }
 
-.management .point .icons .icon.spell {
-	display : none;
-}
-
-.management .point .icons .icon.spell.visible {
-	display : flex;
-}
-
 .management .point .icons .icon.visible.available, .management .automation .icon.visible {
 	opacity : 0.75;
 	cursor : pointer;

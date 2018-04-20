@@ -10,6 +10,16 @@ const SORT_METHODS = {
 	"Science" : (x,y) => (x.production.science || 0) - (y.production.science || 0),
 }
 
+const BASE_SORTING = {
+	minLevel : 0,
+	maxLevel : 4,
+	types : [],
+	sortBy : "Level",
+	sortDir : -1,
+	sortOften : false,
+	hideEnchanted : false
+}
+
 const ManagementTab = Template({
 	_init() {
 		this.dvDisplay = createElement("div", "management "+(this.className || ""), this.parent)
@@ -29,19 +39,15 @@ const ManagementTab = Template({
 		})
 		
 		this.dvMaxLevel = createElement("div", "slider", this.dvAutomation)
-		this.dvText = createElement("div", "text", this.dvMaxLevel, "Maximum level:")
 
-		this.maxLevel = GuiSlider({
+		this.maxLevel = ListPicker({
 			parent : this.dvAutomation,
 			container : game.automation,
-			leftText : "0",
-			rightText : "4",
 			value : "maxLevel",
-			max : 4,
-			min : 0,
-			digits : 0,
-			steps : 4,
-			className : "automation"
+			className : "sorter reverse",
+			name : "Maximum level",
+			values : [0,1,2,3,4],
+			texts : [0,1,2,3,4],
 		})
 		
 		this.dvMaxCost = createElement("div", "slider", this.dvAutomation)
@@ -73,13 +79,7 @@ const ManagementTab = Template({
 		})
 		this.dvBuildAutomationETA = createElement("div", "automation-eta", this.dvBuildAutomation)
 
-		this.sorting = {
-			minLevel : 0,
-			maxLevel : 4,
-			types : [],
-			sortBy : SORT_METHODS["Level"],
-			sortDir : -1
-		}
+		this.sorting = BASE_SORTING
 		
 		this.dvSort = createElement("div", "sort", this.dvDisplay)
 
@@ -105,7 +105,7 @@ const ManagementTab = Template({
 			className : "sorter",
 			value : "sortBy",
 			name : "Sort by",
-			values : Object.values(SORT_METHODS),
+			values : Object.keys(SORT_METHODS),
 			texts : Object.keys(SORT_METHODS),
 			itemVisibility : (x) => x.index < 4 || game.skills.magicManagement,
 			onSame : () => {
@@ -113,27 +113,23 @@ const ManagementTab = Template({
 				this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
 			},
 			onUpdate : () => {
-				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => this.sorting.sortBy(x, y) * this.sorting.sortDir).map(x => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
+				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map(x => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
 			}
 		})
 
 		this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
-
-		this.sortOften = false
 		
 		this.cbSortOften = GuiCheckbox({
 			parent : this.dvSort,
 			title : "Re-sort upon change",
-			container : this,
+			container : this.sorting,
 			value : "sortOften"
 		})
-		
-		this.hideEnchanted = false
 		
 		this.cbHideEnchanted = GuiCheckbox({
 			parent : this.dvSort,
 			title : "Hide enchanted",
-			container : this,
+			container : this.sorting,
 			visibility : () => !!game.skills.magicManagement,
 			value : "hideEnchanted",
 			onSet : () => this.update(true)
@@ -155,7 +151,7 @@ const ManagementTab = Template({
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			if (game.skills.automation) {
-				this.maxLevel.update()
+				this.maxLevel.update(true)
 				this.maxCost.update()
 				this.autoTypes.update()
 				this.autoTypes.updateVisibility()
@@ -163,6 +159,8 @@ const ManagementTab = Template({
 			this.sortTypes.update()
 			this.sortTypes.updateVisibility()
 			this.sortSorter.update(true)
+			this.cbHideEnchanted.update()
+			this.cbSortOften.update()
 			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
 			this.buildings.map(x => {
 				let visible = game.statistics["built_"+x.id]
@@ -170,7 +168,6 @@ const ManagementTab = Template({
 				if (visible)
 					x.dvDisplay.classList.toggle("active", !!game.automation.buildings[x.id])
 			})
-			this.cbHideEnchanted.update()
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
 		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.real && game.real.production.gold?"Estimated finish time: "+shortTimeString(game.fullMoney/game.real.production.gold):"")
@@ -188,7 +185,7 @@ const managementPointElementHandler = {
 		this.dvLevelUp.onclick = (event) => {
 			if (this.point.costs.levelUp > game.resources.gold) return
 			this.point.levelUp()
-			if (gui.management.sortOften) gui.management.update(true)
+			if (gui.management.sorting.sortOften) gui.management.update(true)
 			this.dvLevelUp.animate([
 				{
 					transform : "scale(0.8)",
@@ -227,7 +224,7 @@ const managementPointElementHandler = {
 		this.icons.map(x => {
 			x.dvDisplay.onclick = (event) => {
 				this.point.build(x.id)
-				if (gui.management.sortOften) gui.management.update(true)
+				if (gui.management.sorting.sortOften) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
 				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
@@ -247,11 +244,11 @@ const managementPointElementHandler = {
 
 		this.dvDivider = createElement("div", "divider", this.dvIcons)
 
-		this.spellIcons = Object.keys(SPELLS).map(x => SpellIcon(x, this.dvIcons))
+		this.spellIcons = Object.keys(SPELLS).filter(x => SPELLS[x].managed).map(x => SpellIcon(x, this.dvIcons))
 		this.spellIcons.map(x => {
 			x.dvDisplay.onclick = (event) => {
 				this.point.cast(x.id)
-				if (gui.management.sortOften) gui.management.update(true)
+				if (gui.management.sorting.sortOften) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
 				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
@@ -274,7 +271,7 @@ const managementPointElementHandler = {
 	
 	update(forced) {
 		if (forced) {
-			if (this.point.enchanted && gui.management.hideEnchanted || this.point.boss || gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type)) {
+			if (this.point.enchanted && gui.management.sorting.hideEnchanted || this.point.boss || gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type)) {
 				this.dvDisplay.classList.toggle("hidden", true)
 				return
 			} else {

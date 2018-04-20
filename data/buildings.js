@@ -150,7 +150,7 @@ const BUILDINGS = {//function context == point
 	},
 	powerTower : {
 		name : "The ivory tower",
-		desc : "Produces power equal to growth",
+		desc : "Increases power growth by node growth",
 		level : 3,
 		cost(point) {
 			return point.children.size?-1:point.power ** 0.5
@@ -172,7 +172,7 @@ const BUILDINGS = {//function context == point
 	},
 	spiritTower : {
 		name : "Tower of infinity",
-		desc : "Produces spirit equal to growth",
+		desc : "Increases spirit growth by node growth",
 		level : 3,
 		cost(point) {
 			return point.children.size?point.power ** 0.5:-1
@@ -194,7 +194,7 @@ const BUILDINGS = {//function context == point
 	},
 	rainbowTower : {
 		name : "Rainbow tower",
-		desc : "Produces all 4 elements equal to growth",
+		desc : "Increases elemental growth by node growth",
 		level : 4,
 		cost(point) {
 			return (point.children.size == 1)?point.power ** 0.6:-1
@@ -246,7 +246,7 @@ const BUILDINGS = {//function context == point
 	},
 	earthquakeMachine : {
 		name : "Mean machine",
-		desc : "Constantly deals damage to nearby points proportional to thunderstone power and experience multiplier",
+		desc : "Constantly deals damage to nearby points proportional to thunderstone power and skill cost multiplier",
 		level : 4,
 		cost(point) {
 			return [...point.children].filter(x => !x.owned && (x.special != SPECIAL_BLOCK) && !x.locked && (!x.boss || x.boss <= x.map.level) ).length?10 ** (10 + (point.map.level) / 2):-1

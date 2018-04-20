@@ -426,7 +426,8 @@ const colorPickerHandler = {
 	
 	updateColor(newColor) {
 		this.red.dvRunner.style.backgroundColor = this.green.dvRunner.style.backgroundColor = this.blue.dvRunner.style.backgroundColor = newColor
-		this.red.dvRunner.style.color = this.green.dvRunner.style.color = this.blue.dvRunner.style.color = this.color.red+this.color.green+this.color.blue > 400?"black":"white"
+		const colorLevel = this.color.red * 299 + this.color.green * 587 + this.color.blue * 114
+		this.red.dvRunner.style.color = this.green.dvRunner.style.color = this.blue.dvRunner.style.color = colorLevel > 128000?"black":"white"
 		if (this.container.setColor)
 			this.container.setColor(newColor)
 		else

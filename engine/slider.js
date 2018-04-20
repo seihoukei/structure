@@ -343,9 +343,11 @@ const sliderHandler = {
 	
 	setColor(color) {
 		this.color = color
-		this.dvColor.style.backgroundColor = color
-		this.dvBigColor.style.backgroundColor = color
-		this.dvMapIcon.style.backgroundColor = color
+		this.dvColor.style.backgroundColor = this.dvBigColor.style.backgroundColor = this.dvMapIcon.style.backgroundColor = color
+		const colorData = colorToRGBA(color)
+		const colorLevel = colorData[0] * 299 + colorData[1] * 587 + colorData[2] * 114
+		const textColor = colorLevel>128000?"black":"white"
+		this.dvColor.style.color = this.dvBigColor.style.color = this.dvMapIcon.style.color = textColor
 	},
 	
 	updateTarget(point) {
@@ -437,7 +439,7 @@ const sliderHandler = {
 		
 		if (!this.target || !this.target.onscreen && (!this.target.parent || !this.target.parent.onscreen)) return
 		
-		const an = this.target.parent?this.target.direction - 0.9 + Math.random() * 1.8:Math.random()*6.29
+		const an = this.target.parent?this.target.direction - 1 + (Math.random() + Math.random()):Math.random()*6.29
 		const length = this.target.index?(Math.random() * Math.min(10, Math.abs(this.real.attack / this.target.power)) + 2) * (Math.random() + 0.6):this.target.size * (0.5 + 0.5 * Math.random())
 		const {x,y} = this.target.coordinatesOn(this.target.position, true)
 

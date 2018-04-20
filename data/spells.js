@@ -244,7 +244,7 @@ const SPELLS = {//function context == point
 	},
 	enchantDoom: {
 		name: "Land of doom",
-		desc: "Damage dealt to the point is greatly boosted. Doomed points provide extra science.",
+		desc: "Damage dealt to the point is greatly boosted. Doomed points provide less growth but more science.",
 		book: "enchantments2",
 		type: SPELL_TYPE_POINT,
 		managed :true,

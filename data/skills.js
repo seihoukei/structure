@@ -318,6 +318,7 @@ const SKILLS = {
 	masterSlider : {
 		name : "The art of war",
 		desc : "Add tools to control all sliders at once",
+		req : ["channel", "imbuement", "gild"],
 		sliders : 4,
 		science : 2e14,
 		exp : 1e18,

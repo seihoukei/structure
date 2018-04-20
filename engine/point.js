@@ -112,7 +112,7 @@ const pointHandler = {
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1)
+		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
 		
 		if (!game.offline)
 			this.updateDisplay("management", true)
@@ -212,7 +212,7 @@ const pointHandler = {
 	
 	unsuspend() {
 		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1)
+		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
 		Object.keys(this.buildings).filter(x => this.buildings[x]).map(x => BUILDINGS[x].build(this))
 		if (this.type && this.owned)
 			game.growth[POINT_TYPES[this.type]] += this.totalBonus

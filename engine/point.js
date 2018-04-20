@@ -62,6 +62,7 @@ const pointHandler = {
 				this.parent.children.add(this)
 				this.dx = this.parent.x - this.x
 				this.dy = this.parent.y - this.y
+				this.direction = Math.atan2(this.dy, this.dx)
 				this.length = Math.hypot(this.dy, this.dx)
 				this.pathLength = this.length - this.size - this.parent.size
 			}
@@ -110,6 +111,7 @@ const pointHandler = {
 		
 		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
+		this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
@@ -632,6 +634,7 @@ const pointHandler = {
 		delete o.parents
 		delete o.parent
 		delete o.length
+		delete o.direction
 		delete o.pathLength
 		delete o.children
 		delete o.depth

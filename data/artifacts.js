@@ -167,7 +167,7 @@ const ARTIFACTS = {
 		name : "Apprentice's amulet",
 		desc : "Slider has a chance to summon power clone for free if there are no summons attacking same target",
 		codeLength : 24,
-		codeCost : 4e10,
+		codeCost : 1e11,
 		depth : 1.220e30,
 		iconText : "V",
 		iconTextColor : "var(--bg-spirit)"
@@ -176,7 +176,7 @@ const ARTIFACTS = {
 		name : "Master's amulet",
 		desc : "Slider has a chance to summon elemental clone for free if there are no summons attacking same target",
 		codeLength : 28,
-		codeCost : 1e11,
+		codeCost : 3e11,
 		depth : 8.131e30,
 		iconText : "V",
 		iconTextColor : "var(--bg-fire)"
@@ -194,7 +194,7 @@ const ARTIFACTS = {
 		name : "Sword of the stranger",
 		desc : "Slider deals additional unblockable elemental damage if attacking alone.",
 		codeLength : 20,
-		codeCost : 25e9,
+		codeCost : 5e10,
 		depth : 3.654e29,
 		iconText : "T",
 		iconTextColor : "var(--bg-foreground)"

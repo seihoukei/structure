@@ -780,6 +780,8 @@ const game = {
 		gui.stardust.newMapLevelSlider.setMax(this.realMap.level)
 		gui.stardust.newMapLevelSlider.steps = this.realMap.level
 		gui.stardust.newMapLevelSlider.setValue(this.realMap.level)
+		
+		gui.sliders.update(true)
 	},
 	
 	reset(auto) {
@@ -855,5 +857,6 @@ const game = {
 		this.update()
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 		gui.tabs.setTab("map")
+		gui.sliders.update(true)
 	}
 }

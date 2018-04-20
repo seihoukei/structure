@@ -402,6 +402,7 @@ const sliderHandler = {
 		this.dvAutoTarget.classList.toggle("faded", !!(settings.masterHide == 1 && masterSlider.masterAutotarget))
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.equipList.updateVisibility()
+		this.equipList.update()
 		this.imbuements.updateVisibility()
 		this.channels.updateVisibility()
 		this.priorities.updateVisibility()
@@ -435,8 +436,8 @@ const sliderHandler = {
 		
 		if (!this.target || !this.target.onscreen && (!this.target.parent || !this.target.parent.onscreen)) return
 		
-		const an = Math.random() * 6.29
-		const length = this.target.index?(Math.random() * Math.min(10, Math.abs(this.real.attack / this.target.power)) + 2) * (Math.random() * 0.5 + 0.5):this.target.size * (0.5 + 0.5 * Math.random())
+		const an = this.target.parent?this.target.direction - 0.9 + Math.random() * 1.8:Math.random()*6.29
+		const length = this.target.index?(Math.random() * Math.min(10, Math.abs(this.real.attack / this.target.power)) + 2) * (Math.random() + 0.6):this.target.size * (0.5 + 0.5 * Math.random())
 		const {x,y} = this.target.coordinatesOn(this.target.position, true)
 
 		this.sparks.add(animations.Spark(x, y, length, an))

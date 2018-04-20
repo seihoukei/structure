@@ -10,13 +10,14 @@ const guiSliderHandler = {
 		this.dvRight = createElement("div", "gui-slider-right", this.dvDisplay, this.rightText)
 		this.dvDisplay.onmousedown = (event) => {
 			this.moving = true
-			let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.dvLine.offsetLeft) / (this.dvLine.offsetWidth - 30)))
+			this.rect = this.dvLine.getBoundingClientRect()
+			let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.rect.left) / (this.rect.width - 30)))
 			position = Math.round(position * this.steps) / this.steps
 			this.setPosition(position)
 		}
 		this.dvDisplay.onmousemove = (event) => {
 			if (this.moving) {
-				let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.dvLine.offsetLeft) / (this.dvLine.offsetWidth - 30)))
+			let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.rect.left) / (this.rect.width - 30)))
 				position = Math.round(position * this.steps) / this.steps
 				this.setPosition(position)
 			}
@@ -66,6 +67,7 @@ const guiSliderHandler = {
 		this.dvRunner.innerText = this.forceText || displayNumber(this.getValue(), this.digits)
 		let position = this.forcePosition === undefined?this.getPosition():this.forcePosition
 		this.dvRunner.style.left = ((position * (this.dvLine.offsetWidth - this.dvRunner.offsetWidth)) | 0) + "px"
+		this.onUpdate && this.onUpdate()
 	},
 	
 	destroy() {

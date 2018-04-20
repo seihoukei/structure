@@ -186,8 +186,8 @@ const ArtifactsTab = Template({
 		this.equipSlider = slider
 		this.equipSlot = slot
 		this.dvEquipMenuHolder.classList.toggle("hidden", false)
-		this.dvEquipMenu.style.left = x+"px"
-		this.dvEquipMenu.style.top = y+"px"
+		this.dvEquipMenu.style.left = Math.min(viewport.width - this.dvEquipMenu.offsetWidth - 5, x) + "px"
+		this.dvEquipMenu.style.top = Math.min(viewport.height - this.dvEquipMenu.offsetHeight - 5, y) + "px"
 		Object.values(ARTIFACTS).map(artifact => {
 			const research = game.research[artifact.id]
 			artifact.menuItem.dvDisplay.classList.toggle("hidden", !research.done)

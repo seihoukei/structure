@@ -39,6 +39,29 @@ Number.prototype.digits = function(n) {
 	return s
 }
 
+let memoize = function(factory, ctx) {
+    var cache = {};
+    return function(key) {
+        if (!(key in cache)) {
+            cache[key] = factory.call(ctx, key);
+        }
+        return cache[key];
+    };
+};
+
+let colorToRGBA = (function() {
+    var canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 1;
+    var ctx = canvas.getContext('2d');
+
+    return memoize(function(col) {
+        ctx.clearRect(0, 0, 1, 1);
+        ctx.fillStyle = col;
+        ctx.fillRect(0, 0, 1, 1);
+        return [ ... ctx.getImageData(0, 0, 1, 1).data ];
+    });
+})();
+
 String.prototype.capitalizeFirst = function(n) {
 	return this.charAt(0).toUpperCase() + this.slice(1)
 }

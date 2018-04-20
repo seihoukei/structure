@@ -1057,7 +1057,7 @@ canvas.foreground : {
 	margin : -15px 0;
 }
 
-.saves .button, .login-form .button, .artifacts .button {
+.saves .button, .login-form .button, .artifacts .button, .color-picker .button {
 	display : inline-block;
 	border : 2px solid var(--lightframe);
 	padding : 10px;
@@ -1067,7 +1067,7 @@ canvas.foreground : {
 	text-align : center;
 }
 
-.saves .button:hover, .login-form .button:hover, .artifact .button:hover {
+.saves .button:hover, .login-form .button:hover, .artifact .button:hover, .color-picker .button:hover {
 	background-color : var(--shade12);
 }
 
@@ -1814,7 +1814,7 @@ canvas.foreground : {
 	text-align : center;
 }
 
-.equip-holder {
+.equip-holder, .holder {
 	position : absolute;
 	top : 0;
 	left : 0;
@@ -1908,4 +1908,35 @@ canvas.foreground : {
 	align-self : center;
 	text-align : center;
 	height : auto;
+}
+
+.color-picker {
+	position : absolute;
+	background-color : var(--background);
+	border : 2px solid var(--lightframe);
+	padding : 10px;
+	display : flex;
+	flex-direction : column;
+}
+
+.color.gui-slider {
+	padding: 10px 0;
+}
+.color .gui-slider-right {
+	display : none;
+}
+
+.color .gui-slider-line {
+	width : 300px;
+}
+
+.color-picker .buttons {
+	display : flex;
+	flex-direction : row;
+	justify-content : space-between;
+	margin : 10px 0 0 0;
+}
+
+.color-picker .button {
+	width : 100px;
 }

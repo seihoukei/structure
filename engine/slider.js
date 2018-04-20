@@ -91,12 +91,13 @@ const sliderHandler = {
 		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?this.clone == 2?"SUMMON":"CLONE":"")
 		this.dvBigColor.title = this.clone?this.clone==2?"Summonned clones only exist while attacking specific node":"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
 		this.dvBigColor.ondblclick = (event) => {
-			this.dvBigColor.style.background = this.clone?'linear-gradient(to right, hsl(0,30%,40%), hsl(120,30%,40%), hsl(240,30%,40%), hsl(360,30%,40%) )':'linear-gradient(to right, hsl(0,100%,30%), hsl(120,100%,30%), hsl(240,100%,30%), hsl(360,100%,30%) )'
+/*			this.dvBigColor.style.background = this.clone?'linear-gradient(to right, hsl(0,30%,40%), hsl(120,30%,40%), hsl(240,30%,40%), hsl(360,30%,40%) )':'linear-gradient(to right, hsl(0,100%,30%), hsl(120,100%,30%), hsl(240,100%,30%), hsl(360,100%,30%) )'
 			this.dvBigColor.onclick = (event) => {
 				this.dvBigColor.onclick = null
 				this.dvBigColor.style.background = ""
 				this.setColor("hsl("+((event.offsetX / this.dvBigColor.offsetWidth * 360)|0)+(this.clone?",30%,40%)":",100%,30%)"))
-			}
+			}*/
+			gui.colorPicker.display(this, "color", event.clientX, event.clientY)
 		}
 
 		this.dvTargetPoint = createElement("div", "slider-target", this.dvHeader)

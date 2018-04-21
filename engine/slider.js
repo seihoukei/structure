@@ -496,7 +496,7 @@ const sliderHandler = {
 		
 		POINT_TYPES.map((x,n) => {
 			if (!n) return
-			if (this.channel.includes(n) && !this.artifacts.channelOrb) return
+			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n) && !this.artifacts.channelOrb) return
 			this.stats[x] += this.real.growth[x] * mul
 		})
 	},

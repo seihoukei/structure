@@ -234,7 +234,7 @@ const SPELLS = {//function context == point
 		managed :true,
 		recalc : true,
 		cost(point) {
-			return point.owned && !point.enchanted?point.baseCost ** 0.4/10:-1
+			return point.index && point.owned && !point.enchanted?point.baseCost ** 0.4/10:-1
 		},
 		cast(point) {
 			point.enchanted = ENCHANT_GROWTH
@@ -250,7 +250,7 @@ const SPELLS = {//function context == point
 		managed :true,
 		recalc : true,
 		cost(point) {
-			return !point.enchanted?point.baseCost ** 0.4/10:-1
+			return point.index && !point.enchanted?point.baseCost ** 0.4/10:-1
 		},
 		cast(point) {
 			point.enchanted = ENCHANT_DOOM

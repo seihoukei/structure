@@ -722,6 +722,29 @@ canvas.foreground : {
 	display : flex;
 	flex-direction : row;
 }
+
+.tab.sliders .slider .slider-level, .tab.map > .sliders .slider .slider-level {
+	width : 40px;
+	height : 40px;
+	border : 2px solid var(--darkframe);
+	font-size : 30px;
+	display : flex;
+	color : var(--shade0);
+	align-items : center;
+	justify-content : center;
+	margin : -2px 8px -2px -2px;
+	cursor : pointer;
+	transition : background-color 0.2s;
+}
+
+.tab.sliders .slider .slider-level.available, .tab.map > .sliders .slider .slider-level.available {
+	background-color : var(--bg-spirit);
+}
+
+.tab.sliders .slider .slider-level:hover, .tab.map > .sliders .slider .slider-level:hover {
+	background-color : var(--shade12);
+}
+
 .tab.sliders .slider .slider-color, .tab.map > .sliders .slider .slider-color {
 	background-color : maroon;
 	flex-grow : 999;
@@ -1939,4 +1962,116 @@ canvas.foreground : {
 
 .color-picker .button {
 	width : 100px;
+}
+
+.fullscreen-holder {
+	z-index : 10;
+	background-color : rgba(0,0,0,0.5);
+	position : absolute;
+	width : 100%;
+	height : 100%;
+	left : 0;
+	top : 0;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.sliderlv {
+	display : flex;
+	flex-direction : column;
+	background-color : var(--background);
+	border : 2px solid var(--lightframe);
+	padding : 10px;
+}
+
+.sliderlv-info{
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	flex-grow : 999;
+	margin : 10px;
+	text-align : center;
+}
+
+.sliderlv-line {
+	display : flex;
+	flex-direction : row;
+	align-items : stretch;
+}
+
+.sliderlv-mult {
+	width : 120px;
+	text-align : center;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.sliderlv-line div:nth-child(even) {
+	background-color : var(--shade14);
+}
+
+.sliderlv-mult-double {
+	width : 240px;
+	text-align : center;
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+	justify-content : center;
+}
+
+.sliderlv-mult-name {
+	width : 150px;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.sliderlv-title {
+	font-size : 25px;
+	font-weight : bolder;
+	padding : 0 10px 10px;
+	text-align : center;
+}
+
+.line-end {
+	margin-left : auto !important;
+}
+
+.sliderlv .button {
+	display : inline-block;
+	border : 2px solid var(--shade9);
+	color : var(--shade9);
+	padding : 10px;
+	margin : 5px;
+	transition : background-color 0.2s, color 0.2s;
+	text-align : center;
+}
+
+.sliderlv .button.available {
+	color : var(--foreground);
+	cursor : pointer;
+	border : 2px solid var(--lightframe);
+}
+
+.sliderlv .button.available:hover {
+	background-color : var(--shade12);
+}
+
+.sliderlv .button.transparent {
+	opacity : 0;
+	max-width : 0;
+	padding : 10px 0;
+	margin : 5px 0;
+}
+
+.sliderlv .buttons {
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.heavy {
+	font-weight : bold !important;
 }

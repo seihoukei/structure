@@ -82,7 +82,7 @@ const GuiSlider = Template(guiSliderHandler)
 const guiCheckboxHandler = {
 	_init() {
 		this.dvDisplay = createElement("div", "gui-checkbox " + (this.className || 0), this.parent)
-		this.dvDisplay.title = this.hint
+		this.dvDisplay.title = this.hint || ""
 		this.dvCheckbox = createElement("div", "checkbox", this.dvDisplay)
 		this.dvLabel = createElement("div", "caption", this.dvDisplay, this.title)
 		

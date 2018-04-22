@@ -7,6 +7,8 @@ const SlidersTab = Template({
 		this.master = MasterSlider({
 			parent : this.dvDisplay
 		})
+		
+		this.levelUp = SliderLevelUp()
 
 		this.dvSliders = createElement("div", "sliders", this.dvDisplay)
 		this.dvReal = createElement("div", "sliders-real", this.dvSliders)
@@ -56,7 +58,14 @@ const SlidersTab = Template({
 		game.sliders.map(slider => {
 			slider.updateFullInfo()
 		})
+		Object.values(this.master.imbuements.attributes).map(x => {
+			var totalCost = game.sliders.reduce((v,slider) => v+(slider.clone || masterSlider.safeImbuement && slider.real.imbuementCosts[x.name] > game.resources.mana / 10?0:slider.real.imbuementCosts[x.name]), 0)
+			x.dvDisplay.title = x.name.capitalizeFirst() + ": " + displayNumber(totalCost) + " mana/s"
+		})
 		this.hover.update()
+		if (this.levelUp.slider) {
+			this.levelUp.update()
+		}
 	}
 })
 
@@ -189,8 +198,96 @@ const masterSliderHandler = {
 			this.channels.update()
 			this.imbuements.updateVisibility()
 			this.channels.updateVisibility()
+			if (this.levelUp && this.levelUp.slider)
+				this.levelUp.update(true)
 		}
+		if (this.levelUp && this.levelUp.slider)
+			this.levelUp.update()
 	},
 }
 
 const MasterSlider = Template(masterSliderHandler)
+
+const sliderLevelUpHandler = {
+	_init() {
+		this.dvHolder = createElement("div", "fullscreen-holder hidden", document.body)
+		this.dvHolder.onclick = (event) => {
+			if (event.target == this.dvHolder) {
+				this.reset()
+			}
+		}	
+		
+		this.dvDisplay = createElement("div", "sliderlv", this.dvHolder)
+		this.dvTitle = createElement("div", "sliderlv-title", this.dvDisplay)
+		this.dvLevelUp = createElement("div", "sliderlv-line", this.dvDisplay)
+		this.dvLevelUpCost = createElement("div", "sliderlv-info", this.dvLevelUp)
+		this.dvLevelUpButton = createElement("div", "button line-end", this.dvLevelUp, "Level up")
+		this.dvLevelUpButton.onclick = (event) => {
+			if (this.slider.canLevelUp() && confirm("Levelling up will reset this slider's stats to zero on all maps. Do you want to continue?"))
+				this.slider.levelUp()
+		}
+		this.dvMultiCost = createElement("div", "sliderlv-info", this.dvDisplay)
+		this.dvMultiHead = createElement("div", "sliderlv-line heavy", this.dvDisplay)
+		this.dvMultiHintName = createElement("div", "sliderlv-mult-name", this.dvMultiHead, "Growth multiplier")
+		this.dvMultiHintMult = createElement("div", "sliderlv-mult", this.dvMultiHead, "Accumulated")
+		this.dvMultiHintLevelMult = createElement("div", "sliderlv-mult-double", this.dvMultiHead, "Current level")
+		this.dvMultiHintTotalMult = createElement("div", "sliderlv-mult", this.dvMultiHead, "Total")
+		this.dvMultiHintNextLevelMult = createElement("div", "sliderlv-mult", this.dvMultiHead, "Next level")
+		this.multi = POINT_TYPES.slice(1).map(x => {
+			const display = {
+				id : x,
+			}
+			display.dvDisplay = createElement("div", "sliderlv-line", this.dvDisplay)
+			display.dvName = createElement("div", "sliderlv-mult-name", display.dvDisplay, x.capitalizeFirst())
+			display.dvMult = createElement("div", "sliderlv-mult", display.dvDisplay)
+			display.dvRaiseHolder = createElement("div", "sliderlv-mult-double", display.dvDisplay)
+			display.dvLevelMult = createElement("div", "sliderlv-mult", display.dvRaiseHolder)
+			display.dvRaise = createElement("div", "button", display.dvRaiseHolder, "Increase")
+			display.dvTotalMult = createElement("div", "sliderlv-mult", display.dvDisplay)
+			display.dvRaise.onclick = (event) => {
+				if (this.slider.canLevel(x))
+					this.slider.raiseMulti(x)
+			}
+			display.dvNextLevelMult = createElement("div", "sliderlv-mult", display.dvDisplay)
+			
+			return display
+		})
+		this.dvButtons = createElement("div", "buttons", this.dvDisplay)
+		this.dvClose = createElement("div", "button available", this.dvButtons, "Close")
+		this.dvClose.onclick = (event) => this.reset()
+	},
+	
+	set(slider) {
+		this.slider = slider
+		this.dvHolder.classList.toggle("hidden", false)
+		this.update(true)
+	},
+	
+	reset() {
+		this.dvHolder.classList.toggle("hidden", true)
+		delete this.slider
+	},
+	
+	update(forced) {
+		if (!this.slider) return
+		if (forced) {
+			const next = this.slider.getStatTiers()
+			this.multi.map(x => {
+				x.dvMult.innerText = "x" + displayNumber(this.slider.multi[x.id],1)
+				x.dvLevelMult.innerText = "x" + displayNumber(this.slider.levelMulti[x.id],1)
+				x.dvTotalMult.innerText = "x" + displayNumber(this.slider.levelMulti[x.id] * this.slider.multi[x.id],1)
+				x.dvNextLevelMult.innerText = "x" + displayNumber(next[x.id], 1) + " => x" + displayNumber(this.slider.levelMulti[x.id] * this.slider.multi[x.id] * next[x.id],1)
+			})
+			this.dvTitle.innerText = "Level " + (this.slider.level || 0) + " slider"
+		}
+		this.dvLevelUpCost.innerText = "Level up cost : " + displayNumber(this.slider.levelUpCost) + " exp" + (game.real && game.real.production.exp && game.resources.exp < this.slider.levelUpCost?" ("+shortTimeString((this.slider.levelUpCost - game.resources.exp) / game.real.production.exp)+")":"") + "\nNote: levelling up resets slider's stats to zero"
+		this.dvMultiCost.innerText = this.slider.level?"Increase multiplier cost : " + displayNumber(this.slider.multiCost) + " exp" + (game.real && game.real.production.exp && game.resources.exp < this.slider.multiCost?" ("+shortTimeString((this.slider.multiCost - game.resources.exp) / game.real.production.exp)+")":""):""
+		this.multi.map(x => {
+			x.dvRaise.classList.toggle("available", this.slider.canLevel(x.id))
+			x.dvRaise.classList.toggle("transparent", !this.slider.level)
+		})
+		this.dvLevelUpButton.classList.toggle("available", this.slider.canLevelUp())
+	}
+}
+
+const SliderLevelUp = Template(sliderLevelUpHandler)

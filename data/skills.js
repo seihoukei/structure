@@ -404,6 +404,13 @@ const SKILLS = {
 		map : 28,
 		exp : 2e28,
 		mult : 2
+	},
+	sliderLevels : {
+		name : "Evolution 4.0",
+		desc : "Invest experience into levelling up sliders",
+		map : 29,
+		exp : 1e30,
+		mult : 5.203
 	}
 }
 

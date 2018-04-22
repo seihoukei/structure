@@ -787,8 +787,6 @@ const game = {
 	reset(auto) {
 		if (!auto)
 			saveState("_Autosave before reset", 1)
-
-		delete game.badSave
 		
 		animations.reset()
 		this.animatingPoints.clear()

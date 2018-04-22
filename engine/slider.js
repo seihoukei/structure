@@ -45,6 +45,8 @@ const sliderHandler = {
 		if (this.targetIndex !== undefined) this.assignTarget(game.map.points[this.targetIndex])
 		if (this.target) this.targetIndex = this.target.index
 		this.growth = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.growth || {})
+		this.multi = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.multi || {})
+		this.levelMulti = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.levelMulti || {})
 		this.stats = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?0:v[x]):v,v),this.stats || {})
 		this.charge = this.charge || 0
 		this.imbuement = this.imbuement || 0
@@ -57,12 +59,14 @@ const sliderHandler = {
 		this.victoryTimer = this.victoryTimer || 0
 		this.lastTarget = this.lastTarget || this.targetIndex
 		
+		this.level = this.level || 0
+		this.getLevelStats()
+		
 		if (game.maps && !this.clone) Object.keys(game.maps).map(x => {
 			if (x == "main") return
 			this.start[x] = this.start[x] || Object.assign({}, this.stats)
 			this.end[x] = this.end[x] || Object.assign({}, this.stats)
 		})
-		this.artifactSlots = ((this.level || 0) / 2 + 2 )| 0
 		this.artifacts = this.artifacts || {}
 		Object.entries(this.artifacts).map(x => this.equip(x[0], x[1]))
 		
@@ -88,6 +92,9 @@ const sliderHandler = {
 		
 		this.dvDisplay = createElement("div", "slider"+(this.clone?" clone":""), this.clone?gui.sliders.dvClones:gui.sliders.dvReal)
 		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
+		this.dvLevel = createElement("div", "slider-level", this.dvHeader, this.level || "0")
+		this.dvLevel.onclick = (event) => gui.sliders.levelUp.set(this)
+		
 		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?this.clone == 2?"SUMMON":"CLONE":"")
 		this.dvBigColor.title = this.clone?this.clone==2?"Summonned clones only exist while attacking specific node":"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
 		this.dvBigColor.ondblclick = (event) => {
@@ -312,6 +319,72 @@ const sliderHandler = {
 		}
 	},
 	
+	getLevelStats() {
+		this.artifactSlots = ((1 + this.level || 0) / 2 + 2 )| 0
+		this.levelUpCost = 2e45 * 10e3 ** this.level
+		this.multiCost = 1e42 * 10e3 ** this.level
+	},
+	
+	getStatTiers() {
+		const baseData = Object.keys(this.stats).map(y => [y,((1,Math.log10(this.stats[y]/(this.levelMulti[y]*this.multi[y]*game.real.multi[y]))))]).sort((x,y) => x[1]-y[1])
+		const tiers = Array(6).fill(0)
+		let tier = 0
+		baseData[0].push(tier)
+		tiers[tier]++
+		for (let i = 1; i < baseData.length; i++) {
+			if (baseData[i][1] - baseData[i-1][1] > 1) 
+				tier++
+			baseData[i].push(tier)
+			tiers[tier]++
+		}
+		const total = tier?tiers.reduce((v,x,n) => v + x * (n), 0):15
+		const rate = 15 / total
+		let total2 = 0
+		baseData.map(x => total2 += (x[2] = Math.floor(tier?(x[2])*rate:2)))
+		while (total2 < 15) {
+			total2++
+			baseData[15-total2][2]++
+		}
+		return baseData.reduce((v,x) => (v[x[0]]=x[2] * 0.5 + 1.5,v),{})
+	},
+
+	canLevel(x) {
+		if (this.multiCost > game.resources.exp) return false
+		if (!this.levelMulti[x] || !this.level) return false
+		if (this.levelMulti[x] >= 5) return false
+		return true
+	},
+	
+	canLevelUp() {
+		if (this.levelUpCost > game.resources.exp) return false
+		if (this.level >= 9) return false
+		return true
+	},
+	
+	levelUp() {
+		if (!this.canLevelUp()) return
+		game.resources.exp -= this.levelUpCost
+		const data = this.getStatTiers()
+		Object.keys(this.multi).map(x => {
+			this.multi[x] *= this.levelMulti[x]
+			this.levelMulti[x] = data && data[x] || 1
+		})
+		Object.keys(this.stats).map(x => this.stats[x] = 0)
+		Object.values(this.start).map(x => Object.assign(x, this.stats))
+		Object.values(this.end).map(x => Object.assign(x, this.stats))
+		this.level++
+		this.getLevelStats()
+		gui.sliders.levelUp.update(true)
+	},
+	
+	raiseMulti(name) {
+		if (!this.canLevel(name)) return
+		if (this.multiCost > game.resources.exp) return
+		game.resources.exp -= this.multiCost
+		this.levelMulti[name] += 0.5
+		gui.sliders.levelUp.update(true)
+	},
+	
 	autoTarget(forced) {
 		if (this.clone == 2) return
 		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && (this.real.attack <= 0))) return
@@ -368,7 +441,7 @@ const sliderHandler = {
 	updateFullInfo() {
 		this.displayStats.map((x,n) => {
 			x.dvValue.innerText = displayNumber(this.stats[x.name] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x.name] || 0)) + 
-								  (this.clone?"":" (+" + displayNumber(this.real.growth[x.name]) + "/s)") + 
+								  (this.clone?"":" ("+(this.real.multi[x.name]!=1?"x"+this.real.multi[x.name]+" => ":"")+"+" + displayNumber(this.real.growth[x.name]) + "/s)") + 
 								  ((this.real && (this.real[x.name] != this.stats[x.name] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x.name] || 0)))?" => " + displayNumber(this.real[x.name]):"")
 		})
 		if (this.real)
@@ -378,6 +451,7 @@ const sliderHandler = {
 			})
 		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
 		this.dvTargetPoint.style.backgroundColor = this.target?(gui.theme.typeColors[this.target.type]):gui.theme.background
+		this.dvLevel.innerText = this.level || "0"
 	}, 
 
 	updateSliders() {
@@ -401,6 +475,7 @@ const sliderHandler = {
 		})
 		this.cbGild.updateVisibility()
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2 || !!(settings.masterHide == 2 && masterSlider.masterAutotarget))
+		this.dvLevel.classList.toggle("hidden", !!(!(game.skills.sliderLevels) || this.clone))
 		this.dvATApply.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
 		this.dvAutoTarget.classList.toggle("faded", !!(settings.masterHide == 1 && masterSlider.masterAutotarget))
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
@@ -504,6 +579,7 @@ const sliderHandler = {
 	getReal(noloss = false) { //noloss for updating amidst damage application
 		if (!this.real) this.real = {}
 		if (!this.real.growth) this.real.growth = {}
+		if (!this.real.multi) this.real.multi = {}
 		if (!this.real.imbuementCosts) this.real.imbuementCosts = {}
 		this.real.usedMana = 0
 		this.real.madeGold = 0
@@ -514,6 +590,7 @@ const sliderHandler = {
 		
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
+			this.real.multi[x] = this.multi[x] * this.levelMulti[x] * (this.artifacts.growthOrb?3:1)
 			this.real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
 			game.sliders.map(slider => {
 				if (slider == this || slider.clone) return
@@ -531,13 +608,13 @@ const sliderHandler = {
 			} else if (this.learn.includes(n+1)) {
 				if (game.resources.exp > 1e-6) {
 					this.real.expChange -= this.real.growth[x]
-					this.real.growth[x] *= 3 * (this.artifacts.growthOrb?3:1)
+					this.real.growth[x] *= 3 * this.real.multi[x]
 				} else {
 					this.learns.reset()
 				}				
 			} else {
 				this.real.expChange += this.real.growth[x] * (1 - this.growth[x]) * (this.artifacts.expOrb?3:1)
-				this.real.growth[x] *= this.growth[x] * (this.artifacts.growthOrb?3:1)
+				this.real.growth[x] *= this.growth[x] * this.real.multi[x]
 			}
 		})
 		if (game.skills.charge && !this.clone) this.real.spirit *= this.charge?2:1
@@ -689,6 +766,9 @@ const sliderHandler = {
 		delete o.test
 		delete o.slots
 		delete o.equipList
+		delete o.artifactSlots
+		delete o.levelUpCost
+		delete o.multiCost
 		delete o.displayStats
 		delete o.imbuements
 		delete o.safeImbuementsSwitch

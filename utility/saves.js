@@ -32,8 +32,8 @@ function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
 		game.load(save, hibernated, nobackup)
 		return true
 	} catch(e) {
-		alert("Invalid save data")
 		game.badSave = true
+		alert("Invalid save data")
 		console.log(e)
 		console.log(saveData)
 		return false
@@ -80,8 +80,8 @@ function importState(saveData) {
 		gui.updateSaves("_Last imported save")
 		return loadState("_Last imported save")
 	} catch(e) {
-		alert("Invalid save data")
 		game.badSave = true
+		alert("Invalid save data")
 		console.log(e)
 		console.log(saveData)
 	}

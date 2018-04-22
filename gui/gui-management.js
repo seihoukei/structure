@@ -170,7 +170,7 @@ const ManagementTab = Template({
 			})
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
-		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.real && game.real.production.gold?"Estimated finish time: "+shortTimeString((game.fullMoney - game.resources.gold)/game.real.production.gold):"")
+		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.real && game.real.production.gold && game.real.production.gold > 0?"Estimated finish time: "+shortTimeString((game.fullMoney - game.resources.gold)/game.real.production.gold):"")
 	}
 })
 

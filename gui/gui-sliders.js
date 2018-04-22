@@ -280,8 +280,8 @@ const sliderLevelUpHandler = {
 			})
 			this.dvTitle.innerText = "Level " + (this.slider.level || 0) + " slider"
 		}
-		this.dvLevelUpCost.innerText = "Level up cost : " + displayNumber(this.slider.levelUpCost) + " exp" + (game.real && game.real.production.exp && game.resources.exp < this.slider.levelUpCost?" ("+shortTimeString((this.slider.levelUpCost - game.resources.exp) / game.real.production.exp)+")":"") + "\nNote: levelling up resets slider's stats to zero"
-		this.dvMultiCost.innerText = this.slider.level?"Increase multiplier cost : " + displayNumber(this.slider.multiCost) + " exp" + (game.real && game.real.production.exp && game.resources.exp < this.slider.multiCost?" ("+shortTimeString((this.slider.multiCost - game.resources.exp) / game.real.production.exp)+")":""):""
+		this.dvLevelUpCost.innerText = "Level up cost : " + displayNumber(this.slider.levelUpCost) + " exp" + (game.real && game.real.production.exp && game.real.production.exp > 0 && game.resources.exp < this.slider.levelUpCost?" ("+shortTimeString((this.slider.levelUpCost - game.resources.exp) / game.real.production.exp)+")":"") + "\nNote: levelling up resets slider's stats to zero"
+		this.dvMultiCost.innerText = this.slider.level?"Increase multiplier cost : " + displayNumber(this.slider.multiCost) + " exp" + (game.real && game.real.production.exp && game.real.production.exp > 0  && game.resources.exp < this.slider.multiCost?" ("+shortTimeString((this.slider.multiCost - game.resources.exp) / game.real.production.exp)+")":""):""
 		this.multi.map(x => {
 			x.dvRaise.classList.toggle("available", this.slider.canLevel(x.id))
 			x.dvRaise.classList.toggle("transparent", !this.slider.level)

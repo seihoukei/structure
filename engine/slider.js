@@ -374,6 +374,7 @@ const sliderHandler = {
 		Object.values(this.end).map(x => Object.assign(x, this.stats))
 		this.level++
 		this.getLevelStats()
+		gui.sliders.update(true)
 		gui.sliders.levelUp.update(true)
 	},
 	
@@ -382,6 +383,7 @@ const sliderHandler = {
 		if (this.multiCost > game.resources.exp) return
 		game.resources.exp -= this.multiCost
 		this.levelMulti[name] += 0.5
+		gui.sliders.update(true)
 		gui.sliders.levelUp.update(true)
 	},
 	

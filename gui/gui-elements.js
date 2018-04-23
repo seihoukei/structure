@@ -5,10 +5,20 @@ const guiSliderHandler = {
 		this.range = this.max - this.min
 		this.dvDisplay = createElement("div", "gui-slider "+(this.className||"")+" " +this.value, this.parent || document.body)
 		this.dvLeft = createElement("div", "gui-slider-left", this.dvDisplay, this.leftText)
+		if (this.shortStep) {
+			this.dvLeftStep = createElement("div", "gui-slider-step", this.dvDisplay, "-")
+			this.dvLeftStep.onclick = (event) => this.setValue (Math.max(this.min, this.container[this.value] - this.shortStep))
+		}
 		this.dvLine = createElement("div", "gui-slider-line "+(this.sliderClass || ""), this.dvDisplay)
 		this.dvRunner = createElement("div", "gui-slider-runner "+(this.sliderClass || ""), this.dvLine, displayNumber(this.getValue(), this.digits))
+		if (this.shortStep) {
+			this.dvRightStep = createElement("div", "gui-slider-step", this.dvDisplay, "+")
+			this.dvRightStep.onclick = (event) => this.setValue (Math.min(this.max, this.container[this.value] + this.shortStep))
+		}
 		this.dvRight = createElement("div", "gui-slider-right", this.dvDisplay, this.rightText)
 		this.dvDisplay.onmousedown = (event) => {
+			if (this.shortStep && event.target == this.dvLeftStep || event.target == this.dvRightStep)
+				return
 			this.moving = true
 			this.rect = this.dvLine.getBoundingClientRect()
 			let position = Math.max(0, Math.min(1, (event.clientX - 15 - this.rect.left) / (this.rect.width - 30)))

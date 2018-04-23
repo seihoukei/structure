@@ -15,6 +15,7 @@ const StardustTab = Template({
 				rightText : game.resources.stardust,
 				max : game.resources.stardust,
 				min : 0,
+				shortStep : 1,
 				digits : 0,
 				steps : game.resources.stardust,
 				className : "stardust",
@@ -81,6 +82,7 @@ const StardustTab = Template({
 			min : 0,
 			max : 20,
 			steps : 20,
+			shortStep : 1,
 			digits : 0,
 			onSet : () => {
 				this.dvVirtualCreateCost.innerText = "Cost: " + virtualMapCost(this.newMapLevel) + " stardust"

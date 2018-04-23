@@ -321,8 +321,8 @@ const sliderHandler = {
 	
 	getLevelStats() {
 		this.artifactSlots = ((1 + this.level || 0) / 2 + 2 )| 0
-		this.levelUpCost = 2e45 * 10e3 ** this.level
-		this.multiCost = 1e42 * 10e3 ** this.level
+		this.levelUpCost = 2e46 * 1e3 ** this.level
+		this.multiCost = 1e43 * 1e3 ** this.level
 	},
 	
 	getStatTiers() {

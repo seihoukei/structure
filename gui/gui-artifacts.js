@@ -25,7 +25,7 @@ const ArtifactsTab = Template({
 			className : "tablet-checkbox"
 		})*/
 		this.dvTabletInput = createElement("input", "tablet-input", this.dvTabletControls)
-		this.dvTabletInput.onchange = (event) => {
+		this.dvTabletInput.oninput = (event) => {
 				this.updateTabletPairs()
 		}
 		this.dvTabletAttempt = createElement("div", "button", this.dvTabletControls, "Try code")
@@ -217,9 +217,8 @@ const ArtifactsTab = Template({
 		letterPairs.map(x => {
 			this.glyphs[x].classList.toggle("present", research.tablet[x] === true)
 			this.glyphs[x].classList.toggle("absent", research.tablet[x] === false)
-			if (!game.skills.smartTablet) return
-			this.glyphs[x].classList.toggle("used", research.tablet[x] === true && input.indexOf(x) > -1)
-			this.glyphs[x].classList.toggle("possible", research.tablet[x] === true && input.indexOf(x) == -1 && !!(!input || input.slice(-1) == x[0]))
+			this.glyphs[x].classList.toggle("used", !!(game.skills.smartTablet && research.tablet[x] === true && input.indexOf(x) > -1))
+			this.glyphs[x].classList.toggle("possible", !!(game.skills.smartTablet && research.tablet[x] === true && input.indexOf(x) == -1 && !!(!input || input.slice(-1) == x[0])))
 		})
 	},
 	

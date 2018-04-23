@@ -411,6 +411,15 @@ const SKILLS = {
 		map : 29,
 		exp : 1e30,
 		mult : 5.203
+	},
+	smartTablet : {
+		name : "Carved in stone",
+		desc : "Smart input for artifact research",
+		req : ["artifacts"],
+		map : 29,
+		exp : 1e28,
+		science : 5e14,
+		mult : 2
 	}
 }
 

@@ -1758,17 +1758,39 @@ canvas.foreground : {
 	color : var(--tablet-absent);
 }
 
+.tablet-cell.used {
+	opacity : 0.5;
+	cursor : pointer;
+}
+
+.tablet-cell.possible {
+	background-color : var(--shade10);
+	cursor : pointer;
+}
+
+.tablet-cell.possible:hover {
+	background-color : var(--shade12);
+}
+
 .tablet-controls {
 	margin-top : 10px;
+	display : flex;
+	flex-direction : row;	
 }
 
 .tablet-input {
-	padding : 5px;
+	padding : 0 5px;
+	margin : 5px 0;
 	background-color : var(--background);
 	color : var(--foreground);
 	border : 2px solid var(--lightframe);
 	font-size : 20px;
+	width : 400px;
 	text-transform : uppercase;
+}
+
+.tablet-checkbox {
+	width : 100px;
 }
 
 .artifact {
@@ -2040,7 +2062,9 @@ canvas.foreground : {
 }
 
 .sliderlv .button {
-	display : inline-block;
+	display : inline-flex;
+	align-items : center;
+	justify-content : center;
 	border : 2px solid var(--shade9);
 	color : var(--shade9);
 	padding : 10px;

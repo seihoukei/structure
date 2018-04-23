@@ -662,6 +662,7 @@ const game = {
 		o.saveSkills = Object.keys(o.skills).filter(x => o.skills[x])
 		o.masterSlider = masterSlider
 		o.managementSorting = gui.management.sorting
+//		o.tabletSmart = gui.artifacts.smart
 		delete o.skills
 		delete o.updateBackground
 		delete o.dev
@@ -706,6 +707,8 @@ const game = {
 
 		this.attacked.clear()
 		this.autoTimer = GAME_AUTOMATION_PERIOD
+
+//		gui.artifacts.smart = save.tabletSmart || false
 
 		this.story = save.story || {}
 		this.statistics = save.statistics || {}
@@ -854,6 +857,7 @@ const game = {
 		this.advance(1)
 		this.update()
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
+//		gui.artifacts.smart = false
 		gui.tabs.setTab("map")
 		gui.sliders.update(true)
 	}

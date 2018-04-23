@@ -15,7 +15,19 @@ const ArtifactsTab = Template({
 		this.dvTabletTitle = createElement("div", "tablet-title", this.dvTablet)
 		this.dvTabletGlyphs = createElement("div", "tablet-glyphs", this.dvTablet)
 		this.dvTabletControls = createElement("div", "tablet-controls", this.dvTablet)
+/*		this.smart = true
+		this.cbTabletSmart = GuiCheckbox({
+			parent : this.dvTabletControls,
+			container : this,
+			value : "smart",
+			visible : () => game.skills.smartTablet,
+			title : "Smart",
+			className : "tablet-checkbox"
+		})*/
 		this.dvTabletInput = createElement("input", "tablet-input", this.dvTabletControls)
+		this.dvTabletInput.onchange = (event) => {
+				this.updateTabletPairs()
+		}
 		this.dvTabletAttempt = createElement("div", "button", this.dvTabletControls, "Try code")
 		this.dvTabletAttempt.onclick = (event) => {
 			const result = this.dvTabletInput.value && finalizeResearch(this.displayedTablet, this.dvTabletInput.value)
@@ -42,7 +54,29 @@ const ArtifactsTab = Template({
 		this.glyphLines = {}
 		letters.map(x => this.glyphLines[x] = createElement("div", "tablet-row", this.dvTabletGlyphs))
 		this.glyphs = {}
-		letterPairs.map(x => this.glyphs[x] = createElement("div", "tablet-cell", this.glyphLines[x[0]], x))
+		letterPairs.map(x => {
+			this.glyphs[x] = createElement("div", "tablet-cell", this.glyphLines[x[0]], x)
+			this.glyphs[x].onclick = (event) => {
+				if (!game.research[this.displayedTablet].tablet[x]) return
+				if (!game.skills.smartTablet) return
+				const input = this.dvTabletInput.value.toUpperCase()
+				const pos = input.indexOf(x)
+				if (!input)
+					this.dvTabletInput.value += x
+				else if (pos > -1) {
+					if (pos)
+						this.dvTabletInput.value = this.dvTabletInput.value.slice(0,pos + 1)
+					else
+						this.dvTabletInput.value = ""
+				} else if (input.slice(-1) == x[0])
+					this.dvTabletInput.value += x[1]
+				else return
+				this.animateGlyph(x, 0)
+//				if (game.skills.smartTablet && this.smart)
+					this.advanceTablet()
+				this.updateTabletPairs()
+			}
+		})
 		this.artifacts = Object.values(ARTIFACTS).map(artifact => {
 			const display = {artifact, id : artifact.id}
 			artifact.display = display
@@ -146,9 +180,46 @@ const ArtifactsTab = Template({
 			} else
 				return
 		}
+		
+//		this.cbTabletSmart.update()
+		this.updateTabletPairs()
+	},
+	
+	advanceTablet() {
+		const research = game.research[this.displayedTablet]
+		if (!research) return
+		let input = this.dvTabletInput.value.toUpperCase()
+		if (!input) return
+		const pairs = Object.keys(research.tablet).filter(x => research.tablet[x] && input.indexOf(x) == -1)
+		let currentPairs = pairs.filter(x => input.indexOf(x) == -1 && input.slice(-1) == x[0])
+		let step = 0
+		while (currentPairs.length == 1) {
+			input += currentPairs[0][1]
+			step++
+			this.animateGlyph(currentPairs[0], step * 200)
+			currentPairs = pairs.filter(x => input.indexOf(x) == -1 && input.slice(-1) == x[0])
+		}	
+		this.dvTabletInput.value = input
+	},
+	
+	animateGlyph(name, delay) {
+		setTimeout(() => {
+			this.glyphs[name].animate({
+				transform : ["scale(1, 1)","scale(0.7, 0.7)","scale(1, 1)"],
+				backgroundColor : ["var(--background)", "var(--foreground)", "var(--background)"]
+			}, 1000)
+		}, delay)
+	},
+	
+	updateTabletPairs() {
+		const input = this.dvTabletInput.value.toUpperCase()
+		const research = game.research[this.displayedTablet]
 		letterPairs.map(x => {
 			this.glyphs[x].classList.toggle("present", research.tablet[x] === true)
 			this.glyphs[x].classList.toggle("absent", research.tablet[x] === false)
+			if (!game.skills.smartTablet) return
+			this.glyphs[x].classList.toggle("used", research.tablet[x] === true && input.indexOf(x) > -1)
+			this.glyphs[x].classList.toggle("possible", research.tablet[x] === true && input.indexOf(x) == -1 && !!(!input || input.slice(-1) == x[0]))
 		})
 	},
 	

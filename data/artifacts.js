@@ -318,5 +318,6 @@ function finalizeResearch(name, word) {
 function badCodeWord(s) {
 	if (s[0] == s[s.length-1]) return true
 	if (Math.max(...letters.map(x => (s.match(RegExp(x, "g")) || []).length)) > 2) return true
+	if (Math.max(...letterPairs.map(x => (s.match(RegExp(x, "g")) || []).length)) > 2) return true
 	return false
 }

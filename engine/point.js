@@ -490,7 +490,7 @@ const pointHandler = {
 			this.special = SPECIAL_BLOCK
 
 		let wantEnchant = 0
-		if (!this.special)
+		if (!this.enchanted)
 			attackers.map(x => {
 				if (x.artifacts.goldShield) wantEnchant |= 1
 				if (x.artifacts.manaShield) wantEnchant |= 2

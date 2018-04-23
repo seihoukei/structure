@@ -275,7 +275,7 @@ const pointHandler = {
 		const strong = chapter ? 1 : 4
 		const neutral = chapter ? 0.1 : 1
 		const itself = chapter ? -1 : 0
-		const phys = chapter ? 0.001 : 1
+		const phys = chapter ? slider.artifacts.powerGem?0.01:0.001 : 1
 		
 		const spirit = slider.real.spirit//getActiveSpirit(slider)
 		let spiritPenalty = (this.boss || slider.clone)?0:Math.max(0,(currentPower - spirit) * 2)
@@ -309,6 +309,7 @@ const pointHandler = {
 		let finalMult = (this.enchanted == ENCHANT_DOOM?this.map.level:1)
 		if (slider.artifacts.warAmulet && slider.lastTarget == this.index) finalMult *= 1 + slider.onSame / 600
 		if (slider.artifacts.victoryAmulet && slider.victoryTimer) finalMult *= 1 + this.map.level / 10
+		if (this.type > 2 && slider.artifacts[POINT_TYPES[this.type]+"Gem"]) finalMult *= 3
 
 		return (Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + absoluteDamage)*finalMult
 	},
@@ -609,7 +610,7 @@ const pointHandler = {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
 		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1):0
+			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1) * ([...this.attackers].filter(x => x.artifacts.stormGem).length?this.map.level:1):0
 		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},
 	

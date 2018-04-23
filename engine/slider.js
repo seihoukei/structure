@@ -630,7 +630,7 @@ const sliderHandler = {
 				this.real.absoluteDamage += this.real.spirit * game.resources.fears
 		}
 		
-		POINT_TYPES.slice(3).map(x => this.real.imbuementCosts[x] = (Math.log10(this.real.power || 1) ** 4 / 1000) * Math.max(1,Math.min(this.real.power ** 0.5, this.real.power / (this.real[x] || 1) / 10))) || 0
+		POINT_TYPES.slice(3).map(x => this.real.imbuementCosts[x] = this.artifacts[x+"Ring"]?0:((Math.log10(this.real.power || 1) ** 4 / 1000) * Math.max(1,Math.min(this.real.power ** 0.5, this.real.power / (this.real[x] || 1) / 10))) || 0)
 		
 		if (this.real.imbuement) {
 			if (game.resources.mana > ((masterSlider.masterImbuement?masterSlider.safeImbuement:this.safeImbuement)?(this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0 * 10):1e-6)) {

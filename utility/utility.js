@@ -349,4 +349,6 @@ const letterPairs = Array(26*26).fill(0).map((x,n) => letters[n/26|0]+letters[n%
 //🗡️ - knife/sword
 //🔮 - orb
 //👑 - crown
-//✓⭕🌟⚷🔒🔓⚔🏠⛏📡⇮⇓⇑⁰¹²³⁴⁵⁶⁷⁸⁹×⚑🗡️🔮👑
+//💍 - ring
+//💎 - gem
+//✓⭕🌟⚷🔒🔓⚔🏠⛏📡⇮⇓⇑⁰¹²³⁴⁵⁶⁷⁸⁹×⚑🗡️🔮👑💍💎

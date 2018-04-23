@@ -208,6 +208,42 @@ const ARTIFACTS = {
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
+	bloodRing: {
+		name : "Bleeding ring",
+		desc : "Imbuing slider with blood costs nothing",
+		codeLength : 18,
+		codeCost : 5e10,
+		depth : 2.197e32,
+		iconText : "💍\uFE0E",
+		iconTextColor : "var(--bg-blood)"
+	},
+	fireRing: {
+		name : "Burning ring",
+		desc : "Imbuing slider with fire costs nothing",
+		codeLength : 18,
+		codeCost : 5e10,
+		depth : 4.623e30,
+		iconText : "💍\uFE0E",
+		iconTextColor : "var(--bg-fire)"
+	},
+	iceRing: {
+		name : "Frozen ring",
+		desc : "Imbuing slider with ice costs nothing",
+		codeLength : 18,
+		codeCost : 5e10,
+		depth : 2.316e31,
+		iconText : "💍\uFE0E",
+		iconTextColor : "var(--bg-ice)"
+	},
+	metalRing: {
+		name : "Darksteel ring",
+		desc : "Imbuing slider with metal costs nothing",
+		codeLength : 18,
+		codeCost : 5e10,
+		depth : 8.147e32,
+		iconText : "💍\uFE0E",
+		iconTextColor : "var(--bg-metal)"
+	},
 	goldShield: {
 		name : "Shield of gold",
 		desc : "Points captured with the slider get enchanted for gold",
@@ -244,6 +280,60 @@ const ARTIFACTS = {
 		iconText : "O",
 		iconTextColor : "#DD55DD"
 	},
+	stormGem: {
+		name : "Gem of storms",
+		desc : "Boosts Mean machine damage to slider's target",
+		codeLength : 15,
+		codeCost : 17e10,
+		depth : 5.794e31,
+		iconText : "💎\uFE0E",
+		iconTextColor : "#5588DD"
+	},	
+	powerGem: {
+		name : "Gem of light",
+		desc : "Elemental nodes block less physical damage",
+		codeLength : 20,
+		codeCost : 26e10,
+		depth : 1.613e33,
+		iconText : "💎\uFE0E",
+		iconTextColor : "var(--bg-power)"
+	},	
+	bloodGem: {
+		name : "Gem of metallic blood",
+		desc : "Triples slider's damage to blood nodes",
+		codeLength : 20,
+		codeCost : 26e10,
+		depth : 3.582e31,
+		iconText : "💎\uFE0E",
+		iconTextColor : "var(--bg-blood)"
+	},	
+	fireGem: {
+		name : "Gem of bloody fire",
+		desc : "Triples slider's damage to fire nodes",
+		codeLength : 20,
+		codeCost : 26e10,
+		depth : 5.622e32,
+		iconText : "💎\uFE0E",
+		iconTextColor : "var(--bg-fire)"
+	},	
+	iceGem: {
+		name : "Gem of fiery ice",
+		desc : "Triples slider's damage to ice nodes",
+		codeLength : 20,
+		codeCost : 26e10,
+		depth : 9.412e31,
+		iconText : "💎\uFE0E",
+		iconTextColor : "var(--bg-ice)"
+	},	
+	metalGem: {
+		name : "Gem of icy metal",
+		desc : "Triples slider's damage to metal nodes",
+		codeLength : 20,
+		codeCost : 26e10,
+		depth : 3.179e33,
+		iconText : "💎\uFE0E",
+		iconTextColor : "var(--bg-metal)"
+	},	
 }
 
 Object.keys(ARTIFACTS).map(x => ARTIFACTS[x].id = x)

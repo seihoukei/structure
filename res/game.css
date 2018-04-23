@@ -935,6 +935,12 @@ canvas.foreground : {
 	width : 40px;
 }
 
+.gui-slider .gui-slider-step{
+	border : 1px solid var(--darkframe);
+	padding : 0 5px;
+	margin : 0 5px;
+}
+
 .gui-slider .gui-slider-left{
 	text-align : right;
 }

@@ -6,7 +6,7 @@ const guiSliderHandler = {
 		this.dvDisplay = createElement("div", "gui-slider "+(this.className||"")+" " +this.value, this.parent || document.body)
 		this.dvLeft = createElement("div", "gui-slider-left", this.dvDisplay, this.leftText)
 		this.dvLine = createElement("div", "gui-slider-line "+(this.sliderClass || ""), this.dvDisplay)
-		this.dvRunner = createElement("div", "gui-slider-runner "+(this.sliderClass || ""), this.dvLine, this.getValue())
+		this.dvRunner = createElement("div", "gui-slider-runner "+(this.sliderClass || ""), this.dvLine, displayNumber(this.getValue(), this.digits))
 		this.dvRight = createElement("div", "gui-slider-right", this.dvDisplay, this.rightText)
 		this.dvDisplay.onmousedown = (event) => {
 			this.moving = true

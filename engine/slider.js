@@ -45,8 +45,9 @@ const sliderHandler = {
 		if (this.targetIndex !== undefined) this.assignTarget(game.map.points[this.targetIndex])
 		if (this.target) this.targetIndex = this.target.index
 		this.growth = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.growth || {})
-		this.multi = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.multi || {})
-		this.levelMulti = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.levelMulti || {})
+		this.level = this.level || 0
+		this.multi = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:Math.min(v[x], 5**this.level)):v,v),this.multi || {})
+		this.levelMulti = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:Math.min(v[x], 5)):v,v),this.levelMulti || {})
 		this.stats = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?0:v[x]):v,v),this.stats || {})
 		this.charge = this.charge || 0
 		this.imbuement = this.imbuement || 0
@@ -59,7 +60,6 @@ const sliderHandler = {
 		this.victoryTimer = this.victoryTimer || 0
 		this.lastTarget = this.lastTarget || this.targetIndex
 		
-		this.level = this.level || 0
 		this.getLevelStats()
 		
 		if (game.maps && !this.clone) Object.keys(game.maps).map(x => {
@@ -345,7 +345,8 @@ const sliderHandler = {
 			total2++
 			baseData[15-total2][2]++
 		}
-		return baseData.reduce((v,x) => (v[x[0]]=x[2] * 0.5 + 1.5,v),{})
+		
+		return baseData.reduce((v,x) => (v[x[0]]=Math.min(5, x[2] * 0.5 + 1.5),v),{})
 	},
 
 	canLevel(x) {

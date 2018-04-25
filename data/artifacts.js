@@ -208,6 +208,24 @@ const ARTIFACTS = {
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
+	selflessCrown: {
+		name : "Crown of the selfless",
+		desc : "If not attacking alone, deals reduced damage but doubles damage of others",
+		codeLength : 17,
+		codeCost : 42e10,
+		depth : 9.364e33,
+		iconText : "👑\uFE0E",
+		iconTextColor : "var(--bg-blood)"
+	},	
+	puppetCrown: {
+		name : "Crown of the puppeteer",
+		desc : "If attacking alongside summons, deals reduced damage but quadruples damage of summons",
+		codeLength : 19,
+		codeCost : 50e10,
+		depth : 2.46e34,
+		iconText : "👑\uFE0E",
+		iconTextColor : "var(--bg-fire)"
+	},	
 	bloodRing: {
 		name : "Bleeding ring",
 		desc : "Imbuing slider with blood costs nothing",

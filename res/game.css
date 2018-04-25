@@ -1300,6 +1300,10 @@ canvas.foreground : {
 	padding : 0 5px 0 0;
 }
 
+.management .automation-enchantment-text {
+	padding : 0 5px 0 20px;
+}
+
 .tab.story .records {
 	align-content : flex-start;
 }

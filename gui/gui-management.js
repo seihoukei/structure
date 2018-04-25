@@ -77,6 +77,20 @@ const ManagementTab = Template({
 				this.update(true)
 			}
 		})
+		
+		this.dvEnchantAutomationText = createElement("div", "automation-enchantment-text", this.dvBuildAutomation, "Enchant displayed: ")
+
+		this.enchantments = Object.keys(SPELLS).filter(x => SPELLS[x].managed).map(x => SpellIcon(x, this.dvBuildAutomation))
+		this.enchantments.map(x => {
+			x.dvDisplay.onclick = (event) => {
+				game.autoUpgrading = 1
+				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).filter(x => x.getDisplay("management").visible).map(point => point.cast(x.id))
+				game.autoUpgrading = 0
+				game.update()
+				gui.management.update()
+			}
+		})
+
 		this.dvBuildAutomationETA = createElement("div", "automation-eta", this.dvBuildAutomation)
 
 		this.sorting = BASE_SORTING
@@ -95,7 +109,7 @@ const ManagementTab = Template({
 				return true
 			},
 			onUpdate : () => {
-				game && game.map && game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").dvDisplay.classList.toggle("hidden", x.boss || this.sorting.types.length && !this.sorting.types.includes(x.type)))
+				game && game.map && game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(true))
 			}
 		})
 		
@@ -113,7 +127,7 @@ const ManagementTab = Template({
 				this.sortSorter.dvDisplay.classList.toggle("reverse", this.sorting.sortDir < 0)
 			},
 			onUpdate : () => {
-				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map(x => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
+				this.updateList()
 			}
 		})
 
@@ -130,7 +144,7 @@ const ManagementTab = Template({
 			parent : this.dvSort,
 			title : "Hide enchanted",
 			container : this.sorting,
-			visibility : () => !!game.skills.magicManagement,
+			visible : () => !!game.skills.magicManagement,
 			value : "hideEnchanted",
 			onSet : () => this.update(true)
 		})
@@ -144,12 +158,16 @@ const ManagementTab = Template({
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
 		this.update(true)
 	},
+
+	updateList() {
+		game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map(x => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
+	},
 	
 	update(forced) {
 		if (forced) {
 			this.dvAutomation.classList.toggle("hidden", !game.skills.automation)
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
-			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
+			this.dvEnchantAutomationText.classList.toggle("hidden", !game.skills.massEnchant)
 			if (game.skills.automation) {
 				this.maxLevel.update(true)
 				this.maxCost.update()
@@ -167,6 +185,10 @@ const ManagementTab = Template({
 				x.dvDisplay.classList.toggle("visible", !!visible)
 				if (visible)
 					x.dvDisplay.classList.toggle("active", !!game.automation.buildings[x.id])
+			})
+			this.enchantments.map(x => {
+				let visible = game.skills.massEnchant && game.skills["book_"+SPELLS[x.id].book]
+				x.dvDisplay.classList.toggle("visible", !!visible)
 			})
 		}
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
@@ -272,9 +294,11 @@ const managementPointElementHandler = {
 	update(forced) {
 		if (forced) {
 			if (this.point.enchanted && gui.management.sorting.hideEnchanted || this.point.boss || gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type)) {
+				this.visible = false
 				this.dvDisplay.classList.toggle("hidden", true)
 				return
 			} else {
+				this.visible = true
 				this.dvDisplay.classList.toggle("hidden", false)
 			}
 			this.dvInfo.innerText = "Power : " + displayNumber(this.point.power) + "\n" +

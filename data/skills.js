@@ -332,6 +332,14 @@ const SKILLS = {
 		exp : 1e22,
 		mult : 1.5
 	},
+	massEnchant : {
+		name : "Every last thing",
+		desc : "Add mass enchantment to management",
+		req : ["magicManagement"],
+		science : 6.5e14,
+		exp : 1e22,
+		mult : 1.5
+	},
 	smartSummons : {
 		name : "For those who walk the path forlorn",
 		desc : "Summons choose new target in a more smart way",

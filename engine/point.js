@@ -100,7 +100,7 @@ const pointHandler = {
 
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
 		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
-		Object.values(BUILDINGS).map(x => this.costs[x.id] = !this.level || this.level < x.level || this.nobuild?-1:x.cost(this))
+		Object.values(BUILDINGS).map(x => this.costs[x.id] = !game.skills["build"+x.level] || !this.level || this.level < x.level || this.nobuild?-1:x.cost(this))
 
 		this.noclone = this.special == SPECIAL_NOCLONE
 		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
@@ -178,6 +178,83 @@ const pointHandler = {
 	updateDisplay(name, forced) {
 		if (this.displays[name])
 			this.displays[name].update(forced)		
+	},
+	
+	getVoronoi(forced) {
+		if (!forced && this.voronoi) 
+			return this.voronoi
+		
+		this.voronoi = {}
+		
+		const projections = this.map.points.map(point => {
+			if (point == this) return {point, x : 0, y : 0}
+			const dx = point.x - this.x
+			const dy = point.y - this.y
+			const d = dx ** 2 + dy ** 2
+			const l = 2 / d
+			return {
+				x : dx * l, 
+				y : dy * l, 
+				point
+			}
+		})
+		
+		const start = projections.reduce((v,x) => v.x < x.x?v:x, projections[0])
+		projections.splice(projections.indexOf(start),1)
+		projections.map(x => x.angle = Math.atan2(x.y - start.y, x.x - start.x))
+		
+		const hull = [start, ...projections.sort((x,y) => x.angle - y.angle)]
+		hull.map((x,n) => {
+			x.next = hull[n+1] || hull[0]
+			x.last = hull[n-1] || hull[hull.length - 1]
+		})
+		
+		let current = hull[1]
+		while (current != hull[0]) {
+			const dx1 = current.next.x - current.x
+			const dy1 = current.next.y - current.y
+			const dx2 = current.last.x - current.x
+			const dy2 = current.last.y - current.y
+			if (dx1 * dy2 > (dy1 * dx2 + 1e-9) && (dx2 || dy2)){
+				current = current.next
+				continue
+			}
+			current.next.last = current.last
+			current.last.next = current.next
+			current.deleted = true
+			current = current.last
+		}
+		
+		this.voronoi.points = hull.filter(x => !x.deleted).map(pt => {
+			if (pt.point == this || pt.next.point == this) {
+				return {
+					x : 0,
+					y : 0,
+					neighbours : [this, this],
+				}
+			}
+			const x32 = pt.next.x - pt.x
+			const y32 = pt.next.y - pt.y
+			const x21 = pt.x
+			const y21 = pt.y
+			const div = (x32 * y21 - y32 * x21)
+			return {
+				x : - y32 / div,
+				y : + x32 / div,
+				neighbours : [pt.point, pt.next.point],
+			}
+		})
+		
+		this.voronoi.edges = this.voronoi.points.map((x, n) => {
+			const next = this.voronoi.points[n-1] || this.voronoi.points[this.voronoi.points.length - 1]
+			return {
+				start : x,
+				end : next,
+				neighbour : x.neighbours[0] == next.neighbours[0] || x.neighbours[0] == next.neighbours[1]?x.neighbours[0]:x.neighbours[1]
+			}
+		})
+		
+		return this.voronoi
 	},
 	
 	build (name) {
@@ -685,6 +762,8 @@ const pointHandler = {
 		delete o.baseCost
 		delete o.noclone
 		delete o.nobuild
+		delete o.voronoi
+		delete o.delaunay
 		if (!o.boss) delete o.boss
 		if (!o.exit) delete o.exit
 		if (!o.owned) delete o.owned

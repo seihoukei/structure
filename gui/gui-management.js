@@ -205,6 +205,7 @@ const ManagementTab = Template({
 			this.sortTypes.updateVisibility()
 			this.sortSorter.update(true)
 			this.cbHideEnchanted.update()
+			this.cbHideCompleted.update()
 			this.cbSortOften.update()
 			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
 			this.buildings.map((x, n) => {

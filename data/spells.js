@@ -250,7 +250,7 @@ const SPELLS = {//function context == point
 		managed :true,
 		recalc : true,
 		cost(point) {
-			return !point.boss && point.special != SPECIAL_RESIST && point.index && !point.enchanted?point.baseCost ** 0.4/10:-1
+			return !point.boss && (point.special != SPECIAL_RESIST || point.owned) && point.index && !point.enchanted?point.baseCost ** 0.4/10:-1
 		},
 		cast(point) {
 			point.enchanted = ENCHANT_DOOM

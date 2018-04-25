@@ -100,7 +100,7 @@ const pointHandler = {
 
 		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
 		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
-		Object.values(BUILDINGS).map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
+		Object.values(BUILDINGS).map(x => this.costs[x.id] = !this.level || this.level < x.level || this.nobuild?-1:x.cost(this))
 
 		this.noclone = this.special == SPECIAL_NOCLONE
 		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
@@ -112,6 +112,12 @@ const pointHandler = {
 		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 		this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
+		
+		this.completed = this.level == 4 && Object.values(BUILDINGS).reduce((v,x) => {
+			if (!v) return false
+			if (this.costs[x.id] > 0 && !this.buildings[x.id]) return false
+			return true
+		}, true)
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)

@@ -57,11 +57,11 @@ const gui = {
 				
 				this.dvHint = createElement("div", "target-hint", this.dvSliders, "Click to assign/free:")
 				this.dvAll = createElement("div", "target-all", this.dvHint, "All")
-				this.dvAll.onclick = (event) => game.sliders.map(x => x.assignTarget(this.point || null))
+				this.dvAll.onclick = (event) => this.targetAll(game.sliders)
 				this.dvReal = createElement("div", "target-all", this.dvHint, "Real")
-				this.dvReal.onclick = (event) => game.sliders.filter(x => !x.clone).map(x => x.assignTarget(this.point || null))
+				this.dvReal.onclick = (event) => this.targetAll(game.sliders.filter(x => !x.clone))
 				this.dvClones = createElement("div", "target-all", this.dvHint, "Clones")
-				this.dvClones.onclick = (event) => game.sliders.filter(x => x.clone).map(x => x.assignTarget(this.point || null))
+				this.dvClones.onclick = (event) => this.targetAll(game.sliders.filter(x => x.clone))
 				this.dvUpgrades = createElement("div", "upgrades", this.dvButtons)
 				this.dvUpgrades.onclick = (event) => event.target == this.dvUpgrades?this.reset():0
 				
@@ -175,6 +175,13 @@ const gui = {
 				this.updateUpgrades()
 				Object.values(this.buttons).map (x => x.dvDisplay.offsetWidth && x.dvDisplay.classList.toggle("notransition", false))
 			},
+
+			targetAll(sliders) {
+				var target = this.point || null
+				if (!sliders.filter(x => x.target != target).length)
+					target = null
+				sliders.map(x => x.assignTarget(target))
+			},
 			
 			update() {
 				if (!this.point) return
@@ -187,8 +194,8 @@ const gui = {
 				
 				const displaySliders = mode == 1 || mode == 2
 				this.dvAll.classList.toggle("hidden", !displaySliders || game.sliders.length < 2)
-				this.dvReal.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone).length)
-				this.dvClones.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone).length)
+				this.dvReal.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone == 1).length)
+				this.dvClones.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone == 1).length)
 				this.dvSliders.classList.toggle("hidden", !displaySliders)
 				this.dvSpells.classList.toggle("hidden", !game.skills.spellcasting || !this.point || !(Object.values(this.point.manaCosts).filter(x => x > -1).length))
 	

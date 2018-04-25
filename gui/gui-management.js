@@ -17,7 +17,9 @@ const BASE_SORTING = {
 	sortBy : "Level",
 	sortDir : -1,
 	sortOften : false,
-	hideEnchanted : false
+	hideEnchanted : false,
+	hideCompleted : false,
+	buildings : []
 }
 
 const ManagementTab = Template({
@@ -140,8 +142,33 @@ const ManagementTab = Template({
 			value : "sortOften"
 		})
 		
+		this.dvExtraFilter = createElement("div", "automation", this.dvDisplay)
+		
+		this.dvBuildFilterText = createElement("div", "automation-text", this.dvExtraFilter, "Building filter: ")
+
+		this.filterBuildings = Object.keys(BUILDINGS).map(x => BuildingIcon(x, this.dvExtraFilter))
+		this.filterBuildings.map(x => {
+			x.dvDisplay.onclick = (event) => {
+				if (this.sorting.buildings.includes(x.id))
+					this.sorting.buildings.splice(this.sorting.buildings.indexOf(x.id),1)
+				else
+					this.sorting.buildings.push(x.id)
+//				game.automation.buildings[x.id] = game.automation.buildings[x.id]?0:1
+//				game.getFullMoney()
+				this.update(true)
+			}
+		})
+		
+		this.cbHideCompleted = GuiCheckbox({
+			parent : this.dvExtraFilter,
+			title : "Hide completed",
+			container : this.sorting,
+			value : "hideCompleted",
+			onSet : () => this.update(true)
+		})
+
 		this.cbHideEnchanted = GuiCheckbox({
-			parent : this.dvSort,
+			parent : this.dvExtraFilter,
 			title : "Hide enchanted",
 			container : this.sorting,
 			visible : () => !!game.skills.magicManagement,
@@ -180,11 +207,14 @@ const ManagementTab = Template({
 			this.cbHideEnchanted.update()
 			this.cbSortOften.update()
 			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
-			this.buildings.map(x => {
+			this.buildings.map((x, n) => {
 				let visible = game.statistics["built_"+x.id]
 				x.dvDisplay.classList.toggle("visible", !!visible)
-				if (visible)
+				this.filterBuildings[n].dvDisplay.classList.toggle("visible", !!visible)
+				if (visible) {
 					x.dvDisplay.classList.toggle("active", !!game.automation.buildings[x.id])
+					this.filterBuildings[n].dvDisplay.classList.toggle("active", !!this.sorting.buildings.includes(x.id))
+				}
 			})
 			this.enchantments.map(x => {
 				let visible = game.skills.massEnchant && game.skills["book_"+SPELLS[x.id].book]
@@ -293,7 +323,11 @@ const managementPointElementHandler = {
 	
 	update(forced) {
 		if (forced) {
-			if (this.point.enchanted && gui.management.sorting.hideEnchanted || this.point.boss || gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type)) {
+			if (this.point.enchanted && gui.management.sorting.hideEnchanted || 
+					this.point.boss || 
+					gui.management.sorting.hideCompleted && this.point.completed ||
+					gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type) || 
+					gui.management.sorting.buildings.length && !gui.management.sorting.buildings.reduce((v,x) => v && this.point.buildings[x], true)) {
 				this.visible = false
 				this.dvDisplay.classList.toggle("hidden", true)
 				return

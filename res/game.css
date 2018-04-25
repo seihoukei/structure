@@ -1150,7 +1150,7 @@ canvas.foreground : {
 	padding : 0 20px 0 0;
 }
 
-.management .sort .gui-checkbox {
+.management .sort .gui-checkbox, .management .automation .gui-checkbox {
 	margin-left : 20px;
 }
 

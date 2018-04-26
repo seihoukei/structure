@@ -189,8 +189,11 @@ const pointHandler = {
 		
 		this.voronoi = {}
 		
+		const maxl = Math.max(...this.map.points.map(x => x.length || 0)) * 1.2
+		
 		const projections = this.map.points.map(point => {
-		if (point == this) return point.index?{point, x:3 * point.x/point.distance ** 2, y:3 * point.y/point.distance ** 2}:{point, x:0, y:0}// x : point.x / point.distance, y : point.y / point.distance}
+			if (point == this) 
+				return point.index?{point, x:Math.cos(point.angle)/maxl, y:Math.sin(point.angle)/maxl}:{point, x:0, y:0}// x : point.x / point.distance, y : point.y / point.distance}
 			const dx = point.x - this.x
 			const dy = point.y - this.y
 			const d = dx ** 2 + dy ** 2
@@ -208,13 +211,18 @@ const pointHandler = {
 		
 		const hull = [start, ...projections.sort((x,y) => x.angle - y.angle)]
 		hull.map((x,n) => {
-			x.next = hull[n+1] || hull[0]
-			x.last = hull[n-1] || hull[hull.length - 1]
-			
+			const next = hull[n+1] || hull[0]
+			x.next = next
+			next.last = x
+//			x.last = hull[n-1] || hull[hull.length - 1]
 		})
 		
-		let current = hull[1]
-		while (current.next != hull[0]) {
+//		console.log(JSON.stringify(hull.map(x => {return{x:x.x,y:x.y}})))
+		
+		let current = hull[1]	
+		let visited = 0
+		while (visited < hull.length || current != hull[0]) {
+			visited++
 			const dx1 = current.next.x - current.x
 			const dy1 = current.next.y - current.y
 			const dx2 = current.last.x - current.x
@@ -312,11 +320,11 @@ const pointHandler = {
 
 	updateText() {
 		let s = []
-		if (this.key) s.push("⚷\uFE0E" + this.key)
-		if (this.lock) s.push((this.keyData.keyPoint.owned || this.unlocked?"🔓\uFE0E":"🔒\uFE0E") + this.lock)
-		if (this.exit) s.push("🌟\uFE0E")
-		if (this.boss) s.push("⚔\uFE0E")
-		if (!this.index) s.push(game && game.skills.mining?"⛏\uFE0E":"🏠\uFE0E")
+		if (this.key) s.push("?\uFE0E" + this.key)
+		if (this.lock) s.push((this.keyData.keyPoint.owned || this.unlocked?"??\uFE0E":"??\uFE0E") + this.lock)
+		if (this.exit) s.push("??\uFE0E")
+		if (this.boss) s.push("?\uFE0E")
+		if (!this.index) s.push(game && game.skills.mining?"?\uFE0E":"??\uFE0E")
 		this.specialText = s.join("\n")
 	},
 	
@@ -750,7 +758,10 @@ const pointHandler = {
 	},
 	
 	destroyDisplays() {
-		Object.values(this.displays).map(x => x.destroy())
+		Object.keys(this.displays).map(x => {
+			this.displays[x].destroy()
+			delete this.displays[x]
+		})
 	},
 	
 	toJSON() {

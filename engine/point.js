@@ -320,11 +320,11 @@ const pointHandler = {
 
 	updateText() {
 		let s = []
-		if (this.key) s.push("?\uFE0E" + this.key)
-		if (this.lock) s.push((this.keyData.keyPoint.owned || this.unlocked?"??\uFE0E":"??\uFE0E") + this.lock)
-		if (this.exit) s.push("??\uFE0E")
-		if (this.boss) s.push("?\uFE0E")
-		if (!this.index) s.push(game && game.skills.mining?"?\uFE0E":"??\uFE0E")
+		if (this.key) s.push("⚷\uFE0E" + this.key)
+		if (this.lock) s.push((this.keyData.keyPoint.owned || this.unlocked?"🔓\uFE0E":"🔒\uFE0E") + this.lock)
+		if (this.exit) s.push("🌟\uFE0E")
+		if (this.boss) s.push("⚔\uFE0E")
+		if (!this.index) s.push(game && game.skills.mining?"⛏\uFE0E":"🏠\uFE0E")
 		this.specialText = s.join("\n")
 	},
 	

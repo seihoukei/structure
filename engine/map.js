@@ -27,11 +27,23 @@ const mapHandler = {
 
 		c.lineWidth = Math.max(1, 1.5/viewport.current.zoom)
 
+		function drawTail(point) {
+			c.save()
+//			c.translate(point.x, point.y)
+			if (!point.owned) {
+				c.moveTo(point.sdx, point.sdy)
+				c.lineTo(point.edx, point.edy)
+			}
+			c.restore()
+		}
 		function drawOutline(point) {
 			c.save()
 			c.translate(point.x, point.y)
-			c.moveTo(0, 0)
-			c.lineTo(point.dx, point.dy)
+			if (point.owned) {
+				c.moveTo(0, 0)
+				c.lineTo(point.dx, point.dy)
+			}
+//			c.setLineDash([])
 			if (point.locked != 1 || game.dev && game.dev.seeAll) {
 				c.moveTo(point.size, 0)
 				c.arc(0, 0, point.size, 0, 6.29)
@@ -137,6 +149,53 @@ const mapHandler = {
 			c.arc(0, 0, point.size, 0, 6.29)
 			c.restore()	
 		}
+		function fillRegion(point) {
+			c.save()
+			c.translate(point.x, point.y)
+			c.fillStyle = gui.theme.typeColors[point.type]
+			c.beginPath()
+			const voronoi = point.getVoronoi()
+			c.moveTo(voronoi.points[voronoi.points.length-1].x, voronoi.points[voronoi.points.length-1].y)
+			voronoi.points.map(x => c.lineTo(x.x, x.y))
+			c.fill()
+			c.restore()
+		}
+		function fillWalls(point) {
+			if (!point.owned) return
+			c.save()
+			c.translate(point.x, point.y)
+			const voronoi = point.getVoronoi()
+			voronoi.edges.map(edge => {
+				if (edge.neighbour.owned && edge.neighbour != point)
+					return
+				c.beginPath()
+				c.fillStyle = edge.neighbour.away > 1?gui.theme.background:edge.neighbour.locked?gui.theme.foreground:gui.theme.typeColors[edge.neighbour.type]
+				c.moveTo(edge.start.x, edge.start.y)
+				c.lineTo(edge.end.x, edge.end.y)
+				c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
+				c.lineTo(edge.start.x  * 0.8, edge.start.y * 0.8)
+				c.lineTo(edge.start.x, edge.start.y)
+				c.fill()
+			})
+			c.restore()	
+		}
+		function drawRegion(point) {
+			if (!point.owned) return
+			//if (point.locked == 1) return
+			c.save()
+			c.translate(point.x, point.y)
+			const voronoi = point.getVoronoi()
+			voronoi.edges.map(edge => {
+				if (edge.neighbour.owned && edge.neighbour != point)
+					return
+				c.moveTo(edge.start.x, edge.start.y)
+				c.lineTo(edge.end.x, edge.end.y)
+				c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
+				c.lineTo(edge.start.x  * 0.8, edge.start.y * 0.8)
+				c.lineTo(edge.start.x, edge.start.y)
+			})
+			c.restore()	
+		}
 		function drawSpecial(point) {
 			c.save()
 			c.translate(point.x, point.y)
@@ -145,6 +204,13 @@ const mapHandler = {
 			const w = c.measureText(point.specialText).width
 			c.font = (point.size / w * 12).toFixed(2)+"px" + fontName
 			c.fillText(point.specialText, 0, 0)
+			c.restore()
+		}
+		function drawHarvest(point) {
+			c.save()
+			c.translate(point.x, point.y)
+			c.moveTo(point.renderSize, 0)
+			c.arc(0, 0, point.renderSize, 0, 6.29)
 			c.restore()
 		}
 		function fillPoints(points, filter, color) {
@@ -166,6 +232,21 @@ const mapHandler = {
 				pt.y > viewport.window.top - pt.size - 1)
 		this.renderedPoints = this.renderedPoints.filter(pt => (pt.onscreen || pt.parent && pt.parent.onscreen) && !pt.animating)
 		
+		const ownedRendered = this.renderedPoints.filter(x => x.owned)
+		
+		//Voronoi regions nonsence. It's bad.
+/*		c.save()
+//		c.globalAlpha = 0.5
+//		ownedRendered.map(fillRegion)
+//		c.globalAlpha = 1
+//		ownedRendered.map(fillWalls)
+		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
+		c.strokeStyle = gui.theme.shades[11]
+		c.beginPath()
+		ownedRendered.map(drawRegion)
+		c.stroke()
+		c.restore()*/
+
 		c.save()
 		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
 		for (let i = 0; i < 5; i++) {
@@ -187,6 +268,17 @@ const mapHandler = {
 		c.stroke()
 		c.restore()
 
+		c.save()
+		c.beginPath()
+		c.strokeStyle = gui.theme.shades[11]
+		c.setLineDash([5,8])
+		if (game.dev && game.dev.seeAll)
+			this.renderedPoints.filter(x => x.away).map(drawTail)
+		else
+			this.renderedPoints.filter(x => x.away == 1).map(drawTail)
+		c.stroke()
+		c.restore()
+		
 		c.beginPath()
 		c.strokeStyle = gui.theme.shades[11]
 		if (game.dev && game.dev.seeAll)
@@ -238,6 +330,14 @@ const mapHandler = {
 			c.fillStyle = gui.theme.foreground
 			this.renderedPoints.filter(pt => (pt.away < 2) && pt.locked && (pt.specialText)).map(drawSpecial)
 		}
+
+		c.save()
+		c.fillStyle = gui.theme.shades[4]
+		c.globalAlpha = 0.7
+		c.beginPath()
+		this.renderedPoints.filter(pt => pt.harvested).map(drawHarvest)
+		c.fill()
+		c.restore()
 	},
 	
 	getOwnedRadius() {
@@ -261,8 +361,15 @@ const mapHandler = {
 			point.restoreState()
 		})
 		this.manaBase = this.level ** 2 / 1e8//this.basePower ** 0.25 / 10 ** (9.2 + (Math.abs(this.level - 11)/2.5) ** (1 - (Math.max(0, this.level - 22))/200))
+//		this.buildVoronoi()
 		this.update()
 	},
+
+/*	buildVoronoi() {
+		this.points.map(point => {
+			point.voronoi = []
+		})
+	},*/
 
 	updatePoints() {
 		this.points.map((point,index) => {
@@ -277,6 +384,7 @@ const mapHandler = {
 		}
 		this.updateAways()
 		this.nearbyPoints = this.points.filter(x => (!x.boss || x.boss <= this.boss) && x.away == 1 || (game.skills.mining && !x.index))
+//		this.harvesting = this.points.filter(x => x.harvesting)
 	},
 	
 	updateAways() {
@@ -559,14 +667,14 @@ const mapMaker = {
 						const parent = Math.random() < 0.5?taken.get((x + ((i&1)?1:-1))+","+y):taken.get(x + "," + (y + ((i&2)?1:-1)))
 						const point = Point({
 							parent,
-							angle : Math.atan2(y, x),
-							distance : Math.hypot(x, y) * distance,
+							angle : Math.atan2(y, x).toDigits(3),
+							distance : (Math.hypot(x, y) * distance).toDigits(3),
 							size : 4 * baseSize,
 							type : 1,
 							depth : parent.depth + 1,
 							boss : 1,
 							special : SPECIAL_NOCLONE,
-							customPower : this.basePower * 1000
+							customPower : (this.basePower * 1000).toDigits(3)
 						})
 						taken.set(x+","+y, point)
 						this.points.push(point)

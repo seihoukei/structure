@@ -319,6 +319,11 @@ const managementPointElementHandler = {
 			x.dvDisplay.onmouseleave = x.dvDisplay.onmouseout = (event) => gui.management.dvHover.classList.toggle("hidden", true)
 		})
 
+		this.dvImprint = createElement("div", "imprint button", this.dvDisplay, "Imprint")
+		this.dvImprint.onclick = (event) => {
+			this.point.startHarvest(1)
+			gui.management.update(true)
+		}		
 		this.update(true)
 	},
 	
@@ -351,6 +356,9 @@ const managementPointElementHandler = {
 				x.visible = !this.point.boss && game.skills.magicManagement && (this.point.manaCosts[x.id] > -1) && (game.skills["book_"+x.spell.book])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)
 			})
+			this.dvImprint.classList.toggle("hidden", !(game.skills.imprint && (!this.point.map.virtual || game.skills.virtualImprint && this.point.map.level > game.realMap.level - 2) && (this.point && !this.point.boss && this.point.completed)))
+			this.dvImprint.classList.toggle("active", !(this.point.harvesting || this.point.harvested))
+			this.dvImprint.innerText = this.point.harvested?"Imprinted":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.harvestSpeed))+")"
 		}
 		this.dvLevelUp.classList.toggle("available", this.point.costs.levelUp <= game.resources.gold)
 		this.icons.map(x => {
@@ -365,6 +373,9 @@ const managementPointElementHandler = {
 			x.available = (this.point.manaCosts[x.id] <= game.resources.mana)
 			x.dvDisplay.classList.toggle("available", !!x.available)
 		})
+		if (this.point.harvesting == 1) {
+			this.dvImprint.innerText = (100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")"
+		}
 	},
 	
 	destroy() {

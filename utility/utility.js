@@ -68,7 +68,7 @@ String.prototype.capitalizeFirst = function(n) {
 
 function Entity(...data) {
 	let entity = Object.assign({}, ...data)
-	data.map(x => x._init && x._init.bind(entity)())
+	data.map(x => x && x._init && x._init.bind(entity)())
 	delete entity._init
 	return entity
 }

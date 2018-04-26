@@ -82,6 +82,21 @@ const gui = {
 					text: () => this.point?"Level up\nGold: " + displayNumber(this.point.costs.levelUp):""
 				})
 				
+				this.buttons.imprint = IconButton({
+					parent: this.dvUpgrades, 
+					onclick: (event) => {
+						if (this.point) {
+							this.point.startHarvest(1)
+							this.updatePosition()
+						}
+					},
+					available: () => !this.point.harvesting,
+					visible: () => game.skills.imprint && (!this.point.map.virtual || game.skills.virtualImprint && this.point.map.level > game.realMap.level - 2) && (this.point && !this.point.boss && this.point.completed && !this.point.harvested),
+					iconText: "M", 
+					iconColor: "#3399FF",
+					text: () => this.point?this.point.harvesting?"Imprinting\n"+(100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.harvestSpeed))+")\nImprinting: "+game.harvesting.size:""
+				})
+				
 				this.dvBuildings = createElement("div", "buildings", this.dvUpgrades)
 				this.dvBuildings.onclick = (event) => event.target == this.dvBuildings?this.reset():0
 	
@@ -198,7 +213,10 @@ const gui = {
 				this.dvClones.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone == 1).length)
 				this.dvSliders.classList.toggle("hidden", !displaySliders)
 				this.dvSpells.classList.toggle("hidden", !game.skills.spellcasting || !this.point || !(Object.values(this.point.manaCosts).filter(x => x > -1).length))
-	
+				
+				if (this.point.harvesting == 1)
+					this.buttons.imprint.update()
+				
 				if (displaySliders)
 					game.sliders.map(slider => slider.updateTarget(this.point))
 				

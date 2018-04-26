@@ -428,7 +428,16 @@ const SKILLS = {
 		exp : 1e28,
 		science : 5e14,
 		mult : 2
-	}
+	},
+	imprint : {
+		name : "Memories of a time to come",
+		desc : "Imprint nodes information in your memory",
+		req : ["build4"],
+		sliders : 7,
+		science : 7.5e14,
+		exp : 1e30,
+		mult : 2
+	},
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

@@ -46,6 +46,7 @@ const pointHandler = {
 		this.displays = this.displays || {}
 		this.buildings = this.buildings || {}
 		this.production = this.production || {}
+		this.harvestTimes = []
 	},
 	
 	calculateStats() {
@@ -113,7 +114,7 @@ const pointHandler = {
 		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
 		this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
 		
-		this.completed = this.level == 4 && Object.values(BUILDINGS).reduce((v,x) => {
+		this.completed = this.level == 4 && !this.nobuild && Object.values(BUILDINGS).reduce((v,x) => {
 			if (!v) return false
 			if (this.costs[x.id] > 0 && !this.buildings[x.id]) return false
 			return true
@@ -121,6 +122,8 @@ const pointHandler = {
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
+
+		this.harvestTimes[1] = (this.map.level - 26) ** 4
 		
 		if (!game.offline)
 			this.updateDisplay("management", true)
@@ -187,7 +190,7 @@ const pointHandler = {
 		this.voronoi = {}
 		
 		const projections = this.map.points.map(point => {
-			if (point == this) return {point, x : 0, y : 0}
+		if (point == this) return point.index?{point, x:3 * point.x/point.distance ** 2, y:3 * point.y/point.distance ** 2}:{point, x:0, y:0}// x : point.x / point.distance, y : point.y / point.distance}
 			const dx = point.x - this.x
 			const dy = point.y - this.y
 			const d = dx ** 2 + dy ** 2
@@ -207,15 +210,16 @@ const pointHandler = {
 		hull.map((x,n) => {
 			x.next = hull[n+1] || hull[0]
 			x.last = hull[n-1] || hull[hull.length - 1]
+			
 		})
 		
 		let current = hull[1]
-		while (current != hull[0]) {
+		while (current.next != hull[0]) {
 			const dx1 = current.next.x - current.x
 			const dy1 = current.next.y - current.y
 			const dx2 = current.last.x - current.x
 			const dy2 = current.last.y - current.y
-			if (dx1 * dy2 > (dy1 * dx2 + 1e-9) && (dx2 || dy2)){
+			if (dx1 * dy2 > (dy1 * dx2 + 1e-9)){
 				current = current.next
 				continue
 			}
@@ -226,13 +230,13 @@ const pointHandler = {
 		}
 		
 		this.voronoi.points = hull.filter(x => !x.deleted).map(pt => {
-			if (pt.point == this || pt.next.point == this) {
+/*			if (pt.point == this || pt.next.point == this) {
 				return {
 					x : 0,
 					y : 0,
 					neighbours : [this, this],
 				}
-			}
+			}*/
 			const x32 = pt.next.x - pt.x
 			const y32 = pt.next.y - pt.y
 			const x21 = pt.x
@@ -344,6 +348,7 @@ const pointHandler = {
 		
 		if (!this.index) {
 			let power = Math.max(0, slider.real.power - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
+			power *= game.world.goldSpeed
 			return (power) ** (slider.artifacts.pickaxe?0.63:0.6) / 2e3
 		}
 		
@@ -414,6 +419,31 @@ const pointHandler = {
 	
 	highlight() {
 	},
+
+	startHarvest(mode) {
+		if (this.harvested && this.harvested >= mode || this.harvesting) 
+			return
+		this.harvestTimeTotal = this.harvestTimes[mode || 1]
+		this.harvestTime = 0
+		this.harvesting = mode || 1 
+		game.harvesting.add(this)
+	},
+	
+	advanceHarvest(time) {
+		this.harvestTime += time
+		if (this.harvestTime > this.harvestTimeTotal)
+			this.harvest()
+	},
+	
+	harvest() {
+		if (!this.harvesting) return
+		if (this.harvesting == 1)
+			game.resources["_"+(this.type || 0)] += 1
+		this.harvested = this.harvesting
+		game.update()
+		game.harvesting.delete(this)
+		delete this.harvesting
+	},
 	
 	attack(time) {
 		if (this.real.loss < 0) {
@@ -426,10 +456,12 @@ const pointHandler = {
 		}*/
 		
 		let power = this.real.loss * time
+		
 		if (!this.index) {
 			this.mineDepth = (this.mineDepth || 0) + power
 			return
 		}
+		
 		let oldProgress0 = (this.progress || 0) * 100 | 0
 		this.progress = this.progress || 0
 		const start = this.totalPower * this.progress ** 2
@@ -638,11 +670,16 @@ const pointHandler = {
 			c.translate(this.x, this.y)
 			c.beginPath()
 			c.strokeStyle = this.map.boss?"gray":"silver"
+			c.save()
+			c.setLineDash([5,8])
 			const start = this.coordinatesOn(0)
 			c.moveTo(start.x, start.y)
 			const end = this.coordinatesOn(Math.min(1,this.animationProgress * 1.5))
 			c.lineTo(end.x, end.y)
+			c.stroke()
+			c.restore()
 			
+			c.beginPath()
 			if (this.locked != 1) {
 				const arcProgress = Math.min(2 * Math.max(0, this.animationProgress - 0.25),1) * 1.68
 				c.moveTo(this.size, 0)

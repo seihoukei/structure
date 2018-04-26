@@ -37,6 +37,9 @@ const SELECTORS = {
 	Deepest(points) {
 		return points.sort((x, y) => y.depth - x.depth)[0]
 	},	
+	Mining(points) {
+		return points[0].map.points[0]
+	},
 }
 
 const sliderHandler = {

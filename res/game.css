@@ -586,6 +586,32 @@ canvas.foreground : {
 	pointer-events : none;
 }
 
+.map .harvest {
+	position : absolute;
+	top : 31px;
+	right : 3px;
+	z-index : 4;
+	display : flex;
+	flex-direction : column;
+	align-items : stretch;
+	pointer-events : none;
+}
+
+.map .harvest-line {
+	display : flex;
+	flex-direction : row;
+	justify-content : right;
+	align-self : right;
+	margin : 2px 0 2px auto;
+}
+
+.map .harvest-icon {
+	width : 20px;
+	height : 20px;
+	border-radius : 10px;
+	margin-left : 5px;
+}
+
 .map .low-load {
 	display : flex;
 	flex-direction : row;
@@ -1096,7 +1122,7 @@ canvas.foreground : {
 	text-align : center;
 }
 
-.saves .button:hover, .login-form .button:hover, .artifact .button:hover, .color-picker .button:hover {
+.saves .button:hover, .login-form .button:hover, .artifact .button:hover, .color-picker .button:hover{
 	background-color : var(--shade12);
 }
 
@@ -2108,4 +2134,23 @@ canvas.foreground : {
 
 .heavy {
 	font-weight : bold !important;
+}
+
+.imprint.button {
+	padding : 5px;
+	border : 2px solid var(--lightframe);
+	transition : opacity 0.2s, background-color 0.2s;
+	opacity : 0.5;
+	width : 200px;
+	text-align : center;
+	margin-left : 20px;
+}
+
+.imprint.button.active {
+	opacity : 1;
+	cursor : pointer;
+}
+
+.imptint.button.active:hover {
+	background-color : var(--shade12);
 }

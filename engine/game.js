@@ -1,5 +1,5 @@
 'use strict'
-const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds","thunderstone"]
+const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds","thunderstone","_0","_1","_2","_3","_4","_5","_6"]
 const GAME_ADVANCE_ITERATIONS = 1000
 const GAME_ADVANCE_ITERATIONS_MAX = 100000
 const GAME_AUTOMATION_PERIOD = 1000
@@ -24,6 +24,7 @@ const game = {
 	production : {},
 	research : {},
 	attacked : new Set(),
+	harvesting : new Set(),
 	stardust : {},
 	statistics : {
 		onlineTime : 1
@@ -75,8 +76,9 @@ const game = {
 				this.renderForeground(gui.foregroundContext)
 				
 				if (this.updateInterface) {
-					gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
+					gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[0][0]=="_"?v:x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
 					gui.map.updateGrowth()
+					gui.map.updateHarvest()
 				}
 			}
 		}
@@ -153,6 +155,30 @@ const game = {
 				c.stroke()
 				c.restore()
 			}
+
+/*			function drawRegion(point) {
+				if (!point.owned) return
+				//if (point.locked == 1) return
+				c.save()
+				c.translate(point.x, point.y)
+				const voronoi = point.getVoronoi()
+				voronoi.edges.map(edge => {
+					c.moveTo(edge.start.x, edge.start.y)
+					c.lineTo(edge.end.x, edge.end.y)
+					c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
+					c.lineTo(edge.start.x  * 0.8, edge.start.y * 0.8)
+					c.lineTo(edge.start.x, edge.start.y)
+				})
+				c.restore()	
+				voronoi.edges.map(edge => {
+					c.arc(edge.neighbour.x, edge.neighbour.y, 5, 0, 6.29)
+					c.arc(edge.neighbour.x, edge.neighbour.y, 7, 0, 6.29)
+					c.arc(edge.neighbour.x, edge.neighbour.y, 9, 0, 6.29)
+				})
+			}
+			c.beginPath()
+			drawRegion(mouse.closest)
+			c.stroke()*/
 		}
 		c.restore()
 	},
@@ -187,6 +213,13 @@ const game = {
 			
 			c.restore()
 		}
+		function drawHarvest(point) {
+			c.save()
+			c.translate(point.x, point.y)
+			c.moveTo(0, 0)
+			c.arc(0, 0, point.renderSize, -1.57, -1.57 + 6.29 * (point.harvestTime / point.harvestTimeTotal))
+			c.restore()
+		}
 		c.strokeStyle = gui.theme.lightning
 		c.beginPath()
 		this.map.renderedPoints.filter(x => !x.owned && x.parent && x.parent.buildings && x.parent.buildings.earthquakeMachine && x.real && x.real.passiveDamage).map(renderQuake)
@@ -195,6 +228,15 @@ const game = {
 		c.beginPath()
 		this.map.renderedPoints.filter(x => !x.owned && x.progress > 0).map(renderProgress)
 		c.stroke()
+		if (this.harvesting && this.harvesting.size) {
+			c.save()
+			c.fillStyle = gui.theme.shades[4]
+			c.globalAlpha = 0.7
+			c.beginPath()
+			this.map.renderedPoints.filter(x => x.harvesting).map(drawHarvest)
+			c.fill()
+			c.restore()
+		}
 		this.renderMarkers(c)
 		animations.render(c)
 	},
@@ -256,8 +298,8 @@ const game = {
 	
 		const oldMap = this.activeMap
 		
-		if (this.maps[this.activeMap] && retain)
-			this.maps[this.activeMap] = JSON.parse(JSON.stringify(this.maps[this.activeMap]))
+//		if (this.maps[this.activeMap] && retain)
+//			this.maps[this.activeMap] = JSON.parse(JSON.stringify(this.maps[this.activeMap]))
 
 		this.animatingPoints.clear()
 		animations.reset()
@@ -271,7 +313,7 @@ const game = {
 			this.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
 				
 		this.activeMap = name
-		this.maps[name] = this.map = GameMap(this.maps[name], mapLoader)
+		this.map = this.maps[name]// = GameMap(this.maps[name], mapLoader)
 		if (name == "main") this.realMap = this.map
 
 		if (retain) {
@@ -316,6 +358,7 @@ const game = {
 
 	update() {
 		this.map.update()
+		this.world.update()
 		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		if (!this.offline) {
 			viewport.getLimits(this.map.bounds)
@@ -324,7 +367,13 @@ const game = {
 			gui.skills.updateSkills()
 			this.updateRenderData()
 			this.getFullMoney()
+			this.updateHarvesting()
 		}
+	},
+	
+	updateHarvesting() {
+		this.harvesting.clear()
+		Object.values(this.maps).map(m => m.points.filter(x => x.harvesting).map(x => this.harvesting.add(x)))
 	},
 	
 	ascend(repeat = false) {
@@ -370,7 +419,7 @@ const game = {
 					this.addStatistic("stardust", this.resources.stars - foundStars)
 					this.resources.stars = foundStars - this.map.ascendCost
 				}
-				if (this.map.complete) this.addStatistic(this.virtual?"comleted_virtual_maps":"comleted_maps")
+				if (this.map.complete) this.addStatistic(this.map.virtual?"completed_virtual_maps":"completed_maps")
 			
 				if (this.map.virtual) {
 					if (repeat) {
@@ -405,15 +454,15 @@ const game = {
 	},
 	
 	deleteMap(name, keepStats = false) {
+		const map = this.maps[name]
 		if (this.activeMap == name)
 			this.setMap("main", true)
 		if (!keepStats) {
-			const map = GameMap(this.maps[name], mapLoader)
 			map.points.map(point => point.suspend())
 		} else {
-			const map = GameMap(this.maps[name], mapLoader)
 			this.production.mana += this.skills.magic?(map.manaBase) * (map.ownedRadius ** 2):0
 		}
+		map.points.map(point => this.harvesting.delete(point))
 		delete this.maps[name]
 	},
 	
@@ -525,6 +574,11 @@ const game = {
 			this.getRealProduction()
 						
 			for (let point of this.attacked) point.attack(deltaTime)
+				
+			if (this.harvesting && this.harvesting.size) {
+				const harvestTime = deltaTime * this.real.harvestSpeed
+				for (let point of this.harvesting) point.advanceHarvest(harvestTime)
+			}
 
 			this.sliders.map(slider => slider.advance(deltaTime))
 			
@@ -590,7 +644,9 @@ const game = {
 		if (!this.real.multi) this.real.multi = {}
 		if (!this.real.growth) this.real.growth = {}
 		if (!this.real.production) this.real.production = {}
-		
+
+		this.real.harvestSpeed = this.world.harvestSpeed / this.harvesting.size
+
 		Object.keys(this.growth).map(x => {
 			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
 			if (x == "spirit" && this.skills.spiritStar)
@@ -684,6 +740,7 @@ const game = {
 		delete o.badSave
 		delete o.updateInterface
 		delete o.fullMoney
+		delete o.harvesting
 		return o
 	},
 	
@@ -714,6 +771,9 @@ const game = {
 		this.statistics = save.statistics || {}
 		this.lastViewedStory = save.lastViewedStory || 0
 		gui.story.updateStory()
+
+		this.world = World(BASE_WORLD, save.world)
+		
 		RESOURCES.map(x => {
 			this.resources[x] = save.resources && save.resources[x] || 0
 			this.production[x] = save.production && save.production[x] || 0
@@ -739,6 +799,8 @@ const game = {
 		})
 
 		this.maps = save.maps || {"main" : save.map}
+		Object.keys(this.maps).map(x => this.maps[x] = GameMap(this.maps[x], mapLoader))
+		
 		const activeMap = save.activeMap || "main"
 		
 		this.realMap = this.maps["main"]
@@ -763,6 +825,9 @@ const game = {
 		this.map.points.map (point => point.getReal())
 		this.sliders.map (slider => slider.getReal())
 		this.getRealProduction()
+
+//		this.harvesting.clear()
+		this.updateHarvesting()
 
 		this.offline = true
 		if (save.saveTime && !hibernated) {
@@ -794,6 +859,7 @@ const game = {
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = this.dev && this.dev.autoSkills && this.dev.autoSkills.includes(x)?1:0)
+		this.world = World(BASE_WORLD)
 		RESOURCES.map(x => {
 			this.resources[x] = 0
 			this.production[x] = 0
@@ -823,6 +889,7 @@ const game = {
 		Object.keys(this.stardust).map(x => this.stardust[x] = 0)
 		Object.keys(this.production).map(x => this.production[x] = 0)
 		this.autoTimer = GAME_AUTOMATION_PERIOD
+		this.harvesting.clear()
 		
 		this.maps = {}
 		let map = this.createMap("main", 0, false)

@@ -201,7 +201,7 @@ const ARTIFACTS = {
 	},
 	channelCrown: {
 		name : "Leader's crown",
-		desc : "Sliders attacking same point as this slider get channelling bonus from this slider",
+		desc : "Sliders attacking same point as this slider get additional channelling bonus from this slider",
 		codeLength : 10,
 		codeCost : 25e9,
 		depth : 7.651e25,
@@ -318,7 +318,7 @@ const ARTIFACTS = {
 	},	
 	bloodGem: {
 		name : "Gem of metallic blood",
-		desc : "Triples slider's damage to blood nodes",
+		desc : "Triples damage to target blood node",
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 3.582e31,
@@ -327,7 +327,7 @@ const ARTIFACTS = {
 	},	
 	fireGem: {
 		name : "Gem of bloody fire",
-		desc : "Triples slider's damage to fire nodes",
+		desc : "Triples damage to target fire node",
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 5.622e32,
@@ -336,7 +336,7 @@ const ARTIFACTS = {
 	},	
 	iceGem: {
 		name : "Gem of fiery ice",
-		desc : "Triples slider's damage to ice nodes",
+		desc : "Triples damage to target ice node",
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 9.412e31,
@@ -345,7 +345,7 @@ const ARTIFACTS = {
 	},	
 	metalGem: {
 		name : "Gem of icy metal",
-		desc : "Triples slider's damage to metal nodes",
+		desc : "Triples damage to target metal node",
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 3.179e33,

@@ -7,6 +7,18 @@ const MapTab = Template({
 		this.dvAscend = createElement("div", "ascend", this.dvDisplay)
 		this.dvAscend.onclick = (event) => game.ascend()
 		
+		this.dvHarvest = createElement("div", "harvest",  this.dvDisplay)
+		this.displayHarvest = POINT_TYPES.map((x,n) => {
+			const display = {
+				id : x,
+				name : "_"+n,
+				index : n
+			}
+			display.dvDisplay = createElement("div","harvest-line", this.dvHarvest)
+			display.dvValue = createElement("div","harvest-value", display.dvDisplay)
+			display.dvIcon = createElement("div","harvest-icon bg-"+x, display.dvDisplay)
+			return display
+		})
 		this.dvResources = createElement("div", "resources",  this.dvDisplay)
 		this.dvGrowth = createElement("div", "growth",  this.dvDisplay, "Growth:")
 		
@@ -63,6 +75,13 @@ const MapTab = Template({
 		})
 	},
 	
+	updateHarvest() {
+		this.displayHarvest.map(x => {
+			x.dvDisplay.classList.toggle("hidden", !x.index || !game.resources[x.name])
+			x.dvValue.innerText = displayNumber(game.resources[x.name], 0)
+		})
+	},
+	
 	update(forced) {
 		if (this.slider) {
 			this.slider.updateFullInfo()
@@ -81,4 +100,3 @@ const MapTab = Template({
 		game.map.nearbyPoints.map(point => point.getDisplay("lowLoad").update())
 	}
 })
-

@@ -156,7 +156,7 @@ const game = {
 				c.restore()
 			}
 
-/*			function drawRegion(point) {
+			function drawRegion(point) {
 				if (!point.owned) return
 				//if (point.locked == 1) return
 				c.save()
@@ -165,20 +165,21 @@ const game = {
 				voronoi.edges.map(edge => {
 					c.moveTo(edge.start.x, edge.start.y)
 					c.lineTo(edge.end.x, edge.end.y)
-					c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
+/*					c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
 					c.lineTo(edge.start.x  * 0.8, edge.start.y * 0.8)
-					c.lineTo(edge.start.x, edge.start.y)
+					c.lineTo(edge.start.x, edge.start.y)*/
 				})
 				c.restore()	
 				voronoi.edges.map(edge => {
+					c.moveTo(edge.neighbour.x, edge.neighbour.y)
 					c.arc(edge.neighbour.x, edge.neighbour.y, 5, 0, 6.29)
 					c.arc(edge.neighbour.x, edge.neighbour.y, 7, 0, 6.29)
 					c.arc(edge.neighbour.x, edge.neighbour.y, 9, 0, 6.29)
 				})
 			}
-			c.beginPath()
+/*			c.beginPath()
 			drawRegion(mouse.closest)
-			c.stroke()*/
+			c.stroke()//*/
 		}
 		c.restore()
 	},
@@ -312,6 +313,10 @@ const game = {
 		if (retain)
 			this.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
 				
+		if (retain) {
+			this.sliders.map(x => x.assignTarget(null))
+		}
+
 		this.activeMap = name
 		this.map = this.maps[name]// = GameMap(this.maps[name], mapLoader)
 		if (name == "main") this.realMap = this.map
@@ -319,7 +324,6 @@ const game = {
 		if (retain) {
 			this.sliders.filter (x => x.clone == 2).map(x => x.fullDestroy())
 			this.production.mana -= this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
-			this.sliders.map(x => x.assignTarget(null))
 			miners.map(x => x.assignTarget(this.map.points[0]))
 
 			if (name != "main") {
@@ -341,6 +345,7 @@ const game = {
 		gui.hover.reset()
 
 		mouse.closest = null		
+//		this.map.restoreState()
 		this.update()
 		gui.tabs.setTitle("map", (this.map.virtual?"Virtual map":"Map")+" (Level " + this.map.level + ")")
 		gui.skills.updateSkills()

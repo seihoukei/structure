@@ -487,6 +487,8 @@ const pointHandler = {
 				if (canSummon && (Math.random() * (ARTIFACTS.summonAmulet.equipped.onSame + 900) < ARTIFACTS.summonAmulet.equipped.onSame)) {
 					if (game.sliders.filter(x => x.clone == 2).length >= 10) break
 					createSummon(this, 1)
+					if (gui.target.point == this)
+						gui.target.set(this, -1)
 					break
 				}
 				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
@@ -494,6 +496,8 @@ const pointHandler = {
 					let element = Math.random() * 4 + 3 | 0
 					while (element == this.type) element = Math.random() * 4 + 3 | 0
 					createSummon(this, element)
+					if (gui.target.point == this)
+						gui.target.set(this, -1)
 					break
 				}
 			}
@@ -543,7 +547,8 @@ const pointHandler = {
 		if (game.activeRender) {
 //			if (slider)
 //				animations.Fireworks(this.x, this.y, slider.color, 5 * this.size, this.size * 0.8)
-			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
+//			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
+			console.log(this, this.attackers)
 			
 			for (let child of this.children) {
 				if (child.boss > this.map.boss) continue
@@ -762,6 +767,8 @@ const pointHandler = {
 			this.displays[x].destroy()
 			delete this.displays[x]
 		})
+		this.animating = 0
+		this.attackers.clear()
 	},
 	
 	toJSON() {

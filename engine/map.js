@@ -190,9 +190,9 @@ const mapHandler = {
 					return
 				c.moveTo(edge.start.x, edge.start.y)
 				c.lineTo(edge.end.x, edge.end.y)
-				c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
+/*				c.lineTo(edge.end.x  * 0.8, edge.end.y * 0.8)
 				c.lineTo(edge.start.x  * 0.8, edge.start.y * 0.8)
-				c.lineTo(edge.start.x, edge.start.y)
+				c.lineTo(edge.start.x, edge.start.y)*/
 			})
 			c.restore()	
 		}
@@ -245,7 +245,7 @@ const mapHandler = {
 		c.beginPath()
 		ownedRendered.map(drawRegion)
 		c.stroke()
-		c.restore()*/
+		c.restore()//*/
 
 		c.save()
 		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
@@ -335,7 +335,7 @@ const mapHandler = {
 		c.fillStyle = gui.theme.shades[4]
 		c.globalAlpha = 0.7
 		c.beginPath()
-		this.renderedPoints.filter(pt => pt.harvested).map(drawHarvest)
+			this.renderedPoints.filter(pt => pt.harvested).map(drawHarvest)
 		c.fill()
 		c.restore()
 	},

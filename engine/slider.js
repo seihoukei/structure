@@ -14,6 +14,9 @@ const ROLE_LEADER = 1
 const ROLE_FOLLOWER = 2
 
 const SELECTORS = {
+	Mining(points) {
+		return points[0].map.points[0]
+	},
 	Random(points) {
 		return points[points.length * Math.random() | 0]
 	},
@@ -41,9 +44,6 @@ const SELECTORS = {
 	Deepest(points) {
 		return points.sort((x, y) => y.depth - x.depth)[0]
 	},	
-	Mining(points) {
-		return points[0].map.points[0]
-	},
 }
 
 const sliderHandler = {
@@ -268,7 +268,7 @@ const sliderHandler = {
 			values : Object.keys(SELECTORS),
 			texts : Object.keys(SELECTORS),
 			expanded : false,
-			itemVisibility: (x) => (x.index < 5 || game.skills.autoTargetDistance),
+			itemVisibility: (x) => (!x.index && game.skills.mining)|| x.index < 6 || game.skills.autoTargetDistance,
 			onSet : () => {
 				this.selector.expanded = !this.selector.expanded && this.selector.same
 				if (this.selector.expanded) {
@@ -417,7 +417,8 @@ const sliderHandler = {
 	
 	autoTarget(forced) {
 		if (this.clone == 2) return
-		if (this.target && (!this.target.owned || !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && (this.real.attack <= 0))) return
+		if (game.skills.mining && this.atSelector == "Mining") this.assignTarget(game.map.points[0])
+		if (this.target && (!this.target.owned || !game.skills.smartMine && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if ((!game.skills.autoTarget || this.atFilter.disabled) && !forced) {
 			this.assignTarget(null)

@@ -391,6 +391,7 @@ const game = {
 			this.getFullMoney()
 			this.updateHarvesting()
 		}
+		this.nextTarget = true
 	},
 	
 	updateHarvesting() {
@@ -629,6 +630,12 @@ const game = {
 			this.sliders.map (slider => slider.getReal())
 	
 			time -= deltaTime
+			
+			if (this.nextTarget) {
+				if (game.skills.smartMine)
+					this.sliders.filter (x => x.target && !x.target.index).map(x => x.autoTarget())
+				this.nextTarget = false
+			}
 		}
 	},
 	
@@ -748,6 +755,7 @@ const game = {
 		delete o.lastSave
 		delete o.lastCloudSave
 		delete o.slowMode
+		delete o.nextTarget
 		delete o.activeRender
 		delete o.animatingPoints
 		delete o.attacked

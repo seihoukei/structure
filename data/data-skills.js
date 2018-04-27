@@ -176,7 +176,7 @@ const SKILLS = {
 		exp : 2e10,
 	},
 	smartHome: {
-		name: "Home at Last",
+		name: "Home at last",
 		desc: "Sliders unable to find a target go to mine automatically",
 		req : ["autoTarget"],
 		res : ['science'],
@@ -184,6 +184,16 @@ const SKILLS = {
 		mult : 1.1,
 		exp : 2e10,
 		science : 1.75e6,
+	},
+	smartMine: {
+		name: "Little look back",
+		desc: "Mining sliders keep checking for new available targets",
+		req : ["smartHome"],
+		res : ['science'],
+		map : 9,
+		mult : 1.0,
+		exp : 2e10,
+		science : 2e6,
 	},
 	buildAutomation: {
 		name : "Built to last",
@@ -196,7 +206,7 @@ const SKILLS = {
 		science : 2.5e6
 	},
 	smartAuto: {
-		name: "Walk Away in Silence",
+		name: "Walk away in silence",
 		desc: "Sliders change target when dealing no damage and avoid such strong points when autotargetting",
 		req : ["autoTarget", "mining"],
 		res : ['science'],
@@ -364,7 +374,7 @@ const SKILLS = {
 		exp : 5e22
 	},
 	retainVirtualBonus: {
-		name : "Beyond Reality",
+		name : "Beyond reality",
 		desc : "Retain virtual map bonuses when deleting them",
 		map : 27,
 		mult : 2,

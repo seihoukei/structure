@@ -82,7 +82,7 @@ const SkillsTab = Template({
 		})
 		this.expSkills.map(skill => {
 			if (game.real)
-				skill.dvCost.innerText = "EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + (game.resources.exp < skill.exp * game.skillCostMult && game.real.production.exp > 0?" (" + shortTimeString((skill.exp * game.skillCostMult - game.resources.exp)/game.real.production.exp) + ")":"") +" / x" + (skill.mult || 1)
+				skill.dvCost.innerText = "EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + ETAString(skill.exp * game.skillCostMult, "exp", true) +" / x" + (skill.mult || 1)
 		})
 	}
 })

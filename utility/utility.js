@@ -233,6 +233,14 @@ function shortTimeString(t = 0, start = 0, length = 2) {
 	return shortTimeResult.slice(0, length).join(" ") || "<1s"
 }
 
+function ETAString(value, resource, percent = false) {
+	const have = game.resources[resource]
+	if (have >= value) return percent?" ("+(value/have*100).toFixed(1)+"%)":""
+	const prod = game.real.production[resource]
+	if (prod <= 0) return ""
+	return " ("+shortTimeString((value - have) / prod)+")"
+}
+
 const displayValueTempLength = 5, displayValueRoundFix = 0.4999999 / 10 ** displayValueTempLength
 function toFixed(value, digits) {
 	let trailingZeroes = digits >= 0

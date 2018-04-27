@@ -222,8 +222,9 @@ const ManagementTab = Template({
 				x.dvDisplay.classList.toggle("visible", !!visible)
 			})
 		}
+		if (this.hoverFunction) this.dvHover.innerText = this.hoverFunction()
 		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
-		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.fullMoney > game.resources.gold && game.real && game.real.production.gold && game.real.production.gold > 0?"Estimated finish time: "+shortTimeString((game.fullMoney - game.resources.gold)/game.real.production.gold):"")
+		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.fullMoney > game.resources.gold && game.real && game.real.production.gold && game.real.production.gold > 0?"Estimated finish time: "+ETAString(game.fullMoney, "gold"):"")
 	}
 })
 
@@ -259,13 +260,17 @@ const managementPointElementHandler = {
 						opacity : 0
 					}
 			], 200)
-			gui.management.dvHover.innerText = "Level up\nGold: "+displayNumber(this.point.costs.levelUp)
+			gui.management.hoverFunction = () => "Level up\nGold: "+displayNumber(this.point.costs.levelUp) + ETAString(this.point.costs.levelUp, "gold")
+			gui.management.dvHover.innerText = gui.management.hoverFunction()
+//			gui.management.dvHover.innerText = "Level up\nGold: "+displayNumber(this.point.costs.levelUp)
 		}
 		this.dvLevelUp.onmouseenter = (event) => {
 			gui.management.dvHover.classList.toggle("hidden", false)
 			gui.management.dvHover.classList.toggle("available", this.point.costs.levelUp <= game.resources.gold)
 			gui.management.dvHover.classList.toggle("bought", false)
-			gui.management.dvHover.innerText = "Level up\nGold: "+displayNumber(this.point.costs.levelUp)
+			gui.management.hoverFunction = () => "Level up\nGold: "+displayNumber(this.point.costs.levelUp) + ETAString(this.point.costs.levelUp, "gold")
+			gui.management.dvHover.innerText = gui.management.hoverFunction()
+//			gui.management.dvHover.innerText = "Level up\nGold: "+displayNumber(this.point.costs.levelUp)
 		}
 		this.dvLevelUp.onmousemove = (event) => {
 			gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > gui.mainViewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
@@ -280,13 +285,17 @@ const managementPointElementHandler = {
 				if (gui.management.sorting.sortOften) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
-				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
+				gui.management.hoverFunction = () => x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]) + ETAString(this.point.costs[x.id],"gold",true):"?")
+				gui.management.dvHover.innerText = gui.management.hoverFunction()
+//				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 			}
 			x.dvDisplay.onmouseenter = (event) => {
 				gui.management.dvHover.classList.toggle("hidden", false)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
-				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" +  (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
+				gui.management.hoverFunction = () => x.building.name + "\n" + x.building.desc + "\n" + (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]) + ETAString(this.point.costs[x.id],"gold",true):"?")
+				gui.management.dvHover.innerText = gui.management.hoverFunction()
+//				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" +  (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 			}
 			x.dvDisplay.onmousemove = (event) => {
 				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > gui.mainViewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
@@ -304,13 +313,19 @@ const managementPointElementHandler = {
 				if (gui.management.sorting.sortOften) gui.management.update(true)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
-				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
+				const cost = this.point?x.spell.cost(this.point):0
+				gui.management.hoverFunction = () => x.spell.name + "\n" + x.spell.desc + "\nMana: "+displayNumber(cost) + ETAString(cost ,"mana",true)
+				gui.management.dvHover.innerText = gui.management.hoverFunction()
+//				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
 			}
 			x.dvDisplay.onmouseenter = (event) => {
 				gui.management.dvHover.classList.toggle("hidden", false)
 				gui.management.dvHover.classList.toggle("bought", !!x.bought)
 				gui.management.dvHover.classList.toggle("available", !!x.available)
-				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
+				const cost = this.point?x.spell.cost(this.point):0
+				gui.management.hoverFunction = () => x.spell.name + "\n" + x.spell.desc + "\nMana: "+displayNumber(cost) + ETAString(cost ,"mana",true)
+				gui.management.dvHover.innerText = gui.management.hoverFunction()
+//				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
 			}
 			x.dvDisplay.onmousemove = (event) => {
 				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > gui.mainViewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"

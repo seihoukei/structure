@@ -25,7 +25,7 @@ const mapHandler = {
 	renderMap(c) {
 		const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
 
-		c.lineWidth = Math.max(1, 1.5/viewport.current.zoom)
+		c.lineWidth = Math.max(1, 1.5/gui.mainViewport.current.zoom)
 
 		function drawTail(point) {
 			c.save()
@@ -226,10 +226,10 @@ const mapHandler = {
 			this.renderedPoints = this.points.filter(x => x.away < (game.skills.sensor?3:2) && x.locked < 2 && (!x.boss || x.boss <= this.boss))
 		
 		this.renderedPoints.map(pt => pt.onscreen = 
-				pt.x < viewport.window.right + pt.size + 1&&
-				pt.x > viewport.window.left - pt.size - 1 &&
-				pt.y < viewport.window.bottom + pt.size + 1&&
-				pt.y > viewport.window.top - pt.size - 1)
+				pt.x < gui.mainViewport.window.right + pt.size + 1&&
+				pt.x > gui.mainViewport.window.left - pt.size - 1 &&
+				pt.y < gui.mainViewport.window.bottom + pt.size + 1&&
+				pt.y > gui.mainViewport.window.top - pt.size - 1)
 		this.renderedPoints = this.renderedPoints.filter(pt => (pt.onscreen || pt.parent && pt.parent.onscreen) && !pt.animating)
 		
 		const ownedRendered = this.renderedPoints.filter(x => x.owned)
@@ -240,7 +240,7 @@ const mapHandler = {
 //		ownedRendered.map(fillRegion)
 //		c.globalAlpha = 1
 //		ownedRendered.map(fillWalls)
-		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
+		c.lineWidth = Math.max(0.5, 1/gui.mainViewport.current.zoom)
 		c.strokeStyle = gui.theme.shades[11]
 		c.beginPath()
 		ownedRendered.map(drawRegion)
@@ -248,7 +248,7 @@ const mapHandler = {
 		c.restore()//*/
 
 		c.save()
-		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
+		c.lineWidth = Math.max(0.5, 1/gui.mainViewport.current.zoom)
 		for (let i = 0; i < 5; i++) {
 			c.beginPath()
 			c.strokeStyle = gui.theme.enchantmentColors[i]
@@ -259,7 +259,7 @@ const mapHandler = {
 
 		c.save()
 		c.beginPath()
-		c.lineWidth = Math.max(0.5, 1/viewport.current.zoom)
+		c.lineWidth = Math.max(0.5, 1/gui.mainViewport.current.zoom)
 		c.strokeStyle = gui.theme.shades[5]
 		if (game.dev && game.dev.seeAll)
 			this.renderedPoints.map(drawExtra)
@@ -432,7 +432,7 @@ const mapHandler = {
 
 const mapLoader = {
 	_init() {
-		this.points = this.points.map(x => Point(x))
+		this.points = this.points.map(x => MapPoint(x))
 		if (this.markerIndexes)
 			this.markers = this.markerIndexes.map(x => this.points[x])
 			
@@ -447,7 +447,7 @@ const mapMaker = {
 		this.focus = +this.focus || 0
 		if (!this.focus) delete this.focus
 		let n = this.pointsCount - 1
-		this.points.push(Point({
+		this.points.push(MapPoint({
 			x : 0,
 			y : 0,
 			distance : 0,
@@ -491,7 +491,7 @@ const mapMaker = {
 			let x = (distance * Math.cos(angle))
 			let y = (distance * Math.sin(angle))
 			let ok = true
-			let output = Point({
+			let output = MapPoint({
 				x, y, distance, angle, size, type, customPower,
 				owned : false,
 				available : false,
@@ -511,7 +511,7 @@ const mapMaker = {
 			for (let d = 0; d < 21; d++)
 				for (let a = 0; a < 5; a++) {
 					const parent = this.points[Math.max(0, d * 5 + a - 4)]
-					const point = Point({
+					const point = MapPoint({
 						angle : (Math.PI * 2 * a / 5 + (d) / 5).toDigits(3),
 						distance : (d + 1) * 60 * (2 - d/30),
 						size : (Math.random() * 10 + 25 + (d==20?40:0)+(d==20?40:0)).toDigits(3),
@@ -625,7 +625,7 @@ const mapMaker = {
 						}
 						
 					}
-					const point = Point({
+					const point = MapPoint({
 						parent,
 						angle : Math.atan2(y, x).toDigits(3),
 						distance : (Math.hypot(x, y) * distance).toDigits(3),
@@ -665,7 +665,7 @@ const mapMaker = {
 						let x = (i&1)?-8:8
 						let y = (i&2)?-8:8
 						const parent = Math.random() < 0.5?taken.get((x + ((i&1)?1:-1))+","+y):taken.get(x + "," + (y + ((i&2)?1:-1)))
-						const point = Point({
+						const point = MapPoint({
 							parent,
 							angle : Math.atan2(y, x).toDigits(3),
 							distance : (Math.hypot(x, y) * distance).toDigits(3),
@@ -680,7 +680,7 @@ const mapMaker = {
 						this.points.push(point)
 						x *= 12/8
 						y *= 12/8
-						const point2 = Point({
+						const point2 = MapPoint({
 							parent : point,
 							angle : Math.atan2(y, x),
 							distance : Math.hypot(x, y) * distance,
@@ -702,7 +702,7 @@ const mapMaker = {
 							x = x || [0,-4,4,-8,8][j]
 							y = y || [0,-4,4,-8,8][j]
 							const parent = taken.get(px+","+py)
-							const point = Point({
+							const point = MapPoint({
 								parent,
 								angle : Math.atan2(y, x),
 								distance : Math.hypot(x, y) * distance,

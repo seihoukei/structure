@@ -1,3 +1,5 @@
+'use strict'
+
 const THEMES = {
 	light : {
 		main : {

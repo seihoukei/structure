@@ -5,7 +5,8 @@ const SAVE_PREFIX = GAME_PREFIX + "saveData"
 const SAVE_PREFIX_LENGTH = SAVE_PREFIX.length
 
 function frame() {
-	viewport.advanceView()
+	gui.mainViewport.advanceView()
+	gui.worldViewport.advanceView()
 	game.render()
 	
 	requestAnimationFrame(frame)
@@ -39,7 +40,7 @@ window.onload = (event) => {
 		game.reset(true)
 
 	initEvents()
-//	viewport.init()
+//	gui.mainViewport.init()
 
 	let worker = new Worker ("./utility/worker.js")
 	
@@ -76,7 +77,7 @@ window.onload = (event) => {
 function initEvents() {
 	window.onresize = (event) => {
 		getSize()
-		game.updateBackground = true
+		game.updateMapBackground = true
 		game.lastAction = performance.now()
 	}
 	

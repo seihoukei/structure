@@ -304,6 +304,7 @@ const sliderHandler = {
 		
 		this.dvMapIcon = createElement("div", "slider-icon"+(this.clone?" clone":""), gui.map.dvSliders)
 		this.dvMapIcon.onmousemove = (event) => {
+			gui.map.hoverSlider = this
 			gui.hover.set(this.target, event.x, event.y)
 		}
 		
@@ -325,6 +326,7 @@ const sliderHandler = {
 		}
 		
 		this.dvMapIcon.onmouseleave = this.dvMapIcon.onmouseout = (event) => {
+			delete gui.map.hoverSlider
 			gui.hover.reset()
 		}
 		
@@ -534,8 +536,8 @@ const sliderHandler = {
 				}
 			}
 			
-			if (viewport.current.zoom < 1.5) {
-				c.lineWidth = 1.5 / viewport.current.zoom
+			if (gui.mainViewport.current.zoom < 1.5) {
+				c.lineWidth = 1.5 / gui.mainViewport.current.zoom
 			}
 			
 			c.stroke()

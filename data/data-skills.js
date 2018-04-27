@@ -445,6 +445,15 @@ const SKILLS = {
 		exp : 1e30,
 		mult : 2
 	},
+	world : {
+		name : "Brave new world",
+		desc : "Build a new world based on your memories",
+		req : ["imprint"],
+		map : 32,
+		science : 8e14,
+		exp : 1e30,
+		mult : 2
+	},
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

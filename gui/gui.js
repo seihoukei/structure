@@ -2,6 +2,10 @@
 
 const gui = {
 	init() {
+		
+		this.mapMouse = MapMouse
+		this.mainViewport = Viewport()
+		this.worldViewport = Viewport()
 
 		this.setTheme(settings.theme, "main")
 		
@@ -18,7 +22,7 @@ const gui = {
 		
 		this.stardust = this.tabs.addTab("stardust", "Stardust", StardustTab)
 		this.artifacts = this.tabs.addTab("artifacts", "Artifacts", ArtifactsTab)
-		//this.tabs.addTab("magic", "Magic")
+		this.world = this.tabs.addTab("world", "World (WIP)", WorldTab)
 		this.tabs.addFiller()
 
 		this.story = this.tabs.addTab("story", "Story", StoryTab)
@@ -152,11 +156,11 @@ const gui = {
 					x = parseInt(this.dvDisplay.style.left || "0")
 					y = parseInt(this.dvDisplay.style.top || "0")
 				} else {
-					x = ((x + width + 5 < viewport.width) ? (x + 5) : (x - 5 - width))
+					x = ((x + width + 5 < gui.mainViewport.width) ? (x + 5) : (x - 5 - width))
 					y = y - height / 2
 				}
-				x = Math.max(1, Math.min(viewport.width - width - 1, x))
-				y = Math.max(1, Math.min(viewport.height - height - 1, y))
+				x = Math.max(1, Math.min(gui.mainViewport.width - width - 1, x))
+				y = Math.max(1, Math.min(gui.mainViewport.height - height - 1, y))
 				this.dvDisplay.style.left = x + "px"
 				this.dvDisplay.style.top = y+"px"
 			},
@@ -167,14 +171,14 @@ const gui = {
 				let x = this.dvDisplay.offsetLeft
 				let y = this.dvDisplay.offsetTop
 				if (!y) return
-				x = Math.max(0, Math.min(viewport.width - width, x))
-				y = Math.max(0, Math.min(viewport.height - height, y))
+				x = Math.max(0, Math.min(gui.mainViewport.width - width, x))
+				y = Math.max(0, Math.min(gui.mainViewport.height - height, y))
 				this.dvDisplay.style.left = x + "px"
 				this.dvDisplay.style.top = y+"px"			
 			},
 	
 			onSet () {
-				mouse.state = MOUSE_STATE_INFO
+				gui.mapMouse.state = MOUSE_STATE_INFO
 				this.pointDisplay.set(this.point)
 				
 				game.sliders.map((slider, n) => {
@@ -192,7 +196,7 @@ const gui = {
 			},
 
 			targetAll(sliders) {
-				var target = this.point || null
+				let target = this.point || null
 				if (!sliders.filter(x => x.target != target).length)
 					target = null
 				sliders.map(x => x.assignTarget(target))
@@ -233,8 +237,8 @@ const gui = {
 			},
 			
 			onReset() {
-				if (mouse.state == MOUSE_STATE_INFO)
-					mouse.state = MOUSE_STATE_FREE
+				if (gui.mapMouse.state == MOUSE_STATE_INFO)
+					gui.mapMouse.state = MOUSE_STATE_FREE
 				game.sliders.map((slider, n) => {
 					slider.dvTarget && slider.dvTarget.remove()
 				})
@@ -258,10 +262,10 @@ const gui = {
 			align(x, y) {
 				let width = this.dvDisplay.offsetWidth
 				let height = this.dvDisplay.offsetHeight
-				x = ((x + width + 5 < viewport.width) ? (x + 5) : (x - 5 - width))
+				x = ((x + width + 5 < gui.mainViewport.width) ? (x + 5) : (x - 5 - width))
 				y = y
-				x = Math.max(0, Math.min(viewport.width - width, x))
-				y = Math.max(0, Math.min(viewport.height - height, y))
+				x = Math.max(0, Math.min(gui.mainViewport.width - width, x))
+				y = Math.max(0, Math.min(gui.mainViewport.height - height, y))
 				this.dvDisplay.style.left = x + "px"
 				this.dvDisplay.style.top = y + "px"			
 			},
@@ -309,6 +313,7 @@ const gui = {
 		this.tabs.toggleDisplay("management", game.skills.management)
 		this.tabs.toggleDisplay("stardust", game.skills.stardust)
 		this.tabs.toggleDisplay("artifacts", game.skills.artifacts)
+		this.tabs.toggleDisplay("world", game.skills.world)
 		if (game.skills.stardust) {
 			const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
 			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
@@ -445,8 +450,8 @@ const colorPickerHandler = {
 		this.green.update()
 		this.blue.update()
 		this.updateColor(this.oldColor)
-		this.dvDisplay.style.left = Math.min(viewport.width - this.dvDisplay.offsetWidth - 5, x) + "px"
-		this.dvDisplay.style.top = Math.min(viewport.height - this.dvDisplay.offsetHeight - 5, y) + "px"
+		this.dvDisplay.style.left = Math.min(gui.mainViewport.width - this.dvDisplay.offsetWidth - 5, x) + "px"
+		this.dvDisplay.style.top = Math.min(gui.mainViewport.height - this.dvDisplay.offsetHeight - 5, y) + "px"
 	},
 	
 	updateColor(newColor) {

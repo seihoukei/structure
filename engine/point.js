@@ -31,6 +31,105 @@ const SPECIAL_NOCLONE = 6
 
 const pointHandler = {
 	_init() {
+	},
+	
+	getVoronoi(forced, points) {
+		if (!forced && this.voronoi) 
+			return this.voronoi
+		
+		if (!points && this.map) points = this.map.points
+		if (!points && this.world) points = this.world.points
+		
+		this.voronoi = {}
+		
+		const maxl = this.reach && this.radius?this.radius + this.reach:Math.max(30, ...points.map(x => x.length || 0)) * 1.2
+		
+		const projections = points.map(point => {
+			if (point == this) 
+				return point.index?{point, x:Math.cos(point.angle)/maxl, y:Math.sin(point.angle)/maxl}:{point, x:0, y:0}// x : point.x / point.distance, y : point.y / point.distance}
+			const dx = point.x - this.x
+			const dy = point.y - this.y
+			const d = dx ** 2 + dy ** 2
+			const l = 2 / d
+			return {
+				x : dx * l, 
+				y : dy * l, 
+				point
+			}
+		})
+		
+		const start = projections.reduce((v,x) => v.x < x.x?v:x, projections[0])
+		projections.splice(projections.indexOf(start),1)
+		projections.map(x => x.angle = Math.atan2(x.y - start.y, x.x - start.x))
+		
+		const hull = [start, ...projections.sort((x,y) => x.angle - y.angle)]
+		hull.map((x,n) => {
+			const next = hull[n+1] || hull[0]
+			x.next = next
+			next.last = x
+//			x.last = hull[n-1] || hull[hull.length - 1]
+		})
+		
+//		console.log(JSON.stringify(hull.map(x => {return{x:x.x,y:x.y}})))
+		
+		let current = hull[1]	
+		let visited = 0
+		while (visited < hull.length || current != hull[0]) {
+			visited++
+			const dx1 = current.next.x - current.x
+			const dy1 = current.next.y - current.y
+			const dx2 = current.last.x - current.x
+			const dy2 = current.last.y - current.y
+			if (dx1 * dy2 > (dy1 * dx2 + 1e-9)){
+				current = current.next
+				continue
+			}
+			current.next.last = current.last
+			current.last.next = current.next
+			current.deleted = true
+			current = current.last
+		}
+		
+		this.voronoi.points = hull.filter(x => !x.deleted).map(pt => {
+/*			if (pt.point == this || pt.next.point == this) {
+				return {
+					x : 0,
+					y : 0,
+					neighbours : [this, this],
+				}
+			}*/
+			const x32 = pt.next.x - pt.x
+			const y32 = pt.next.y - pt.y
+			const x21 = pt.x
+			const y21 = pt.y
+			const div = (x32 * y21 - y32 * x21)
+			return {
+				x : - y32 / div,
+				y : + x32 / div,
+				neighbours : [pt.point, pt.next.point],
+			}
+		})
+		
+		this.voronoi.edges = this.voronoi.points.map((x, n) => {
+			const next = this.voronoi.points[n-1] || this.voronoi.points[this.voronoi.points.length - 1]
+			return {
+				start : x,
+				end : next,
+				neighbour : x.neighbours[0] == next.neighbours[0] || x.neighbours[0] == next.neighbours[1]?x.neighbours[0]:x.neighbours[1]
+			}
+		})
+		
+		return this.voronoi
+	},
+	
+	restoreState() {
+		this.x = (this.distance * Math.cos(this.angle)).toDigits(3)
+		this.y = (this.distance * Math.sin(this.angle)).toDigits(3)
+	}
+}
+
+const mapPointHandler = {
+	_init() {
 		this.temp = {}
 	},
 	
@@ -181,92 +280,6 @@ const pointHandler = {
 	updateDisplay(name, forced) {
 		if (this.displays[name])
 			this.displays[name].update(forced)		
-	},
-	
-	getVoronoi(forced) {
-		if (!forced && this.voronoi) 
-			return this.voronoi
-		
-		this.voronoi = {}
-		
-		const maxl = Math.max(...this.map.points.map(x => x.length || 0)) * 1.2
-		
-		const projections = this.map.points.map(point => {
-			if (point == this) 
-				return point.index?{point, x:Math.cos(point.angle)/maxl, y:Math.sin(point.angle)/maxl}:{point, x:0, y:0}// x : point.x / point.distance, y : point.y / point.distance}
-			const dx = point.x - this.x
-			const dy = point.y - this.y
-			const d = dx ** 2 + dy ** 2
-			const l = 2 / d
-			return {
-				x : dx * l, 
-				y : dy * l, 
-				point
-			}
-		})
-		
-		const start = projections.reduce((v,x) => v.x < x.x?v:x, projections[0])
-		projections.splice(projections.indexOf(start),1)
-		projections.map(x => x.angle = Math.atan2(x.y - start.y, x.x - start.x))
-		
-		const hull = [start, ...projections.sort((x,y) => x.angle - y.angle)]
-		hull.map((x,n) => {
-			const next = hull[n+1] || hull[0]
-			x.next = next
-			next.last = x
-//			x.last = hull[n-1] || hull[hull.length - 1]
-		})
-		
-//		console.log(JSON.stringify(hull.map(x => {return{x:x.x,y:x.y}})))
-		
-		let current = hull[1]	
-		let visited = 0
-		while (visited < hull.length || current != hull[0]) {
-			visited++
-			const dx1 = current.next.x - current.x
-			const dy1 = current.next.y - current.y
-			const dx2 = current.last.x - current.x
-			const dy2 = current.last.y - current.y
-			if (dx1 * dy2 > (dy1 * dx2 + 1e-9)){
-				current = current.next
-				continue
-			}
-			current.next.last = current.last
-			current.last.next = current.next
-			current.deleted = true
-			current = current.last
-		}
-		
-		this.voronoi.points = hull.filter(x => !x.deleted).map(pt => {
-/*			if (pt.point == this || pt.next.point == this) {
-				return {
-					x : 0,
-					y : 0,
-					neighbours : [this, this],
-				}
-			}*/
-			const x32 = pt.next.x - pt.x
-			const y32 = pt.next.y - pt.y
-			const x21 = pt.x
-			const y21 = pt.y
-			const div = (x32 * y21 - y32 * x21)
-			return {
-				x : - y32 / div,
-				y : + x32 / div,
-				neighbours : [pt.point, pt.next.point],
-			}
-		})
-		
-		this.voronoi.edges = this.voronoi.points.map((x, n) => {
-			const next = this.voronoi.points[n-1] || this.voronoi.points[this.voronoi.points.length - 1]
-			return {
-				start : x,
-				end : next,
-				neighbour : x.neighbours[0] == next.neighbours[0] || x.neighbours[0] == next.neighbours[1]?x.neighbours[0]:x.neighbours[1]
-			}
-		})
-		
-		return this.voronoi
 	},
 	
 	build (name) {
@@ -547,8 +560,7 @@ const pointHandler = {
 		if (game.activeRender) {
 //			if (slider)
 //				animations.Fireworks(this.x, this.y, slider.color, 5 * this.size, this.size * 0.8)
-//			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
-			console.log(this, this.attackers)
+			animations.Fireworks(this.x, this.y, gui.theme.typeColors[this.type], 15 * this.size, this.size)
 			
 			for (let child of this.children) {
 				if (child.boss > this.map.boss) continue
@@ -826,4 +838,33 @@ const pointHandler = {
 	},
 }
 
-const Point = Template(pointHandler)
+const MapPoint = Template(pointHandler, mapPointHandler)
+
+const worldPointHandler = {
+	_init() {
+		this.connections = []
+		this.angle = Math.atan(this.y, this.x)
+		this.distance = Math.hypot(this.y, this.x)
+		this.radius = WORLD_ELEMENTS[this.type].radius
+		this.reach = WORLD_ELEMENTS[this.type].reach
+	},
+	
+	connect(point) {
+		this.connections.push(point)
+		point.connections.push(this)
+	},
+	
+	toJSON() {
+		let o = Object.assign({}, this)
+		delete o.angle		
+		delete o.distance		
+		delete o.connections
+		delete o.world
+		delete o.voronoi
+		delete o.radius
+		delete o.reach
+		return o
+	}
+}
+
+const WorldPoint = Template(pointHandler, worldPointHandler)

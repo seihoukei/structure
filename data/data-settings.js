@@ -126,7 +126,7 @@ const SETTINGS = {
 			value : 1
 		}],
 		onSet () {
-			game.updateBackground = true
+			game.updateMapBackground = true
 		}
 	},
 	eta : {

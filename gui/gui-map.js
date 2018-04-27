@@ -37,10 +37,10 @@ const MapTab = Template({
 		this.background = createElement("canvas", "background", this.dvDisplay)
 		this.foreground = createElement("canvas", "foreground", this.dvDisplay)
 		
-		this.foreground.onmousedown = mouse.onmousedown.bind(mouse)
-		this.foreground.onmousemove = mouse.onmousemove.bind(mouse)
-		this.foreground.onmouseup = this.foreground.onmouseleave = this.foreground.onmouseout = mouse.onmouseup.bind(mouse)	
-		this.foreground.onwheel = mouse.onwheel.bind(mouse)
+		this.foreground.onmousedown = gui.mapMouse.onmousedown.bind(gui.mapMouse)
+		this.foreground.onmousemove = gui.mapMouse.onmousemove.bind(gui.mapMouse)
+		this.foreground.onmouseup = this.foreground.onmouseleave = this.foreground.onmouseout = gui.mapMouse.onmouseup.bind(gui.mapMouse)	
+		this.foreground.onwheel = gui.mapMouse.onwheel.bind(gui.mapMouse)
 		this.foreground.oncontextmenu = (event) => event.preventDefault()
 		
 		this.dvLowLoad = createElement("div", "low-load", this.dvDisplay)

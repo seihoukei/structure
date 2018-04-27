@@ -19,7 +19,7 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			delete point.special
-			game.updateBackground = true
+			game.updateMapBackground = true
 		},
 		iconText : "D",
 		iconColor : "#DD55DD",
@@ -34,7 +34,7 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			delete point.special
-			game.updateBackground = true
+			game.updateMapBackground = true
 		},
 		iconText : "D",
 		iconColor : "#DD55DD",
@@ -49,7 +49,7 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			delete point.special
-			game.updateBackground = true
+			game.updateMapBackground = true
 		},
 		iconText : "D",
 		iconColor : "#DD55DD",
@@ -64,7 +64,7 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			delete point.special
-			game.updateBackground = true
+			game.updateMapBackground = true
 		},
 		iconText : "D",
 		iconColor : "#DD55DD",

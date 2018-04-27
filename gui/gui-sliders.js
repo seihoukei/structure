@@ -20,10 +20,10 @@ const SlidersTab = Template({
 				if (x == -1) return
 				let width = this.dvDisplay.offsetWidth
 				let height = this.dvDisplay.offsetHeight
-				x = ((x + width + 5< viewport.width) ? (x + 5) : (x - 5 - width))
+				x = ((x + width + 5< gui.mainViewport.width) ? (x + 5) : (x - 5 - width))
 				y = y - height / 2
-				x = Math.max(1, Math.min(viewport.width - width - 1, x))
-				y = Math.max(1, Math.min(viewport.height - height - 1, y))
+				x = Math.max(1, Math.min(gui.mainViewport.width - width - 1, x))
+				y = Math.max(1, Math.min(gui.mainViewport.height - height - 1, y))
 				this.dvDisplay.style.left = x + "px"
 				this.dvDisplay.style.top = y+"px"
 			},
@@ -59,7 +59,7 @@ const SlidersTab = Template({
 			slider.updateFullInfo()
 		})
 		Object.values(this.master.imbuements.attributes).map(x => {
-			var totalCost = game.sliders.reduce((v,slider) => v+(slider.clone || masterSlider.safeImbuement && slider.real.imbuementCosts[x.name] > game.resources.mana / 10?0:slider.real.imbuementCosts[x.name]), 0)
+			const totalCost = game.sliders.reduce((v,slider) => v+(slider.clone || masterSlider.safeImbuement && slider.real.imbuementCosts[x.name] > game.resources.mana / 10?0:slider.real.imbuementCosts[x.name]), 0)
 			x.dvDisplay.title = x.name.capitalizeFirst() + ": " + displayNumber(totalCost) + " mana/s"
 		})
 		this.hover.update()

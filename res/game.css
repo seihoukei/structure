@@ -624,6 +624,15 @@ canvas.foreground : {
 	margin : 5px 0 0 5px;
 	pointer-events : auto;
 	z-index : 3;
+	order : 1;
+}
+
+.map > .low-load > .point-info.locked {
+	width : 420px;
+	margin : 5px 0 0 5px;
+	pointer-events : auto;
+	z-index : 3;
+	order : 2;
 }
 
 .map .low-load-checkbox {
@@ -1191,16 +1200,15 @@ canvas.foreground : {
 	padding : 0 5px;
 }
 
-.management .sorter .choice {
+.management .sorter .choice, .slider .role .choice {
 	padding : 5px 10px;
 	margin : -5px 0;
 	transition : background-color 0.2s, color 0.2s;
 	cursor : pointer;
 }
 
-.management .sorter .choice:hover {
-	background-color : var(--shade13);
-	
+.management .sorter .choice:hover, .slider .role .choice:hover {
+	background-color : var(--shade13);	
 }
 
 .management .sorter .choice.active {
@@ -1211,6 +1219,23 @@ canvas.foreground : {
 .management .sorter.reverse .choice.active {
 	background-color : var(--sort-up-bg);	
 }
+
+.slider .role {
+	display : flex;
+	flex-direction : row;
+	padding : 10px 20px 15px 20px;
+	justify-content : center;
+}
+.slider .role .choices {
+	display : flex;
+	flex-direction : row;
+	padding : 0 5px;
+	justify-content : stretch;
+}
+.slider .role.team-blood .choice.active {background-color : var(--bg-blood);}
+.slider .role.team-fire  .choice.active {background-color : var(--bg-fire );}
+.slider .role.team-ice   .choice.active {background-color : var(--bg-ice  );}
+.slider .role.team-metal .choice.active {background-color : var(--bg-metal);}
 
 .management .list {
 	overflow-y : auto;

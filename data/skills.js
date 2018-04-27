@@ -429,6 +429,13 @@ const SKILLS = {
 		science : 5e14,
 		mult : 2
 	},
+	party : {
+		name : "As one",
+		desc : "Assign leader and follower roles to sliders to form teams",
+		map : 30,
+		exp : 1e30,
+		mult : 2
+	},
 	imprint : {
 		name : "Memories of a time to come",
 		desc : "Imprint nodes information in your memory",

@@ -172,7 +172,7 @@ const masterSliderHandler = {
 		this.dvAutotargetAll = createElement("div", "master-apply apply button", this.dvDisplay, "Autotarget all")
 		this.dvAutotargetAll.onclick = (event) => {
 			game.sliders.map(x => {
-				if (x.clone != 2)
+				if (x.clone != 2 && x.role != ROLE_FOLLOWER)
 					x.dvATApply.click()
 			})
 		}

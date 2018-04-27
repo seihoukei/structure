@@ -383,7 +383,8 @@ const pointInfoDisplayHandler = {
 		this.dvPoint.innerText = this.point.specialText
 		
 		knownType = knownType.capitalizeFirst()
-
+		
+		this.dvDisplay.classList.toggle("locked", !!(this.point && this.point.locked))
 
 		this.dvInfo1.innerText = this.point.index?(
 									"Type: " + knownType + "\n" + 
@@ -450,6 +451,7 @@ const listPickerHandler = {
 	
 	update(forced) {
 		if (forced) {
+			this.dvDisplay.classList.toggle("hidden", !(!this.visible || this.visible()))
 			this.buttons.map(x => {
 				x.dvDisplay.classList.toggle("active", x.value == this.container[this.value])
 				x.dvDisplay.classList.toggle("hidden", !!(this.itemVisibility && !this.itemVisibility(x)))

@@ -9,6 +9,10 @@ const AT_F_LOCK = 1
 const AT_F_EXIT = 2
 const AT_F_BOSS = 3
 
+const ROLE_FREE = 0
+const ROLE_LEADER = 1
+const ROLE_FOLLOWER = 2
+
 const SELECTORS = {
 	Random(points) {
 		return points[points.length * Math.random() | 0]
@@ -62,6 +66,8 @@ const sliderHandler = {
 		this.onSame = this.onSame || 0
 		this.victoryTimer = this.victoryTimer || 0
 		this.lastTarget = this.lastTarget || this.targetIndex
+		this.role = this.role || 0
+		this.team = this.team || 0
 		
 		this.getLevelStats()
 		
@@ -128,6 +134,22 @@ const sliderHandler = {
 			this.hovered = false
 			//hide point info
 		}
+		
+		this.rolePicker = ListPicker({
+			parent : this.dvDisplay,
+			container : this,
+			value : "role",
+			className : "role team-"+POINT_TYPES[this.team + 3],
+			name : "Role",
+			values : [ROLE_FREE,ROLE_LEADER,ROLE_FOLLOWER],
+			texts : ["Free", "Leader", "Follower"],
+			visible : () => game.skills.party && this.clone != 2,
+			onSame : () => {
+				this.rolePicker.dvDisplay.classList.toggle("team-"+POINT_TYPES[this.team + 3], false)
+				this.team = (this.team + 1) % 4
+				this.rolePicker.dvDisplay.classList.toggle("team-"+POINT_TYPES[this.team + 3], true)
+			}
+		})
 		
 		this.equipList = EquipList({
 			parent : this.dvDisplay,
@@ -487,6 +509,8 @@ const sliderHandler = {
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
 		this.equipList.updateVisibility()
 		this.equipList.update()
+		this.rolePicker.update(true)
+//		this.equipList.update()
 		this.imbuements.updateVisibility()
 		this.channels.updateVisibility()
 		this.priorities.updateVisibility()
@@ -531,7 +555,7 @@ const sliderHandler = {
 		return !this.target || (this.target.owned && !(!this.index && game.skills.mining))
 	},
 	
-	assignTarget(point, forced ) {
+	assignTarget(point, forced) {
 		if (this.clone == 2 && !forced) point = this.target || game.map.points[this.targetIndex]
 		if (this.target) this.target.attackers.delete(this)
 		
@@ -545,6 +569,9 @@ const sliderHandler = {
 		if (this.target) this.target.attackers.add(this)
 		if (this.dvMapIcon)
 			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
+		
+		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
+			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => x.assignTarget(point))
 	},
 		
 	advance (deltaTime) {
@@ -782,6 +809,7 @@ const sliderHandler = {
 		delete o.selector
 		delete o.cbGild
 		delete o.cbAutoTarget
+		delete o.rolePicker
 		delete o.channels
 		Object.keys(o).filter(x => x.substr(0,2) == "dv").map (x => {
 			delete o[x]

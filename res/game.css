@@ -2122,7 +2122,7 @@ canvas.foreground : {
 	margin-left : auto !important;
 }
 
-.sliderlv .button {
+.dialog .button {
 	display : inline-flex;
 	align-items : center;
 	justify-content : center;
@@ -2134,24 +2134,24 @@ canvas.foreground : {
 	text-align : center;
 }
 
-.sliderlv .button.available {
+.dialog .button.available {
 	color : var(--foreground);
 	cursor : pointer;
 	border : 2px solid var(--lightframe);
 }
 
-.sliderlv .button.available:hover {
+.dialog .button.available:hover {
 	background-color : var(--shade12);
 }
 
-.sliderlv .button.transparent {
+.dialog .button.transparent {
 	opacity : 0;
 	max-width : 0;
 	padding : 10px 0;
 	margin : 5px 0;
 }
 
-.sliderlv .buttons {
+.dialog .buttons {
 	display : flex;
 	align-items : center;
 	justify-content : center;

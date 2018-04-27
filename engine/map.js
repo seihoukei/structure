@@ -378,8 +378,10 @@ const mapHandler = {
 		if (!game.offline) {
 			this.points.map((point,index) => {
 				point.updateText()
-			})		
+			})	
 			this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
+			if (this.complete && !this.completeTime)
+				this.completeTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
 			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		}
 		this.updateAways()
@@ -414,6 +416,22 @@ const mapHandler = {
 		this.getOwnedRadius()
 	},
 	
+	getStats() {
+		this.points.map(point => point.suspend())
+		const baseGrowth = Object.assign({},game.growth)
+		const baseProduction = Object.assign({},game.production)
+		this.points.map(point => point.unsuspend())
+		const currentTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
+		const progress = this.points.filter(x => x.owned).length / this.points.length * 100
+		return {
+			growth : Object.keys(baseGrowth).reduce((v,x) => (game.growth[x] - baseGrowth[x]?v[x] = displayNumber(game.growth[x] - baseGrowth[x]):0,v),{}),
+			production : Object.keys(baseProduction).reduce((v,x) => (game.production[x] - baseProduction[x]?v[x] = displayNumber(game.production[x] - baseProduction[x]):0,v),{}),
+			created : this.createTime?timeString(currentTime - this.createTime) + " ago":"unknown",
+			completed : this.complete?this.completeTime?timeString(currentTime - this.completeTime) + " ago":"unknown":progress.toFixed(1)+"%",
+			took : this.complete?this.completeTime&&this.createTime?timeString(this.completeTime - this.createTime):"unknown":this.createTime?timeString(currentTime - this.createTime):"unknown"
+		}
+	},
+	
 	destroyDisplays() {
 		this.points.map(x => x.destroyDisplays())
 	},
@@ -444,6 +462,7 @@ const mapMaker = {
 	_init() {
 		this.points = []
 		this.boss = 0
+		this.createTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
 		this.focus = +this.focus || 0
 		if (!this.focus) delete this.focus
 		let n = this.pointsCount - 1
@@ -893,6 +912,7 @@ const mapMaker = {
 			}
 			this.restoreState()
 		}
+		
 	},
 }
 

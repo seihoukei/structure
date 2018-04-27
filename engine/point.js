@@ -829,6 +829,8 @@ const mapPointHandler = {
 		delete o.baseCost
 		delete o.noclone
 		delete o.nobuild
+		delete o.completed
+		delete o.harvestTimes
 		delete o.voronoi
 		delete o.delaunay
 		if (!o.boss) delete o.boss

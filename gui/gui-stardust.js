@@ -151,6 +151,19 @@ const StardustTab = Template({
 		}
 
 		this.dvVirtualMaps = createElement("div", "virtual-maps", this.dvVirtual)
+		
+		this.dvStatsHolder = createElement("div", "fullscreen-holder hidden", document.body)
+		this.dvStatsHolder.onclick = (event) => {
+//			if (event.target == this.dvStatsHolder) {
+				this.dvStatsHolder.classList.toggle("hidden", true)
+//			}
+		}	
+		this.dvStats = createElement("div", "dialog", this.dvStatsHolder)
+		this.dvStatsTitle = createElement("div", "dialog-title", this.dvStats)
+		this.dvStatsTime = createElement("div", "stats-info", this.dvStats)
+		this.dvStatsContainer = createElement("div", "stats", this.dvStats)
+		this.dvStatsGrowth = createElement("div", "stats-info", this.dvStatsContainer)
+		this.dvStatsProduction = createElement("div", "stats-info", this.dvStatsContainer)
 	},
 	
 	onSet() {
@@ -229,6 +242,19 @@ const mapDisplayHandler = {
 				game.setMap(this.name, true)
 				gui.tabs.setTab("map")
 			}
+		}
+
+		this.dvStats = createElement("div", "button enabled", this.dvDisplay, "Stats")
+		this.dvStats.onclick = (event) => {
+			const map = game.maps[this.name]
+			const stats = map.getStats()
+			gui.stardust.dvStatsHolder.classList.toggle("hidden", false)
+			gui.stardust.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+" map"
+			gui.stardust.dvStatsTime.innerText = "Created: "+stats.created + 
+												"\nCompleted: "+stats.completed + 
+												"\nTime spent: "+stats.took
+			gui.stardust.dvStatsGrowth.innerText = "Growth:\n\n"+Object.keys(stats.growth).map(x => x.capitalizeFirst()+": "+stats.growth[x]).join("\n")
+			gui.stardust.dvStatsProduction.innerText = "Production:\n\n"+Object.keys(stats.production).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.production[x]).join("\n")
 		}
 
 		this.dvDelete = createElement("div", "button" + (this.name == "main"?"":" enabled"), this.dvDisplay, "Delete")

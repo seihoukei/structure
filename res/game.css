@@ -2060,7 +2060,7 @@ canvas.foreground : {
 	justify-content : center;
 }
 
-.sliderlv {
+.dialog {
 	display : flex;
 	flex-direction : column;
 	background-color : var(--background);
@@ -2111,7 +2111,7 @@ canvas.foreground : {
 	justify-content : center;
 }
 
-.sliderlv-title {
+.dialog-title {
 	font-size : 25px;
 	font-weight : bolder;
 	padding : 0 10px 10px;
@@ -2176,6 +2176,20 @@ canvas.foreground : {
 	cursor : pointer;
 }
 
-.imptint.button.active:hover {
+.imprint.button.active:hover {
 	background-color : var(--shade12);
+}
+
+.dialog .stats {
+	display : flex;
+	flex-direction : row;
+	width : 500px;
+	justify-content : space-around;
+}
+
+.dialog .stats-info {
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	padding : 5px;
 }

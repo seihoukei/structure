@@ -217,8 +217,8 @@ const sliderLevelUpHandler = {
 			}
 		}	
 		
-		this.dvDisplay = createElement("div", "sliderlv", this.dvHolder)
-		this.dvTitle = createElement("div", "sliderlv-title", this.dvDisplay)
+		this.dvDisplay = createElement("div", "dialog", this.dvHolder)
+		this.dvTitle = createElement("div", "dialog-title", this.dvDisplay)
 		this.dvLevelUp = createElement("div", "sliderlv-line", this.dvDisplay)
 		this.dvLevelUpCost = createElement("div", "sliderlv-info", this.dvLevelUp)
 		this.dvLevelUpButton = createElement("div", "button line-end", this.dvLevelUp, "Level up")

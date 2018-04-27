@@ -574,7 +574,7 @@ const sliderHandler = {
 			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
 		
 		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
-			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => x.assignTarget(point))
+			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => x.assignTarget(this.target))
 	},
 		
 	advance (deltaTime) {

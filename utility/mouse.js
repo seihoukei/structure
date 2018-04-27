@@ -2,8 +2,9 @@
 
 const MOUSE_STATE_FREE = 0
 const MOUSE_STATE_INFO = 1
+const MOUSE_STATE_BUILD = 2
 
-const mouse = {
+const MapMouse = {
 	x : 0,
 	y : 0,
 	mapX : 0,
@@ -31,8 +32,8 @@ const mouse = {
 		this.button = event.button
 		this.x = this.start.x = event.offsetX
 		this.y = this.start.y = event.offsetY
-		this.mapX = this.start.mapX = viewport.mouseToMapX(this.x)
-		this.mapY = this.start.mapY = viewport.mouseToMapY(this.y)
+		this.mapX = this.start.mapX = gui.mainViewport.mouseToMapX(this.x)
+		this.mapY = this.start.mapY = gui.mainViewport.mouseToMapY(this.y)
 		event.preventDefault()
 	},
 	
@@ -42,7 +43,7 @@ const mouse = {
 		this.button = -1
 		if (this.moved) {
 		} else if (event.button == 2) {
-			viewport.setTargetXY(this.mapX, this.mapY)
+			gui.mainViewport.setTargetXY(this.mapX, this.mapY)
 			gui.target.reset()
 		} else if (event.button == 0) {
 			if (this.closest) {
@@ -52,7 +53,7 @@ const mouse = {
 						if (key.onscreen)
 							key.highlight()
 						else
-							viewport.setTargetXY(this.closest.keyData.keyPoint.x, this.closest.keyData.keyPoint.y)
+							gui.mainViewport.setTargetXY(this.closest.keyData.keyPoint.x, this.closest.keyData.keyPoint.y)
 						gui.hover.reset()
 						gui.target.set(key, this.x, this.y)
 					}
@@ -74,11 +75,11 @@ const mouse = {
 		if (game.slowMode) 
 			return
 		if (this.down) {
-			this.mapX = (this.x - viewport.halfWidth ) / viewport.current.zoom + this.start.mapX
-			this.mapY = (this.y - viewport.halfHeight) / viewport.current.zoom + this.start.mapY
+			this.mapX = (this.x - gui.mainViewport.halfWidth ) / gui.mainViewport.current.zoom + this.start.mapX
+			this.mapY = (this.y - gui.mainViewport.halfHeight) / gui.mainViewport.current.zoom + this.start.mapY
 		} else {
-			this.mapX = (this.x - viewport.halfWidth ) / viewport.current.zoom + viewport.current.x
-			this.mapY = (this.y - viewport.halfHeight) / viewport.current.zoom + viewport.current.y
+			this.mapX = (this.x - gui.mainViewport.halfWidth ) / gui.mainViewport.current.zoom + gui.mainViewport.current.x
+			this.mapY = (this.y - gui.mainViewport.halfHeight) / gui.mainViewport.current.zoom + gui.mainViewport.current.y
 		}
 		
 		if (this.down && (Math.abs(this.x - this.start.x) > 5 || Math.abs(this.y - this.start.y) > 5))
@@ -86,7 +87,7 @@ const mouse = {
 		
 		if (this.state == MOUSE_STATE_FREE) {
 			if (this.down && this.moved && this.button == 0) {
-				viewport.setTargetXY(
+				gui.mainViewport.setTargetXY(
 					2 * this.start.mapX - this.mapX,
 					2 * this.start.mapY - this.mapY)
 			}
@@ -106,17 +107,110 @@ const mouse = {
 	onwheel(event) {
 		if (game.slowMode) 
 			return
-		if (event.deltaY && !mouse.down) {
+		if (event.deltaY && !this.down) {
 			if (this.state == MOUSE_STATE_FREE) {
-				let oldZoom = viewport.current.zoom
-				viewport.setZoom(viewport.current.zoom - (viewport.max.zoom - viewport.min.zoom) * (event.deltaY > 0 ? 0.04 : -0.04))
-				let shift = (viewport.current.zoom - oldZoom) / viewport.current.zoom
-				viewport.setXY(
-					viewport.current.x + shift * (mouse.mapX - viewport.current.x),
-					viewport.current.y + shift * (mouse.mapY - viewport.current.y))
-				game.updateBackground = true
+				let oldZoom = gui.mainViewport.current.zoom
+				gui.mainViewport.setZoom(gui.mainViewport.current.zoom - (gui.mainViewport.max.zoom - gui.mainViewport.min.zoom) * (event.deltaY > 0 ? 0.04 : -0.04))
+				let shift = (gui.mainViewport.current.zoom - oldZoom) / gui.mainViewport.current.zoom
+				gui.mainViewport.setXY(
+					gui.mainViewport.current.x + shift * (this.mapX - gui.mainViewport.current.x),
+					gui.mainViewport.current.y + shift * (this.mapY - gui.mainViewport.current.y))
+				game.updateMapBackground = true
 			}
 		}
 	}
 }
 
+const WorldMouse = {
+	x : 0,
+	y : 0,
+	mapX : 0,
+	mapY : 0,
+	button : -1,
+	down : false,
+	moved : false,
+	state : MOUSE_STATE_FREE,
+	start : {
+		x : 0,
+		y : 0,
+		mapX : 0,
+		mapY : 0,
+	},
+	
+	onmousedown(event) {
+		this.down = true
+		this.moved = false
+		this.button = event.button
+		this.x = this.start.x = event.offsetX
+		this.y = this.start.y = event.offsetY
+		this.mapX = this.start.mapX = gui.worldViewport.mouseToMapX(this.x)
+		this.mapY = this.start.mapY = gui.worldViewport.mouseToMapY(this.y)
+		event.preventDefault()
+	},
+	
+	onmouseup(event) {
+		if (!this.down) return
+		this.down = false
+		this.button = -1
+		if (this.moved) {
+		} else if (event.button == 2) {
+			gui.worldViewport.setTargetXY(this.mapX, this.mapY)
+			gui.target.reset()
+		} else if (event.button == 0) {
+			//main onclick
+		}
+
+		this.moved = false
+		event.preventDefault()
+	},
+	
+	onmousemove(event) {
+		this.x = event.offsetX
+		this.y = event.offsetY
+		if (this.down) {
+			this.mapX = (this.x - gui.worldViewport.halfWidth ) / gui.worldViewport.current.zoom + this.start.mapX
+			this.mapY = (this.y - gui.worldViewport.halfHeight) / gui.worldViewport.current.zoom + this.start.mapY
+		} else {
+			this.mapX = (this.x - gui.worldViewport.halfWidth ) / gui.worldViewport.current.zoom + gui.worldViewport.current.x
+			this.mapY = (this.y - gui.worldViewport.halfHeight) / gui.worldViewport.current.zoom + gui.worldViewport.current.y
+		}
+		
+		if (this.down && (Math.abs(this.x - this.start.x) > 5 || Math.abs(this.y - this.start.y) > 5))
+			this.moved = true
+		
+		if (this.state == MOUSE_STATE_FREE) {
+			if (this.down && this.moved && this.button == 0) {
+				gui.worldViewport.setTargetXY(
+					2 * this.start.mapX - this.mapX,
+					2 * this.start.mapY - this.mapY)
+			}
+		}
+				
+		if (!this.down) {
+			//Main onmousemove
+/*			if (game.map.renderedPoints && game.map.renderedPoints.length) {
+				let closest = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x, null)
+				window.tmpv = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2])
+				window.lastc = closest
+				this.closest = closest && closest[1] < (closest[0].size * 3) ** 2 && closest[0] != gui.target.point? closest[0] : null
+				gui.hover.set(this.closest, this.x, this.y)				
+			}*/
+		}
+	},
+	
+	onwheel(event) {
+		if (game.slowMode) 
+			return
+		if (event.deltaY && !this.down) {
+			if (this.state == MOUSE_STATE_FREE) {
+				let oldZoom = gui.worldViewport.current.zoom
+				gui.worldViewport.setZoom(gui.worldViewport.current.zoom - (gui.worldViewport.max.zoom - gui.worldViewport.min.zoom) * (event.deltaY > 0 ? 0.04 : -0.04))
+				let shift = (gui.worldViewport.current.zoom - oldZoom) / gui.worldViewport.current.zoom
+				gui.worldViewport.setXY(
+					gui.worldViewport.current.x + shift * (this.mapX - gui.worldViewport.current.x),
+					gui.worldViewport.current.y + shift * (this.mapY - gui.worldViewport.current.y))
+				game.updateWorldBackground = true
+			}
+		}
+	}
+}

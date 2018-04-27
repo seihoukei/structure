@@ -9,51 +9,56 @@ function getSize() {
 	let height = gui.map.background.offsetHeight
 	gui.map.background.width  = gui.map.foreground.width  = width
 	gui.map.background.height = gui.map.foreground.height = height
-	viewport.setSize(width, height)
+	gui.mainViewport.setSize(width, height)
+	gui.worldViewport.setSize(width, height)
 	if (game.map)
 		game.updateRenderData()
-	game.updateBackground = true
+	game.updateMapBackground = true
 }
 
-let viewport = {
-	width : 600,
-	height : 600,
-	halfWidth : 300,
-	halfHeight : 300,
-	minSize : 600,
-	maxSize : 600,
-	halfMinSize : 300,
-	halfMaxSize : 300,
+const viewportHandler = {
+	_init() {
+		Object.assign(this, {
+			width : 600,
+			height : 600,
+			halfWidth : 300,
+			halfHeight : 300,
+			minSize : 600,
+			maxSize : 600,
+			halfMinSize : 300,
+			halfMaxSize : 300,
+			
+			min : {
+				x : -50,
+				y : -50,
+				zoom : 0.00001
+			},
+			max : {
+				x : 50,
+				y : 50,
+				zoom : 0.02
+			},
+			target : {
+				x : 0,
+				y : 0,
+				zoom : 0.00001
+			},
+			current : {
+				x : 0,
+				y : 0,
+				zoom : 0
+			},
+			window : {
+				left : -300,
+				right : 300,
+				top : -300,
+				bottom : 300
+			},
+		})
+	},
 	
-	min : {
-		x : -50,
-		y : -50,
-		zoom : 0.00001
-	},
-	max : {
-		x : 50,
-		y : 50,
-		zoom : 0.02
-	},
-	target : {
-		x : 0,
-		y : 0,
-		zoom : 0.00001
-	},
-	current : {
-		x : 0,
-		y : 0,
-		zoom : 0
-	},
-	window : {
-		left : -300,
-		right : 300,
-		top : -300,
-		bottom : 300
-	},
-	
-	init() {
-		this.getLimits(game.map.bounds)
+	init(bounds) {
+		this.getLimits(bounds)
 		this.setXY(
 			(this.min.x + this.max.x) / 2,
 			(this.min.y + this.max.y) / 2)
@@ -98,7 +103,7 @@ let viewport = {
 				this.current[name] = this.target[name]
 			else
 				this.current[name] += (this.target[name] - this.current[name]) * step
-			game.updateBackground = true
+			game.updateMapBackground = true
 			this.updateWindow()
 		}
 	},
@@ -164,3 +169,5 @@ let viewport = {
 		return (y - this.halfHeight) / this.current.zoom + this.current.y
 	},
 }
+
+const Viewport = Template(viewportHandler)

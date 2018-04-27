@@ -6,7 +6,7 @@ const GAME_AUTOMATION_PERIOD = 1000
 
 //l = 1,m = Array(51).fill().map((x,n) => GameMap(mapLevel(n), mapMaker)).map(m => m.points.map(x => x.power * x.length).filter(x => x)).map (x => (k=(Math.min(...x)/l),l=Math.max(...x),k)).slice(1), [Math.max(...m), Math.min(...m)]
 const game = {
-	updateBackground : false,
+	updateMapBackground : false,
 	skillCostMult : 1,
 	sliders : [],
 	animatingPoints : new Set(),
@@ -36,17 +36,17 @@ const game = {
 	lastCloudSave : performance.now(),
 	
 	updateRenderData() {	
-		if (!viewport.width || !viewport.height) return
+		if (!gui.mainViewport.width || !gui.mainViewport.height) return
 		if (!this.renderData.radarCV) {
 			this.renderData.radarCV = document.createElement("canvas")
 		}
-		this.renderData.radarCV.width  = viewport.width
-		this.renderData.radarCV.height = viewport.height
+		this.renderData.radarCV.width  = gui.mainViewport.width
+		this.renderData.radarCV.height = gui.mainViewport.height
 		const c = this.renderData.radarCV.getContext("2d")
 		const grad = gui.foregroundContext.createRadialGradient(0, 0, 0, 0, 0, 5)
 		grad.addColorStop(0, gui.theme.radar)
 		grad.addColorStop(1, "transparent")
-		c.translate(viewport.halfWidth, viewport.halfHeight)
+		c.translate(gui.mainViewport.halfWidth, gui.mainViewport.halfHeight)
 		c.fillStyle = grad
 		this.map.points.filter(pt => pt.owned).map(pt => {
 			c.save()
@@ -69,9 +69,9 @@ const game = {
 				if (this.updateInterface) 
 					gui.map.updateLowLoad()
 			} else {
-				if (this.updateBackground) {
+				if (this.updateMapBackground) {
 					this.renderBackground(gui.backgroundContext)
-					this.updateBackground = false
+					this.updateMapBackground = false
 				}
 				this.renderForeground(gui.foregroundContext)
 				
@@ -100,11 +100,11 @@ const game = {
 	},
 	
 	renderBackground(c) {
-		c.clearRect(0, 0, viewport.width, viewport.height)
+		c.clearRect(0, 0, gui.mainViewport.width, gui.mainViewport.height)
 		c.save()
-		c.translate(viewport.halfWidth, viewport.halfHeight)
-		c.scale(viewport.current.zoom, viewport.current.zoom)
-		c.translate(-viewport.current.x, -viewport.current.y)
+		c.translate(gui.mainViewport.halfWidth, gui.mainViewport.halfHeight)
+		c.scale(gui.mainViewport.current.zoom, gui.mainViewport.current.zoom)
+		c.translate(-gui.mainViewport.current.x, -gui.mainViewport.current.y)
 		if (this.skills.magic)
 			this.renderCircle(c, this.map.ownedRadius)
 		//this.renderCircle(c, this.map.size)
@@ -113,20 +113,21 @@ const game = {
 	},	
 	
 	renderForeground(c) {
-		c.clearRect(0, 0, viewport.width, viewport.height)
+		c.clearRect(0, 0, gui.mainViewport.width, gui.mainViewport.height)
 		c.save()
-		c.translate(viewport.halfWidth, viewport.halfHeight)
-		c.scale(viewport.current.zoom, viewport.current.zoom)
-		c.translate(-viewport.current.x, -viewport.current.y)
+		c.translate(gui.mainViewport.halfWidth, gui.mainViewport.halfHeight)
+		c.scale(gui.mainViewport.current.zoom, gui.mainViewport.current.zoom)
+		c.translate(-gui.mainViewport.current.x, -gui.mainViewport.current.y)
 		c.lineCap = "round"
 		this.renderAnimations(c)
 		this.sliders.map(x => x.render(c))
-		if (mouse.closest) {
+		if (gui.mapMouse.closest) {
 			c.save()
-			c.translate(mouse.closest.x, mouse.closest.y)
-			c.strokeStyle = mouse.closest.owned?gui.theme.mouseOwned:(mouse.closest.lock && !mouse.closest.keyData.keyPoint.owned)?gui.theme.shades[11]:gui.theme.mouseEnemy
+			c.lineWidth = Math.max(1, 1/gui.mainViewport.current.zoom)
+			c.translate(gui.mapMouse.closest.x, gui.mapMouse.closest.y)
+			c.strokeStyle = gui.mapMouse.closest.owned?gui.theme.mouseOwned:(gui.mapMouse.closest.lock && !gui.mapMouse.closest.keyData.keyPoint.owned)?gui.theme.shades[11]:gui.theme.mouseEnemy
 			c.beginPath()
-			let radius = mouse.closest.size + (mouse.closest.level || 0) * 2 + 1.75 + 0.5 * Math.sin(this.frame / 30) 
+			let radius = gui.mapMouse.closest.size + (gui.mapMouse.closest.level || 0) * 2 + 1.75 + 0.5 * Math.sin(this.frame / 30) 
 			let angle = this.frame / 50
 			c.arc(0, 0, radius, angle, angle + 0.5)
 			c.stroke()
@@ -140,10 +141,10 @@ const game = {
 			
 			let partner
 			
-			if (mouse.closest.lock) 
-				partner = mouse.closest.keyData.keyPoint
-			if (mouse.closest.key) 
-				partner = mouse.closest.keyData.lockPoint
+			if (gui.mapMouse.closest.lock) 
+				partner = gui.mapMouse.closest.keyData.keyPoint
+			if (gui.mapMouse.closest.key) 
+				partner = gui.mapMouse.closest.keyData.lockPoint
 			
 			if (partner && partner.away < 2 && partner.locked < 2) {
 				c.save()
@@ -178,8 +179,23 @@ const game = {
 				})
 			}
 /*			c.beginPath()
-			drawRegion(mouse.closest)
+			drawRegion(gui.mapMouse.closest)
 			c.stroke()//*/
+		}
+		if (gui.map.hoverSlider && gui.map.hoverSlider.target) {
+			c.save()
+			const {x,y} = gui.map.hoverSlider.target.coordinatesOn(gui.map.hoverSlider.target.position, true)
+			const radius = 10 - this.frame % 20 / 2
+			c.strokeStyle = gui.map.hoverSlider.color
+			c.lineWidth = Math.max(1, 1/gui.mainViewport.current.zoom)				
+			for (let i = 0; i < 3; i++) {
+				c.globalAlpha = Math.min(1, 2 - 0.66 * i - radius / 15)
+				c.beginPath()
+				c.moveTo(x + radius + i * 10, y)
+				c.arc(x, y, radius + i * 10, 0, 6.29)
+				c.stroke()
+			}
+			c.restore()
 		}
 		c.restore()
 	},
@@ -189,7 +205,7 @@ const game = {
 			point.render(c)
 			if (!point.animating) {
 				this.animatingPoints.delete(point)
-				this.updateBackground = true
+				this.updateMapBackground = true
 			}
 		}
 		function renderProgress(point) {
@@ -286,7 +302,7 @@ const game = {
 				c.arc(pt.x, pt.y, frame, 0, 6.29)
 			})
 			
-			c.translate(-viewport.halfWidth, -viewport.halfHeight)
+			c.translate(-gui.mainViewport.halfWidth, -gui.mainViewport.halfHeight)
 			c.stroke()
 			c.restore()
 		}		
@@ -344,13 +360,14 @@ const game = {
 		gui.target.reset()
 		gui.hover.reset()
 
-		mouse.closest = null		
+		gui.mapMouse.closest = null		
 //		this.map.restoreState()
 		this.update()
 		gui.tabs.setTitle("map", (this.map.virtual?"Virtual map":"Map")+" (Level " + this.map.level + ")")
 		gui.skills.updateSkills()
 		this.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"")
-		viewport.init()
+		gui.mainViewport.init(this.map.bounds)
+		gui.worldViewport.init(this.world.bounds)
 	},
 	
 	unlockStory(x) {
@@ -366,8 +383,8 @@ const game = {
 		this.world.update()
 		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		if (!this.offline) {
-			viewport.getLimits(this.map.bounds)
-			this.updateBackground = true
+			gui.mainViewport.getLimits(this.map.bounds)
+			this.updateMapBackground = true
 			gui.updateTabs()
 			gui.skills.updateSkills()
 			this.updateRenderData()
@@ -591,7 +608,7 @@ const game = {
 	
 			RESOURCES.map(x => {
 				if (x == 'science' && this.researching)
-					advanceResearch(this.real.production[x] * mul * 2)
+					this.research[this.researching].advance(this.real.production[x] * mul * 2)
 				else
 					this.resources[x] += this.real.production[x] * mul * 2
 			})
@@ -712,7 +729,7 @@ const game = {
 		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
 		gui.map.dvResources.classList.toggle("hidden", this.slowMode)
 		gui.map.dvSliders.classList.toggle("hidden", this.slowMode)
-		this.updateBackground = true
+		this.updateMapBackground = true
 		this.updateInterface = true
 		this.updateRenderData()
 	},
@@ -725,7 +742,7 @@ const game = {
 		o.managementSorting = gui.management.sorting
 //		o.tabletSmart = gui.artifacts.smart
 		delete o.skills
-		delete o.updateBackground
+		delete o.updateMapBackground
 		delete o.dev
 		delete o.frame
 		delete o.lastSave
@@ -798,9 +815,7 @@ const game = {
 		this.researching = save.researching
 
 		Object.keys(ARTIFACTS).map(x => {
-			this.research[x] = Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
-			while (!this.research[x].done && (this.research[x].codeword.length != ARTIFACTS[x].codeLength || badCodeWord(this.research[x].codeword)))
-				this.research[x] = createArtifactResearch(x, this.research[x].tablet)
+			this.research[x] = save.research?Research(save.research[x], {name : x}):Research({name : x})//Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
 		})
 
 		this.maps = save.maps || {"main" : save.map}
@@ -885,7 +900,7 @@ const game = {
 		this.statistics = {
 			onlineTime : 1
 		}
-		Object.keys(ARTIFACTS).map(x => this.research[x] = createArtifactResearch(x))
+		Object.keys(ARTIFACTS).map(x => this.research[x] = Research({name : x}))
 		this.researching = false
 
 		Object.keys(this.growth).map(x => this.growth[x] = 0)

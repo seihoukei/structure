@@ -268,8 +268,8 @@ const managementPointElementHandler = {
 			gui.management.dvHover.innerText = "Level up\nGold: "+displayNumber(this.point.costs.levelUp)
 		}
 		this.dvLevelUp.onmousemove = (event) => {
-			gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > viewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
-			gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > viewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
+			gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > gui.mainViewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
+			gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > gui.mainViewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
 		}
 		this.dvLevelUp.onmouseleave = this.dvLevelUp.onmouseout = (event) => gui.management.dvHover.classList.toggle("hidden", true)
 
@@ -289,8 +289,8 @@ const managementPointElementHandler = {
 				gui.management.dvHover.innerText = x.building.name + "\n" + x.building.desc + "\n" +  (this.point?this.point.buildings[x.id]?x.building.info(this.point):"Gold: "+displayNumber(this.point.costs[x.id]):"?")
 			}
 			x.dvDisplay.onmousemove = (event) => {
-				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > viewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
-				gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > viewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
+				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > gui.mainViewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
+				gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > gui.mainViewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
 			}
 			x.dvDisplay.onmouseleave = x.dvDisplay.onmouseout = (event) => gui.management.dvHover.classList.toggle("hidden", true)
 		})
@@ -313,8 +313,8 @@ const managementPointElementHandler = {
 				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
 			}
 			x.dvDisplay.onmousemove = (event) => {
-				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > viewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
-				gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > viewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
+				gui.management.dvHover.style.left = (event.clientX + 15 - (event.clientX > gui.mainViewport.halfWidth?gui.management.dvHover.offsetWidth:0)) + "px"
+				gui.management.dvHover.style.top  = (event.clientY - 15 - (event.clientY > gui.mainViewport.halfHeight?gui.management.dvHover.offsetHeight:0)) + "px"
 			}
 			x.dvDisplay.onmouseleave = x.dvDisplay.onmouseout = (event) => gui.management.dvHover.classList.toggle("hidden", true)
 		})

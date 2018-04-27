@@ -30,7 +30,7 @@ const ArtifactsTab = Template({
 		}
 		this.dvTabletAttempt = createElement("div", "button", this.dvTabletControls, "Try code")
 		this.dvTabletAttempt.onclick = (event) => {
-			const result = this.dvTabletInput.value && finalizeResearch(this.displayedTablet, this.dvTabletInput.value)
+			const result = this.dvTabletInput.value && game.research[this.displayedTablet].finalize(this.dvTabletInput.value)
 			if (result) {
 				this.dvTabletHolder.classList.toggle("hidden", true)
 				this.displayedTablet = ""
@@ -256,8 +256,8 @@ const ArtifactsTab = Template({
 		this.equipSlider = slider
 		this.equipSlot = slot
 		this.dvEquipMenuHolder.classList.toggle("hidden", false)
-		this.dvEquipMenu.style.left = Math.min(viewport.width - this.dvEquipMenu.offsetWidth - 5, x) + "px"
-		this.dvEquipMenu.style.top = Math.min(viewport.height - this.dvEquipMenu.offsetHeight - 5, y) + "px"
+		this.dvEquipMenu.style.left = Math.min(gui.mainViewport.width - this.dvEquipMenu.offsetWidth - 5, x) + "px"
+		this.dvEquipMenu.style.top = Math.min(gui.mainViewport.height - this.dvEquipMenu.offsetHeight - 5, y) + "px"
 		Object.values(ARTIFACTS).map(artifact => {
 			const research = game.research[artifact.id]
 			artifact.menuItem.dvDisplay.classList.toggle("hidden", !research.done)

@@ -40,7 +40,7 @@ Number.prototype.digits = function(n) {
 }
 
 let memoize = function(factory, ctx) {
-    var cache = {};
+    let cache = {};
     return function(key) {
         if (!(key in cache)) {
             cache[key] = factory.call(ctx, key);
@@ -50,9 +50,9 @@ let memoize = function(factory, ctx) {
 };
 
 let colorToRGBA = (function() {
-    var canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
     canvas.width = canvas.height = 1;
-    var ctx = canvas.getContext('2d');
+    let ctx = canvas.getContext('2d');
 
     return memoize(function(col) {
         ctx.clearRect(0, 0, 1, 1);
@@ -324,10 +324,6 @@ function superScript(n) {
 	}
 	return n > 0 ? result : ("⁻" + result)
 }
-
-const letters = Array(26).fill(0).map((x,n) => String.fromCharCode(n+65))
-const letterPairs = Array(26*26).fill(0).map((x,n) => letters[n/26|0]+letters[n%26])
-
 		
 ///\uFE0E - selector
 //✓ - tick

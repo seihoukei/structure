@@ -140,9 +140,9 @@ const StardustTab = Template({
 			
 			let n = -1
 			while (stardustTotal > game.resources.stardust) {
-				n++
-				if (!game.stardust[POINT_TYPES[n % 4 + 2]]) continue
-				game.stardust[POINT_TYPES[n % 4 + 2]]--
+				n = (n + 1) % 4
+				if (game.stardust[POINT_TYPES[n + 3]] <= 0) continue
+				game.stardust[POINT_TYPES[n + 3]]--
 				stardustTotal--
 			}
 			

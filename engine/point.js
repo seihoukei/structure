@@ -150,6 +150,7 @@ const mapPointHandler = {
 	
 	calculateStats() {
 //		if (!this.initialized || this.initialized < 5) {
+			this.innerSize = this.size * settings.nodeScale
 			if (this.key) {
 				this.keyData = this.map.keys[this.key]
 				this.keyData.keyPoint = this
@@ -164,13 +165,13 @@ const mapPointHandler = {
 				this.dy = this.parent.y - this.y
 				this.direction = Math.atan2(this.dy, this.dx)
 				this.length = Math.hypot(this.dy, this.dx)
-				this.pathLength = this.length - this.size - this.parent.size
+				this.pathLength = this.length - this.innerSize - this.parent.innerSize
 			}
-			this.sdx = this.edx = this.x + this.dx * (this.size + 0.45) / this.length
-			this.sdy = this.edy = this.y + this.dy * (this.size + 0.45) / this.length
+			this.sdx = this.edx = this.x + this.dx * (this.innerSize + 0.45) / this.length
+			this.sdy = this.edy = this.y + this.dy * (this.innerSize + 0.45) / this.length
 			if (this.parent) {
-				this.sdx = this.parent.x - this.dx * (this.parent.size + 0.45) / this.length
-				this.sdy = this.parent.y - this.dy * (this.parent.size + 0.45) / this.length
+				this.sdx = this.parent.x - this.dx * (this.parent.innerSize + 0.45) / this.length
+				this.sdy = this.parent.y - this.dy * (this.parent.innerSize + 0.45) / this.length
 			}
 			let depth = 0
 			let pt = this
@@ -205,7 +206,7 @@ const mapPointHandler = {
 		this.noclone = this.special == SPECIAL_NOCLONE
 		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
 
-		this.renderSize = this.level?this.size + 0.25 + 2 * this.level:this.size
+		this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
 			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		
@@ -707,26 +708,26 @@ const mapPointHandler = {
 			c.beginPath()
 			if (this.locked != 1) {
 				const arcProgress = Math.min(2 * Math.max(0, this.animationProgress - 0.25),1) * 1.68
-				c.moveTo(this.size, 0)
-				c.arc(0, 0, this.size, 0, arcProgress)
-				c.moveTo(0, this.size)
-				c.arc(0, 0, this.size, 1.68, 1.68 + arcProgress)
-				c.moveTo(-this.size, 0)
-				c.arc(0, 0, this.size, 3.14, 3.14 + arcProgress)
-				c.moveTo(0, -this.size)
-				c.arc(0, 0, this.size, 4.82, 4.82 + arcProgress)
+				c.moveTo(this.innerSize, 0)
+				c.arc(0, 0, this.innerSize, 0, arcProgress)
+				c.moveTo(0, this.innerSize)
+				c.arc(0, 0, this.innerSize, 1.68, 1.68 + arcProgress)
+				c.moveTo(-this.innerSize, 0)
+				c.arc(0, 0, this.innerSize, 3.14, 3.14 + arcProgress)
+				c.moveTo(0, -this.innerSize)
+				c.arc(0, 0, this.innerSize, 4.82, 4.82 + arcProgress)
 				c.stroke()
 				if (game.skills.sensor && this.animationProgress < 0.5) {
 					c.fillStyle = "silver"
 					c.globalAlpha = 1 - this.animationProgress * 2
 					c.beginPath()
-					c.arc(0, 0, this.size * (1 + this.animationProgress), 0, 6.29)
+					c.arc(0, 0, this.innerSize * (1 + this.animationProgress), 0, 6.29)
 					c.fill()
 				}
 				if (this.animationProgress > 0.5) {
 					c.fillStyle = gui.theme.typeColors[this.type]
 					c.globalAlpha = this.animationProgress
-					const r = this.size * Math.sin((this.animationProgress - 0.5) * 5) / 0.5985
+					const r = this.innerSize * Math.sin((this.animationProgress - 0.5) * 5) / 0.5985
 					c.beginPath()
 					c.arc(0, 0, r, 0, 6.29)
 					c.fill()
@@ -751,7 +752,7 @@ const mapPointHandler = {
 				c.beginPath()
 				c.globalAlpha = this.animateProgress
 				c.fillStyle = this.map.boss?"rgb(128,128,225)":"silver"
-				const r = this.size * Math.sin((this.animationProgress - 0.75) * 10) / 0.5985
+				const r = this.innerSize * Math.sin((this.animationProgress - 0.75) * 10) / 0.5985
 				c.arc(0, 0, r, 0, 6.29)			
 				c.fill()
 				c.restore()			
@@ -795,6 +796,7 @@ const mapPointHandler = {
 		delete o.edy
 		delete o.power
 		delete o.renderSize
+		delete o.innerSize
 		delete o.totalPower
 		delete o.index
 		delete o.parents

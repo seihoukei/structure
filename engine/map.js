@@ -45,8 +45,8 @@ const mapHandler = {
 			}
 //			c.setLineDash([])
 			if (point.locked != 1 || game.dev && game.dev.seeAll) {
-				c.moveTo(point.size, 0)
-				c.arc(0, 0, point.size, 0, 6.29)
+				c.moveTo(point.innerSize, 0)
+				c.arc(0, 0, point.innerSize, 0, 6.29)
 			}
 			c.restore()
 		}
@@ -129,14 +129,18 @@ const mapHandler = {
 			if (point.locked == 1) return
 			c.save()
 			c.translate(point.x, point.y)
-			for (let i = 1; i <= point.level; i++) {
-				c.moveTo(point.size + 0.25 + i * 2, 0)
-				c.arc(0, 0, point.size + 0.25 + i * 2, 0, 6.29)
+			if (settings.levelDisplay == 2)
+				for (let i = 1; i <= point.level; i++) {
+					c.moveTo(point.innerSize + 0.25 + i * 2 * settings.nodeScale, 0)
+					c.arc(0, 0, point.innerSize + 0.25 + i * 2 * settings.nodeScale, 0, 6.29)
+				}
+			else if (settings.levelDisplay == 1 && point.level) {
+				c.fillText(point.level, point.renderSize, point.renderSize)
 			}
-			if (point.enchanted && !point.level) {
+			if (point.enchanted && (!point.level || settings.levelDisplay != 2)) {
 				for (let i = 1; i < 4; i++) {
-					c.moveTo(point.size + 0.25 + i*0.5, 0)
-					c.arc(0, 0, point.size + 0.25 + i*0.5, 0, 6.29)
+					c.moveTo(point.innerSize + 0.25 + i*0.5 * settings.nodeScale, 0)
+					c.arc(0, 0, point.innerSize + 0.25 + i*0.5 * settings.nodeScale, 0, 6.29)
 				}
 			}
 			c.restore()
@@ -145,8 +149,8 @@ const mapHandler = {
 			if (point.locked == 1) return
 			c.save()
 			c.translate(point.x, point.y)
-			c.moveTo(point.size, 0)
-			c.arc(0, 0, point.size, 0, 6.29)
+			c.moveTo(point.innerSize, 0)
+			c.arc(0, 0, point.innerSize, 0, 6.29)
 			c.restore()	
 		}
 		function fillRegion(point) {
@@ -202,7 +206,7 @@ const mapHandler = {
 			if (point.owned && point.index && (point.key && point.keyData.lockPoint.owned || point.lock || point.exit || point.boss))
 				c.globalAlpha = 0.55
 			const w = c.measureText(point.specialText).width
-			c.font = (point.size / w * 12).toFixed(2)+"px" + fontName
+			c.font = (point.innerSize / w * 12).toFixed(2)+"px" + fontName
 			c.fillText(point.specialText, 0, 0)
 			c.restore()
 		}
@@ -248,10 +252,12 @@ const mapHandler = {
 		c.restore()//*/
 
 		c.save()
-		c.lineWidth = Math.max(0.5, 1/gui.mainViewport.current.zoom)
+		c.lineWidth = Math.max(0.5, 1/gui.mainViewport.current.zoom) * settings.nodeScale
+		c.font = (8 * settings.nodeScale) + "px"+fontName
 		for (let i = 0; i < 5; i++) {
 			c.beginPath()
 			c.strokeStyle = gui.theme.enchantmentColors[i]
+			c.fillStyle = gui.theme.enchantmentColors[i]
 			this.renderedPoints.filter(x => (x.owned && x.level || x.enchanted) && (x.enchanted == i || !i && !x.enchanted)).map(drawLevel)
 			c.stroke()
 		}
@@ -305,7 +311,7 @@ const mapHandler = {
 			this.renderedPoints.map(point => {
 				c.save()
 				c.translate(point.x, point.y)
-				c.fillText(POINT_TYPES[point.type].capitalizeFirst()[0],0, -point.size)
+				c.fillText(POINT_TYPES[point.type].capitalizeFirst()[0],0, -point.innerSize)
 				c.restore()
 			})
 			c.restore()

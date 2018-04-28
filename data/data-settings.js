@@ -156,6 +156,47 @@ const SETTINGS = {
 			value : 2
 		}],
 	},
+	levelDisplay : {
+		group : "Map",
+		displayName : "Node level display",
+		default : 2,
+		choices: [{
+			text: "None",
+			value : 0
+		},{
+			text: "Number",
+			value : 1
+		},{
+			text: "Circles",
+			value : 2
+		}],
+		onSet() {
+			game.update()
+			game.updateMapBackground = true
+		}
+	},
+	nodeScale : {
+		group : "Map",
+		displayName : "Node size scale",
+		default : 1,
+		choices: [{
+			text: "x0.25",
+			value : 0.25
+		},{
+			text: "x0.5",
+			value : 0.5
+		},{
+			text: "x0.75",
+			value : 0.75
+		},{
+			text: "x1",
+			value : 1
+		}],
+		onSet() {
+			game.update()
+			game.updateMapBackground = true
+		}
+	},
 	storyMainDisplay : {
 		group : "Story",
 		displayName : "Main story display",

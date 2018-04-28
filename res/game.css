@@ -2191,8 +2191,9 @@ canvas.foreground : {
 .dialog .stats {
 	display : flex;
 	flex-direction : row;
-	width : 500px;
+	width : 600px;
 	justify-content : space-around;
+	align-items : start;
 }
 
 .dialog .stats-info {

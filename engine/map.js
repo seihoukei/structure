@@ -635,6 +635,7 @@ const mapMaker = {
 				taken.set("0,0", this.points[0])
 				if (this.virtual) n = n * 1.5 | 0
 				if (this.level == 30 && !this.virtual) n = 284
+				
 				while (n--) {
 					let x = 0
 					let y = 0
@@ -685,7 +686,7 @@ const mapMaker = {
 					}
 					this.points.push(point)
 				}
-				
+
 				if (this.level == 30 && !this.virtual) {
 					for (let i = 0; i < 4; i++) {
 						let x = (i&1)?-8:8
@@ -883,7 +884,7 @@ const mapMaker = {
 				clonePoint = clonePoint.parent
 			}
 			
-			for (let k = 0; k < this.level; k++) {
+			for (let k = 0; (k < this.level && free.size); k++) {
 				let point1 = [...free][Math.floor(Math.random() * free.size)]
 				free.delete(point1)
 				let possible = new Set([...free].filter(x => x.depth > 1 && x.children.size && x.depth > point1.depth - 3 && !x.parents.has(point1)))

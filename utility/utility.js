@@ -187,6 +187,7 @@ function timeString(t = 0, start = 1) {
 		
 		step++
 	}
+	if (result == "") result = pluralize(0, timeStringCodes[start].name)
 	return result
 }
 

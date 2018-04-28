@@ -643,7 +643,7 @@ canvas.foreground : {
 	z-index : 4;
 	padding : 0 5px;
 	border-radius : 5px;
-	background-color : var(--background);
+	background-color : inherit;
 }
 
 .tab.sliders, .tab.story, .tab.skills, .tab.management, .tab.artifacts {

@@ -679,7 +679,7 @@ const game = {
 		Object.keys(this.growth).map(x => {
 			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
 			if (x == "spirit" && this.skills.spiritStar)
-				this.real.multi.spirit *= this.resources.stars * this.resources.stardust
+				this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
 		

@@ -507,7 +507,7 @@ const mapPointHandler = {
 				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
 					if (game.sliders.filter(x => x.clone == 2).length >= 10) break
 					let element = Math.random() * 4 + 3 | 0
-					while (element == this.type) element = Math.random() * 4 + 3 | 0
+					while (element == this.type || element % 4 + 3 == this.type) element = Math.random() * 4 + 3 | 0
 					createSummon(this, element)
 					if (gui.target.point == this)
 						gui.target.set(this, -1)

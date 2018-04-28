@@ -165,6 +165,7 @@ const StardustTab = Template({
 		this.dvStatsContainer = createElement("div", "stats", this.dvStats)
 		this.dvStatsGrowth = createElement("div", "stats-info", this.dvStatsContainer)
 		this.dvStatsProduction = createElement("div", "stats-info", this.dvStatsContainer)
+		this.dvStatsMulti = createElement("div", "stats-info", this.dvStatsContainer)
 	},
 	
 	onSet() {
@@ -182,6 +183,7 @@ const StardustTab = Template({
 											"\nTime spent: "+stats.took
 		gui.stardust.dvStatsGrowth.innerText = "Growth:\n\n"+Object.keys(stats.growth).map(x => x.capitalizeFirst()+": "+stats.growth[x]).join("\n")
 		gui.stardust.dvStatsProduction.innerText = "Production:\n\n"+Object.keys(stats.production).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.production[x]).join("\n")
+		gui.stardust.dvStatsMulti.innerText = "Multipliers:\n\n"+Object.keys(stats.multi).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.multi[x]).join("\n")
 		this.lastUpdate = performance.now()
 	},
 	

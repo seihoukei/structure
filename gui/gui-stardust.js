@@ -156,6 +156,7 @@ const StardustTab = Template({
 		this.dvStatsHolder.onclick = (event) => {
 //			if (event.target == this.dvStatsHolder) {
 				this.dvStatsHolder.classList.toggle("hidden", true)
+				delete this.displayMap
 //			}
 		}	
 		this.dvStats = createElement("div", "dialog", this.dvStatsHolder)
@@ -169,6 +170,19 @@ const StardustTab = Template({
 	onSet() {
 		this.dvDisplay.appendChild(gui.map.dvGrowth)
 		this.update(true)
+	},
+	
+	updateMapStats(name) {
+		const map = game.maps[name]
+		this.displayMap = name
+		const stats = map.getStats()
+		gui.stardust.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+" map"
+		gui.stardust.dvStatsTime.innerText = "Created: "+stats.created + 
+											"\nCompleted: "+stats.completed + 
+											"\nTime spent: "+stats.took
+		gui.stardust.dvStatsGrowth.innerText = "Growth:\n\n"+Object.keys(stats.growth).map(x => x.capitalizeFirst()+": "+stats.growth[x]).join("\n")
+		gui.stardust.dvStatsProduction.innerText = "Production:\n\n"+Object.keys(stats.production).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.production[x]).join("\n")
+		this.lastUpdate = performance.now()
 	},
 	
 	update(forced) {
@@ -214,6 +228,9 @@ const StardustTab = Template({
 				}))
 			}
 		}
+		if (this.displayMap && performance.now() - this.lastUpdate > 2000/* == game.activeMap*/) {
+			this.updateMapStats(this.displayMap)
+		}
 	}
 })
 
@@ -246,15 +263,8 @@ const mapDisplayHandler = {
 
 		this.dvStats = createElement("div", "button enabled", this.dvDisplay, "Stats")
 		this.dvStats.onclick = (event) => {
-			const map = game.maps[this.name]
-			const stats = map.getStats()
 			gui.stardust.dvStatsHolder.classList.toggle("hidden", false)
-			gui.stardust.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+" map"
-			gui.stardust.dvStatsTime.innerText = "Created: "+stats.created + 
-												"\nCompleted: "+stats.completed + 
-												"\nTime spent: "+stats.took
-			gui.stardust.dvStatsGrowth.innerText = "Growth:\n\n"+Object.keys(stats.growth).map(x => x.capitalizeFirst()+": "+stats.growth[x]).join("\n")
-			gui.stardust.dvStatsProduction.innerText = "Production:\n\n"+Object.keys(stats.production).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.production[x]).join("\n")
+			gui.stardust.updateMapStats(this.name)
 		}
 
 		this.dvDelete = createElement("div", "button" + (this.name == "main"?"":" enabled"), this.dvDisplay, "Delete")

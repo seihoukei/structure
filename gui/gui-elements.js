@@ -462,3 +462,124 @@ const listPickerHandler = {
 }
 
 const ListPicker = Template(listPickerHandler)
+
+const colorPickerHandler = {
+	_init() {
+		this.dvHolder = createElement("div", "holder hidden", document.body)
+		this.dvHolder.onclick = (event) => {
+			if (event.target == this.dvHolder) {
+				this.dvHolder.classList.toggle("hidden", true)
+			}
+		}
+
+		this.dvDisplay = createElement("div", "color-picker", this.dvHolder)
+		this.color = {
+			red : 0,
+			green : 0,
+			blue : 0
+		}
+		this.red = GuiSlider({
+			container : this.color,
+			value : "red",
+			parent : this.dvDisplay,
+			leftText : "Red",
+			max : 255,
+			min : 0,
+			steps : 255,
+			digits : 0,
+			onSet : () => {
+				this.green.update()
+				this.blue.update()
+				const newColor = "rgb("+this.color.red+","+this.color.green+","+this.color.blue+")"
+				this.updateColor(newColor)
+			},
+			onUpdate : () => {
+				if (this.red)
+					this.red.dvLine.style.background = "linear-gradient(to right, rgb(0,"+this.color.green+","+this.color.blue+"), rgb(255,"+this.color.green+","+this.color.blue+"))"
+			},
+			className : "color"
+		})
+		this.green = GuiSlider({
+			container : this.color,
+			value : "green",
+			parent : this.dvDisplay,
+			leftText : "Green",
+			max : 255,
+			min : 0,
+			steps : 255,
+			digits : 0,
+			onSet : () => {
+				this.green.update()
+				this.blue.update()
+				const newColor = "rgb("+this.color.red+","+this.color.green+","+this.color.blue+")"
+				this.updateColor(newColor)
+			},
+			onUpdate : () => {
+				if (this.green)
+					this.green.dvLine.style.background = "linear-gradient(to right, rgb("+this.color.red+",0,"+this.color.blue+"), rgb("+this.color.red+",255,"+this.color.blue+"))"
+			},
+			className : "color"
+		})
+		this.blue = GuiSlider({
+			container : this.color,
+			value : "blue",
+			parent : this.dvDisplay,
+			leftText : "Blue",
+			max : 255,
+			min : 0,
+			steps : 255,
+			digits : 0,
+			onSet : () => {
+				this.green.update()
+				this.red.update()
+				const newColor = "rgb("+this.color.red+","+this.color.green+","+this.color.blue+")"
+				this.updateColor(newColor)
+			},
+			onUpdate : () => {
+				if (this.blue)
+					this.blue.dvLine.style.background = "linear-gradient(to right, rgb("+this.color.red+","+this.color.green+",0), rgb("+this.color.red+","+this.color.green+",255))"
+			},
+			className : "color"
+		})
+		this.dvButtons = createElement("div", "buttons", this.dvDisplay)
+		this.dvSet = createElement("div", "button", this.dvButtons, "OK")
+		this.dvSet.onclick = (event) => {
+			this.dvHolder.classList.toggle("hidden", true)
+		}
+
+		this.dvUndo = createElement("div", "button", this.dvButtons, "Cancel")
+		this.dvUndo.onclick = (event) => {
+			this.updateColor(this.oldColor)
+			this.dvHolder.classList.toggle("hidden", true)
+		}
+	},
+	
+	display(container, value, x, y) {
+		const input = colorToRGBA(container[value])
+		this.container = container
+		this.value = value
+		this.oldColor = container[value]
+		this.color.red = input[0]
+		this.color.green = input[1]
+		this.color.blue = input[2]
+		this.dvHolder.classList.toggle("hidden",false)
+		this.red.update()
+		this.green.update()
+		this.blue.update()
+		this.updateColor(this.oldColor)
+		this.dvDisplay.style.left = Math.min(gui.mainViewport.width - this.dvDisplay.offsetWidth - 5, x) + "px"
+		this.dvDisplay.style.top = Math.min(gui.mainViewport.height - this.dvDisplay.offsetHeight - 5, y) + "px"
+	},
+	
+	updateColor(newColor) {
+		this.red.dvRunner.style.backgroundColor = this.green.dvRunner.style.backgroundColor = this.blue.dvRunner.style.backgroundColor = newColor
+		const colorLevel = this.color.red * 299 + this.color.green * 587 + this.color.blue * 114
+		this.red.dvRunner.style.color = this.green.dvRunner.style.color = this.blue.dvRunner.style.color = colorLevel > 128000?"black":"white"
+		if (this.container.setColor)
+			this.container.setColor(newColor)
+		else
+			this.container[this.value] = newColor
+	}
+}
+
+const ColorPicker = Template(colorPickerHandler)

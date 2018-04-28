@@ -60,6 +60,7 @@
 	--tablet-unknown : #DDDDDD;
 	--tablet-present : #00AF00;
 	--tablet-absent : #FFAAAA;
+	--artifact-active : #3399FF;
 }
 
 body.dark {
@@ -1989,6 +1990,13 @@ canvas.foreground : {
 	font-size : 30px;
 	width : 30px;
 	height : 30px;
+}
+
+.equipment-icon.active {
+	text-shadow: 2px 2px 10px var(--artifact-active),
+				2px -2px 10px var(--artifact-active),
+				-2px 2px 10px var(--artifact-active),
+				-2px -2px 10px var(--artifact-active);
 }
 
 .sliders .master {

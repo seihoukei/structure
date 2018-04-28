@@ -108,6 +108,7 @@ const saveCompression = {
 	"#_C": `"customPower":`,
 	"#D" : `"distance":`,
 	"#E" : `"exit":true`,
+	"#e" : `"enchanted":`,
 	"#f" : `"fire":`,
 	"#G" : `"growth":`,
 	"#i" : `"ice":`,

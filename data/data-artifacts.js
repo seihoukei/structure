@@ -8,7 +8,10 @@ const ARTIFACTS = {
 		codeCost : 3e7,
 		depth : 2.341e4,
 		iconText: "⛏️\uFE0E",
-		iconTextColor: "var(--foreground)"
+		iconTextColor: "var(--foreground)",
+		active() {
+			return this.equipped && this.equipped.target && !this.equipped.target.index
+		}
 	},
 	expOrb: {
 		name : "Orb of experience",
@@ -16,6 +19,9 @@ const ARTIFACTS = {
 		codeLength : 5,
 		codeCost : 1e7,
 		depth : 1.43e2,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.expChange > 0
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--shade5)"
 	},
@@ -25,6 +31,9 @@ const ARTIFACTS = {
 		codeLength : 12,
 		codeCost : 2e9,
 		depth : 7.777e16,
+		active() {
+			return this.equipped && this.equipped.channel.length
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
@@ -34,6 +43,9 @@ const ARTIFACTS = {
 		codeLength : 13,
 		codeCost : 32e9,
 		depth : 2.627e21,
+		active() {
+			return this.equipped && this.equipped.real && Object.values(this.equipped.real.growth).reduce((v,x) => v+x, 0)
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--enchantgrowth)"
 	},
@@ -43,6 +55,9 @@ const ARTIFACTS = {
 		codeLength : 6,
 		codeCost : 1e8,
 		depth : 3.141e6,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.growth.power
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-power)"
 	},
@@ -52,6 +67,9 @@ const ARTIFACTS = {
 		codeLength : 8,
 		codeCost : 3e8,
 		depth : 6.264e12,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.growth.blood
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -61,6 +79,9 @@ const ARTIFACTS = {
 		codeLength : 9,
 		codeCost : 4e8,
 		depth : 4.91e17,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.growth.fire
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -70,6 +91,9 @@ const ARTIFACTS = {
 		codeLength : 9,
 		codeCost : 5e8,
 		depth : 9.326e14,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.growth.ice
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -79,6 +103,9 @@ const ARTIFACTS = {
 		codeLength : 9,
 		codeCost : 6e8,
 		depth : 1.61e18,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.growth.metal
+		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},
@@ -88,6 +115,9 @@ const ARTIFACTS = {
 		codeLength : 9,
 		codeCost : 5e8,
 		depth : 5.251e15,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.blood
+		},
 		iconText: "/️",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -97,6 +127,9 @@ const ARTIFACTS = {
 		codeLength : 8,
 		codeCost : 3e8,
 		depth : 8.326e11,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.fire
+		},
 		iconText: "/️",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -106,6 +139,9 @@ const ARTIFACTS = {
 		codeLength : 6,
 		codeCost : 3e8,
 		depth : 8.231e8,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.ice
+		},
 		iconText: "/️",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -115,6 +151,9 @@ const ARTIFACTS = {
 		codeLength : 9,
 		codeCost : 4e8,
 		depth : 7.272e13,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.metal
+		},
 		iconText: "/️",
 		iconTextColor : "var(--bg-metal)"
 	},
@@ -124,6 +163,9 @@ const ARTIFACTS = {
 		codeLength : 14,
 		codeCost : 3e9,
 		depth : 1.234e23,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && (this.equipped.real.metal + this.equipped.real.ice + this.equipped.real.fire + this.equipped.real.blood)
+		},
 		iconText: "/️",
 		iconTextColor : "var(--foreground)"
 	},
@@ -133,6 +175,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 1e11,
 		depth : 1.51e27,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real[POINT_TYPES[this.equipped.target.type]]
+		},
 		iconText : "/",
 		iconTextColor : "var(--shade13)"
 	},
@@ -142,6 +187,9 @@ const ARTIFACTS = {
 		codeLength : 7,
 		codeCost : 5e8,
 		depth : 2.515e10,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.gotChannel
+		},
 		iconText: "V",
 		iconTextColor: "var(--foreground)"
 	},
@@ -151,6 +199,9 @@ const ARTIFACTS = {
 		codeLength : 12,
 		codeCost : 1e10,
 		depth : 3.126e28,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index
+		},
 		iconText : "V",
 		iconTextColor : "var(--bg-power)"
 	},
@@ -160,6 +211,9 @@ const ARTIFACTS = {
 		codeLength : 11,
 		codeCost : 12e9,
 		depth : 6.654e28,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.victoryTimer
+		},
 		iconText : "V",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -169,6 +223,9 @@ const ARTIFACTS = {
 		codeLength : 24,
 		codeCost : 1e11,
 		depth : 1.220e30,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length == 0
+		},
 		iconText : "V",
 		iconTextColor : "var(--bg-spirit)"
 	},
@@ -178,6 +235,9 @@ const ARTIFACTS = {
 		codeLength : 28,
 		codeCost : 3e11,
 		depth : 8.131e30,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length == 0
+		},
 		iconText : "V",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -187,6 +247,9 @@ const ARTIFACTS = {
 		codeLength : 11,
 		codeCost : 23e9,
 		depth : 6.666e19,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.real.spirit && game.resources.fears
+		},
 		iconText : "T",
 		iconTextColor : "var(--bg-spirit)"
 	},
@@ -196,6 +259,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 5e10,
 		depth : 3.654e29,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size == 1 && (this.equipped.real.metal + this.equipped.real.ice + this.equipped.real.fire + this.equipped.real.blood)
+		},
 		iconText : "T",
 		iconTextColor : "var(--bg-foreground)"
 	},
@@ -205,6 +271,9 @@ const ARTIFACTS = {
 		codeLength : 10,
 		codeCost : 25e9,
 		depth : 7.651e25,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
+		},
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
@@ -214,6 +283,9 @@ const ARTIFACTS = {
 		codeLength : 17,
 		codeCost : 42e10,
 		depth : 9.364e33,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
+		},
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},	
@@ -223,6 +295,9 @@ const ARTIFACTS = {
 		codeLength : 19,
 		codeCost : 50e10,
 		depth : 2.46e34,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length
+		},
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},	
@@ -232,6 +307,9 @@ const ARTIFACTS = {
 		codeLength : 18,
 		codeCost : 5e10,
 		depth : 2.197e32,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 3
+		},
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -241,6 +319,9 @@ const ARTIFACTS = {
 		codeLength : 18,
 		codeCost : 5e10,
 		depth : 4.623e30,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 4
+		},
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -250,6 +331,9 @@ const ARTIFACTS = {
 		codeLength : 18,
 		codeCost : 5e10,
 		depth : 2.316e31,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 5
+		},
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -259,6 +343,9 @@ const ARTIFACTS = {
 		codeLength : 18,
 		codeCost : 5e10,
 		depth : 8.147e32,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 6
+		},
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},
@@ -268,6 +355,9 @@ const ARTIFACTS = {
 		codeLength : 12,
 		codeCost : 5e9,
 		depth : 5.015e27,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.enchanted
+		},
 		iconText : "O",
 		iconTextColor : "var(--enchantgold)"
 	},
@@ -277,6 +367,9 @@ const ARTIFACTS = {
 		codeLength : 12,
 		codeCost : 5e9,
 		depth : 1.724e28,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.enchanted
+		},
 		iconText : "O",
 		iconTextColor : "var(--enchantmana)"
 	},	
@@ -286,6 +379,9 @@ const ARTIFACTS = {
 		codeLength : 17,
 		codeCost : 1e10,
 		depth : 1.313e29,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.special
+		},
 		iconText : "O",
 		iconTextColor : "#DD88DD"
 	},
@@ -295,6 +391,9 @@ const ARTIFACTS = {
 		codeLength : 16,
 		codeCost : 12e9,
 		depth : 7.663e29,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.special
+		},
 		iconText : "O",
 		iconTextColor : "#DD55DD"
 	},
@@ -304,6 +403,9 @@ const ARTIFACTS = {
 		codeLength : 15,
 		codeCost : 17e10,
 		depth : 5.794e31,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.special != SPECIAL_BLOCK && this.equipped.target.parent && this.equipped.target.parent.buildings && this.equipped.target.parent.buildings["earthquakeMachine"]
+		},
 		iconText : "💎\uFE0E",
 		iconTextColor : "#5588DD"
 	},	
@@ -313,6 +415,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 1.613e33,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type > 2
+		},
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-power)"
 	},	
@@ -322,6 +427,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 3.582e31,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 3
+		},
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},	
@@ -331,6 +439,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 5.622e32,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 4
+		},
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},	
@@ -340,6 +451,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 9.412e31,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 5
+		},
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-ice)"
 	},	
@@ -349,6 +463,9 @@ const ARTIFACTS = {
 		codeLength : 20,
 		codeCost : 26e10,
 		depth : 3.179e33,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 6
+		},
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},	

@@ -303,7 +303,17 @@ const equipListHandler = {
 			if (!slot || !artifact) return
 			slot.dvIcon.innerText = artifact.iconText
 			slot.dvIcon.style.color = artifact.iconTextColor
+			slot.dvIcon.classList.toggle("active", !!(!artifact.active || artifact.active()))
 			slot.dvDisplay.title = artifact.name + " - " + artifact.desc
+		})
+	},
+
+	updateActive() {
+		Object.entries(this.slider.artifacts).map(x => {
+			const slot = this.slots[x[1]-1]
+			const artifact = ARTIFACTS[x[0]]
+			if (!slot || !artifact) return
+			slot.dvIcon.classList.toggle("active", !!(!artifact.active || artifact.active()))
 		})
 	},
 	

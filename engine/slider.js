@@ -508,6 +508,7 @@ const sliderHandler = {
 		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
 		this.dvTargetPoint.style.backgroundColor = this.target?(gui.theme.typeColors[this.target.type]):gui.theme.background
 		this.dvLevel.innerText = this.level || "0"
+		if (game.skills.artifacts) this.equipList.updateActive()
 	}, 
 
 	updateSliders() {
@@ -648,6 +649,7 @@ const sliderHandler = {
 		this.real.imbuement = this.target && this.target.index?(masterSlider.masterImbuement?masterSlider.imbuement:this.imbuement):0
 		this.real.gild = this.target && this.target.index?(masterSlider.masterGild?masterSlider.gild:this.gild):0
 		this.real.absoluteDamage = 0
+		this.real.gotChannel = false
 		
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
@@ -661,6 +663,7 @@ const sliderHandler = {
 				if (times) {
 					if (this.artifacts.channelReceiver) times *= 2
 					this.real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
+					this.real.gotChannel = true
 				}
 			})
 			

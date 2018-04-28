@@ -115,6 +115,7 @@ const game = {
 	renderForeground(c) {
 		c.clearRect(0, 0, gui.mainViewport.width, gui.mainViewport.height)
 		c.save()
+		c.lineWidth = Math.max(1, 1.5/gui.mainViewport.current.zoom)
 		c.translate(gui.mainViewport.halfWidth, gui.mainViewport.halfHeight)
 		c.scale(gui.mainViewport.current.zoom, gui.mainViewport.current.zoom)
 		c.translate(-gui.mainViewport.current.x, -gui.mainViewport.current.y)

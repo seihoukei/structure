@@ -181,6 +181,7 @@ const singlePickerHandler = {
 	
 	set(n) {
 		this.container[this.value] = n
+		this.onSet && this.onSet()
 		this.update()
 	},
 	
@@ -222,6 +223,7 @@ const multiPickerHandler = {
 	set(n) {
 		const position = this.container[this.value].indexOf(n)
 		if (position == -1) this.container[this.value].push(n)
+		this.onSet && this.onSet()
 		this.update()
 	},
 	

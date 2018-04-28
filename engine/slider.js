@@ -201,7 +201,8 @@ const sliderHandler = {
 				return (!n || game.growth[x])
 			},
 			visible : () =>	!(this.clone || !(game.skills.imbuement)),
-			override : () => (masterSlider.masterImbuement)
+			override : () => (masterSlider.masterImbuement),
+			onSet : () => game.nextTarget = true
 		})
 		
 		this.safeImbuementsSwitch = GuiCheckbox({
@@ -223,6 +224,7 @@ const sliderHandler = {
 			},
 			visible : () =>	!(this.clone || !(game.skills.channel)),
 			override : () => (masterSlider.masterChannel),
+			onSet : () => game.nextTarget = true,
 			onUpdate : () => {
 				this.updateSliders()
 			},
@@ -276,6 +278,7 @@ const sliderHandler = {
 				if (n > 2) return game.skills.autoTargetElements && game.growth[x]
 				return true
 			},
+			onSet : () => game.nextTarget = true,
 			visible : () =>	game.skills.autoTargetFilter
 		})
 		

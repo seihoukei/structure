@@ -26,7 +26,8 @@ const mapHandler = {
 		const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
 
 		c.lineWidth = Math.max(1, 1.5/gui.mainViewport.current.zoom)
-
+		c.lineCap = "round"
+		
 		function drawTail(point) {
 			c.save()
 //			c.translate(point.x, point.y)
@@ -407,10 +408,10 @@ const mapHandler = {
 			visiblePoints = this.points
 		else
 			visiblePoints = this.points.filter(x => (x.away < (game.skills.sensor?3:2)) && (x.locked < 2) && !(x.locked && x.away == 2) && (!x.boss || x.boss <= this.boss))
-		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.renderSize), game.skills.magic?-this.ownedRadius || 0 : 0) - 10
-		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.renderSize), game.skills.magic?this.ownedRadius || 0 : 0) + 10
-		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.renderSize), game.skills.magic?-this.ownedRadius || 0 : 0) - 10
-		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.renderSize), game.skills.magic?this.ownedRadius || 0 : 0) + 10
+		this.bounds.left = Math.min(...visiblePoints.map(pt => pt.x - pt.renderSize * 2), game.skills.magic?-this.ownedRadius || 0 : 0) - 10
+		this.bounds.right = Math.max(...visiblePoints.map(pt => pt.x + pt.renderSize * 2), game.skills.magic?this.ownedRadius || 0 : 0) + 10
+		this.bounds.top = Math.min(...visiblePoints.map(pt => pt.y - pt.renderSize * 2), game.skills.magic?-this.ownedRadius || 0 : 0) - 10
+		this.bounds.bottom = Math.max(...visiblePoints.map(pt => pt.y + pt.renderSize * 2), game.skills.magic?this.ownedRadius || 0 : 0) + 10
 		this.bounds.width = this.bounds.right - this.bounds.left
 		this.bounds.height = this.bounds.bottom - this.bounds.top
 	},

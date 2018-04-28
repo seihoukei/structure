@@ -102,6 +102,7 @@ const masterSliderHandler = {
 			value : "masterImbuement",
 			onSet : () => {
 				gui.sliders.update(true)
+				game.nextTarget = true
 			},
 			title : "Master imbuement control"
 		})
@@ -118,6 +119,7 @@ const masterSliderHandler = {
 			},
 			onSet : () => {
 				gui.sliders.update(true)
+				game.nextTarget = true
 			},
 			override : () => !(masterSlider.masterImbuement),
 		})
@@ -136,6 +138,7 @@ const masterSliderHandler = {
 			container : masterSlider,
 			value : "masterChannel",
 			onSet : () => {
+				game.nextTarget = true
 				gui.sliders.update(true)
 			},
 			title : "Master channel control"
@@ -151,6 +154,7 @@ const masterSliderHandler = {
 				return (n && game.growth[x])
 			},
 			override : () => !(masterSlider.masterChannel),
+			onSet : () => game.nextTarget = true,
 			onUpdate : () => {
 				game.sliders.map(x => {
 					x.updateSliders()

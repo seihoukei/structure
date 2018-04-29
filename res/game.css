@@ -812,6 +812,12 @@ canvas.foreground : {
 	height : 16px;
 }
 
+.autotarget-switches {
+	display : flex;
+	flex-direction : row;
+	justify-content : space-evenly;
+}
+
 .imbuement .gui-checkbox {
 	margin-left : 20px;
 }

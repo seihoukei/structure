@@ -12,7 +12,8 @@ const researchHandler = {
 		if (!this.done && ((!this.codeword) || (this.badCodeWord(this.codeword)))) {
 			this.initCodeWord()
 		}
-		
+	
+		this.goodGlyphs = Object.values(this.tablet).filter(x => x).length
 	},
 	
 	initCodeWord() {
@@ -63,7 +64,15 @@ const researchHandler = {
 				if (available.size == 0) break
 				const pair = [...available][Math.random()*available.size | 0]
 				this.tablet[pair] = this.codeword.includes(pair)
+				if (this.tablet[pair]) this.goodGlyphs++
 				available.delete(pair)
+
+				if (this.smartTablet && this.goodGlyphs == this.artifact.codeLength - 1) {
+					[...available].map(x => this.tablet[x] = false)
+					available.clear()
+					advances = 0
+					break
+				}
 			}
 			if (available.size == 0) {
 				this.progress = 0

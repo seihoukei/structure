@@ -67,7 +67,7 @@ const researchHandler = {
 				if (this.tablet[pair]) this.goodGlyphs++
 				available.delete(pair)
 
-				if (this.smartTablet && this.goodGlyphs == this.artifact.codeLength - 1) {
+				if (game.skills.smartTablet && this.goodGlyphs == this.artifact.codeLength - 1) {
 					[...available].map(x => this.tablet[x] = false)
 					available.clear()
 					advances = 0

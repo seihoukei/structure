@@ -82,7 +82,9 @@ const sliderHandler = {
 		this.atFilter = Object.assign({
 			types : [],
 			specials : [],
-			disabled : false
+			disabled : false,
+			autoZero : true,
+			autoMine : true
 		}, this.atFilter)
 		
 		this.atSelector = this.atSelector || "Random"
@@ -256,18 +258,38 @@ const sliderHandler = {
 			return stat
 		})
 		
-		this.dvAutoTarget = createElement("div", "autotarget", this.dvDisplay)
+		this.dvAutoTarget = createElement("div", "autotarget", this.dvDisplay, "Autotarget when...")
+		
+		this.dvATSwitches = createElement("div", "autotarget-switches", this.dvAutoTarget)
 		
 		this.cbAutoTarget = GuiCheckbox({
-			parent : this.dvAutoTarget,
+			parent : this.dvATSwitches,
 			container : this.atFilter,
 			value : "disabled",
 			reverse : true,
-			title : "Autotarget when free",
+			title : "Free",
 			visible : () => game.skills.autoTarget,
 			hint : "Enables autotargetting"
 		})
 		
+		this.cbAutoTargetZero = GuiCheckbox({
+			parent : this.dvATSwitches,
+			container : this.atFilter,
+			value : "autoZero",
+			title : "No damage",
+			visible : () => game.skills.smartAuto,
+			hint : "Enables autotargetting if dealing zero or negative damage"
+		})
+		
+		this.cbAutoTargetMine = GuiCheckbox({
+			parent : this.dvATSwitches,
+			container : this.atFilter,
+			value : "autoMine",
+			title : "Mining",
+			visible : () => game.skills.smartMine,
+			hint : "Enables autotargetting if mining"
+		})
+				
 		this.priorities = MultiAttributePicker({
 			parent : this.dvAutoTarget,
 			container : this.atFilter,
@@ -443,14 +465,14 @@ const sliderHandler = {
 	autoTarget(forced) {
 		if (this.clone == 2) return
 		if (game.skills.mining && this.atSelector == "Mining") this.assignTarget(game.map.points[0])
-		if (this.target && (!this.target.owned || !game.skills.smartMine && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.real && (this.real.attack <= 0))) return
+		if (this.target && (!this.target.owned || (!game.skills.smartMine || !this.atFilter.autoMine) && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.atFilter.autoZero && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if ((!game.skills.autoTarget || this.atFilter.disabled) && !forced) {
 			this.assignTarget(null)
 			return
 		}
 		
-		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || x.real && (x.getActivePower(this) > 0))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
+		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
 												(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
 												(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
 												(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||
@@ -530,7 +552,6 @@ const sliderHandler = {
 			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && !this.stats[y.name])))
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
-		this.cbGild.updateVisibility()
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2 || !!(settings.masterHide == 2 && masterSlider.masterAutotarget))
 		this.dvLevel.classList.toggle("hidden", !!(!(game.skills.sliderLevels) || this.clone))
 		this.dvATApply.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
@@ -545,6 +566,10 @@ const sliderHandler = {
 		this.priorities.updateVisibility()
 		this.learns.updateVisibility()
 		this.updateSliders()
+		this.cbGild.updateVisibility()
+		this.cbAutoTarget.updateVisibility()
+		this.cbAutoTargetMine.updateVisibility()
+		this.cbAutoTargetZero.updateVisibility()
 		this.selector.update(true)
 	},
 	
@@ -613,7 +638,7 @@ const sliderHandler = {
 		if (game.skills.charge)
 			this.charge = Math.max(0, Math.min(1, free?this.charge + change:this.charge - change))
 		
-		if (game.skills.smartAuto && this.target && this.real.attack <= 0) {
+		if (game.skills.smartAuto && this.atFilter.autoZero && this.target && this.real.attack <= 0) {
 			this.autoTarget()
 		}
 
@@ -840,6 +865,8 @@ const sliderHandler = {
 		delete o.selector
 		delete o.cbGild
 		delete o.cbAutoTarget
+		delete o.cbAutoTargetMine
+		delete o.cbAutoTargetZero
 		delete o.rolePicker
 		delete o.channels
 		Object.keys(o).filter(x => x.substr(0,2) == "dv").map (x => {

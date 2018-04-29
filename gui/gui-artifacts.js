@@ -169,7 +169,7 @@ const ArtifactsTab = Template({
 		
 		const research = game.research[name]
 		if (!research) return
-		artifact.display.dvProgressInfo.innerText = research.done?"Researched":("Glyphs: "+research.goodGlyphs+" ("+Object.keys(research.tablet).length+"/"+letterPairs.length +")"+ (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/artifact.codeCost) + "%)":""))
+		artifact.display.dvProgressInfo.innerText = research.done?"Researched":("Glyphs: "+research.goodGlyphs+" ("+Object.keys(research.tablet).length+"/"+letterPairs.length +")"+ (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/artifact.codeCost, 1) + "%)":""))
 
 		if (research.done) return
 		
@@ -241,7 +241,7 @@ const ArtifactsTab = Template({
 				display.researched = (game.researching == display.id)
 				display.cbResearched.update()
 				display.cbResearched.dvLabel.innerText = "Research this (" + shortTimeString(((letterPairs.length - Object.keys(research.tablet).length) * display.artifact.codeCost - (research.progress || 0))/game.real.production.science) + ")"
-				display.dvProgressInfo.innerText = research.done?"Researched":("Glyphs: "+research.goodGlyphs+" ("+Object.keys(research.tablet).length+"/"+letterPairs.length +")"+ (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/display.artifact.codeCost) + "%)":""))
+				display.dvProgressInfo.innerText = research.done?"Researched":("Glyphs: "+research.goodGlyphs+" ("+Object.keys(research.tablet).length+"/"+letterPairs.length +")"+ (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/display.artifact.codeCost,1) + "%)":""))
 				this.updateTablet(display.id)
 			})
 		}
@@ -249,7 +249,7 @@ const ArtifactsTab = Template({
 			const research = game.research[game.researching]
 			const artifact = ARTIFACTS[game.researching]
 			artifact.display.cbResearched.dvLabel.innerText = "Research this (" + shortTimeString(((letterPairs.length - Object.keys(research.tablet).length) * artifact.codeCost - (research.progress || 0))/game.real.production.science) + ")"
-			artifact.display.dvProgressInfo.innerText = research.done?"Researched":("Glyphs: "+research.goodGlyphs+" ("+Object.keys(research.tablet).length+"/"+letterPairs.length +")"+ (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/artifact.codeCost) + "%)":""))
+			artifact.display.dvProgressInfo.innerText = research.done?"Researched":("Glyphs: "+research.goodGlyphs+" ("+Object.keys(research.tablet).length+"/"+letterPairs.length +")"+ (research.progress?" (Next: "+displayNumber(100*(research.progress || 0)/artifact.codeCost,1) + "%)":""))
 		}
 	},
 	

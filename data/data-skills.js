@@ -304,7 +304,7 @@ const SKILLS = {
 		name: "Breaking the law",
 		desc: "Spellbook - Break protected point shields",
 		req : ["spellcasting"],
-			map : 23,
+		map : 23,
 		science : 30e12,
 		exp : 1e19,
 		mult : 1,
@@ -459,7 +459,8 @@ const SKILLS = {
 		name : "Brave new world",
 		desc : "Build a new world based on your memories",
 		req : ["imprint"],
-		map : 32,
+		map : 31,
+		res : ["_1","_2","_3","_4","_5","_6"],
 		science : 8e14,
 		exp : 1e30,
 		mult : 2

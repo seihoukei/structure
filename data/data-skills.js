@@ -461,7 +461,6 @@ const SKILLS = {
 		req : ["imprint"],
 		map : 31,
 		res : ["_1","_2","_3","_4","_5","_6"],
-		science : 8e14,
 		exp : 1e30,
 		mult : 2
 	},

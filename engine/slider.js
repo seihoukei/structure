@@ -102,33 +102,11 @@ const sliderHandler = {
 		this.dvCharge = createElement("div", "slider-charge", this.dvTarget)
 		
 		this.dvDisplay = createElement("div", "slider"+(this.clone?" clone":""), this.clone?gui.sliders.dvClones:gui.sliders.dvReal)
-		this.dvDisplay.ondragover = (event) => {
-//			console.log(this.color,event.dataTransfer)
-			if ([...event.dataTransfer.types].includes('game/slider'))
-				return false
-		}
-		this.dvDisplay.ondrop = (event) => {
-			const clone = +event.dataTransfer.getData("game/clone")
-			if (clone != (this.clone || 0)) return
-			const index = +event.dataTransfer.getData("game/slider")
-			const here = game.sliders.indexOf(this)
-			if (here == -1 || index == here) return
-			const slider = game.sliders.splice(index, 1)
-			game.sliders.splice(here,0,...slider)
-			gui.sliders.onSet()
-		}
 		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
 		this.dvLevel = createElement("div", "slider-level", this.dvHeader, this.level || "0")
 		this.dvLevel.onclick = (event) => gui.sliders.levelUp.set(this)
 		
 		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?this.clone == 2?"SUMMON":"CLONE":"")
-		this.dvBigColor.draggable = true
-		this.dvBigColor.ondragstart = (event) => {
-			event.dataTransfer.effectAllowed = "move"
-			event.dataTransfer.setData("game/slider", game.sliders.indexOf(this))
-			event.dataTransfer.setData("game/clone", this.clone || 0)
-		}
-		
 		this.dvBigColor.title = this.clone?this.clone==2?"Summonned clones only exist while attacking specific node":"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
 		this.dvBigColor.ondblclick = (event) => {
 /*			this.dvBigColor.style.background = this.clone?'linear-gradient(to right, hsl(0,30%,40%), hsl(120,30%,40%), hsl(240,30%,40%), hsl(360,30%,40%) )':'linear-gradient(to right, hsl(0,100%,30%), hsl(120,100%,30%), hsl(240,100%,30%), hsl(360,100%,30%) )'
@@ -381,6 +359,30 @@ const sliderHandler = {
 		
 		this.setColor(this.color || "maroon")
 		
+		this.dvBigColor.draggable = this.dvMapIcon.draggable = true
+		this.dvBigColor.ondragstart = this.dvMapIcon.ondragstart = (event) => {
+			event.dataTransfer.effectAllowed = "move"
+			event.dataTransfer.setData("game/slider", game.sliders.indexOf(this))
+			event.dataTransfer.setData("game/clone", this.clone || 0)
+		}
+
+		this.dvDisplay.ondragover = this.dvMapIcon.ondragover = (event) => {
+//			console.log(this.color,event.dataTransfer)
+			if ([...event.dataTransfer.types].includes('game/slider'))
+				return false
+		}
+		this.dvDisplay.ondrop = this.dvMapIcon.ondrop = (event) => {
+			const clone = +event.dataTransfer.getData("game/clone")
+			if (clone != (this.clone || 0)) return
+			const index = +event.dataTransfer.getData("game/slider")
+			const here = game.sliders.indexOf(this)
+			if (here == -1 || index == here) return
+			const slider = game.sliders.splice(index, 1)
+			game.sliders.splice(here,0,...slider)
+			gui.sliders.onSet()
+			game.sliders.map(x => gui.map.dvSliders.appendChild(x.dvMapIcon))
+		}
+
 		if (gui && gui.tabs.activeTab == "sliders") {
 			this.updateFullVisibility()
 		}

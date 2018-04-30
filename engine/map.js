@@ -394,10 +394,15 @@ const mapHandler = {
 	},
 	
 	getOwnedRadius() {
-		const block = this.points.filter(x => !x.owned).sort((x,y) => (x.distance-x.size) - (y.distance - y.size))[0]
+		const block = this.points.filter(x => !x.owned).sort((x,y) => (x.distance - x.size) - (y.distance - y.size))[0]
 	
 		this.points.map(point => point.suspend())
-		this.ownedRadius = Math.max(20, block?block.distance - block.size:this.points[this.points.length-1].distance + this.points[this.points.length-1].size + MAP_MINIMUM_POINT_SIZE)
+		if (block)
+			this.ownedRadius = Math.max(20, block.distance - block.size)
+		else {
+			const farthest = this.points.reduce((v,x) => x.distance + x.size > v.distance + v.size?x:v,this.points[0])
+			this.ownedRadius = farthest.distance + farthest.size + MAP_MINIMUM_POINT_SIZE
+		}
 		this.points.map(point => point.unsuspend())
 		
 		return this.ownedRadius
@@ -437,6 +442,7 @@ const mapHandler = {
 			const point = createPoint(this.points, size, angle, spacing, type)
 			point.special = [SPECIAL_RESIST, SPECIAL_BLOCK, SPECIAL_NOCLONE, SPECIAL_NOBUILD, 0][Math.min(4, (Math.random() * Math.max(5, 10 - this.evolved))| 0)]
 		}
+		this.points.sort((x,y) => x.distance - y.distance)
 		this.points.map((x,n) => x.index = n)
 		this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
 		this.restoreState()

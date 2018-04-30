@@ -367,7 +367,6 @@ const sliderHandler = {
 		}
 
 		this.dvDisplay.ondragover = this.dvMapIcon.ondragover = (event) => {
-//			console.log(this.color,event.dataTransfer)
 			if ([...event.dataTransfer.types].includes('game/slider'))
 				return false
 		}

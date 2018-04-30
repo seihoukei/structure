@@ -244,13 +244,14 @@ function virtualMapCost(level) {
 
 const mapDisplayHandler = {
 	_init() {
+		const map = game.maps[this.name]
 		this.dvDisplay = createElement("div", "virtual-map"+(game.activeMap == this.name?" active":""), this.parent)
-		this.dvTitle = createElement("div", "virtual-map-title", this.dvDisplay, this.name == "main"?"Real":this.name.capitalizeFirst())
-		const stars = game.maps[this.name].points.filter(x => x.exit && x.owned).length
-		const progress = game.maps[this.name].points.filter(x => x.owned).length / game.maps[this.name].points.length * 100
-		const exits = game.maps[this.name].exitsCount
-		this.dvLevel = createElement("div", "virtual-map-level", this.dvDisplay, "Level "+game.maps[this.name].level+", "+progress.toFixed(0)+(this.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+(game.maps[this.name].level == game.realMap.level?"???":exits))
-		const focus = game.maps[this.name].focus?POINT_TYPES[game.maps[this.name].focus]:0
+		this.dvTitle = createElement("div", "virtual-map-title", this.dvDisplay, this.name == "main"?"Real":this.name.capitalizeFirst()+(map.evolved?"\nEvolved: "+pluralize(map.evolved,["time","times"]):""))
+		const stars = map.points.filter(x => x.exit && x.owned).length
+		const progress = map.points.filter(x => x.owned).length / map.points.length * 100
+		const exits = map.exitsCount
+		this.dvLevel = createElement("div", "virtual-map-level", this.dvDisplay, "Level "+map.level+", "+progress.toFixed(0)+(this.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+(map.level == game.realMap.level?"???":exits))
+		const focus = map.focus?POINT_TYPES[map.focus]:0
 		this.dvFocus = createElement("div", "virtual-map-focus"+(focus?" bg-"+focus:""), this.dvDisplay, focus?focus.capitalizeFirst():"")
 		this.dvGo = createElement("div", "button" + (game.activeMap == this.name?"":" enabled"), this.dvDisplay, "Visit")
 		if (this.name != game.activeMap) {

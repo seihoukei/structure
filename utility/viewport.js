@@ -7,13 +7,14 @@ function getSize() {
 	}
 	let width = gui.map.background.offsetWidth
 	let height = gui.map.background.offsetHeight
-	gui.map.background.width  = gui.map.foreground.width  = width
-	gui.map.background.height = gui.map.foreground.height = height
+	gui.map.background.width  = gui.map.foreground.width  = gui.world.background.width  = gui.world.foreground.width  = width
+	gui.map.background.height = gui.map.foreground.height = gui.world.background.height = gui.world.foreground.height = height
 	gui.mainViewport.setSize(width, height)
 	gui.worldViewport.setSize(width, height)
 	if (game.map)
 		game.updateRenderData()
 	game.updateMapBackground = true
+	game.updateWorldBackground = true
 }
 
 const viewportHandler = {
@@ -104,6 +105,7 @@ const viewportHandler = {
 			else
 				this.current[name] += (this.target[name] - this.current[name]) * step
 			game.updateMapBackground = true
+			game.updateWorldBackground = true
 			this.updateWindow()
 		}
 	},

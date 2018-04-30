@@ -464,6 +464,14 @@ const SKILLS = {
 		exp : 1e30,
 		mult : 2
 	},
+	evolveVirtual : {
+		name : "Land beyond the edge",
+		desc : "Evolve completed virtual maps of level 31 and above",
+		req : ["virtualMaps"],
+		map : 32,
+		exp : 1e30,
+		mult : 2
+	},
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

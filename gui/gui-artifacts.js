@@ -110,9 +110,9 @@ const ArtifactsTab = Template({
 			
 			display.dvProgressInfo = createElement("div", "button artifact-progress", display.dvResearchHolder)
 			display.dvProgressInfo.onclick = (event) => {
+				this.dvTabletInput.value = ""
 				this.updateTablet(artifact.id, 1)
 				this.dvTabletHolder.classList.toggle("hidden", false)
-				this.dvTabletInput.value = ""
 				this.dvTabletInput.focus()
 			}
 

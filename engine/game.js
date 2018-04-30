@@ -7,6 +7,7 @@ const GAME_AUTOMATION_PERIOD = 1000
 //l = 1,m = Array(51).fill().map((x,n) => GameMap(mapLevel(n), mapMaker)).map(m => m.points.map(x => x.power * x.length).filter(x => x)).map (x => (k=(Math.min(...x)/l),l=Math.max(...x),k)).slice(1), [Math.max(...m), Math.min(...m)]
 const game = {
 	updateMapBackground : false,
+	updateWorldBackground : false,
 	skillCostMult : 1,
 	sliders : [],
 	animatingPoints : new Set(),
@@ -87,6 +88,13 @@ const game = {
 			gui.map.updateGrowth()
 		}
 		
+		if (gui.tabs.activeTab == "world") {
+			if (this.updateWorldBackground)
+				this.world.renderBackground(gui.world.backgroundContext)
+			this.updateWorldBackground = false
+			this.world.render(gui.world.foregroundContext)
+		}
+
 		if (this.updateInterface) {
 			gui.update()
 		}
@@ -386,6 +394,7 @@ const game = {
 		if (!this.offline) {
 			gui.mainViewport.getLimits(this.map.bounds)
 			this.updateMapBackground = true
+			this.updateWorldBackground = true
 			gui.updateTabs()
 			gui.skills.updateSkills()
 			this.updateRenderData()
@@ -713,7 +722,7 @@ const game = {
 //		gui.map.background.classList.toggle("hidden", this.slowMode)
 		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
 		gui.map.dvResources.classList.toggle("hidden", this.slowMode)
-		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
+//		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
 		gui.map.dvSliders.classList.toggle("hidden", this.slowMode)
 		gui.map.dvLowLoad.classList.toggle("hidden", !this.slowMode)
 		gui.map.updateLowLoad(true)
@@ -734,10 +743,11 @@ const game = {
 //		gui.map.background.classList.toggle("hidden", this.slowMode)
 		gui.map.dvLowLoad.classList.toggle("hidden", !this.slowMode)
 		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
-		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
+//		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
 		gui.map.dvResources.classList.toggle("hidden", this.slowMode)
 		gui.map.dvSliders.classList.toggle("hidden", this.slowMode)
 		this.updateMapBackground = true
+		this.updateWorldBackground = true
 		this.updateInterface = true
 		this.updateRenderData()
 	},

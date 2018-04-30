@@ -137,15 +137,15 @@ const mapPointHandler = {
 		this.x = (this.distance * Math.cos(this.angle)).toDigits(3)
 		this.y = (this.distance * Math.sin(this.angle)).toDigits(3)
 		this.owned = this.owned || false
-		this.children = new Set()
-		this.parents = new Set()
-		this.attackers = new Set()
+		this.children = this.children || new Set()
+		this.parents = this.parents || new Set()
+		this.attackers = this.attackers ||new Set()
 		this.costs = this.costs || {}
 		this.manaCosts = this.manaCosts || {}
 		this.displays = this.displays || {}
 		this.buildings = this.buildings || {}
 		this.production = this.production || {}
-		this.harvestTimes = []
+		this.harvestTimes = this.harvestTimes || []
 	},
 	
 	calculateStats() {
@@ -660,7 +660,11 @@ const mapPointHandler = {
 		else if (wantEnchant == 2)
 			this.enchanted = ENCHANT_MANA
 
-
+		if (this.animating) {
+			this.animationProgress = 1
+			this.animating = 0
+		}
+			
 		game.update()
 		
 		attackers.map(x => {
@@ -697,7 +701,8 @@ const mapPointHandler = {
 			c.beginPath()
 			c.strokeStyle = this.map.boss?"gray":"silver"
 			c.save()
-			c.setLineDash([5,8])
+			if (settings.dashedLines)
+				c.setLineDash([5,8])
 			const start = this.coordinatesOn(0)
 			c.moveTo(start.x, start.y)
 			const end = this.coordinatesOn(Math.min(1,this.animationProgress * 1.5))
@@ -847,10 +852,14 @@ const MapPoint = Template(pointHandler, mapPointHandler)
 const worldPointHandler = {
 	_init() {
 		this.connections = []
-		this.angle = Math.atan(this.y, this.x)
-		this.distance = Math.hypot(this.y, this.x)
 		this.radius = WORLD_ELEMENTS[this.type].radius
 		this.reach = WORLD_ELEMENTS[this.type].reach
+		this.calculateStats()
+	},
+	
+	calculateStats() {
+		this.angle = Math.atan(this.y, this.x)
+		this.distance = Math.hypot(this.y, this.x)
 	},
 	
 	connect(point) {
@@ -867,6 +876,11 @@ const worldPointHandler = {
 		delete o.voronoi
 		delete o.radius
 		delete o.reach
+		delete o.depth
+		delete o.newX
+		delete o.newY
+		delete o.newDepth
+		delete o.newConnections
 		return o
 	}
 }

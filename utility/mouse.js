@@ -3,6 +3,7 @@
 const MOUSE_STATE_FREE = 0
 const MOUSE_STATE_INFO = 1
 const MOUSE_STATE_BUILD = 2
+const MOUSE_STATE_MOVE = 3
 
 const MapMouse = {
 	x : 0,
@@ -154,10 +155,62 @@ const WorldMouse = {
 		this.button = -1
 		if (this.moved) {
 		} else if (event.button == 2) {
-			gui.worldViewport.setTargetXY(this.mapX, this.mapY)
-			gui.target.reset()
+			if (this.state == MOUSE_STATE_FREE) {
+				gui.worldViewport.setTargetXY(this.mapX, this.mapY)
+			} else if (this.state == MOUSE_STATE_MOVE || this.state == MOUSE_STATE_BUILD) {
+				this.state = MOUSE_STATE_FREE
+				game.updateWorldBackground = true
+				delete this.target
+			}
 		} else if (event.button == 0) {
 			//main onclick
+			if (this.state == MOUSE_STATE_FREE && this.closest) {
+				this.state = MOUSE_STATE_MOVE
+				this.target = this.closest
+				this.target.newX = this.mapX
+				this.target.newY = this.mapY
+				this.target.newConnections = game.world.predictConnections(this.target)
+				game.world.updateBounds()
+				game.updateWorldBackground = true
+			} else if (this.state == MOUSE_STATE_FREE && !this.closest) {
+				this.state = MOUSE_STATE_BUILD
+				this.target = WorldPoint({
+					type : "goldMine",
+					x : this.mapX,
+					y : this.mapY,
+					world : game.world
+				})
+				this.target.newX = this.mapX
+				this.target.newY = this.mapY
+				this.target.newConnections = game.world.predictConnections(this.target)
+			} else if (this.state == MOUSE_STATE_MOVE) {
+				const connections = game.world.predictConnections(this.target)
+				if (connections.possible) {//if can move
+					this.state = MOUSE_STATE_FREE
+					this.target.x = this.target.newX
+					this.target.y = this.target.newY
+					this.target.calculateStats()
+					delete this.target
+					game.world.updateConnections()
+					game.world.update()
+					game.updateWorldBackground = true
+				}
+			} else if (this.state == MOUSE_STATE_BUILD) {
+				const connections = game.world.predictConnections(this.target)
+				if (connections.possible) {//if can move
+					this.state = MOUSE_STATE_FREE
+					game.world.build({
+						x : this.mapX,
+						y : this.mapY,
+						name : this.target.type,
+						world : game.world
+					})
+					delete this.target
+/*					game.world.updateConnections()
+					game.world.update()
+					game.updateWorldBackground = true*/
+				}
+			}
 		}
 
 		this.moved = false
@@ -188,13 +241,17 @@ const WorldMouse = {
 				
 		if (!this.down) {
 			//Main onmousemove
-/*			if (game.map.renderedPoints && game.map.renderedPoints.length) {
-				let closest = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x, null)
-				window.tmpv = game.map.renderedPoints.filter(x => x.away < 2 || game.dev && game.dev.seeAll).map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2])
-				window.lastc = closest
-				this.closest = closest && closest[1] < (closest[0].size * 3) ** 2 && closest[0] != gui.target.point? closest[0] : null
-				gui.hover.set(this.closest, this.x, this.y)				
-			}*/
+			if (this.state == MOUSE_STATE_FREE) {
+				let closest = game.world.points.map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x, null)
+				this.closest = closest && closest[1] < (closest[0].radius * 3) ** 2 ? closest[0] : null
+			} else if (this.state == MOUSE_STATE_MOVE || this.state == MOUSE_STATE_BUILD) {
+				this.target.newX = this.mapX
+				this.target.newY = this.mapY
+				this.target.newConnections = game.world.predictConnections(this.target)
+//				this.target.calculateStats()
+//				game.world.updateConnections()
+//				game.updateWorldBackground = true
+			}
 		}
 	},
 	

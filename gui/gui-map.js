@@ -5,7 +5,7 @@ const MapTab = Template({
 		this.dvDisplay = createElement("div", "map "+(this.className || ""), this.parent)
 		
 		this.dvAscend = createElement("div", "ascend", this.dvDisplay)
-		this.dvAscend.onclick = (event) => game.ascend()
+		this.dvAscend.onclick = (event) => game.map.virtual?game.map.evolve():game.ascend()
 		
 		this.dvHarvest = createElement("div", "harvest",  this.dvDisplay)
 		this.displayHarvest = POINT_TYPES.map((x,n) => {

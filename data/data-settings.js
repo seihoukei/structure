@@ -197,6 +197,21 @@ const SETTINGS = {
 			game.updateMapBackground = true
 		}
 	},
+	dashedLines: {
+		group : "Map",
+		displayName : "Uncaptured node lines",
+		default : true,
+		choices: [{
+			text: "Dashed",
+			value : true
+		},{
+			text: "Solid",
+			value : false
+		}],
+		onSet() {
+			game.updateMapBackground = true
+		}
+	},
 	storyMainDisplay : {
 		group : "Story",
 		displayName : "Main story display",

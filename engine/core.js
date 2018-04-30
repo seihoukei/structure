@@ -26,8 +26,8 @@ window.onload = (event) => {
 //			boost : 60,
 //			autoSkills : ["autoTarget", "sensor"],
 //			seeAll : true,
-			setMap(n, v) {
-				game.createMap("dev", n, v)
+			setMap(n, v, f) {
+				game.createMap("dev", n, v, f)
 				game.setMap("dev", 1)
 			},
 		}

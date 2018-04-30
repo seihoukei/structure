@@ -20,6 +20,7 @@ const WORLD_ELEMENTS = {
 				add : 1,
 			},
 		},
+		iconText : "⛏\uFE0E"
 	},
 	imprinter: {
 		name : "Memory pool",
@@ -41,5 +42,6 @@ const WORLD_ELEMENTS = {
 			_5 : 1,
 			_6 : 1,
 		},
+		iconText : "M",
 	},
 }

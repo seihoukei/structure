@@ -4,6 +4,7 @@ const gui = {
 	init() {
 		
 		this.mapMouse = MapMouse
+		this.worldMouse = WorldMouse
 		this.mainViewport = Viewport()
 		this.worldViewport = Viewport()
 
@@ -297,15 +298,20 @@ const gui = {
 	},	
 	
 	setTheme(theme, subtheme) {
-		this.theme = (THEMES[theme] || THEMES["light"])[subtheme || "main"] || THEMES.light.main
+		this.theme = Object.assign({}, THEMES.light.main)
+		if (THEMES[theme] && THEMES[theme].main)
+			Object.assign(this.theme,THEMES[theme].main)
+		if (THEMES[theme] && THEMES[theme][subtheme])
+			Object.assign(this.theme,THEMES[theme][subtheme])
+//		this.theme = (THEMES[theme] || THEMES["light"])[subtheme || "main"] || THEMES.light.main
 		document.body.className = theme + " " + theme + "-" + subtheme
 	},
 
 	updateTabs() {
 		let distress = game.map.markers && game.map.markers.length
-		this.map.dvAscend.innerText = game.map.virtual?"Leave":distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
-		this.map.dvAscend.classList.toggle("disabled",!game.map.virtual && (distress || game.resources.stars < game.map.ascendCost && !game.map.boss || game.map.boss && game.map.points.filter(x => !x.owned && x.boss == game.map.boss).length))
-		this.map.dvAscend.classList.toggle("hidden", !game.statistics.stars)
+		this.map.dvAscend.innerText = game.map.virtual?"Evolve":distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
+		this.map.dvAscend.classList.toggle("disabled",game.map.virtual && (distress || game.resources.stars < game.map.ascendCost && !game.map.boss || game.map.boss && game.map.points.filter(x => !x.owned && x.boss == game.map.boss).length) || game.map.virtual && !game.map.complete)
+		this.map.dvAscend.classList.toggle("hidden", !game.map.virtual && !game.statistics.stars || game.map.virtual && (game.map.level < 31 || !game.skills.evolveVirtual))
 		this.dvMana.classList.toggle("hidden", !game.skills.magic)
 		this.dvScience.classList.toggle("hidden", !game.resources.science)
 		this.map.dvDisplay.classList.toggle("dark", !!game.map.boss)

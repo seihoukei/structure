@@ -3,6 +3,51 @@
 const MAP_MINIMUM_POINT_SIZE = 5
 const MAP_MINIMUM_DISTANCE = 16
 
+function createPoint(points, size, angle, spacing, type, customPower) {
+	angle = angle.toDigits(3)
+	let c = Math.cos(angle)
+	let s = Math.sin(angle)
+	let r = (size + spacing)
+	let distances = points.map(point => {
+		let distance = 0
+		if (c * point.x + s * point.y < 0) return [0, point]
+		if (Math.abs (angle - point.angle) > 1.6 && Math.abs (angle - 6.29 - point.angle) > 1.6 && Math.abs (angle + 6.29 - point.angle) > 1.6 && point.distance > 0) return [0, point]
+		let a = point.y * c - point.x * s
+		let b = point.dy * c - point.dx * s
+		let h = a ** 2
+		let r2 = (r + point.size) ** 2
+		if (h <= r2) 
+			distance = Math.sqrt((point.distance) ** 2 - h) + Math.sqrt(r2 - h)
+		else {
+		}
+		
+		if (a * b > a * a && point.parent && point.parent.distance > 0) {
+			let d = Math.abs((point.dx * point.y - point.dy * point.x) / point.length)
+			distance = Math.min((point.y * point.dx / point.dy - point.x) / (s * point.dx / point.dy - c) * (d + r) / d, point.distance + r)
+		}
+		
+		return [distance, point]
+	})
+	let farthest = distances[0]
+	distances.map(x => (farthest = ((x[0]>farthest[0])?x:farthest)))
+	let distance = (farthest[0]+0.001).toDigits(3)
+	let x = (distance * Math.cos(angle))
+	let y = (distance * Math.sin(angle))
+	let ok = true
+	let output = MapPoint({
+		x, y, distance, angle, size, type, customPower,
+		owned : false,
+		available : false,
+		parent : farthest[1],
+		depth : (farthest[1].depth || 0) + 1,
+		dx : farthest[1].x - x,
+		dy : farthest[1].y - y,
+		length : Math.hypot(farthest[1].x - x, farthest[1].y - y)
+	})
+	points.push(output)	
+	return output
+}
+
 function mapLevel(level, virtual) {
 	return {
 		level,
@@ -278,7 +323,8 @@ const mapHandler = {
 		c.save()
 		c.beginPath()
 		c.strokeStyle = gui.theme.shades[11]
-		c.setLineDash([5,8])
+		if (settings.dashedLines)
+			c.setLineDash([5,8])
 		if (game.dev && game.dev.seeAll)
 			this.renderedPoints.filter(x => x.away).map(drawTail)
 		else
@@ -378,6 +424,25 @@ const mapHandler = {
 		})
 	},*/
 
+	evolve() {
+		if (!this.complete) return
+		if (!this.virtual || this.level < 31 || !game.skills.evolveVirtual) return
+		let n = this.pointsCount
+		this.evolved = (this.evolved || 0) + 1
+		while (n--) {
+			const angle = (Math.random() * 6.29).toDigits(3)
+			const spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
+			const size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount * (this.virtual?1.5:1) - n) ** 0.4) * Math.random()).toDigits(3)
+			const type = this.focus && Math.random() < 0.5 + (this.evolved) * 0.1? this.focus : (1 + Math.random() * 6 | 0)
+			const point = createPoint(this.points, size, angle, spacing, type)
+			point.special = [SPECIAL_RESIST, SPECIAL_BLOCK, SPECIAL_NOCLONE, SPECIAL_NOBUILD, 0][Math.min(4, (Math.random() * Math.max(5, 10 - this.evolved))| 0)]
+		}
+		this.points.map((x,n) => x.index = n)
+		this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
+		this.restoreState()
+		game.update()
+	},
+	
 	updatePoints() {
 		this.points.map((point,index) => {
 			point.calculateStats()
@@ -487,52 +552,7 @@ const mapMaker = {
 			owned : true,
 			available : true,
 		}))
-		
-		function createPoint(points, size, angle, spacing, type, customPower) {
-			angle = angle.toDigits(3)
-			let c = Math.cos(angle)
-			let s = Math.sin(angle)
-			let r = (size + spacing)
-			let distances = points.map(point => {
-				let distance = 0
-				if (c * point.x + s * point.y < 0) return [0, point]
-//				if (Math.abs (angle - point.angle) > 1.6 && Math.abs (angle - 6.29 - point.angle) > 1.6 && Math.abs (angle + 6.29 - point.angle) > 1.6 && point.distance > 0) return [0, point]
-				let a = point.y * c - point.x * s
-				let b = point.dy * c - point.dx * s
-				let h = a ** 2
-				let r2 = (r + point.size) ** 2
-				if (h <= r2) 
-					distance = Math.sqrt((point.distance) ** 2 - h) + Math.sqrt(r2 - h)
-				else {
-				}
 				
-				if (a * b > a * a && point.parent && point.parent.distance > 0) {
-					let d = Math.abs((point.dx * point.y - point.dy * point.x) / point.length)
-					distance = Math.min((point.y * point.dx / point.dy - point.x) / (s * point.dx / point.dy - c) * (d + r) / d, point.distance + r)
-				}
-				
-				return [distance, point]
-			})
-			let farthest = distances[0]
-			distances.map(x => (farthest = ((x[0]>farthest[0])?x:farthest)))
-			let distance = (farthest[0]+0.001).toDigits(3)
-			let x = (distance * Math.cos(angle))
-			let y = (distance * Math.sin(angle))
-			let ok = true
-			let output = MapPoint({
-				x, y, distance, angle, size, type, customPower,
-				owned : false,
-				available : false,
-				parent : farthest[1],
-				depth : (farthest[1].depth || 0) + 1,
-				dx : farthest[1].x - x,
-				dy : farthest[1].y - y,
-				length : Math.hypot(farthest[1].x - x, farthest[1].y - y)
-			})
-			points.push(output)	
-			return output
-		}
-		
 		if (this.level == 25 && !this.virtual) {
 			this.ascendCost = 15
 			this.exitsCount = 20

@@ -131,7 +131,7 @@ const BUILDINGS = {//function context == point
 		desc : "Produces mana",
 		level : 3,
 		production(point) {
-			return point.depth * point.map.level / 1000 * (1 + (point.map.ownedRadius - point.distance) / 100) * (point.enchanted == ENCHANT_MANA?point.map.level ** (point.map.level / 10):1)
+			return point.distance < point.map.ownedRadius?point.depth * point.map.level / 1000 * (1 + (point.map.ownedRadius - point.distance) / 100) * (point.enchanted == ENCHANT_MANA?point.map.level ** (point.map.level / 10):1):0
 		},
 		cost(point) {
 			return point.distance < point.map.ownedRadius?1e15:-1

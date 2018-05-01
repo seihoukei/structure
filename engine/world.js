@@ -10,10 +10,12 @@ const BASE_WORLD = {
 const worldHandler = {
 	_init() {
 		this.edges = []
-		if (!this.points) {
+		this.active = {}
+		this.activePoints = new Set()
+		if (!this.points || this.points.filter(x => x.type == "entryPoint").length != 1) {
 			this.points = []
 			this.build({
-				name : "goldMine",
+				type : "entryPoint",
 				x : 0,
 				y : 0,
 				free : true
@@ -22,7 +24,7 @@ const worldHandler = {
 			this.points = this.points.map(x => WorldPoint(x))
 			this.restoreState()
 		}
-		this.updateBounds()
+		this.update()
 	},
 
 	render(c) {
@@ -31,6 +33,8 @@ const worldHandler = {
 		c.translate(gui.worldViewport.halfWidth, gui.worldViewport.halfHeight)
 		c.scale(gui.worldViewport.current.zoom, gui.worldViewport.current.zoom)
 		c.translate(-gui.worldViewport.current.x, -gui.worldViewport.current.y)
+		c.textAlign = "center"
+		c.textBaseline = "middle"
 		
 		if (gui.worldMouse.closest && gui.worldMouse.state == MOUSE_STATE_FREE) {
 			const closest = gui.worldMouse.closest
@@ -49,35 +53,56 @@ const worldHandler = {
 			const target = gui.worldMouse.target
 			const connections = target.newConnections
 			c.save()
-			c.beginPath()
-			c.strokeStyle = connections.possible?gui.theme.mouseOwned:gui.theme.mouseEnemy
-//			c.setLineDash([5,8])
 			c.globalAlpha = 0.5
-			connections.points.map(point => {
+
+			if (!connections.possible) {
+				c.beginPath()
+				c.strokeStyle = gui.theme.mouseEnemy
+				connections.points.filter(x => x.family == target.family).map(point => {
+					c.moveTo(target.newX, target.newY)
+					c.lineTo(point.x, point.y)
+				})
+				c.stroke()
+			}
+			c.beginPath()
+			c.strokeStyle = gui.theme.mouseOwned
+			connections.points.filter(x => x.family != target.family).map(point => {
 				c.moveTo(target.newX, target.newY)
 				c.lineTo(point.x, point.y)
 			})
+			c.stroke()
+			c.beginPath()
+			c.strokeStyle = connections.possible?gui.theme.mouseOwned:gui.theme.mouseEnemy
 			c.translate(target.newX, target.newY)
+			if (settings.renderReach) {
+				c.save()
+				c.lineWidth = 1/gui.worldViewport.current.zoom
+				c.moveTo(target.reach,0)
+				c.arc(0,0,target.reach,0,6.29)			
+				c.stroke()
+				c.restore()
+			}
+			c.beginPath()
 			c.moveTo(target.radius,0)
 			c.arc(0,0,target.radius,0,6.29)
 			c.stroke()
-//			if (!connections.possible) {
-				c.arc(0, 0, target.radius + 10, 0, 6.29)
+			if (settings.renderDeadZone || !connections.possible) {
+				c.arc(0, 0, target.deadZone, 0, 6.29)
 				c.globalAlpha = 0.25
 				c.fillStyle = connections.possible?gui.theme.mouseOwned:gui.theme.mouseEnemy
 				c.fill()
-//			}
+			}
 			c.restore()
 		}
 		
-		[gui.worldMouse.target,...this.points].map(point => {
+/*		[gui.worldMouse.target,...this.points].map(point => {
 			if (!point) return
 			c.save()
 			c.translate(point.newX || point.x, point.newY || point.y)
 			c.fillStyle = gui.theme.foreground
 			c.fillText(point.newDepth || point.depth, 0, 0)
 			c.restore()
-		})
+		})*/
 		c.restore()
 	},
 	
@@ -88,16 +113,45 @@ const worldHandler = {
 			c.lineTo(edge.points[1].x, edge.points[1].y)
 		}
 		
+		function renderDeadZone(point) {
+			c.save()
+			c.translate(point.x, point.y)
+			c.moveTo(point.deadZone, 0)
+			c.arc(0, 0, point.deadZone, 0, 6.29)
+			c.restore()
+		}
+
+		function renderReach(point) {
+			c.save()
+			c.translate(point.x, point.y)
+			c.moveTo(point.reach, 0)
+			c.arc(0, 0, point.reach, 0, 6.29)
+			c.restore()
+		}
+
 		function renderPoint(point) {
 			c.save()
-			c.beginPath()
 			c.translate(point.x, point.y)
+			if (!point.active) {
+				c.beginPath()
+				c.fillStyle = gui.theme.background
+				c.moveTo(point.radius, 0)
+				c.arc(0, 0, point.radius, 0, 6.29)
+				c.fill()
+				c.globalAlpha = 0.5
+			}
+			c.beginPath()
 			if (gui.worldMouse.target && point == gui.worldMouse.target) c.globalAlpha = 0.25
 			c.moveTo(point.radius, 0)
 			c.arc(0, 0, point.radius, 0, 6.29)
 			c.stroke()
-			c.fillStyle = gui.theme[point.type] || gui.theme.background
+			c.fillStyle = gui.theme.world[point.family] || gui.theme.background
 			c.fill()
+			if (WORLD_ELEMENTS[point.type].iconText) {
+				c.font = point.radius + "px" + fontName
+				c.fillStyle = gui.theme.foreground
+				c.fillText(WORLD_ELEMENTS[point.type].iconText, 0, 0)
+			}
 //			c.fillStyle = gui.theme.foreground
 //			c.fillText(point.newDepth, 0, 0)
 			c.restore()
@@ -107,11 +161,36 @@ const worldHandler = {
 		c.translate(gui.worldViewport.halfWidth, gui.worldViewport.halfHeight)
 		c.scale(gui.worldViewport.current.zoom, gui.worldViewport.current.zoom)
 		c.translate(-gui.worldViewport.current.x, -gui.worldViewport.current.y)
+		c.textAlign = "center"
+		c.textBaseline = "middle"
+		
+		c.save()
+		if (settings.renderDeadZone) {
+			c.fillStyle = gui.theme.shades[13]
+			c.beginPath()
+			this.points.map(renderDeadZone)
+			c.fill()
+		}
+		if (settings.renderReach) {
+			c.lineWidth = 1/gui.worldViewport.current.zoom
+			c.strokeStyle = gui.theme.shades[13]
+			c.beginPath()
+			this.points.map(renderReach)
+			c.stroke()
+		}
+		c.restore()
 
+		const renderEdges = this.edges.filter(x => x.points[0] != gui.worldMouse.target && x.points[1] != gui.worldMouse.target)
 		c.strokeStyle = gui.theme.foreground
 		c.beginPath()
-		this.edges.filter(x => x.points[0] != gui.worldMouse.target && x.points[1] != gui.worldMouse.target).map(renderEdge)
+		renderEdges.filter(x => x.points[0].active && x.points[1].active).map(renderEdge)
 		c.stroke()
+		c.save()
+		c.beginPath()
+		c.globalAlpha = 0.5
+		renderEdges.filter(x => !x.points[0].active || !x.points[1].active).map(renderEdge)
+		c.stroke()
+		c.restore()
 		if (gui.worldMouse.target) {
 			c.save()
 			c.beginPath()
@@ -127,38 +206,77 @@ const worldHandler = {
 	
 	restoreState() {
 		this.points.map((point,index) => {
-			point.index = index
 			point.world = this
 		})
 		this.updateConnections()
 	},
 		
+	canAfford(name) {
+		const building = WORLD_ELEMENTS[name]
+		if (!building) return false
+		if (building.cost) {
+			Object.keys(building.cost).map(x => {
+				if (game.resources[x] < building.cost[x]) return false
+			})
+		}
+		return true
+	},
+	
+	pay(name) {
+		const building = WORLD_ELEMENTS[name]
+		if (!building) return false
+		if (building.cost) {
+			Object.keys(building.cost).map(x => {
+				game.resources[x] -= building.cost[x]
+			})
+		}
+		return true
+	},
+	
 	build(data) {
+		if (!data || !data.type || !WORLD_ELEMENTS[data.type]) 
+			return
+		
 		if (!data.free) {
-			//check cost
+			if (!this.canAfford(data.type)) return
 		}
 		
 		const point = WorldPoint({
 			x : data.x,
 			y : data.y,
-			type : data.name,
+			type : data.type,
 			world : this
 		})
 		
 		const canBuild = this.points.reduce((v,pt) => {
 //			console.log(v, Math.hypot(point.x - pt.x, point.y - pt.y) , point.radius + pt.radius + 10)
-			return v && Math.hypot(point.x - pt.x, point.y - pt.y) > point.radius + pt.radius + 10
+			return v && Math.hypot(point.x - pt.x, point.y - pt.y) > Math.max(point.deadZone + pt.radius, pt.deadZone + point.radius)
 		}, true)
 		
 		if (!canBuild) return false
 		
 		if (!data.free) {
-			//pay cost
+			this.pay(data.type)
 		}
 		
 		this.points.push(point)		
-		this.updateBounds()
 		this.updateConnections()
+		this.update()
+		game.updateWorldBackground = true
+	},
+	
+	free(point) {
+		if (point.type == "entryPoint") return
+		const index = this.points.indexOf(point)
+		if (index < 0) return
+		this.points.splice(index, 1)
+		const cost = WORLD_ELEMENTS[point.type].cost
+		if (cost) 
+			Object.keys(cost).map(x => game.resources[x] += cost[x])
+		if (gui.worldMouse.closest == point)
+			delete gui.worldMouse.closest
+		this.updateConnections()
+		this.update()
 		game.updateWorldBackground = true
 	},
 	
@@ -171,7 +289,7 @@ const worldHandler = {
 			for (let j = i+1; j < pointsLength; j++) {
 				const point2 = this.points[j]
 				const length = Math.hypot(point1.x - point2.x, point1.y - point2.y)
-				if (length < point1.radius + point1.reach + point2.reach + point2.radius) {
+				if (length < point1.reach + point2.reach) {
 					point1.connect(point2)
 					this.edges.push({
 						points : [point1, point2],
@@ -186,24 +304,30 @@ const worldHandler = {
 	},
 	
 	predictConnections(point) {
-		const connectedPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < point.radius + point.reach + pt.reach + pt.radius)
-		const intersectPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < point.radius + 10 + pt.radius)
+		const connectedPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < point.reach + pt.reach)
+		const intersectPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < Math.max(pt.deadZone + point.radius, point.deadZone + pt.radius))
 		this.points.map(pt => pt.newDepth = 100)
 		point.newDepth = 100
 		this.points[0].newDepth = 0
 		while ([point,...this.points].reduce((v,pt) => (pt.newDepth != (pt.newDepth = Math.min((connectedPoints.includes(pt)?point.newDepth+1:100),pt.newDepth,...(pt==point?connectedPoints:pt.connections).filter(y => y != point).map(x => (x.newDepth + 1))))) || v, false));
-		const maxDepth = Math.max(...this.points.map(pt => pt.newDepth))
+//		const maxDepth = Math.max(...this.points.map(pt => pt.newDepth))
 		return {
 			points : connectedPoints,
-			possible : connectedPoints.length && !intersectPoints.length && maxDepth < 100
+			possible : connectedPoints.length && !intersectPoints.length/* && maxDepth < 100*/ && !connectedPoints.filter(x => x.family == point.family).length
 		}
 	},
 	
 	update() {
-		this.harvestSpeed = 1 + this.imprinter * 0.4
-		this.goldSpeed = 1 + this.goldMine * 0.2
+		this.workers = game.sliders.filter(x => x.target && x.target.index == 0)	
+		this.activePoints.clear()
+		this.points.map(x => (x.active = x.depth <= this.workers.length)?this.activePoints.add(x):0)
+		Object.keys(WORLD_ELEMENTS).map(x => this.active[x] = 0)
+		;[...this.activePoints].map(x => this.active[x.type]++)
+		this.harvestSpeed = 2 ** this.active.imprinter
+		this.goldSpeed = 2 ** this.active.goldMine
 		this.updateBounds()
 		gui.worldViewport.getLimits(this.bounds)
+		game.updateWorldBackground = true
 	},
 	
 	updateBounds() {
@@ -220,6 +344,9 @@ const worldHandler = {
 	toJSON() {
 		let o = Object.assign({}, this)
 		delete o.edges
+		delete o.workers
+		delete o.active
+		delete o.activePoints
 		return o
 	},
 }

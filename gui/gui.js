@@ -25,7 +25,7 @@ const gui = {
 		
 		this.stardust = this.tabs.addTab("stardust", "Stardust", StardustTab)
 		this.artifacts = this.tabs.addTab("artifacts", "Artifacts", ArtifactsTab)
-		this.world = this.tabs.addTab("world", "World (WIP)", WorldTab)
+		this.world = this.tabs.addTab("world", "World", WorldTab)
 		this.tabs.addFiller()
 
 		this.story = this.tabs.addTab("story", "Story", StoryTab)

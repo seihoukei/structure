@@ -35,6 +35,7 @@ const SkillsTab = Template({
 							(!skill.map || game.realMap.level >= skill.map) && 
 							(!skill.sliders || game.sliders.filter(x => !x.clone).length >= skill.sliders) && 
 							(!skill.science || game.resources.science >= skill.science) &&
+							(!skill.feat || game.feats[skill.feat]) &&
 							(!skill.req || skill.req.reduce((v,x) => v && game.skills[x], true)) &&
 							(!skill.res || skill.res.reduce((v,x) => v && game.resources[x], true))
 			skill.dvDisplay.classList.toggle("available", !!available)
@@ -57,6 +58,7 @@ const SkillsTab = Template({
 			let visible = true
 			if (visible && skill.map) visible = game.realMap.level >= skill.map
 			if (visible && skill.req) visible = skill.req.reduce((v,x) => v && game.skills[x], visible)
+			if (visible && skill.feat) visible = game.feats[skill.feat]
 			if (visible && skill.res) visible = skill.res.reduce((v,x) => v && game.resources[x], visible)
 			if (visible && skill.sliders) visible = game.sliders.filter(x => !x.clone).length >= skill.sliders
 			skill.dvDisplay.classList.toggle("hidden", !visible)

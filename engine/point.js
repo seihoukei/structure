@@ -852,8 +852,10 @@ const MapPoint = Template(pointHandler, mapPointHandler)
 const worldPointHandler = {
 	_init() {
 		this.connections = []
+		this.deadZone = WORLD_ELEMENTS[this.type].deadZone
 		this.radius = WORLD_ELEMENTS[this.type].radius
 		this.reach = WORLD_ELEMENTS[this.type].reach
+		this.family = WORLD_ELEMENTS[this.type].family
 		this.calculateStats()
 	},
 	
@@ -871,11 +873,14 @@ const worldPointHandler = {
 		let o = Object.assign({}, this)
 		delete o.angle		
 		delete o.distance		
+		delete o.active
 		delete o.connections
 		delete o.world
 		delete o.voronoi
+		delete o.family		
 		delete o.radius
 		delete o.reach
+		delete o.deadZone
 		delete o.depth
 		delete o.newX
 		delete o.newY

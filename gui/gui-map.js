@@ -63,6 +63,7 @@ const MapTab = Template({
 	
 	onSet() {
 		this.dvDisplay.appendChild(this.dvGrowth)
+		this.dvDisplay.appendChild(this.dvHarvest)
 		this.update(true)
 		getSize()
 	},

@@ -327,6 +327,13 @@ const sliderHandler = {
 			this.autoTarget(true)
 		}
 		
+		if (this.clone == 2) {
+			this.dvUnsummon = createElement("div", "unsummon button", this.dvDisplay, "Unsummon")
+			this.dvUnsummon.onclick = (event) => {
+				this.fullDestroy()
+			}
+		}
+
 		this.dvMapIcon = createElement("div", "slider-icon"+(this.clone?" clone":""), gui.map.dvSliders)
 		this.dvMapIcon.onmousemove = (event) => {
 			gui.map.hoverSlider = this
@@ -520,7 +527,7 @@ const sliderHandler = {
 	updateFullInfo() {
 		this.displayStats.map((x,n) => {
 			x.dvValue.innerText = displayNumber(this.stats[x.name] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x.name] || 0)) + 
-								  (this.clone?"":" ("+(this.real.multi[x.name]!=1?"x"+this.real.multi[x.name]+" => ":"")+"+" + displayNumber(this.real.growth[x.name]) + "/s)") + 
+								  (this.clone?"":" ("+(this.real.multi[x.name]!=1?"x"+displayNumber(this.real.multi[x.name],0)+" => ":"")+"+" + displayNumber(this.real.growth[x.name]) + "/s)") + 
 								  ((this.real && (this.real[x.name] != this.stats[x.name] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x.name] || 0)))?" => " + displayNumber(this.real[x.name]):"")
 		})
 		if (this.real)
@@ -627,6 +634,8 @@ const sliderHandler = {
 		
 		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
 			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => x.assignTarget(this.target))
+		
+		game.world.update(true)
 	},
 		
 	advance (deltaTime) {
@@ -680,6 +689,7 @@ const sliderHandler = {
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
 			this.real.multi[x] = this.multi[x] * this.levelMulti[x] * (this.artifacts.growthOrb?3:1)
+			if (this.target && this.target.index == 0 && game.world.active[x+"Self"]) this.real.multi[x] *= 1 + (game.world.active[x+"Self"])
 			this.real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
 			game.sliders.map(slider => {
 				if (slider == this || slider.clone) return

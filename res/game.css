@@ -61,6 +61,7 @@
 	--tablet-present : #00AF00;
 	--tablet-absent : #FFAAAA;
 	--artifact-active : #3399FF;
+	--cost-more : #7f0000;
 }
 
 body.dark {
@@ -123,6 +124,7 @@ body.dark {
 	--tablet-unknown : #333333;
 	--tablet-present : #22FF22;
 	--tablet-absent : #AF3333;
+	--cost-more : #DD7F7F;
 }
 
 /*body.light.light-boss {
@@ -587,7 +589,7 @@ canvas.foreground : {
 	pointer-events : none;
 }
 
-.map .harvest {
+.map .harvest, .world .harvest {
 	position : absolute;
 	top : 31px;
 	right : 3px;
@@ -598,7 +600,7 @@ canvas.foreground : {
 	pointer-events : none;
 }
 
-.map .harvest-line {
+.harvest-line {
 	display : flex;
 	flex-direction : row;
 	justify-content : right;
@@ -606,7 +608,7 @@ canvas.foreground : {
 	margin : 2px 0 2px auto;
 }
 
-.map .harvest-icon {
+.harvest-icon {
 	width : 20px;
 	height : 20px;
 	border-radius : 10px;
@@ -643,7 +645,11 @@ canvas.foreground : {
 	z-index : 4;
 	padding : 0 5px;
 	border-radius : 5px;
-	background-color : inherit;
+	background-color : var(--background);
+}
+
+.map.complete .low-load-checkbox {
+	background-color : var(--background-complete);
 }
 
 .tab.sliders, .tab.story, .tab.skills, .tab.management, .tab.artifacts {
@@ -883,7 +889,7 @@ canvas.foreground : {
 	background-color : var(--shade12);
 }
 
-.apply {
+.apply, .unsummon {
 	border : 2px solid var(--lightframe);
 	padding : 5px;
 	cursor : pointer;
@@ -891,7 +897,7 @@ canvas.foreground : {
 	background-color : var(--shade15);
 }	
 
-.apply:hover {
+.apply:hover , .unsummon:hover{
 	background-color : var(--shade12);
 }
 
@@ -2208,3 +2214,188 @@ canvas.foreground : {
 	justify-content : center;
 	padding : 5px;
 }
+
+.build-button {
+	padding : 5px;
+	border : 2px solid var(--lightframe);
+	transition : opacity 0.2s, background-color 0.2s;
+	text-align : center;
+	cursor : pointer;
+	position : absolute;
+	left : 10px;
+	top : 10px;
+	z-index : 5;
+}
+
+.build-button:hover {
+	background-color : var(--shade12);
+}
+
+.build {
+	position : absolute;
+	background-color : var(--background);
+	border : 2px solid var(--lightframe);
+	display : flex;
+	max-width : 1100px;
+	flex-wrap : wrap;
+	padding : 5px;
+}
+
+.build .building {
+	width : 200px;
+	height : 150px;
+	margin : 5px;
+	background-color : var(--background);
+	border : 2px solid var(--lightframe);
+	display : flex;
+	flex-direction : column;
+	opacity : 0.5;
+}
+
+.build .building.active {
+	opacity : 1;
+	cursor : pointer;
+}
+
+.build .building.active:hover {
+	background-color : var(--shade12);
+}
+
+.building-header {
+	height : 40px;
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+}
+
+.building-icon {
+	width : 30px;
+	height : 30px;
+	border-radius : 15px;
+	margin : 5px;
+	border : 1px solid var(--lightframe);
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.building-desc {
+	flex-grow : 999;
+	text-align : center;
+	padding : 5px;
+}
+
+.building-title {
+	text-align : center;
+	flex-grow : 999;
+}
+
+.building-cost {
+	display : flex;
+	flex-direction : row;
+	flex-wrap : wrap;
+	height : 48px;
+	border-top : 1px solid var(--lightframe);
+	padding : 2px 5px;
+}
+
+.building-cost-holder {
+	display : flex;
+	flex-direction : row;
+	width : 50px;
+	height : 20px;
+	padding : 2px;
+}
+
+.building-cost-icon {
+	width : 20px;
+	height : 20px;
+	border-radius : 10px;
+}
+
+.building-cost-value {
+	padding : 0 0 0 5px;
+	color : var(--cost-more);
+}
+
+.building-cost-value.enough {
+	color : var(--foreground);
+}
+
+.workers {
+	position : absolute;
+	top : 2px;
+	right : 2px;
+	white-space : nowrap;
+	pointer-events : none;
+}
+
+.world-point {
+	position : absolute;
+	display : flex;
+	flex-direction : row;
+	border : 2px solid var(--lightframe);
+	width : 240px;
+	height : 60px;
+	background-color : var(--background);
+	pointer-events : none;
+}
+
+.world-point-icon {
+	width : 60px;
+	height : 60px;
+	font-size : 35px;
+	display : flex;
+	align-items : center;
+	justify-content : center;
+}
+
+.world-point-info {
+	font-size : 13.3px;
+	width : 180px;
+	padding : 1px 0 1px 5px;
+}
+
+.world-target .world-point {
+	position : static;
+	margin : -2px;
+}
+
+.world-target {
+	position : absolute;
+	display : flex;
+	flex-direction : column;
+	border : 2px solid var(--lightframe);
+	width : 240px;
+	height : 110px;
+	background-color : var(--background);
+}
+
+.world-target-buttons {
+	display : flex;
+	flex-direction : row;
+	justify-content : space-evenly;
+	align-items : center;
+	flex-grow : 999;
+}
+
+.world-target-button {
+	padding : 5px;
+	border : 2px solid var(--lightframe);
+	transition : opacity 0.2s, background-color 0.2s;
+	text-align : center;
+	width : 80px;
+	left : 10px;
+	top : 10px;
+	opacity : 0.5;
+}
+
+.world-target-button.active {
+	opacity : 1;
+	cursor : pointer;
+}
+
+.world-target-button.active:hover {
+	background-color : var(--shade12);
+}
+

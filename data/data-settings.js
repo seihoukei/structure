@@ -212,6 +212,36 @@ const SETTINGS = {
 			game.updateMapBackground = true
 		}
 	},
+	renderDeadZone : {
+		group : "World",
+		displayName: "Display dead zones",
+		default : true,
+		choices: [{
+			text: "On",
+			value : true
+		},{
+			text: "Off",
+			value : false
+		}],
+		onSet() {
+			game.updateWorldBackground = true
+		}
+	},
+	renderReach : {
+		group : "World",
+		displayName: "Display connectable distance",
+		default : true,
+		choices: [{
+			text: "On",
+			value : true
+		},{
+			text: "Off",
+			value : false
+		}],
+		onSet() {
+			game.updateWorldBackground = true
+		}
+	},
 	storyMainDisplay : {
 		group : "Story",
 		displayName : "Main story display",

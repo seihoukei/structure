@@ -165,24 +165,13 @@ const WorldMouse = {
 		} else if (event.button == 0) {
 			//main onclick
 			if (this.state == MOUSE_STATE_FREE && this.closest) {
-				this.state = MOUSE_STATE_MOVE
-				this.target = this.closest
-				this.target.newX = this.mapX
-				this.target.newY = this.mapY
-				this.target.newConnections = game.world.predictConnections(this.target)
-				game.world.updateBounds()
-				game.updateWorldBackground = true
+				if (gui.world.target.point) 
+					gui.world.target.reset()
+				else
+					gui.world.target.set(this.closest, this.x, this.y)
 			} else if (this.state == MOUSE_STATE_FREE && !this.closest) {
-				this.state = MOUSE_STATE_BUILD
-				this.target = WorldPoint({
-					type : "goldMine",
-					x : this.mapX,
-					y : this.mapY,
-					world : game.world
-				})
-				this.target.newX = this.mapX
-				this.target.newY = this.mapY
-				this.target.newConnections = game.world.predictConnections(this.target)
+				if (gui.world.target.point) 
+					gui.world.target.reset()
 			} else if (this.state == MOUSE_STATE_MOVE) {
 				const connections = game.world.predictConnections(this.target)
 				if (connections.possible) {//if can move
@@ -202,7 +191,7 @@ const WorldMouse = {
 					game.world.build({
 						x : this.mapX,
 						y : this.mapY,
-						name : this.target.type,
+						type : this.target.type,
 						world : game.world
 					})
 					delete this.target
@@ -244,6 +233,10 @@ const WorldMouse = {
 			if (this.state == MOUSE_STATE_FREE) {
 				let closest = game.world.points.map(pt => [pt, (pt.x - this.mapX) ** 2 + (pt.y - this.mapY) ** 2]).reduce((v,x) => v?(v[1]>x[1]?x:v):x, null)
 				this.closest = closest && closest[1] < (closest[0].radius * 3) ** 2 ? closest[0] : null
+				if (this.closest) 
+					gui.world.hover.set(this.closest, this.x, this.y) 
+				else 
+					gui.world.hover.reset()
 			} else if (this.state == MOUSE_STATE_MOVE || this.state == MOUSE_STATE_BUILD) {
 				this.target.newX = this.mapX
 				this.target.newY = this.mapY

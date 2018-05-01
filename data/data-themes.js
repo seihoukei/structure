@@ -33,7 +33,15 @@ const THEMES = {
 			mouseOwned : "green",
 			mouseEnemy : "maroon",
 			progress : "maroon",
-			
+			world : {
+				core : "#7F7F7F",
+				resource : "gold",
+				imprint : "#3399FF",
+				blood : "#DC143C",
+				fire : "#FF8C00",
+				ice : "#00FFFF",
+				metal : "#BBBBBB"
+			}
 		},
 		boss : {
 		}
@@ -85,6 +93,15 @@ const THEMES = {
 			mouseOwned : "green",
 			mouseEnemy : "maroon",
 			progress : "maroon",
+			world : {
+				core : "#7F7F7F",
+				resource : "#9f7f2f",
+				imprint : "#3399FF",
+				blood : "#AA0000",
+				fire : "#AA6600",
+				ice : "#0066AA",
+				metal : "#666666"
+			}
 		},
 		boss : {
 		}

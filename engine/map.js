@@ -3,6 +3,8 @@
 const MAP_MINIMUM_POINT_SIZE = 5
 const MAP_MINIMUM_DISTANCE = 16
 
+const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
+
 function createPoint(points, size, angle, spacing, type, customPower) {
 	angle = angle.toDigits(3)
 	let c = Math.cos(angle)
@@ -68,7 +70,6 @@ function mapLevel(level, virtual) {
 
 const mapHandler = {
 	renderMap(c) {
-		const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
 
 		c.lineWidth = Math.max(1, 1.5/gui.mainViewport.current.zoom)
 		c.lineCap = "round"
@@ -442,6 +443,7 @@ const mapHandler = {
 			const point = createPoint(this.points, size, angle, spacing, type)
 			point.special = [SPECIAL_RESIST, SPECIAL_BLOCK, SPECIAL_NOCLONE, SPECIAL_NOBUILD, 0][Math.min(4, (Math.random() * Math.max(5, 10 - this.evolved))| 0)]
 		}
+		delete this.completeTime
 		this.points.sort((x,y) => x.distance - y.distance)
 		this.points.map((x,n) => x.index = n)
 		this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
@@ -458,8 +460,10 @@ const mapHandler = {
 				point.updateText()
 			})	
 			this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
-			if (this.complete && !this.completeTime)
+			if (this.complete && !this.completeTime) {
 				this.completeTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
+				if (this.virtual && this.focus > 2 && this.evolved) game.feats[POINT_TYPES[this.focus]+"1"] = 1
+			}
 			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		}
 		this.updateAways()

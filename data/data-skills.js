@@ -472,6 +472,38 @@ const SKILLS = {
 		exp : 1e30,
 		mult : 2
 	},
+	world_blood1 : {
+		name : "Upon haunted battlefields",
+		desc : "Blueprint - Battlefield",
+		req : ["world"],
+		feat : "blood1",
+		exp : 0,
+		mult : 2
+	},
+	world_fire1 : {
+		name : "Forged in fire",
+		desc : "Blueprint - Volcano",
+		req : ["world"],
+		feat : "fire1",
+		exp : 0,
+		mult : 2
+	},
+	world_ice1 : {
+		name : "World of ice",
+		desc : "Blueprint - Glacier",
+		req : ["world"],
+		feat : "ice1",
+		exp : 0,
+		mult : 2
+	},
+	world_metal1 : {
+		name : "Metallic tragedy",
+		desc : "Blueprint - Scrapyard",
+		req : ["world"],
+		feat : "metal1",
+		exp : 0,
+		mult : 2
+	},
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

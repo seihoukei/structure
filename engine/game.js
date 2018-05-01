@@ -93,6 +93,9 @@ const game = {
 				this.world.renderBackground(gui.world.backgroundContext)
 			this.updateWorldBackground = false
 			this.world.render(gui.world.foregroundContext)
+			if (this.updateInterface) {
+				gui.map.updateHarvest()
+			}
 		}
 
 		if (this.updateInterface) {
@@ -812,6 +815,8 @@ const game = {
 		this.statistics = save.statistics || {}
 		this.lastViewedStory = save.lastViewedStory || 0
 		gui.story.updateStory()
+		
+		this.feats = Object.assign({}, save.feats)
 
 		this.world = World(BASE_WORLD, save.world)
 		
@@ -906,6 +911,7 @@ const game = {
 		POINT_TYPES.slice(1).map(x => {
 			this.stardust[x] = 0
 		})
+		this.feats = {}
 		Object.assign(this.automation, {
 			types : [],
 			maxLevel : 0,

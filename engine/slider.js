@@ -480,7 +480,7 @@ const sliderHandler = {
 			return
 		}
 		
-		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0))).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
+		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size)).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
 												(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
 												(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
 												(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||
@@ -619,7 +619,17 @@ const sliderHandler = {
 	
 	assignTarget(point, forced) {
 		if (this.clone == 2 && !forced) point = this.target || game.map.points[this.targetIndex]
-		if (this.target) this.target.attackers.delete(this)
+		if (this.target) {
+			this.target.attackers.delete(this)
+			if (this.target.special == SPECIAL_ALONE) {
+				this.target.calculateStats()
+				if (gui.target.point == this.target)
+					gui.target.updateUpgrades()
+			}
+		}
+		
+			
+		if (point && point.special == SPECIAL_ALONE && point.attackers.size) return
 		
 		if (!point) {
 			this.target = null
@@ -628,11 +638,18 @@ const sliderHandler = {
 			this.target = point
 			if (this.hovered) gui.sliders.hover.set(this.target, -1)
 		}
-		if (this.target) this.target.attackers.add(this)
+		if (this.target) {
+			this.target.attackers.add(this)
+			if (this.target.special == SPECIAL_ALONE) {
+				this.target.calculateStats()
+				if (gui.target.point == this.target)
+					gui.target.updateUpgrades()
+			}
+		}
 		if (this.dvMapIcon)
 			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
 		
-		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
+		if (game.skills.party && this.role == ROLE_LEADER && game.sliders && (!point || point.special != SPECIAL_ALONE))
 			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => x.assignTarget(this.target))
 		
 		game.world.update(true)
@@ -691,17 +708,18 @@ const sliderHandler = {
 			this.real.multi[x] = this.multi[x] * this.levelMulti[x] * (this.artifacts.growthOrb?3:1)
 			if (this.target && this.target.index == 0 && game.world.active[x+"Self"]) this.real.multi[x] *= 1 + (game.world.active[x+"Self"])
 			this.real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
-			game.sliders.map(slider => {
-				if (slider == this || slider.clone) return
-				let times = 0
-				if (slider.artifacts.channelCrown && slider.target == this.target) times++
-				if ((masterSlider.masterChannel?masterSlider.channel:slider.channel).includes(n+1)) times++
-				if (times) {
-					if (this.artifacts.channelReceiver) times *= 2
-					this.real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
-					this.real.gotChannel = true
-				}
-			})
+			if (!this.target || this.target.special != SPECIAL_NOCHANNEL)
+				game.sliders.map(slider => {
+					if (slider == this || slider.clone) return
+					let times = 0
+					if (slider.artifacts.channelCrown && slider.target == this.target) times++
+					if ((masterSlider.masterChannel?masterSlider.channel:slider.channel).includes(n+1)) times++
+					if (times) {
+						if (this.artifacts.channelReceiver) times *= 2
+						this.real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
+						this.real.gotChannel = true
+					}
+				})
 			
 			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb) {
 				this.real.growth[x] = 0

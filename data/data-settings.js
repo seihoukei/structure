@@ -212,6 +212,21 @@ const SETTINGS = {
 			game.updateMapBackground = true
 		}
 	},
+	meanEffect: {
+		group : "Map",
+		displayName : "Lightning effects",
+		default : true,
+		choices: [{
+			text: "On",
+			value : true
+		},{
+			text: "Off",
+			value : false
+		}],
+/*		onSet() {
+			game.updateMapBackground = true
+		}*/
+	},
 	renderDeadZone : {
 		group : "World",
 		displayName: "Display dead zones",

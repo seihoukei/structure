@@ -157,6 +157,26 @@ const mapHandler = {
 					c.lineTo(0, point.renderSize * 1.2)
 					
 				}
+				if (point.special == SPECIAL_NOCHANNEL) {
+					let r = point.renderSize * 2.2 / Math.sqrt(3)
+					c.moveTo(0, r)
+					for (let i = 1; i < 7; i++) {
+						c.lineTo(r * Math.sin(i/3*Math.PI), r * Math.cos(i/3*Math.PI))
+					}
+					r = point.renderSize * 2 / Math.sqrt(3)
+					c.moveTo(0, r)
+					for (let i = 1; i < 7; i++) {
+						c.lineTo(r * Math.sin(i/3*Math.PI), r * Math.cos(i/3*Math.PI))
+					}
+				}
+				if (point.special == SPECIAL_ALONE) {
+					const dx = 2 * point.dy / point.length
+					const dy = 2 * -point.dx / point.length
+					c.moveTo(point.sdx - point.x + dx, point.sdy - point.y + dy)
+					c.lineTo(point.edx - point.x + dx, point.edy - point.y + dy)
+					c.moveTo(point.sdx - point.x - dx, point.sdy - point.y - dy)
+					c.lineTo(point.edx - point.x - dx, point.edy - point.y - dy)
+				}
 				if (point.owned && point.nobuild) {
 					c.moveTo( point.renderSize * 0.8, point.renderSize * 1.2)
 					c.lineTo( point.renderSize * 1.2, point.renderSize * 0.8)
@@ -395,7 +415,7 @@ const mapHandler = {
 	},
 	
 	getOwnedRadius() {
-		const block = this.points.filter(x => !x.owned).sort((x,y) => (x.distance - x.size) - (y.distance - y.size))[0]
+		const block = this.points.filter(x => !x.owned && (!x.boss || x.boss <= this.boss)).sort((x,y) => (x.distance - x.size) - (y.distance - y.size))[0]
 	
 		this.points.map(point => point.suspend())
 		if (block)
@@ -660,7 +680,53 @@ const mapMaker = {
 			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
 			this.restoreState()
 		} else {
-			if ((this.virtual && this.level <= 30) || (!this.virtual && this.level >= 30)) {
+			if (!this.virtual && this.level == 35) {
+				const spaceX = 40
+				const baseSize = 10
+				const spaceY = spaceX * Math.sqrt(3)
+				
+				const spawnPoint = (x, y, finalLayer) => {
+					const newX = x * spaceX
+					const newY = y * spaceY
+					const parent = this.points.reduce((v,p) => !p.boss && Math.hypot(p.x-newX,p.y-newY) < Math.hypot(v.x-newX,v.y-newY) ? p : v, this.points[0])
+					const newType = Math.random() * 6 + 1 | 0//((x + y) / 2 + 100 + y * 2) % 6 + 1
+					const newBoss = (((y & 1) * 3 + x) % 6 == 0)?finalLayer?1:2:0
+					const point = MapPoint({
+						x : newX,
+						y : newY,
+						angle : Math.atan2(newY, newX).toDigits(3),
+						distance : Math.hypot(newX, newY).toDigits(3),
+						parent, 
+						type : newType,
+						size : baseSize * ([1,2,1.5][newBoss]),
+						depth : (parent.depth || 0) + 1,
+						boss : newBoss
+					})
+					if (newBoss == 1) point.customPower = 2e68
+					if (newBoss == 2) {
+						point.customPower = 1e68
+						point.special = (Math.random() < 0.5)?SPECIAL_ALONE:SPECIAL_NOCHANNEL
+					}
+//					if (!newBoss || !finalLayer)
+					this.points.push(point)
+				}
+				
+				const layers = 12
+				for (let layer = 1; layer <= layers; layer++) {
+					for (let i = layer & 1; i <= layer; i += 2) {
+						spawnPoint(i, layer, layer == layers)
+						spawnPoint(i, -layer, layer == layers)
+						if(i) {
+							spawnPoint(-i, layer, layer == layers)
+							spawnPoint(-i, -layer, layer == layers)
+						}
+					}
+					for (let i = - layer + 1; i <= layer - 1; i++) {
+						spawnPoint(layer * 2 - Math.abs(i), i, layer == layers)
+						spawnPoint(Math.abs(i) - layer * 2, i, layer == layers)
+					}
+				}
+			} else if ((this.virtual && this.level <= 30) || (!this.virtual && this.level >= 30)) {
 				const baseSize = 5 + this.level / 10
 				const distance = baseSize * 8 
 				const taken = new Map()
@@ -899,6 +965,14 @@ const mapMaker = {
 				for (let i = 0; i < (this.level | 0) - (this.virtual?10:20); i++) {
 					const point = [...canBlock][canBlock.size * Math.random()|0]
 					point.special = i&1?SPECIAL_NOBUILD:SPECIAL_NOCLONE
+					canBlock.delete(point)
+				}
+			}		
+			
+			if (this.level > 35){				
+				for (let i = 0; i < (this.level | 0) - (this.virtual?10:20); i++) {
+					const point = [...canBlock][canBlock.size * Math.random()|0]
+					point.special = i&1?SPECIAL_NOCHANNEL:SPECIAL_ALONE
 					canBlock.delete(point)
 				}
 			}		

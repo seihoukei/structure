@@ -35,7 +35,7 @@ function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
 		game.badSave = true
 		alert("Invalid save data")
 		console.log(e)
-		console.log(saveData)
+//		console.log(saveData)
 		return false
 	}
 }
@@ -83,7 +83,7 @@ function importState(saveData) {
 		game.badSave = true
 		alert("Invalid save data")
 		console.log(e)
-		console.log(saveData)
+//		console.log(saveData)
 	}
 }
 

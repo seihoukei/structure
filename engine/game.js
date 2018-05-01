@@ -249,10 +249,12 @@ const game = {
 			c.arc(0, 0, point.renderSize, -1.57, -1.57 + 6.29 * (point.harvestTime / point.harvestTimeTotal))
 			c.restore()
 		}
-		c.strokeStyle = gui.theme.lightning
-		c.beginPath()
-		this.map.renderedPoints.filter(x => !x.owned && x.parent && x.parent.buildings && x.parent.buildings.earthquakeMachine && x.real && x.real.passiveDamage).map(renderQuake)
-		c.stroke()
+		if (settings.meanEffect) {
+			c.strokeStyle = gui.theme.lightning
+			c.beginPath()
+			this.map.renderedPoints.filter(x => !x.owned && x.parent && x.parent.buildings && x.parent.buildings.earthquakeMachine && x.real && x.real.passiveDamage).map(renderQuake)
+			c.stroke()
+		}
 		c.strokeStyle = gui.theme.progress
 		c.beginPath()
 		this.map.renderedPoints.filter(x => !x.owned && x.progress > 0).map(renderProgress)

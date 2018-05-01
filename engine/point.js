@@ -28,6 +28,8 @@ const SPECIAL_CLONE = 3
 const SPECIAL_RESIST = 4
 const SPECIAL_NOBUILD = 5
 const SPECIAL_NOCLONE = 6
+const SPECIAL_ALONE = 7
+const SPECIAL_NOCHANNEL = 8
 
 const pointHandler = {
 	_init() {
@@ -493,8 +495,8 @@ const mapPointHandler = {
 			this.capture()
 		}
 		const hasSummons = [...this.attackers].filter(x => x.clone == 2).length
-		const canSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.summonAmulet.equipped)
-		const canMasterSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.masterSummonAmulet.equipped)
+		const canSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.summonAmulet.equipped) && this.special != SPECIAL_ALONE
+		const canMasterSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.masterSummonAmulet.equipped) && this.special != SPECIAL_ALONE
 		if (canSummon || canMasterSummon) {
 			while (oldProgress0 < (this.progress* 100|0)) {
 				oldProgress0++
@@ -627,13 +629,21 @@ const mapPointHandler = {
 			game.addStatistic("special_nobuilds")
 			this.special = 0
 		}
+		if (this.special == SPECIAL_ALONE) {
+			game.addStatistic("special_alones")
+			this.special = 0
+		}
+		if (this.special == SPECIAL_NOCHANNEL) {
+			game.addStatistic("special_nochannels")
+			this.special = 0
+		}
 		game.addStatistic("points")
 		
 		if (!this.map.points.filter(x => !x.owned).length)
 			game.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"_full")
 		
 		let wantSpecial = 0
-		if (!this.special)
+		if (!this.special && !this.boss)
 			attackers.map(x => {
 				if (x.artifacts.magicalShield) wantSpecial |= 1
 				if (x.artifacts.physicalShield) wantSpecial |= 2
@@ -647,7 +657,7 @@ const mapPointHandler = {
 			this.special = SPECIAL_BLOCK
 
 		let wantEnchant = 0
-		if (!this.enchanted)
+		if (!this.enchanted && !this.boss)
 			attackers.map(x => {
 				if (x.artifacts.goldShield) wantEnchant |= 1
 				if (x.artifacts.manaShield) wantEnchant |= 2

@@ -32,7 +32,6 @@ function createPoint(points, size, angle, spacing, type, customPower) {
 	})
 	let farthest = distances[0]
 	distances.map(x => (farthest = ((x[0]>farthest[0])?x:farthest)))
-	console.log(angle, farthest[1].angle )
 	let distance = (farthest[0]+0.001).toDigits(3)
 	let x = (distance * Math.cos(angle))
 	let y = (distance * Math.sin(angle))

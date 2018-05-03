@@ -22,7 +22,7 @@ const FEATS = {
 		map : 32
 	},
 	mana1: {
-		desc: "Accumulate 10000000000000 (that's 13 zeroes, Ive counted. twice.) mana",
+		desc: "10000000000000. Okay, reading that number correctly is a feat already, but you also need that much mana.",
 		map : 31
 	},
 	noreal1 : {
@@ -30,7 +30,7 @@ const FEATS = {
 		map : 33
 	},
 	noabsolute1 : {
-		desc: "Complete evolved virtual map without using mean machines and unblockable damage from aftifacts",
+		desc: "Complete evolved virtual map without using mean machines and unblockable damage from artifacts",
 		map : 33
 	},
 }

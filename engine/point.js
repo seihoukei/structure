@@ -437,6 +437,8 @@ const mapPointHandler = {
 			else if (ARTIFACTS.puppetCrown.equipped == slider && [...this.attackers].filter(x => x.clone == 2).length)
 				finalMult *= 0.1
 		}
+		
+		if (slider.target == this && absoluteDamage) this.map.failed.noabsolute1 = 1
 
 		return (Math.max(0, physical + elemental - spiritPenalty) + superelemental + superphysical + absoluteDamage)*finalMult
 	},
@@ -501,14 +503,14 @@ const mapPointHandler = {
 			while (oldProgress0 < (this.progress* 100|0)) {
 				oldProgress0++
 				if (canSummon && (Math.random() * (ARTIFACTS.summonAmulet.equipped.onSame + 900) < ARTIFACTS.summonAmulet.equipped.onSame)) {
-					if (game.sliders.filter(x => x.clone == 2).length >= 10) break
+					if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) break
 					createSummon(this, 1)
 					if (gui.target.point == this)
 						gui.target.set(this, -1)
 					break
 				}
 				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
-					if (game.sliders.filter(x => x.clone == 2).length >= 10) break
+					if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) break
 					let element = Math.random() * 4 + 3 | 0
 					while (element == this.type || element % 4 + 3 == this.type) element = Math.random() * 4 + 3 | 0
 					createSummon(this, element)
@@ -678,10 +680,12 @@ const mapPointHandler = {
 		game.update()
 		
 		attackers.map(x => {
+			if (!x.clone)
+				this.map.failed.noreal1 = 1
 			x.victoryTimer = 60 * this.map.level
 			if (x.clone == 2) {
 				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !x.element || x.element < 3 || y.type != x.element))
-				if (!outs.length)
+				if (!outs.length || game.sliders.filter(x => x.clone == 2).length > game.world.maxSummons)
 					x.fullDestroy()
 				else {
 					if (game.skills.smartSummons) {
@@ -786,7 +790,8 @@ const mapPointHandler = {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
 		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1) * (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1):0
+			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1) * (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1) * game.world.meanBoost:0
+		if (this.real.passiveDamage) this.map.failed.noabsolute1 = 1
 		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},
 	

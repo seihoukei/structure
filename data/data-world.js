@@ -47,6 +47,25 @@ const WORLD_ELEMENTS = {
 		},
 		iconText : "M",
 	},
+	library : {
+		name : "Library",
+		desc : "Boosts research speed",
+		type : WORLD_POINT_PASSIVE,
+		family : "resource",
+		blueprint : "science1",
+		radius : 7,
+		deadZone : 20, 
+		reach : 25,
+		iconText : "🔍\uFE0E",
+		cost : {
+			_1 : 5,
+			_2 : 5,
+			_3 : 1,
+			_4 : 1,
+			_5 : 1,
+			_6 : 1,
+		}
+	},
 	bloodSelf: {
 		name : "Battlefield",
 		desc : "Boosts workers' blood growth",
@@ -102,6 +121,61 @@ const WORLD_ELEMENTS = {
 		cost : {
 			_6 : 15
 		}	
+	},
+	manaPool: {
+		name : "Mana pool",
+		desc : "Doubles mana production",
+		type : WORLD_POINT_ACTIVE,
+		family : "imprint",
+		blueprint : "mana1",
+		radius : 15,
+		deadZone : 25,
+		reach : 45,
+		iconText : "M",
+		cost : {
+			_3 : 4,
+			_4 : 4,
+			_5 : 4,
+			_6 : 4
+		}
+	},
+	stabilizer: {
+		name : "Stabilizer",
+		desc : "Supports one extra summon",
+		type : WORLD_POINT_ACTIVE,
+		family : "summon",
+		blueprint : "summon1",
+		radius : 5,
+		deadZone : 10,
+		reach : 15,
+		iconText : "S",
+		cost : {
+			_1 : 4,
+			_2 : 4,
+			_3 : 2,
+			_4 : 2,
+			_5 : 2,
+			_6 : 2
+		}
+	},
+	charger: {
+		name : "Thunder station",
+		desc : "Doubles Mean machine damage",
+		type : WORLD_POINT_ACTIVE,
+		family : "summon",
+		blueprint : "mean1",
+		radius : 5,
+		deadZone : 35,
+		reach : 40,
+		iconText : "T",
+		cost : {
+			_1 : 5,
+			_2 : 5,
+			_3 : 8,
+			_4 : 8,
+			_5 : 8,
+			_6 : 8
+		}
 	},
 }
 

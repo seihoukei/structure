@@ -92,6 +92,15 @@ const ManagementTab = Template({
 				gui.management.update()
 			}
 		})
+		
+		this.dvImprintAll = createElement("div", "imprint button active", this.dvBuildAutomation, "Imprint displayed")
+		this.dvImprintAll.onclick = (event) => {
+			game.autoUpgrading = 1
+			game && game.map && game.map.points.filter(x => x.owned && x.index && x.completed).filter(x => x.getDisplay("management").visible).map(point => point.startHarvest(1))
+			game.autoUpgrading = 0
+			game.update()
+			gui.management.update()
+		}		
 
 		this.dvBuildAutomationETA = createElement("div", "automation-eta", this.dvBuildAutomation)
 
@@ -195,6 +204,7 @@ const ManagementTab = Template({
 			this.dvAutomation.classList.toggle("hidden", !game.skills.automation)
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			this.dvEnchantAutomationText.classList.toggle("hidden", !game.skills.massEnchant)
+			this.dvImprintAll.classList.toggle("hidden", !game.skills.imprint || !game.skills.massEnchant || (game.map.virtual && !game.skills.virtualImprint))
 			if (game.skills.automation) {
 				this.maxLevel.update(true)
 				this.maxCost.update()
@@ -375,6 +385,7 @@ const managementPointElementHandler = {
 			this.dvImprint.classList.toggle("active", !(this.point.harvesting || this.point.harvested))
 			this.dvImprint.innerText = this.point.harvested?"Imprinted":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.harvestSpeed))+")"
 		}
+		if (!this.visible) return
 		this.dvLevelUp.classList.toggle("available", this.point.costs.levelUp <= game.resources.gold)
 		this.icons.map(x => {
 			if (!x.visible) return

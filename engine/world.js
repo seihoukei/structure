@@ -12,6 +12,7 @@ const worldHandler = {
 		this.edges = []
 		this.active = {}
 		this.activePoints = new Set()
+		this.presets = this.presets || {}
 		if (!this.points || this.points.filter(x => x.type == "entryPoint").length != 1) {
 			this.points = []
 			this.build({
@@ -215,9 +216,7 @@ const worldHandler = {
 		const building = WORLD_ELEMENTS[name]
 		if (!building) return false
 		if (building.cost) {
-			Object.keys(building.cost).map(x => {
-				if (game.resources[x] < building.cost[x]) return false
-			})
+			if (Object.keys(building.cost).reduce((v,x) => v || (game.resources[x] < building.cost[x]), false)) return false
 		}
 		return true
 	},
@@ -259,6 +258,8 @@ const worldHandler = {
 			this.pay(data.type)
 		}
 		
+		point.x = point.x.toDigits(3)
+		point.y = point.y.toDigits(3)
 		this.points.push(point)		
 		this.updateConnections()
 		this.update()
@@ -325,6 +326,10 @@ const worldHandler = {
 		;[...this.activePoints].map(x => this.active[x.type]++)
 		this.harvestSpeed = 2 ** this.active.imprinter
 		this.goldSpeed = 2 ** this.active.goldMine
+		this.scienceSpeed = 1 + this.active.library
+		this.manaSpeed = 2 ** this.active.manaPool
+		this.maxSummons = 10 + this.active.stabilizer
+		this.meanBoost = 2 ** this.active.charger
 		this.updateBounds()
 		gui.worldViewport.getLimits(this.bounds)
 		game.updateWorldBackground = true
@@ -348,6 +353,23 @@ const worldHandler = {
 		delete o.active
 		delete o.activePoints
 		return o
+	},
+	
+	savePreset(name) {
+		const data = JSON.stringify(this.points.slice(1))
+		this.presets[name] = LZString.compressToBase64(data)
+	},
+	
+	loadPreset(name) {
+		const data = JSON.parse(LZString.decompressFromBase64(this.presets[name]))
+		const resources = this.points.slice(1).reduce((v,x) => (WORLD_ELEMENTS[x.type].cost?Object.entries(WORLD_ELEMENTS[x.type].cost).map(x => v[x[0]] = (v[x[0]] || 0) + x[1]):0,v),Object.keys(game.resources).filter(x => x[0] == "_").reduce((v,x) => (v[x] = game.resources[x],v),{}))
+		const cost = data.reduce((v,x) => (WORLD_ELEMENTS[x.type].cost?Object.entries(WORLD_ELEMENTS[x.type].cost).map(x => v[x[0]] = (v[x[0]] || 0) + x[1]):0,v),{})
+		const missing = Object.entries(cost).filter(x => x[1] && !resources[x[0]] || resources[x[0]] < x[1])
+		game.dev.test = missing
+		if (missing.length && !confirm("You don't have enough memories for this preset:\n"+missing.map(x => POINT_TYPES[x[0].slice(1)].capitalizeFirst() +": "+(x[1] - (resources[x[0]] || 0))).join("\n")+"\nDo you still want to load it?")) return
+		
+		this.points.slice(1).map(x => this.free(x))
+		data.map(x => this.build(x))
 	},
 }
 

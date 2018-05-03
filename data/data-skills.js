@@ -480,6 +480,14 @@ const SKILLS = {
 		exp : 0,
 		mult : 2
 	},
+	world_science1 : {
+		name : "Rise of the wise",
+		desc : "Blueprint - Library",
+		req : ["world"],
+		feat : "science1",
+		exp : 0,
+		mult : 2
+	},
 	world_fire1 : {
 		name : "Forged in fire",
 		desc : "Blueprint - Volcano",
@@ -501,6 +509,30 @@ const SKILLS = {
 		desc : "Blueprint - Scrapyard",
 		req : ["world"],
 		feat : "metal1",
+		exp : 0,
+		mult : 2
+	},
+	world_mana1 : {
+		name : "Magic moments",
+		desc : "Blueprint - Mana pool",
+		req : ["world"],
+		feat : "mana1",
+		exp : 0,
+		mult : 2
+	},
+	world_summon1 : {
+		name : "Wild beast show",
+		desc : "Blueprint - Stabilizer",
+		req : ["world"],
+		feat : "noabsolute1",
+		exp : 0,
+		mult : 2
+	},
+	world_mean1 : {
+		name : "A storm to come",
+		desc : "Blueprint - Thunder station",
+		req : ["world"],
+		feat : "noreal1",
 		exp : 0,
 		mult : 2
 	},

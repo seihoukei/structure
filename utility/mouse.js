@@ -176,8 +176,8 @@ const WorldMouse = {
 				const connections = game.world.predictConnections(this.target)
 				if (connections.possible) {//if can move
 					this.state = MOUSE_STATE_FREE
-					this.target.x = this.target.newX
-					this.target.y = this.target.newY
+					this.target.x = this.target.newX.toDigits(3)
+					this.target.y = this.target.newY.toDigits(3)
 					this.target.calculateStats()
 					delete this.target
 					game.world.updateConnections()

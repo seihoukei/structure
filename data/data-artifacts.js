@@ -469,6 +469,16 @@ const ARTIFACTS = {
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},	
+
+//- Artifact : Bonus if rogue decimals / 0 net exp gain
+//- Artifact : Lose damage / ignore 25% barrier
+//- Artifact : Greater orbs
+//- Artifact : Lose damage / add to Mean Machine above (all directions)
+//- Artifact : Grow through channelling to summons only
+//- Artifact : Unlimited (still capped) strong element clones
+//- Artifact : ReLoad charges and lasts longer, bonus boosted
+//- Artifact : Doom target node
+
 }
 
 Object.keys(ARTIFACTS).map(x => ARTIFACTS[x].id = x)

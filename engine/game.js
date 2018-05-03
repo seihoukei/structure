@@ -544,6 +544,9 @@ const game = {
 		}
 
 		this.updateInterface = true
+		
+		if (!this.feats.mana1 && this.resources.mana >= 1e13)
+			this.feats.mana1 = true
 	},
 	
 	autoUpgrade() {
@@ -703,10 +706,12 @@ const game = {
 	getRealProduction() {
 		RESOURCES.map (x => this.real.production[x] = this.production[x])
 		this.real.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
+		this.real.production.mana *= this.world.manaSpeed
 		this.real.production.mana -= this.sliders.reduce((v,x) => v + (x.real && x.real.usedMana || 0), 0)
 		this.real.production.exp += this.sliders.reduce((v,x) => v + (x.real && x.real.expChange || 0), 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => x.target && !x.target.index?v + (x.real && x.real.attack || 0):v, 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => v + (x.real && x.real.madeGold || 0), 0)
+		this.real.production.science *= this.world.scienceSpeed
 	},
 		
 	enableSlowMode(x = 1) {
@@ -844,6 +849,9 @@ const game = {
 			this.research[x] = save.research?Research(save.research[x], {name : x}):Research({name : x})//Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
 		})
 
+		const done = Object.values(this.research).filter(x => x.done).length
+		if (done >= 35) this.feats.science1 = true
+		
 		this.maps = save.maps || {"main" : save.map}
 		Object.keys(this.maps).map(x => this.maps[x] = GameMap(this.maps[x], mapLoader))
 		

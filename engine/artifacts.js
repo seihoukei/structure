@@ -92,6 +92,8 @@ const researchHandler = {
 		this.progress = 0
 		if (game.researching == this.name) 
 			game.researching = ""
+		const done = Object.values(game.research).filter(x => x.done).length
+		if (done >= 35) game.feats.science1 = true
 		return true
 	},
 	

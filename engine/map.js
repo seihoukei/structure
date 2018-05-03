@@ -6,7 +6,7 @@ const MAP_MINIMUM_DISTANCE = 16
 const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
 
 function createPoint(points, size, angle, spacing, type, customPower) {
-	angle = angle.toDigits(3)
+	angle = (angle % (Math.PI * 2)).toDigits(3)
 	let c = Math.cos(angle)
 	let s = Math.sin(angle)
 	let r = (size + spacing)
@@ -32,6 +32,7 @@ function createPoint(points, size, angle, spacing, type, customPower) {
 	})
 	let farthest = distances[0]
 	distances.map(x => (farthest = ((x[0]>farthest[0])?x:farthest)))
+	console.log(angle, farthest[1].angle )
 	let distance = (farthest[0]+0.001).toDigits(3)
 	let x = (distance * Math.cos(angle))
 	let y = (distance * Math.sin(angle))
@@ -421,7 +422,7 @@ const mapHandler = {
 		if (block)
 			this.ownedRadius = Math.max(20, block.distance - block.size)
 		else {
-			const farthest = this.points.reduce((v,x) => x.distance + x.size > v.distance + v.size?x:v,this.points[0])
+			const farthest = this.points.filter(x => !x.boss || x.boss <= this.boss).reduce((v,x) => x.distance + x.size > v.distance + v.size?x:v,this.points[0])
 			this.ownedRadius = farthest.distance + farthest.size + MAP_MINIMUM_POINT_SIZE
 		}
 		this.points.map(point => point.unsuspend())
@@ -431,6 +432,7 @@ const mapHandler = {
 	
 	restoreState() {
 		this.unlocked = this.unlocked || 0
+		this.failed = Object.assign({}, this.failed)
 		this.keys = Array(this.level + 1).fill().map(x => ({}))
 		this.points.map((point,index) => {
 			point.index = index
@@ -483,6 +485,8 @@ const mapHandler = {
 			if (this.complete && !this.completeTime) {
 				this.completeTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
 				if (this.virtual && this.focus > 2 && this.evolved) game.feats[POINT_TYPES[this.focus]+"1"] = 1
+				if (this.virtual && this.evolved && !this.failed.noreal1) game.feats.noreal1 = 1
+				if (this.virtual && this.evolved && !this.failed.noabsolute1) game.feats.noabsolute1 = 1
 			}
 			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		}

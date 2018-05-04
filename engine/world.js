@@ -369,7 +369,6 @@ const worldHandler = {
 		const resources = this.points.slice(1).reduce((v,x) => (WORLD_ELEMENTS[x.type].cost?Object.entries(WORLD_ELEMENTS[x.type].cost).map(x => v[x[0]] = (v[x[0]] || 0) + x[1]):0,v),Object.keys(game.resources).filter(x => x[0] == "_").reduce((v,x) => (v[x] = game.resources[x],v),{}))
 		const cost = data.reduce((v,x) => (WORLD_ELEMENTS[x.type].cost?Object.entries(WORLD_ELEMENTS[x.type].cost).map(x => v[x[0]] = (v[x[0]] || 0) + x[1]):0,v),{})
 		const missing = Object.entries(cost).filter(x => x[1] && !resources[x[0]] || resources[x[0]] < x[1])
-		game.dev.test = missing
 		if (missing.length && !confirm("You don't have enough memories for this preset:\n"+missing.map(x => POINT_TYPES[x[0].slice(1)].capitalizeFirst() +": "+(x[1] - (resources[x[0]] || 0))).join("\n")+"\nDo you still want to load it?")) return
 		
 		this.sellAll()

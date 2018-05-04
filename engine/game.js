@@ -197,14 +197,16 @@ const game = {
 		if (gui.map.hoverSlider && gui.map.hoverSlider.target) {
 			c.save()
 			const {x,y} = gui.map.hoverSlider.target.coordinatesOn(gui.map.hoverSlider.target.position, true)
+			c.translate(x,y)
+			c.scale(1/gui.mainViewport.current.zoom, 1/gui.mainViewport.current.zoom)
 			const radius = 10 - this.frame % 20 / 2
 			c.strokeStyle = gui.map.hoverSlider.color
-			c.lineWidth = Math.max(1, 1/gui.mainViewport.current.zoom)				
 			for (let i = 0; i < 3; i++) {
 				c.globalAlpha = Math.min(1, 2 - 0.66 * i - radius / 15)
 				c.beginPath()
-				c.moveTo(x + radius + i * 10, y)
-				c.arc(x, y, radius + i * 10, 0, 6.29)
+				c.lineWidth = (40 - radius - i*10) / 10
+				c.moveTo(radius + i * 10, 0)
+				c.arc(0, 0, radius + i * 10, 0, 6.29)
 				c.stroke()
 			}
 			c.restore()

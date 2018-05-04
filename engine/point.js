@@ -679,7 +679,7 @@ const mapPointHandler = {
 			
 		game.update()
 		
-		attackers.map(x => {
+		attackers.sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => {
 			if (!x.clone)
 				this.map.failed.noreal1 = 1
 			x.victoryTimer = 60 * this.map.level
@@ -695,8 +695,10 @@ const mapPointHandler = {
 					}
 				}
 			} else {
-				x.autoTarget()
-				x.getReal(true)
+				if (!x.target || x.target == this) {
+					x.autoTarget()
+					x.getReal(true)
+				}
 			}
 		})
 	},

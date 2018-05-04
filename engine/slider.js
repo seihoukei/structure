@@ -631,7 +631,10 @@ const sliderHandler = {
 		}
 		
 			
-		if (point && point.special == SPECIAL_ALONE && point.attackers.size) return
+		if (point && point.special == SPECIAL_ALONE && point.attackers.size) {
+			this.autoTarget()
+			return
+		}
 		
 		if (!point) {
 			this.target = null
@@ -651,8 +654,8 @@ const sliderHandler = {
 		if (this.dvMapIcon)
 			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
 		
-		if (game.skills.party && this.role == ROLE_LEADER && game.sliders && (!point || point.special != SPECIAL_ALONE))
-			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => x.assignTarget(this.target))
+		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
+			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => (!point || point.special != SPECIAL_ALONE)?x.assignTarget(this.target):x.autoTarget())
 		
 		game.world.update(true)
 	},

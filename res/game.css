@@ -1495,7 +1495,7 @@ canvas.foreground : {
 }
 
 .about .title {
-	color : #004400;
+	color : var(--tablet-present);
 	font-size : 100px;
 	margin : -40px 0 0 0;
 }
@@ -1507,10 +1507,16 @@ canvas.foreground : {
 .about .links {
 	display : flex;
 	padding : 20px 0;
+	margin : 0 0 20px 0;
 }
 
 .about .links .link {
 	padding : 0 20px 0 0;
+}
+
+.about .links .link a {
+	text-decoration : none;
+	color : var(--enchantgrowth);
 }
 
 .about .changelog {

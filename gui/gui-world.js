@@ -24,6 +24,25 @@ const WorldTab = Template({
 			this.build.dvDisplay.style.left = event.clientX + "px"
 			this.build.dvDisplay.style.top = event.clientY + "px"
 		}
+
+		this.presetMenu = PresetMenu({
+			prefix : "w_",
+			save(name) {
+				game.world.savePreset(name)
+			},
+			load(name) {
+				game.world.loadPreset(name)
+			},
+			reset() {
+				game.world.sellAll()
+			}
+		})
+		
+		this.dvPresetsButton = createElement("div", "presets-button", this.dvDisplay, "Presets")
+		this.dvPresetsButton.onclick = (event) => {
+			this.presetMenu.presets = game.world.presets,
+			this.presetMenu.show(event.clientX, event.clientY)
+		}
 		this.build = BuildList()
 		
 		this.hover = WorldPointInfo({
@@ -38,6 +57,7 @@ const WorldTab = Template({
 	onSet() {
 		this.dvDisplay.appendChild(gui.map.dvHarvest)
 		this.update(true)
+		getSize()
 	},
 	
 	update(forced) {

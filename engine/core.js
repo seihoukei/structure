@@ -78,6 +78,7 @@ function initEvents() {
 	window.onresize = (event) => {
 		getSize()
 		game.updateMapBackground = true
+		game.updateWorldBackground = true
 		game.lastAction = performance.now()
 	}
 	

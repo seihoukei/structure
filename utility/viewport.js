@@ -1,12 +1,12 @@
 'use strict'
 
 function getSize() {
-	if (gui.tabs.activeTab != "map") {
+	if (gui.tabs.activeTab != "map" && gui.tabs.activeTab != "world") {
 		gui.resized = true
 		return
 	}
-	let width = gui.map.background.offsetWidth
-	let height = gui.map.background.offsetHeight
+	let width = gui.tabs.activeTab == "map"?gui.map.background.offsetWidth:gui.world.background.offsetWidth
+	let height = gui.tabs.activeTab == "map"?gui.map.background.offsetHeight:gui.world.background.offsetHeight
 	gui.map.background.width  = gui.map.foreground.width  = gui.world.background.width  = gui.world.foreground.width  = width
 	gui.map.background.height = gui.map.foreground.height = gui.world.background.height = gui.world.foreground.height = height
 	gui.mainViewport.setSize(width, height)

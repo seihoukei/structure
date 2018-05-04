@@ -355,6 +355,10 @@ const worldHandler = {
 		return o
 	},
 	
+	sellAll() {
+		this.points.slice(1).map(x => this.free(x))
+	},
+	
 	savePreset(name) {
 		const data = JSON.stringify(this.points.slice(1))
 		this.presets[name] = LZString.compressToBase64(data)
@@ -368,7 +372,7 @@ const worldHandler = {
 		game.dev.test = missing
 		if (missing.length && !confirm("You don't have enough memories for this preset:\n"+missing.map(x => POINT_TYPES[x[0].slice(1)].capitalizeFirst() +": "+(x[1] - (resources[x[0]] || 0))).join("\n")+"\nDo you still want to load it?")) return
 		
-		this.points.slice(1).map(x => this.free(x))
+		this.sellAll()
 		data.map(x => this.build(x))
 	},
 }

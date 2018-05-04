@@ -585,3 +585,80 @@ const colorPickerHandler = {
 }
 
 const ColorPicker = Template(colorPickerHandler)
+
+const presetMenuHandler = {
+	_init() {
+		this.prefix = this.prefix || "p_"
+		this.dvHolder = createElement("div", "holder hidden", this.parent || document.body)
+		this.dvHolder.onclick = (event) => {
+			if (event.target == this.dvHolder) {
+				this.dvHolder.classList.toggle("hidden", true)
+			}
+		}	
+		this.dvDisplay = createElement("div", "presets", this.dvHolder)
+		this.dvPresets = createElement("div", "presets-list", this.dvDisplay)
+		this.dvButtons = createElement("div", "presets-buttons", this.dvDisplay)
+
+		this.dvSave = createElement("div", "button", this.dvButtons, "Save")
+		this.dvSave.onclick = (event) => {
+			let name = this.activePreset
+			if (name == this.newName) {
+				name = prompt("Name a preset:", "Preset "+Object.keys(this.presets).length)
+				if (!name) return
+				name = this.prefix + name
+			}
+			this.save(name)
+			this.activePreset = name
+			this.update()
+		}
+
+		this.dvLoad = createElement("div", "button", this.dvButtons, "Load")
+		this.dvLoad.onclick = (event) => {
+			if (this.presets[this.activePreset]) {
+				this.load(this.activePreset)
+				this.update()
+			}
+		}
+
+		this.dvDelete = createElement("div", "button", this.dvButtons, "Delete")
+		this.dvDelete.onclick = (event) => {
+			if (this.presets[this.activePreset] && confirm("Really delete?")) {
+				delete this.presets[this.activePreset]
+				this.activePreset = this.newName
+				this.update()
+			}
+		}
+
+		if (this.reset) {
+			this.dvReset = createElement("div", "button", this.dvButtons, "Reset")
+			this.dvReset.onclick = (event) => {
+				if (confirm("Really reset?"))
+					this.reset()
+			}
+		}
+		this.activePreset = this.newName = this.prefix + "-- New --"
+	},
+	
+	show(x, y) {
+		this.dvHolder.classList.toggle("hidden", false)
+		this.dvDisplay.style.left = x + "px"
+		this.dvDisplay.style.top = y + "px"
+		this.update(true)
+	},
+	
+	update(forced) {
+		while (this.dvPresets.firstChild) {
+			this.dvPresets.firstChild.remove()
+		}			
+		this.presetItems = [this.newName, ...Object.keys(this.presets)].map(x => {
+			const display = createElement("div", "presets-item "+(x == this.activePreset?"active":""), this.dvPresets, x.slice(this.prefix.length))
+			display.onclick = (event) => {
+				this.activePreset = x
+				this.presetItems.map(y => y.classList.toggle("active", y == display))
+			}
+			return display
+		})
+	}
+}
+
+const PresetMenu = Template(presetMenuHandler)

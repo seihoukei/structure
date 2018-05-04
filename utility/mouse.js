@@ -144,8 +144,10 @@ const WorldMouse = {
 		this.button = event.button
 		this.x = this.start.x = event.offsetX
 		this.y = this.start.y = event.offsetY
-		this.mapX = this.start.mapX = gui.worldViewport.mouseToMapX(this.x)
-		this.mapY = this.start.mapY = gui.worldViewport.mouseToMapY(this.y)
+//		this.mapX = this.start.mapX = gui.worldViewport.mouseToMapX(this.x)
+//		this.mapY = this.start.mapY = gui.worldViewport.mouseToMapY(this.y)
+		this.mapX = this.start.mapX = (this.x - gui.worldViewport.halfWidth ) / gui.worldViewport.current.zoom + gui.worldViewport.current.x
+		this.mapY = this.start.mapY = (this.y - gui.worldViewport.halfHeight) / gui.worldViewport.current.zoom + gui.worldViewport.current.y
 		event.preventDefault()
 	},
 	

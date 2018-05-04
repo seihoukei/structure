@@ -53,7 +53,7 @@ const sliderHandler = {
 		if (this.target) this.targetIndex = this.target.index
 		this.growth = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.growth || {})
 		this.level = this.level || 0
-		this.multi = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:Math.max(v[x], 5**Math.max(0,(this.level - 1)))):v,v),this.multi || {})
+		this.multi = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:5**Math.max(0,(this.level - 1))/*Math.max(v[x], 5**Math.max(0,(this.level - 1)))*/):v,v),this.multi || {})
 		this.levelMulti = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:Math.min(v[x], 5)):v,v),this.levelMulti || {})
 		this.stats = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?0:v[x]):v,v),this.stats || {})
 		this.charge = this.charge || 0
@@ -450,7 +450,8 @@ const sliderHandler = {
 		game.resources.exp -= this.levelUpCost
 		const data = this.getStatTiers()
 		Object.keys(this.multi).map(x => {
-			this.multi[x] *= 5//this.levelMulti[x]
+			if (this.level)
+				this.multi[x] *= 5//this.levelMulti[x]
 			this.levelMulti[x] = data && data[x] || 1
 		})
 		Object.keys(this.stats).map(x => this.stats[x] = 0)

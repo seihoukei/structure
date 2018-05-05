@@ -374,7 +374,7 @@ const mapHandler = {
 			c.textAlign = "center",
 			c.textBaseline = "top",
 			c.font = "4px"+fontName
-			this.renderedPoints.filter(!x.locked && x.away < 2).map(point => {
+			this.renderedPoints.filter(x => !x.locked && x.away < 2).map(point => {
 				c.save()
 				c.translate(point.x, point.y)
 				c.fillText(POINT_TYPES[point.type].capitalizeFirst()[0],0, -point.innerSize)

@@ -629,7 +629,6 @@ const sliderHandler = {
 					gui.target.updateUpgrades()
 			}
 		}
-		
 			
 		if (point && point.special == SPECIAL_ALONE && point.attackers.size) {
 			this.autoTarget()
@@ -703,7 +702,7 @@ const sliderHandler = {
 		this.real.usedMana = 0
 		this.real.madeGold = 0
 		this.real.expChange = 0
-		this.real.imbuement = this.target && this.target.index?(masterSlider.masterImbuement?masterSlider.imbuement:this.imbuement):0
+		this.real.imbuement = /*this.target && this.target.index?*/(masterSlider.masterImbuement?masterSlider.imbuement:this.imbuement)/*:0*/
 		this.real.gild = this.target && this.target.index?(masterSlider.masterGild?masterSlider.gild:this.gild):0
 		this.real.absoluteDamage = 0
 		this.real.gotChannel = false
@@ -753,9 +752,12 @@ const sliderHandler = {
 		
 		POINT_TYPES.slice(3).map(x => this.real.imbuementCosts[x] = this.artifacts[x+"Ring"]?0:((Math.log10(this.real.power || 1) ** 4 / 1000) * Math.max(1,Math.min(this.real.power ** 0.5, this.real.power / (this.real[x] || 1) / 10))) || 0)
 		
+		this.real.miningPower = this.real.power
+		
 		if (this.real.imbuement) {
 			if (game.resources.mana > ((masterSlider.masterImbuement?masterSlider.safeImbuement:this.safeImbuement)?(this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0 * 10):1e-6)) {
-				this.real.usedMana += this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0
+				if (this.target && this.target.index)
+					this.real.usedMana += this.real.imbuementCosts[POINT_TYPES[this.real.imbuement]] || 0
 				this.real[POINT_TYPES[this.real.imbuement]] += this.real.power
 				this.real.power = 0
 			} else {

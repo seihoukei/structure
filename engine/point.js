@@ -371,7 +371,7 @@ const mapPointHandler = {
 		let currentPower = this.power * this.progress || 0
 		
 		if (!this.index) {
-			let power = Math.max(0, slider.real.power - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
+			let power = Math.max(0, slider.real.miningPower - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
 			power *= game.world.goldSpeed
 			return (power) ** (slider.artifacts.pickaxe?0.63:0.6) / 2e3
 		}

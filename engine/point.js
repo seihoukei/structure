@@ -346,6 +346,7 @@ const mapPointHandler = {
 	},
 
 	updateText() {
+		const oldText = this.specialText
 		let s = []
 		if (this.key) s.push("⚷\uFE0E" + this.key)
 		if (this.lock) s.push((this.keyData.keyPoint.owned || this.unlocked?"🔓\uFE0E":"🔒\uFE0E") + this.lock)
@@ -353,6 +354,9 @@ const mapPointHandler = {
 		if (this.boss) s.push("⚔\uFE0E")
 		if (!this.index) s.push(game && game.skills.mining?"⛏\uFE0E":"🏠\uFE0E")
 		this.specialText = s.join("\n")
+		if (this.specialText != oldText) {
+			this.specialTextSize = getTextSize(this.specialText || "?\uFE0E")
+		}
 	},
 	
 	updateAway() {
@@ -843,6 +847,7 @@ const mapPointHandler = {
 		delete o.locked
 		delete o.away
 		delete o.specialText
+		delete o.specialTextSize
 		delete o.onscreen
 		delete o.keyData
 		delete o.bonus

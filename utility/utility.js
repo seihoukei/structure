@@ -1,5 +1,7 @@
 'use strict'
 
+const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
+
 function fixHomeAtLastBug() {
 	game.map.points[0].mineDepth = game.map.points.reduce((v,x) => v + x.level?x.bonus * 8 ** x.level / 2:0, 0) + game.resources.gold
 }
@@ -59,6 +61,16 @@ let colorToRGBA = (function() {
         ctx.fillStyle = col;
         ctx.fillRect(0, 0, 1, 1);
         return [ ... ctx.getImageData(0, 0, 1, 1).data ];
+    });
+})();
+
+let getTextSize = (function() {
+    return memoize(function(txt) {
+		gui.measureDiv.innerText = txt
+		const w = gui.measureDiv.offsetWidth || 10
+		const h = gui.measureDiv.offsetHeight || 10
+		gui.measureDiv.innerText = ""
+		return Math.max(w, h)
     });
 })();
 

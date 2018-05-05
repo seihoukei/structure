@@ -165,6 +165,15 @@ body.invert {
 	font-weight : bold;
 }
 
+.utility-measure {
+	font-size : 10px;
+	position : absolute;
+	left : 0;
+	top : 0;
+	margin : 0;
+	padding : 0;
+}
+
 .bg-none   { background-color : var(--bg-none   );}
 .bg-power  { background-color : var(--bg-power  );}
 .bg-spirit { background-color : var(--bg-spirit );}
@@ -489,7 +498,8 @@ canvas.foreground : {
 	background-color : var(--hover-bg);
 	border : 2px solid var(--darkframe);
 	display : flex;
-	justify-content : space-between;
+	justify-content : start;
+	flex-grow : 0;
 	align-items : stretch;
 	color : var(--hover-fg);
 }
@@ -508,6 +518,7 @@ canvas.foreground : {
 }
 
 .point-info .info {
+	margin-left : auto;
 	display : flex;
 	align-items : stretch;
 	align-content : stretch;
@@ -523,6 +534,24 @@ canvas.foreground : {
 				linear-gradient(to right, var(--progress-fg), var(--progress-fg) 100%, transparent 100%) no-repeat;	
 	background-color : var(--progress-bg);
 	width : 220px;
+}
+
+.point-info .point-border {
+	pointer-events : none;
+	position : relative;
+	left : -30px;
+	top : 30px;
+	width : 60px;
+	height : 60px;
+	margin : -30px;
+}
+
+.management-border {
+	position : relative;
+	left : -25px;
+	width : 60px;
+	height : 60px;
+	margin : -30px;
 }
 
 .map > div.growth, .stardust div.growth {
@@ -1273,7 +1302,7 @@ canvas.foreground : {
 	border-radius : 20px;
 	border : 1px solid var(--darkframe);
 	display : flex;
-	margin : 5px;
+	margin : 5px 5px 5px 7px;
 	align-items : center;
 	justify-content : center;
 }

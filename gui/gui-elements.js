@@ -371,6 +371,7 @@ const guiPointElementHandler = {
 const pointInfoDisplayHandler = {
 	_init() {
 		this.dvPoint = createElement("div", "point", this.dvDisplay)
+		this.imBorder = createElement("img", "point-border", this.dvDisplay)
 		this.dvInfo1 = createElement("div", "info", this.dvDisplay)
 		this.dvInfo2 = createElement("div", "info progress", this.dvDisplay)
 	},
@@ -379,10 +380,15 @@ const pointInfoDisplayHandler = {
 		if (!this.point) return
 		if (!this.point.real) return
 		
+		this.imBorder.src = gui.images.specialBorders[this.point.locked?0:this.point.special || 0]
+		
 		let knownType = (this.point.index)?(this.point.locked == 1)?"unknown":POINT_TYPES[this.point.type]:"home"
 		
 		this.dvPoint.className = "point-type bg-" + knownType
 		this.dvPoint.innerText = this.point.specialText
+		if (this.point) {
+			this.dvPoint.style.fontSize = ((this.point.special?400:500) / this.point.specialTextSize) + "px"
+		}
 		
 		knownType = knownType.capitalizeFirst()
 		

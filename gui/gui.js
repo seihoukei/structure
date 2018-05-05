@@ -3,15 +3,17 @@
 const gui = {
 	init() {
 		
+		this.measureDiv = createElement("div", "utility-measure", document.body)
+		
 		this.mapMouse = MapMouse
 		this.worldMouse = WorldMouse
 		this.mainViewport = Viewport()
 		this.worldViewport = Viewport()
-
-		this.initImages()
 		
 		this.setTheme(settings.theme, "main")
 		
+		this.initImages()
+
 		this.tabs = TabGroup({
 			name : "main"
 		})
@@ -305,6 +307,7 @@ const gui = {
 			Object.assign(this.theme,THEMES[theme][subtheme])
 //		this.theme = (THEMES[theme] || THEMES["light"])[subtheme || "main"] || THEMES.light.main
 		document.body.className = theme + " " + theme + "-" + subtheme
+		this.initImages()
 	},
 
 	updateTabs() {
@@ -355,11 +358,84 @@ const gui = {
 	
 	initImages() {
 		this.images = {
-			specialBorders:{}
+			specialBorders:[]
 		}
+
+		const canvas = document.createElement("canvas")
+		canvas.width = canvas.height = 60
+		const c = canvas.getContext("2d")
 		
-		
-		
-		
+		for (let i = 0; i < 16; i++) {
+			c.clearRect(0, 0, 60, 60)
+			c.save()
+			c.globalAlpha = 0.5
+			c.beginPath()
+			c.strokeStyle = gui.theme.foreground
+			c.fillStyle = gui.theme.foreground
+			c.lineWidth = 2
+			if (i == SPECIAL_RESIST) {
+				c.beginPath()
+				c.rect(0,0,60,60)
+				c.rect(10,10,40,40)
+				for (let j = 0; j < 5; j++) {
+					c.moveTo(j*10, 10 - (j & 1) * 10)
+					c.lineTo(j*10 + 10, (j & 1) * 10)
+					c.moveTo(60 - j*10, 50 + (j & 1) * 10)
+					c.lineTo(50 - j*10, 60 - (j & 1) * 10)
+					c.moveTo(j*10, 10 - (j & 1) * 10)
+					c.lineTo(j*10 + 10, (j & 1) * 10)
+					c.moveTo(50 + (j & 1) * 10, j*10)
+					c.lineTo(60 - (j & 1) * 10, 10 + j*10)
+					c.moveTo(10 - (j & 1) * 10, 60 - j*10)
+					c.lineTo((j & 1) * 10, 50 - j*10)
+				}
+				c.stroke()
+			} else if (i == SPECIAL_BLOCK) {
+				c.save()
+				c.beginPath()
+				c.translate(30, 30)
+				const pi3 = Math.PI / 3
+				const renderSize = 20
+				const size3 = renderSize * Math.sqrt(3)
+				c.moveTo(-size3 * 0.75, -renderSize * 0.75)
+				c.arc(0, renderSize * 1.5, size3 * 1.5, 4 * pi3, 5 * pi3)
+				c.arc(-size3 * 0.75, -renderSize * 0.75, size3 * 1.5, 0, pi3)
+				c.arc(size3 * 0.75, -renderSize * 0.75, size3 * 1.5, 2 * pi3, 3 * pi3)
+				c.arc(0, renderSize * 1.5, size3 * 1.5, 4 * pi3, 5 * pi3)
+				c.stroke()
+				c.restore()
+			} else if (i == SPECIAL_NOCLONE) {
+				c.save()
+				c.beginPath()
+				c.translate(30, 30)
+				c.moveTo(20, 0)
+				for (let i = 0; i < 17; i++) {
+					c.lineTo((i&1?30:20) * Math.cos(i * 3.1415 / 8), (i&1?30:20) * Math.sin(i * 3.1415 / 8))
+				}
+				c.stroke()
+				c.restore()
+			} else if (i == SPECIAL_NOBUILD) {
+				c.save()
+				c.beginPath()
+				c.translate(30, 30)
+				const renderSize = 20
+				c.rect(renderSize * 1.3, renderSize * 1.2, -renderSize * 2.6, -renderSize * 0.6)
+				c.rect(renderSize * 1.6, renderSize * 0.6, -renderSize * 2.6, -renderSize * 0.6)
+				c.rect(renderSize * 1.0, -renderSize * 0.6, -renderSize * 2.6,  renderSize * 0.6)
+				c.rect(renderSize * 1.3, -renderSize * 1.2, -renderSize * 2.6,  renderSize * 0.6)
+				c.moveTo(0, -renderSize * 1.2)
+				c.lineTo(0, -renderSize * 0.6)
+				c.moveTo(-renderSize * 0.3, 0)
+				c.lineTo(-renderSize * 0.3, -renderSize * 0.6)
+				c.moveTo(0, renderSize * 1.2)
+				c.lineTo(0, renderSize * 0.6)
+				c.moveTo(renderSize * 0.3, 0)
+				c.lineTo(renderSize * 0.3, renderSize * 0.6)
+				c.stroke()
+				c.restore()
+			}
+			c.restore()
+			this.images.specialBorders.push(canvas.toDataURL())
+		}		
 	}
 }

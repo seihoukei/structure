@@ -520,6 +520,9 @@ const sliderHandler = {
 		this.dvTarget.classList.toggle("notransition",false)
 		this.dvTarget.classList.toggle("hidden", this.clone == 2 && this.target != point)
 		this.dvColor.innerText = this.target?this.target.specialText?this.target.specialText:"⭕\uFE0E":""
+		if (this.target) {
+			this.dvColor.style.fontSize = (350 / this.target.specialTextSize) + "px"
+		}
 									
 		this.dvInfo.innerText = (!point.index?"Gold:" + displayNumber(this.real.attackTarget):"Attack: " + displayNumber(this.real.attackTarget)) + "/s\n" +
 								(this.clone == 2?"Click to unsummon":(point.boss || this.clone || game.skills.power)?"":("Spirit: " + displayNumber(this.real.attackSpirit) + "\n"))
@@ -541,6 +544,9 @@ const sliderHandler = {
 				x.dvDisplay.title = x.name.capitalizeFirst() + ": " + displayNumber(this.real.imbuementCosts[x.name]) + " mana/s"
 			})
 		this.dvTargetPoint.innerText = this.target?(this.target.specialText||""):""
+		if (this.target) {
+			this.dvTargetPoint.style.fontSize = (350 / this.target.specialTextSize) + "px"
+		}
 		this.dvTargetPoint.style.backgroundColor = this.target?(gui.theme.typeColors[this.target.type]):gui.theme.background
 		this.dvLevel.innerText = this.level || "0"
 		if (game.skills.artifacts) this.equipList.updateActive()
@@ -653,8 +659,11 @@ const sliderHandler = {
 					gui.target.updateUpgrades()
 			}
 		}
-		if (this.dvMapIcon)
+		if (this.dvMapIcon) {
 			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
+			if (this.target)
+				this.dvMapIcon.style.fontSize = (250 / this.target.specialTextSize) + "px"
+		}
 		
 		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
 			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => (!point || point.special != SPECIAL_ALONE)?x.assignTarget(this.target):x.autoTarget())

@@ -3,8 +3,6 @@
 const MAP_MINIMUM_POINT_SIZE = 5
 const MAP_MINIMUM_DISTANCE = 16
 
-const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
-
 function createPoint(points, size, angle, spacing, type, customPower) {
 	angle = (angle % (Math.PI * 2)).toDigits(3)
 	let c = Math.cos(angle)
@@ -202,7 +200,7 @@ const mapHandler = {
 					c.arc(0, 0, point.innerSize + 0.25 + i * 2 * settings.nodeScale, 0, 6.29)
 				}
 			else if (settings.levelDisplay == 1 && point.level) {
-				c.fillText(point.level, point.renderSize, point.renderSize)
+				c.fillText(point.level, point.renderSize + 1, point.renderSize + 2)
 			}
 			if (point.enchanted && (!point.level || settings.levelDisplay != 2)) {
 				for (let i = 1; i < 4; i++) {
@@ -272,8 +270,8 @@ const mapHandler = {
 			c.translate(point.x, point.y)
 			if (point.owned && point.index && (point.key && point.keyData.lockPoint.owned || point.lock || point.exit || point.boss))
 				c.globalAlpha = 0.55
-			const w = c.measureText(point.specialText).width
-			c.font = (point.innerSize / w * 12).toFixed(2)+"px" + fontName
+			const w = point.specialTextSize
+			c.font = (point.innerSize / w * 15).toFixed(2)+"px" + fontName
 			c.fillText(point.specialText, 0, 0)
 			c.restore()
 		}
@@ -376,7 +374,7 @@ const mapHandler = {
 			c.textAlign = "center",
 			c.textBaseline = "top",
 			c.font = "4px"+fontName
-			this.renderedPoints.map(point => {
+			this.renderedPoints.filter(!x.locked && x.away < 2).map(point => {
 				c.save()
 				c.translate(point.x, point.y)
 				c.fillText(POINT_TYPES[point.type].capitalizeFirst()[0],0, -point.innerSize)

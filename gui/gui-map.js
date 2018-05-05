@@ -88,7 +88,12 @@ const MapTab = Template({
 			this.slider.updateFullInfo()
 		}
 		if (forced && game.sliders)
-			game.sliders.map(slider => slider.dvMapIcon.innerText = slider.target?(slider.target.specialText || "⭕\uFE0E"):"")
+			game.sliders.map(slider => {
+				slider.dvMapIcon.innerText = slider.target?(slider.target.specialText || "⭕\uFE0E"):""
+				if (slider.target) {
+					slider.dvMapIcon.style.fontSize = (180 / slider.target.specialTextSize) + "px"
+				}
+			})
 	},
 	
 	updateLowLoad(forced) {

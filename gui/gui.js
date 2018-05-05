@@ -418,7 +418,7 @@ const gui = {
 				c.save()
 				c.beginPath()
 				c.translate(30, 30)
-				const renderSize = 20
+				const renderSize = 18
 				c.rect(renderSize * 1.3, renderSize * 1.2, -renderSize * 2.6, -renderSize * 0.6)
 				c.rect(renderSize * 1.6, renderSize * 0.6, -renderSize * 2.6, -renderSize * 0.6)
 				c.rect(renderSize * 1.0, -renderSize * 0.6, -renderSize * 2.6,  renderSize * 0.6)
@@ -431,6 +431,45 @@ const gui = {
 				c.lineTo(0, renderSize * 0.6)
 				c.moveTo(renderSize * 0.3, 0)
 				c.lineTo(renderSize * 0.3, renderSize * 0.6)
+				c.stroke()
+				c.restore()
+			} else if (i == SPECIAL_NOCHANNEL) {
+				c.save()
+				c.beginPath()
+				c.translate(30, 30)
+				const renderSize = 20
+				let r = renderSize * 2.5 / Math.sqrt(3)
+				c.moveTo(0, r)
+				for (let i = 1; i < 7; i++) {
+					c.lineTo(r * Math.sin(i/3*Math.PI), r * Math.cos(i/3*Math.PI))
+				}
+				r = renderSize * 2 / Math.sqrt(3)
+				c.moveTo(0, r)
+				for (let i = 1; i < 7; i++) {
+					c.lineTo(r * Math.sin(i/3*Math.PI), r * Math.cos(i/3*Math.PI))
+				}
+				c.stroke()
+				c.restore()
+			} else if (i == SPECIAL_CLONE) {
+				c.save()
+				c.beginPath()
+				c.translate(30, 30)
+				const renderSize = 19.5
+				c.moveTo(renderSize * 1.2, 0)
+				for (let i = 0; i < 19; i++) {
+					c.arc(0, 0, renderSize * (i&1?1.5:1.2), 2 * i * 3.1415 / 18, (2 * i+1) * 3.1415/18)
+				}
+				c.stroke()
+				c.restore()
+			} else if (i == SPECIAL_ALONE) {
+				c.save()
+				c.beginPath()
+				c.translate(30, 30)
+				const renderSize = -10
+				c.moveTo(-30, -renderSize)
+				c.lineTo(-renderSize, -30)
+				c.moveTo(30, renderSize)
+				c.lineTo(renderSize, 30)
 				c.stroke()
 				c.restore()
 			}

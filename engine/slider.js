@@ -123,6 +123,7 @@ const sliderHandler = {
 		}
 
 		this.dvTargetPoint = createElement("div", "slider-target", this.dvHeader)
+		this.dvTargetBorder = createElement("img", "slider-target-border", this.dvHeader)
 		this.dvTargetPoint.onmousemove = (event) => {
 			if (gui.map.slider == this)
 				gui.hover.set(this.target, event.clientX, event.clientY)
@@ -548,6 +549,7 @@ const sliderHandler = {
 			this.dvTargetPoint.style.fontSize = (350 / this.target.specialTextSize) + "px"
 		}
 		this.dvTargetPoint.style.backgroundColor = this.target?(gui.theme.typeColors[this.target.type]):gui.theme.background
+		this.dvTargetBorder.src = gui.images.specialBorders[this.target && this.target.special?this.target.special:0]
 		this.dvLevel.innerText = this.level || "0"
 		if (game.skills.artifacts) this.equipList.updateActive()
 	}, 

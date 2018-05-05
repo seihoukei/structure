@@ -546,6 +546,16 @@ canvas.foreground : {
 	margin : -30px;
 }
 
+.slider-target-border {
+	pointer-events : none;
+	position : relative;
+	left : -20px;
+	top : 20px;
+	width : 60px;
+	height : 60px;
+	margin : -30px;
+}
+
 .management-border {
 	position : relative;
 	left : -25px;

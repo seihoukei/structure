@@ -320,12 +320,16 @@ const managementPointElementHandler = {
 		this.spellIcons.map(x => {
 			x.dvDisplay.onclick = (event) => {
 				this.point.cast(x.id)
-				if (gui.management.sorting.sortOften) gui.management.update(true)
-				gui.management.dvHover.classList.toggle("bought", !!x.bought)
-				gui.management.dvHover.classList.toggle("available", !!x.available)
 				const cost = this.point?x.spell.cost(this.point):0
-				gui.management.hoverFunction = () => x.spell.name + "\n" + x.spell.desc + "\nMana: "+displayNumber(cost) + ETAString(cost ,"mana",true)
-				gui.management.dvHover.innerText = gui.management.hoverFunction()
+				if (gui.management.sorting.sortOften) gui.management.update(true)
+				if (cost < 0){
+					gui.management.dvHover.classList.toggle("hidden", true)
+				} else {
+					gui.management.dvHover.classList.toggle("bought", !!x.bought)
+					gui.management.dvHover.classList.toggle("available", !!x.available)
+					gui.management.hoverFunction = () => x.spell.name + "\n" + x.spell.desc + "\nMana: "+displayNumber(cost) + ETAString(cost ,"mana",true)
+					gui.management.dvHover.innerText = gui.management.hoverFunction()
+				}
 //				gui.management.dvHover.innerText = x.spell.name + "\n" + x.spell.desc + "\n" + (this.point?"Mana: "+displayNumber(x.spell.cost(this.point)):"?")
 			}
 			x.dvDisplay.onmouseenter = (event) => {

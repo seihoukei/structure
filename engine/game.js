@@ -324,6 +324,12 @@ const game = {
 		}		
 	},
 	
+	now(precise = false) {
+		if (precise)
+			return (this.statistics.onlineTime || 0) + (this.statistics.offlineTime || 0)
+		return Math.round((this.statistics.onlineTime || 0) + (this.statistics.offlineTime || 0))
+	},
+	
 	setMap(name, retain = false) {
 		if (this.map) {
 			this.map.destroyDisplays()
@@ -369,6 +375,10 @@ const game = {
 			}
 			if (oldMap != "main")
 				this.sliders.map(slider => slider.end[oldMap] = Object.assign({}, slider.stats))			
+			this.maps[oldMap].lastLeft = this.now()
+			
+			if (this.map.relativeStart && this.map.lastLeft && !this.map.complete)
+				this.map.relativeStart += this.now() - this.map.lastLeft
 
 			this.sliders.map(x => x.autoTarget())
 			this.map.points[0].mineDepth = depth
@@ -563,7 +573,7 @@ const game = {
 				if (!game.automation.buildings[x]) return
 				upgradablePoints.map(point => {
 					if (point.level < BUILDINGS[x].level) return
-					if (point.costs[x] > this.resources.gold || point.costs[x] < 0) return
+					if (point.costs[x] > this.resources.gold * this.automation.maxCost * 0.01 || point.costs[x] < 0) return
 					point.build(x)
 				})
 			})

@@ -44,6 +44,9 @@ const SELECTORS = {
 	Deepest(points) {
 		return points.sort((x, y) => y.depth - x.depth)[0]
 	},	
+	["Highest damage"](points, slider) {
+		return points.map(x => [x, x.getActivePower(slider)]).sort((x,y) => y[1] - x[1])[0][0]
+	},	
 }
 
 const sliderHandler = {
@@ -498,7 +501,7 @@ const sliderHandler = {
 			return
 		}
 		
-		this.assignTarget(SELECTORS[this.atSelector](points))
+		this.assignTarget(SELECTORS[this.atSelector](points, this))
 		if (this.target) game.iterations = GAME_ADVANCE_ITERATIONS
 	},
 	

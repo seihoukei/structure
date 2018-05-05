@@ -619,6 +619,7 @@ canvas.foreground : {
 	display : flex;
 	flex-direction : row;
 	flex-wrap : wrap;
+	overflow-y : auto;
 	z-index : 3;
 }
 
@@ -652,7 +653,7 @@ canvas.foreground : {
 	background-color : var(--background-complete);
 }
 
-.tab.sliders, .tab.story, .tab.skills, .tab.management, .tab.artifacts {
+.tab.sliders, .tab.story, .tab.skills, .tab.management, .tab.artifacts, .tab.map {
 	display : flex;
 	flex-direction : column;
 	overflow : hidden;
@@ -2210,15 +2211,20 @@ canvas.foreground : {
 	display : flex;
 	flex-direction : row;
 	width : 600px;
-	justify-content : space-around;
+	justify-content : space-evenly;
 	align-items : start;
 }
 
 .dialog .stats-info {
 	display : flex;
-	align-items : center;
 	justify-content : center;
-	padding : 5px;
+	align-items : center;
+	margin : 10px 5px;
+	min-width : 190px;
+}
+
+.stats > .stats-info {
+	justify-content : start;
 }
 
 .build-button, .presets-button {

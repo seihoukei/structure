@@ -31,6 +31,17 @@ const SPECIAL_NOCLONE = 6
 const SPECIAL_ALONE = 7
 const SPECIAL_NOCHANNEL = 8
 
+const SPECIAL_NAMES = [
+	"None",
+	"Physical shield",
+	"Radio wave",
+	"Clone factory",
+	"Elemental shield",
+	"Build shield",
+	"Clone shield",
+	"Narrow path",
+	"Anti-channel"
+]
 const pointHandler = {
 	_init() {
 	},

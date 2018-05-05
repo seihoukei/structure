@@ -529,13 +529,25 @@ const mapHandler = {
 		this.points.map(point => point.unsuspend())
 		const currentTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
 		const progress = this.points.filter(x => x.owned).length / this.points.length * 100
+		const nodeType = Array(POINT_TYPES.length).fill(0)
+		const nodeSpecial = Array(16).fill(0)
+		const totalNodes = this.points.filter(x => x.index && x.away < (game.skills.sensor?3:2) && (!x.locked || x.away < 2) && (!x.boss || x.boss <= this.boss)).length
+		const maxDepth = Math.max(...this.points.filter(x => x.away < 2 && (!x.boss || x.boss <= this.boss)).map(x => x.depth))
+		this.points.filter(x => x.index && x.away < 2 && !x.locked && (!x.boss || x.boss <= this.boss)).map(x => {
+			if (x.special)
+				nodeSpecial[x.special]++
+			nodeType[x.type||0]++
+		})
+		const locksOpen = this.keys.filter(x => x.keyPoint && (x.lockPoint.owned || x.keyPoint.unlocked)).length + "/" + (this.keys.length - 1)
 		return {
 			growth : Object.keys(baseGrowth).reduce((v,x) => (game.growth[x] - baseGrowth[x]?v[x] = displayNumber(game.growth[x] - baseGrowth[x]):0,v),{}),
 			production : Object.keys(baseProduction).reduce((v,x) => (game.production[x] - baseProduction[x]?v[x] = displayNumber(game.production[x] - baseProduction[x]):0,v),{}),
 			multi : Object.keys(baseMulti).reduce((v,x) => (game.multi[x] - baseMulti[x]?v[x] = "x"+displayNumber(game.multi[x] - baseMulti[x]):0,v),{}),
 			created : this.createTime?timeString(currentTime - this.createTime) + " ago":"unknown",
 			completed : this.complete?this.completeTime?timeString(currentTime - this.completeTime) + " ago":"unknown":progress.toFixed(1)+"%",
-			took : this.complete?this.completeTime&&this.createTime?timeString(this.completeTime - this.createTime):"unknown":this.createTime?timeString(currentTime - this.createTime):"unknown"
+			took : this.complete?this.completeTime&&this.createTime?timeString(this.completeTime - this.createTime):"unknown":this.createTime?timeString(currentTime - this.createTime):"unknown",
+			tookLocal : this.complete?this.completeTime&&this.relativeStart?timeString(this.completeTime - this.relativeStart):"unknown":this.relativeStart?timeString(currentTime - this.relativeStart):"unknown",
+			nodeSpecial, nodeType, locksOpen, maxDepth, totalNodes
 		}
 	},
 	
@@ -569,7 +581,7 @@ const mapMaker = {
 	_init() {
 		this.points = []
 		this.boss = 0
-		this.createTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
+		this.createTime = this.relativeStart = game.now()
 		this.focus = +this.focus || 0
 		if (!this.focus) delete this.focus
 		let n = this.pointsCount - 1

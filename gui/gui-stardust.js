@@ -166,6 +166,10 @@ const StardustTab = Template({
 		this.dvStatsGrowth = createElement("div", "stats-info", this.dvStatsContainer)
 		this.dvStatsProduction = createElement("div", "stats-info", this.dvStatsContainer)
 		this.dvStatsMulti = createElement("div", "stats-info", this.dvStatsContainer)
+		this.dvDiscoveredContainer = createElement("div", "stats", this.dvStats)
+		this.dvDiscoveredTypes = createElement("div", "stats-info", this.dvDiscoveredContainer)
+		this.dvDiscoveredSpecials = createElement("div", "stats-info", this.dvDiscoveredContainer)
+		this.dvDiscoveredInfo = createElement("div", "stats-info", this.dvDiscoveredContainer)
 	},
 	
 	onSet() {
@@ -177,13 +181,21 @@ const StardustTab = Template({
 		const map = game.maps[name]
 		this.displayMap = name
 		const stats = map.getStats()
-		gui.stardust.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+" map"
-		gui.stardust.dvStatsTime.innerText = "Created: "+stats.created + 
+		this.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+" map"
+		this.dvStatsTime.innerText = "Created: "+stats.created + 
 											"\nCompleted: "+stats.completed + 
-											"\nTime spent: "+stats.took
-		gui.stardust.dvStatsGrowth.innerText = "Growth:\n\n"+Object.keys(stats.growth).map(x => x.capitalizeFirst()+": "+stats.growth[x]).join("\n")
-		gui.stardust.dvStatsProduction.innerText = "Production:\n\n"+Object.keys(stats.production).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.production[x]).join("\n")
-		gui.stardust.dvStatsMulti.innerText = "Multipliers:\n\n"+Object.keys(stats.multi).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.multi[x]).join("\n")
+											"\nTime spent: "+stats.took +
+											"\nMap time spent: "+stats.tookLocal
+		this.dvStatsGrowth.innerText = "Growth:\n\n"+Object.keys(stats.growth).map(x => x.capitalizeFirst()+": "+stats.growth[x]).join("\n")
+		this.dvStatsProduction.innerText = "Production:\n\n"+Object.keys(stats.production).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.production[x]).join("\n")
+		this.dvStatsMulti.innerText = "Multipliers:\n\n"+Object.keys(stats.multi).filter(x => x[0] != "_").map(x => x.capitalizeFirst()+": "+stats.multi[x]).join("\n")
+		this.dvDiscoveredTypes.innerText = "Point types:\n"+stats.nodeType.map((x,n) => x?"\n"+POINT_TYPES[n].capitalizeFirst()+": "+x:"").join("")
+		this.dvDiscoveredSpecials.innerText = "Specials:\n"+stats.nodeSpecial.map((x,n) => x?"\n"+SPECIAL_NAMES[n]+": "+x:"").join("")
+		this.dvDiscoveredInfo.innerText = "Other:\n"+
+											"\nPoints found: "+stats.totalNodes+
+											"\nLocks opened: "+stats.locksOpen+
+											"\nMax depth seen: "+stats.maxDepth
+											
 		this.lastUpdate = performance.now()
 	},
 	

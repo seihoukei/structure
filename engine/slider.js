@@ -47,6 +47,9 @@ const SELECTORS = {
 	["Highest damage"](points, slider) {
 		return points.map(x => [x, x.getActivePower(slider)]).sort((x,y) => y[1] - x[1])[0][0]
 	},	
+	["Lowest solo ETA"](points, slider) {
+		return points.map(x => [x, x.getActivePower(slider) / (x.real?x.real.defence:x.power*x.length)]).sort((x,y) => y[1] - x[1])[0][0]
+	},	
 }
 
 const sliderHandler = {
@@ -912,14 +915,23 @@ const sliderHandler = {
 		data.artifacts = this.artifacts
 		data.role = this.role
 		data.team = this.team
-		console.log(JSON.stringify(data))
-		console.log(LZString.compressToBase64(JSON.stringify(data)))
 		this.presets[name] = LZString.compressToBase64(JSON.stringify(data))
 	},
 	
 	loadPreset(name) {
 		if (!this.presets[name]) return
 		const data = JSON.parse(LZString.decompressFromBase64(this.presets[name]))
+		this.setColor(data.color)
+		this.gild = data.gild
+		this.imbuement = data.imbuement
+		Object.assign(this.growth, data.growth)
+		this.safeImbuement = data.safeImbuement
+		this.role = data.role
+		this.team = data.team
+//		data.channel = this.channel
+//		data.learn = this.learn
+//		data.atFilter = this.atFilter
+//		data.artifacts = this.artifacts
 	},
 
 	toJSON() {

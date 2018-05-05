@@ -91,7 +91,7 @@ const MapTab = Template({
 			game.sliders.map(slider => {
 				slider.dvMapIcon.innerText = slider.target?(slider.target.specialText || "⭕\uFE0E"):""
 				if (slider.target) {
-					slider.dvMapIcon.style.fontSize = (180 / slider.target.specialTextSize) + "px"
+					slider.dvMapIcon.style.fontSize = (230 / slider.target.specialTextSize) + "px"
 				}
 			})
 	},

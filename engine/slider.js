@@ -664,7 +664,7 @@ const sliderHandler = {
 		if (this.dvMapIcon) {
 			this.dvMapIcon.innerText = this.target?(this.target.specialText || "⭕\uFE0E"):""
 			if (this.target)
-				this.dvMapIcon.style.fontSize = (250 / this.target.specialTextSize) + "px"
+				this.dvMapIcon.style.fontSize = (230 / this.target.specialTextSize) + "px"
 		}
 		
 		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)

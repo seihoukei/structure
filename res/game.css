@@ -168,6 +168,7 @@ body.invert {
 .utility-measure {
 	font-size : 10px;
 	position : absolute;
+	white-space : nowrap;
 	left : 0;
 	top : 0;
 	margin : 0;
@@ -459,6 +460,7 @@ canvas.foreground : {
 	color : #FFFFFF;
 	align-items : center;
 	justify-content : center;
+	white-space : nowrap;
 	font-size : 35px;
 }
 
@@ -483,6 +485,7 @@ canvas.foreground : {
 	font-size : 35px;
 	display : flex;
 	color : #FFFFFF;
+	white-space : nowrap;
 	align-items : center;
 	justify-content : center;
 	margin : -1px;
@@ -850,6 +853,7 @@ canvas.foreground : {
 	align-items : center;
 	justify-content : center;
 	margin : -2px;
+	white-space : nowrap;
 }
 
 .tab.sliders .slider .alert, .tab.map > .sliders .slider .alert {

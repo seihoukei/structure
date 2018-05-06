@@ -304,10 +304,11 @@ const sliderHandler = {
 			itemVisibility: (x) => (!x.index && game.skills.mining)|| x.index < 6 || game.skills.autoTargetDistance,
 			onSet : () => {
 				this.selector.expanded = !this.selector.expanded && this.selector.same
+				const visibleOptions = this.selector.buttons.filter(x => game.sliders[0].selector.itemVisibility(x)).length
 				if (this.selector.expanded) {
 					this.selector.buttons.map((x,n) => {
-						if (n != this.selector.index)
-							x.dvDisplay.style.top = -25 * (this.selector.index - n) + "px"
+//						if (n != this.selector.index)
+						x.dvDisplay.style.top = (-25 * (visibleOptions - n - 1)) + "px"
                         x.dvDisplay.style.height = "15px"
 //						x.dvDisplay.classList.toggle("hidden", n > 4 && !game.skills.autoTargetDistance)
 					})

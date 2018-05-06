@@ -6,6 +6,7 @@ const WORLD_POINT_PASSIVE = 2
 
 const WORLD_BONUS_ADD = 1
 const WORLD_BONUS_MUL = 2
+const WORLD_BONUS_ADD_MULT = 3
 
 const WORLD_ELEMENTS = {
 	entryPoint: {
@@ -66,7 +67,7 @@ const WORLD_ELEMENTS = {
 		deadZone : 20, 
 		reach : 25,
 		iconText : "🔍\uFE0E",
-		effect : WORLD_BONUS_ADD,
+		effect : WORLD_BONUS_ADD_MULT,
 		stat : "scienceSpeed",
 		value : (point) => 1,
 		cost : {
@@ -88,7 +89,7 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "B",
-		effect : WORLD_BONUS_ADD,
+		effect : WORLD_BONUS_ADD_MULT,
 		value : (point) => 1,
 		stat : "bloodBoost",
 		cost : {
@@ -105,7 +106,7 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "F",
-		effect : WORLD_BONUS_ADD,
+		effect : WORLD_BONUS_ADD_MULT,
 		value : (point) => 1,
 		stat : "fireBoost",
 		cost : {
@@ -122,7 +123,7 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "I",
-		effect : WORLD_BONUS_ADD,
+		effect : WORLD_BONUS_ADD_MULT,
 		value : (point) => 1,
 		stat : "iceBoost",
 		cost : {
@@ -139,7 +140,7 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "M",
-		effect : WORLD_BONUS_ADD,
+		effect : WORLD_BONUS_ADD_MULT,
 		value : (point) => 1,
 		stat : "metalBoost",
 		cost : {

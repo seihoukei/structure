@@ -56,7 +56,7 @@ const MapMouse = {
 						else
 							gui.mainViewport.setTargetXY(this.closest.keyData.keyPoint.x, this.closest.keyData.keyPoint.y)
 						gui.hover.reset()
-						gui.target.set(key, this.x, this.y)
+						gui.target.set(key, ...gui.mainViewport.getTargetMapXY(this.closest.keyData.keyPoint.x, this.closest.keyData.keyPoint.y))
 					}
 				} else if (!this.closest.owned || !this.closest.boss && game.skills.upgradePoints && this.closest.index || game.skills.mining && !this.closest.index) {
 						gui.hover.reset()

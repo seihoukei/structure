@@ -92,6 +92,10 @@ const viewportHandler = {
 		this.updateLimits()
 	},
 	
+	getTargetMapXY(x, y) {
+		return [(x - this.target.x) * this.target.zoom + this.halfWidth, (y - this.target.y) * this.target.zoom + this.halfHeight]
+	},
+	
 	restrict (name, min, max) {
 		this.min[name] = min
 		this.max[name] = max

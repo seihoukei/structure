@@ -179,7 +179,7 @@ const worldPointInfoHandler = {
 			this.dvIcon.innerText = this.building.iconText
 			this.dvIcon.style.backgroundColor = gui.theme.world[this.point.family]
 		}
-		this.dvInfo.innerText = "Type: " + this.building.name + (this.point.depth < 100?"\nDepth: " + this.point.depth:"\nDetached") + "\nActive: " + (this.point.active?"Yes":"No")
+		this.dvInfo.innerText = "Type: " + this.building.name + (this.point.depth < 100?"\nDepth: " + this.point.depth:"\nDetached") + "\n" + (this.point.active?"Effect: "+this.point.valueString():"Inactive")
 	}
 }
 

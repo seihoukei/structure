@@ -399,7 +399,7 @@ const managementPointElementHandler = {
 			})
 			this.dvImprint.classList.toggle("hidden", !(game.skills.imprint && (!this.point.map.virtual || game.skills.virtualImprint && this.point.map.level > game.realMap.level - 2) && (this.point && !this.point.boss && this.point.completed)))
 			this.dvImprint.classList.toggle("active", !(this.point.harvesting || this.point.harvested))
-			this.dvImprint.innerText = this.point.harvested?"Imprinted":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.harvestSpeed))+")"
+			this.dvImprint.innerText = this.point.harvested?"Imprinted":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")"
 		}
 		if (!this.visible) return
 		this.dvLevelUp.classList.toggle("available", this.point.costs.levelUp <= game.resources.gold)

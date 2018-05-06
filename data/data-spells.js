@@ -93,7 +93,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			if (point.noclone || point.special == SPECIAL_ALONE && point.attackers.size) return -1
-			if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) return -1
+			if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 100)
 		},
 		cast(point) {
@@ -111,7 +111,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			if (point.noclone || point.special == SPECIAL_ALONE && point.attackers.size) return -1
-			if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) return -1
+			if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 50)
 		},
 		cast(point) {
@@ -129,7 +129,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			if (point.noclone || point.special == SPECIAL_ALONE && point.attackers.size) return -1
-			if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) return -1
+			if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
 		cast(point) {
@@ -147,7 +147,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			if (point.noclone || point.special == SPECIAL_ALONE && point.attackers.size) return -1
-			if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) return -1
+			if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
 		cast(point) {
@@ -165,7 +165,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			if (point.noclone || point.special == SPECIAL_ALONE && point.attackers.size) return -1
-			if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) return -1
+			if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
 		cast(point) {
@@ -183,7 +183,7 @@ const SPELLS = {//function context == point
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
 			if (point.noclone || point.special == SPECIAL_ALONE && point.attackers.size) return -1
-			if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) return -1
+			if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) return -1
 			return point.owned?-1:(point.bonus ** 0.5 / 10)
 		},
 		cast(point) {

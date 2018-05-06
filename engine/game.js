@@ -125,6 +125,26 @@ const game = {
 	},	
 	
 	renderForeground(c) {
+		function drawPing(col, x, y, size) {
+			c.save()
+			c.translate(x,y)
+			if (size)
+				c.scale(size/5, size/5)
+			else
+			c.scale(1/gui.mainViewport.current.zoom, 1/gui.mainViewport.current.zoom)
+			const radius = 10 - game.frame % 20 / 2
+			c.strokeStyle = col
+			for (let i = 0; i < 3; i++) {
+				c.globalAlpha = Math.min(1, 2 - 0.66 * i - radius / 15)
+				c.beginPath()
+				c.lineWidth = (40 - radius - i*10) / 10
+				c.moveTo(radius + i * 10, 0)
+				c.arc(0, 0, radius + i * 10, 0, 6.29)
+				c.stroke()
+			}
+			c.restore()
+		}
+
 		c.clearRect(0, 0, gui.mainViewport.width, gui.mainViewport.height)
 		c.save()
 		c.lineWidth = Math.max(1, 1.5/gui.mainViewport.current.zoom)
@@ -151,7 +171,7 @@ const game = {
 			c.arc(0, 0, radius, angle + Math.PI / 3 * 4, angle + 0.5 + Math.PI / 3 * 4)
 			c.stroke()
 			c.restore()
-			
+						
 			let partner
 			
 			if (gui.mapMouse.closest.lock) 
@@ -160,14 +180,7 @@ const game = {
 				partner = gui.mapMouse.closest.keyData.lockPoint
 			
 			if (partner && partner.away < 2 && partner.locked < 2) {
-				c.save()
-				c.translate(partner.x, partner.y)
-				c.strokeStyle = partner.owned?gui.theme.mouseOwned:gui.theme.mouseEnemy
-				c.beginPath()
-				let radius = partner.size + (partner.level||0) * 2 + 1.75 + 0.5 * Math.sin(this.frame / 30) 
-				c.arc(0, 0, radius, 0, 6.29)
-				c.stroke()
-				c.restore()
+				drawPing(partner.owned?gui.theme.mouseOwned:gui.theme.mouseEnemy, partner.x, partner.y, partner.size)
 			}
 
 			function drawRegion(point) {
@@ -196,21 +209,8 @@ const game = {
 			c.stroke()//*/
 		}
 		if (gui.map.hoverSlider && gui.map.hoverSlider.target) {
-			c.save()
 			const {x,y} = gui.map.hoverSlider.target.coordinatesOn(gui.map.hoverSlider.target.position, true)
-			c.translate(x,y)
-			c.scale(1/gui.mainViewport.current.zoom, 1/gui.mainViewport.current.zoom)
-			const radius = 10 - this.frame % 20 / 2
-			c.strokeStyle = gui.map.hoverSlider.color
-			for (let i = 0; i < 3; i++) {
-				c.globalAlpha = Math.min(1, 2 - 0.66 * i - radius / 15)
-				c.beginPath()
-				c.lineWidth = (40 - radius - i*10) / 10
-				c.moveTo(radius + i * 10, 0)
-				c.arc(0, 0, radius + i * 10, 0, 6.29)
-				c.stroke()
-			}
-			c.restore()
+			drawPing(gui.map.hoverSlider.color, x, y)
 		}
 		c.restore()
 	},
@@ -705,7 +705,7 @@ const game = {
 		if (!this.real.growth) this.real.growth = {}
 		if (!this.real.production) this.real.production = {}
 
-		this.real.harvestSpeed = this.world.harvestSpeed / this.harvesting.size
+		this.real.harvestSpeed = this.world.stats.harvestSpeed / this.harvesting.size
 
 		Object.keys(this.growth).map(x => {
 			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
@@ -713,19 +713,22 @@ const game = {
 				this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
-		if (this.real.multi.power > 1e15) this.real.multi.power = 1e15
+		if (this.real.multi.power > 1e15) {
+			this.feats.power1 = 1
+			this.real.multi.power = 1e15
+		}
 		
 	},
 	
 	getRealProduction() {
 		RESOURCES.map (x => this.real.production[x] = this.production[x])
 		this.real.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
-		this.real.production.mana *= this.world.manaSpeed
+		this.real.production.mana *= this.world.stats.manaSpeed
 		this.real.production.mana -= this.sliders.reduce((v,x) => v + (x.real && x.real.usedMana || 0), 0)
 		this.real.production.exp += this.sliders.reduce((v,x) => v + (x.real && x.real.expChange || 0), 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => x.target && !x.target.index?v + (x.real && x.real.attack || 0):v, 0)
 		this.real.production.gold += this.sliders.reduce((v,x) => v + (x.real && x.real.madeGold || 0), 0)
-		this.real.production.science *= this.world.scienceSpeed
+		this.real.production.science *= this.world.stats.scienceSpeed
 	},
 		
 	enableSlowMode(x = 1) {

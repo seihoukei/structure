@@ -1,16 +1,26 @@
 "use strict"
 
 const BASE_WORLD = {
-	harvestSpeed : 1,
+}
+
+const BASE_WORLD_STATS = {
 	goldSpeed : 1,
-	goldMine : 0,
-	imprinter : 0
+	harvestSpeed : 1,
+	scienceSpeed : 1,
+	bloodBoost : 1,
+	fireBoost : 1,
+	iceBoost : 1,
+	metalBoost : 1,
+	manaSpeed : 1,
+	maxSummons : 10,
+	meanBoost : 1	
 }
 
 const worldHandler = {
 	_init() {
 		this.edges = []
 		this.active = {}
+		this.stats = Object.assign({},BASE_WORLD_STATS)
 		this.activePoints = new Set()
 		this.presets = this.presets || {}
 		if (!this.points || this.points.filter(x => x.type == "entryPoint").length != 1) {
@@ -324,12 +334,24 @@ const worldHandler = {
 		this.points.map(x => (x.active = x.depth <= this.workers.length)?this.activePoints.add(x):0)
 		Object.keys(WORLD_ELEMENTS).map(x => this.active[x] = 0)
 		;[...this.activePoints].map(x => this.active[x.type]++)
-		this.harvestSpeed = 2 ** this.active.imprinter
+/*		this.harvestSpeed = 2 ** this.active.imprinter
 		this.goldSpeed = 2 ** this.active.goldMine
 		this.scienceSpeed = 1 + this.active.library
 		this.manaSpeed = 1.5 ** this.active.manaPool
 		this.maxSummons = 10 + this.active.stabilizer
-		this.meanBoost = 1 + this.active.charger//2 ** this.active.charger
+		this.meanBoost = 1 + this.active.charger//2 ** this.active.charger*/
+		
+		Object.assign(this.stats, BASE_WORLD_STATS)
+
+		this.points.filter(x => WORLD_ELEMENTS[x.type].stat).sort((x,y) => WORLD_ELEMENTS[x.type].effect - WORLD_ELEMENTS[y.type].effect).map(x => {
+			const element = WORLD_ELEMENTS[x.type]
+			if (!element.stat || !this.stats[element.stat]) return
+			if (element.effect == WORLD_BONUS_MUL)
+				this.stats[element.stat] *= element.value(x)
+			if (element.effect == WORLD_BONUS_ADD)
+				this.stats[element.stat] += element.value(x)
+		})
+		
 		this.updateBounds()
 		gui.worldViewport.getLimits(this.bounds)
 		game.updateWorldBackground = true
@@ -351,6 +373,7 @@ const worldHandler = {
 		delete o.edges
 		delete o.workers
 		delete o.active
+		delete o.stats
 		delete o.activePoints
 		return o
 	},

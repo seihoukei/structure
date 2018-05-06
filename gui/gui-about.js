@@ -37,6 +37,7 @@ const AboutTab = Template({
 		- Lots of bugfixes (still some hunt to do
 		Note : I more or less actively report changes on #changelog channel 
 		of our official discord server, this changelog can be outdated.
+		Updates are rolled out on almost daily basis.
 
 		-- 0.0.4 -- 11 April 2018 --
 		- Maps up to 34 are "safe" (no more content after 28 though)

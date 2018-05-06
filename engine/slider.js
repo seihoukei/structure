@@ -728,7 +728,7 @@ const sliderHandler = {
 		Object.keys(this.stats).map((x,n) => {
 			this.real.growth[x] = game.real.growth[x]
 			this.real.multi[x] = this.multi[x] * this.levelMulti[x] * (this.artifacts.growthOrb?3:1)
-			if (this.target && this.target.index == 0 && game.world.active[x+"Self"]) this.real.multi[x] *= 1 + (game.world.active[x+"Self"])
+			if (this.target && this.target.index == 0 && game.world.stats[x+"Boost"]) this.real.multi[x] *= 1 + (game.world.stats[x+"Boost"])
 			this.real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
 			if (!this.target || this.target.special != SPECIAL_NOCHANNEL)
 				game.sliders.map(slider => {

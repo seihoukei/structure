@@ -25,6 +25,10 @@ const FEATS = {
 		desc: "10000000000000. Okay, reading that number correctly is a feat already, but you also need that much mana.",
 		map : 31
 	},
+	power1: {
+		desc: "Ever heard of billiards? Well, you need power mutliplier equal to what some people would call a billiard. ",
+		map : 34
+	},
 	noreal1 : {
 		desc: "Complete evolved virtual map without capturing a single node with real slider",
 		map : 33

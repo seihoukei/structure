@@ -4,6 +4,9 @@ const WORLD_POINT_CORE = 0
 const WORLD_POINT_ACTIVE = 1
 const WORLD_POINT_PASSIVE = 2
 
+const WORLD_BONUS_ADD = 1
+const WORLD_BONUS_MUL = 2
+
 const WORLD_ELEMENTS = {
 	entryPoint: {
 		name : "World core",
@@ -17,12 +20,15 @@ const WORLD_ELEMENTS = {
 	},
 	goldMine: {
 		name : "Gold mine",
-		desc : "Doubles mining speed",
+		desc : "Multiplies mining speed",
 		type : WORLD_POINT_PASSIVE,
 		family : "resource",
 		radius : 5,
 		deadZone : 10,
 		reach : 20,
+		effect : WORLD_BONUS_MUL,
+		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		stat : "goldSpeed",
 		cost : {
 			_1 : 3,
 			_2 : 3,
@@ -31,12 +37,15 @@ const WORLD_ELEMENTS = {
 	},
 	imprinter: {
 		name : "Memory pool",
-		desc : "Doubles imprinting speed",
+		desc : "Multiplies imprinting speed",
 		type : WORLD_POINT_PASSIVE,
 		family : "imprint",
 		radius : 5,
 		reach : 25,
 		deadZone : 15,
+		effect : WORLD_BONUS_MUL,
+		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		stat : "harvestSpeed",
 		cost : {
 			_1 : 5,
 			_2 : 5,
@@ -57,6 +66,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 20, 
 		reach : 25,
 		iconText : "🔍\uFE0E",
+		effect : WORLD_BONUS_ADD,
+		stat : "scienceSpeed",
+		value : (point) => 1,
 		cost : {
 			_1 : 5,
 			_2 : 5,
@@ -76,6 +88,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "B",
+		effect : WORLD_BONUS_ADD,
+		value : (point) => 1,
+		stat : "bloodBoost",
 		cost : {
 			_3 : 15
 		}	
@@ -90,6 +105,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "F",
+		effect : WORLD_BONUS_ADD,
+		value : (point) => 1,
+		stat : "fireBoost",
 		cost : {
 			_4 : 15
 		}	
@@ -104,6 +122,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "I",
+		effect : WORLD_BONUS_ADD,
+		value : (point) => 1,
+		stat : "iceBoost",
 		cost : {
 			_5 : 15
 		}	
@@ -118,13 +139,16 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 30,
 		iconText : "M",
+		effect : WORLD_BONUS_ADD,
+		value : (point) => 1,
+		stat : "metalBoost",
 		cost : {
 			_6 : 15
 		}	
 	},
 	manaPool: {
 		name : "Mana pool",
-		desc : "Multiplies mana production by 1.5",
+		desc : "Multiplies mana production",
 		type : WORLD_POINT_ACTIVE,
 		family : "imprint",
 		blueprint : "mana1",
@@ -132,6 +156,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 25,
 		reach : 45,
 		iconText : "M",
+		effect : WORLD_BONUS_MUL,
+		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		stat : "manaSpeed",
 		cost : {
 			_3 : 4,
 			_4 : 4,
@@ -149,6 +176,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 10,
 		reach : 15,
 		iconText : "S",
+		effect : WORLD_BONUS_ADD,
+		value : (point) => 1,
+		stat : "maxSummons",
 		cost : {
 			_1 : 4,
 			_2 : 4,
@@ -160,7 +190,7 @@ const WORLD_ELEMENTS = {
 	},
 	charger: {
 		name : "Thunder station",
-		desc : "Boosts Mean machine damage",
+		desc : "Multiplies Mean machine damage",
 		type : WORLD_POINT_ACTIVE,
 		family : "summon",
 		blueprint : "mean1",
@@ -168,6 +198,9 @@ const WORLD_ELEMENTS = {
 		deadZone : 35,
 		reach : 40,
 		iconText : "T",
+		effect : WORLD_BONUS_MUL,
+		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		stat : "meanBoost",
 		cost : {
 			_1 : 5,
 			_2 : 5,

@@ -387,7 +387,7 @@ const mapPointHandler = {
 		
 		if (!this.index) {
 			let power = Math.max(0, slider.real.miningPower - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
-			power *= game.world.goldSpeed
+			power *= game.world.stats.goldSpeed
 			return (power) ** (slider.artifacts.pickaxe?0.63:0.6) / 2e3
 		}
 		
@@ -518,14 +518,14 @@ const mapPointHandler = {
 			while (oldProgress0 < (this.progress* 100|0)) {
 				oldProgress0++
 				if (canSummon && (Math.random() * (ARTIFACTS.summonAmulet.equipped.onSame + 900) < ARTIFACTS.summonAmulet.equipped.onSame)) {
-					if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) break
+					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
 					createSummon(this, 1)
 					if (gui.target.point == this)
 						gui.target.set(this, -1)
 					break
 				}
 				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
-					if (game.sliders.filter(x => x.clone == 2).length >= game.world.maxSummons) break
+					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
 					let element = Math.random() * 4 + 3 | 0
 					while (element == this.type || element % 4 + 3 == this.type) element = Math.random() * 4 + 3 | 0
 					createSummon(this, element)
@@ -700,7 +700,7 @@ const mapPointHandler = {
 			x.victoryTimer = 60 * this.map.level
 			if (x.clone == 2) {
 				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !x.element || x.element < 3 || y.type != x.element))
-				if (!outs.length || game.sliders.filter(x => x.clone == 2).length > game.world.maxSummons)
+				if (!outs.length || game.sliders.filter(x => x.clone == 2).length > game.world.stats.maxSummons)
 					x.fullDestroy()
 				else {
 					if (game.skills.smartSummons) {
@@ -807,7 +807,7 @@ const mapPointHandler = {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
 		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1) * (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1) * game.world.meanBoost:0
+			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1) * (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1) * game.world.stats.meanBoost:0
 		if (this.real.passiveDamage) this.map.failed.noabsolute1 = 1
 		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},
@@ -900,6 +900,16 @@ const worldPointHandler = {
 	connect(point) {
 		this.connections.push(point)
 		point.connections.push(this)
+	},
+	
+	valueString() {
+		const element = WORLD_ELEMENTS[this.type]
+		if (!element || !element.value) return "None"
+		let s = ""
+		if (element.effect == WORLD_BONUS_ADD) s += "+"
+		if (element.effect == WORLD_BONUS_MUL) s += "x"
+		s += element.value(this)
+		return s
 	},
 	
 	toJSON() {

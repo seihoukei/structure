@@ -327,9 +327,9 @@ const worldHandler = {
 		this.harvestSpeed = 2 ** this.active.imprinter
 		this.goldSpeed = 2 ** this.active.goldMine
 		this.scienceSpeed = 1 + this.active.library
-		this.manaSpeed = 2 ** this.active.manaPool
+		this.manaSpeed = 1.5 ** this.active.manaPool
 		this.maxSummons = 10 + this.active.stabilizer
-		this.meanBoost = 2 ** this.active.charger
+		this.meanBoost = 1 + this.active.charger//2 ** this.active.charger
 		this.updateBounds()
 		gui.worldViewport.getLimits(this.bounds)
 		game.updateWorldBackground = true

@@ -343,7 +343,7 @@ const worldHandler = {
 		
 		Object.assign(this.stats, BASE_WORLD_STATS)
 
-		this.points.filter(x => WORLD_ELEMENTS[x.type].stat).sort((x,y) => WORLD_ELEMENTS[x.type].effect - WORLD_ELEMENTS[y.type].effect).map(x => {
+		this.points.filter(x => x.active && WORLD_ELEMENTS[x.type].stat).sort((x,y) => WORLD_ELEMENTS[x.type].effect - WORLD_ELEMENTS[y.type].effect).map(x => {
 			const element = WORLD_ELEMENTS[x.type]
 			if (!element.stat || !this.stats[element.stat]) return
 			if (element.effect == WORLD_BONUS_MUL)

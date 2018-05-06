@@ -483,14 +483,14 @@ const ARTIFACTS = {
 	},	
 	greatOrb: {
 		name : "Great orb of elements",
-		desc : "",
-		codeLength : 16,
-		codeCost : 5e11,
-		depth : 1.623e35,
+		desc : "WIP",
+		codeLength : 21,
+		codeCost : 5e12,
+		depth : 7.634e35,
 		active() {
-			return game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e14
+			return false
 		},
-		iconText : "⚖\uFE0E",
+		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},	
 

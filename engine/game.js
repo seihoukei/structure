@@ -713,6 +713,7 @@ const game = {
 				this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
+		if (this.real.multi.power > 1e15) this.real.multi.power = 1e15
 		
 	},
 	

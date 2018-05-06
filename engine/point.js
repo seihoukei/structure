@@ -906,7 +906,8 @@ const worldPointHandler = {
 		const element = WORLD_ELEMENTS[this.type]
 		if (!element || !element.value) return "None"
 		let s = ""
-		if (element.effect == WORLD_BONUS_ADD) s += "Multiplier +"
+		if (element.effect == WORLD_BONUS_ADD) s += "+"
+		if (element.effect == WORLD_BONUS_ADD_MULT) s += "Multiplier +"
 		if (element.effect == WORLD_BONUS_MUL) s += "Multiplier x"
 		s += element.value(this).toDigits(3)
 		return s

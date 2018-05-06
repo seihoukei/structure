@@ -1307,6 +1307,7 @@ canvas.foreground : {
     box-sizing: border-box;
 	width : 40px;
 	height : 40px;
+	flex-shrink : 0;
 	font-size : 25px;
 	border-radius : 20px;
 	border : 1px solid var(--darkframe);

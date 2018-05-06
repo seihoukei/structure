@@ -6,7 +6,7 @@ const StardustTab = Template({
 		this.dvSubdisplay = createElement("div", "stardusts ", this.dvDisplay)
 		this.dvSliders = createElement("div", "stardust-growth", this.dvSubdisplay)
 		this.dvGrowthTitle = createElement("div", "stardust-title", this.dvSliders, "Growth boost")
-		this.sliders = POINT_TYPES.slice(3).map(x => {
+		this.sliders = POINT_TYPES.slice(3).map((x, n) => {
 			return GuiSlider({
 				parent : this.dvSliders,
 				container : game.stardust,
@@ -24,30 +24,42 @@ const StardustTab = Template({
 					game.stardust[x] = Math.round(game.stardust[x])
 					const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
 					let otherDust = game.resources.stardust - game.stardust[x]
-					const scale = otherDust / otherTotal
-					if (scale < 1) {
-						POINT_TYPES.slice(3).map(y => {
-							if (y != x) {
-								game.stardust[y] *= scale
-								game.stardust[y] |= 0
-								otherDust -= game.stardust[y]
-							}
-						})
-						if (otherDust > 0) {
+					if (this.overspend) {
+						const scale = otherDust / otherTotal
+						if (scale < 1) {
 							POINT_TYPES.slice(3).map(y => {
-								if (y != x && otherDust) {
-									otherDust--
-									game.stardust[y]++
+								if (y != x) {
+									game.stardust[y] *= scale
+									game.stardust[y] |= 0
+									otherDust -= game.stardust[y]
 								}
-							})						
+							})
+							if (otherDust > 0) {
+								POINT_TYPES.slice(3).map(y => {
+									if (y != x && otherDust) {
+										otherDust--
+										game.stardust[y]++
+									}
+								})						
+							}
+							this.sliders.map(y => y.update())
 						}
-						this.sliders.map(y => y.update())
+					} else {
+						if (game.stardust[x] + otherTotal > game.resources.stardust)
+							this.sliders[n].setValue(game.resources.stardust - otherTotal)
 					}
 					const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
 					this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + (game.resources.stardust - freeDust) + "/" + game.resources.stardust + ")"
 					gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
 				}
 			})
+		})
+		this.overspend = false
+		this.cbOverspend = GuiCheckbox({
+			parent : this.dvSliders,
+			title : "Redistribute if exceeding total",
+			container : this,
+			value : "overspend"
 		})
 		this.dvEqual = createElement("div", "equal button", this.dvSliders, "Distribute equally")
 		this.dvEqual.onclick = (event) => {

@@ -9,7 +9,7 @@ const researchHandler = {
 			return
 		}
 		
-		if (!this.done && ((!this.codeword) || (this.badCodeWord(this.codeword)))) {
+		if (!this.done && ((!this.codeword) || this.codeword.length != this.artifact.codeLength || (this.badCodeWord(this.codeword)))) {
 			this.initCodeWord()
 		}
 	

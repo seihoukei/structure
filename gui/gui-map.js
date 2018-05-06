@@ -71,7 +71,7 @@ const MapTab = Template({
 	updateGrowth() {
 		this.displayGrowth.map(x => {
 			x.dvDisplay.classList.toggle("hidden", !game.growth[x.name])
-			x.dvValue.innerText = displayNumber(game.growth[x.name]) + (game.real.multi[x.name] != 1?" × "+displayNumber(game.real.multi[x.name])+" = "+displayNumber(game.real.growth[x.name]):"")
+			x.dvValue.innerText = displayNumber(game.growth[x.name]) + (game.real.multi[x.name] != 1?" × "+displayNumber(game.real.multi[x.name]) + (x.name == "power" && game.real.multi[x.name] == 1e15?" (CAP)":"")+" = "+displayNumber(game.real.growth[x.name]):"")
 			x.dvName.innerText = settings.colorBlind?x.name.capitalizeFirst()[0]:""
 		})
 	},

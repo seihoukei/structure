@@ -1,43 +1,71 @@
-Important v0.0.3:
-- Skill/Spell : deal with resist without dispel (24, building?)
-- Skill : virtual map looping (26+)
-- Spell : lockbreaker (26+)
-- Spell : create shield (limit points)
-- GameMap 30 design
+Important v0.0.6:
+
+Map 
+- Attribute-negating shields
+- Artifact-disabling shield
+World
+- no connected same-type allowed
+- no too close allowed
+- no disconnected allowed
+- power proportional to depth
+- active when depth+ sliders mining
+bonuses:
+- Production boosts
+- Growth boosts
+- Power multiplier cap boost
+- Multipliers to connected
+
+Balancing :
+Summonner:
++ minus summon cost (world || artifacts)
++ summon upon capture (artifacts)
++ summon level up upon capture
+Elementalist:
++ better orbs (artifacts)
++ countershield (artifacts)
+Artificier:
++ Better mean machine (artifacts)
++ Other kinds of "splash" damage (artifacts)
+
+- Artifact : Bonus if rogue decimals / 0 net exp gain
+- Artifact : Lose damage / ignore 25% barrier
+- Artifact : Greater orbs
+- Artifact : Lose damage / add to Mean Machine above (all directions)
+- Artifact : Grow through channelling to summons only
+- Artifact : Unlimited (still capped) strong element clones
+- Artifact : ReLoad charges and lasts longer, bonus boosted
+- Artifact : Doom target node
+- Artifact : Accompanying summons deal unblockable damage
+- Artifact : Create summons on capture
+...
+- Artifact : damage bonus based on how long was attacking last target 
 ...
 
-- Skill : Harvesting ? (30+)
-- Skill : Virtual harvesting ? (30+)
-- Skill : Autoharvesting ? (Science) (30+)
+- Skill : Virtual harvesting ? (31+)
+- Skill : Autoharvesting ? (Science) (31+)
 - Skill : Autocast ?(Science)
+- Skill : QoL - virtual map looping (31+)
+- Skill : Stardust investition (resources) ?
 
 - Notifications (ran out of exp / mana, achievement, offline progress)
 - Story
 - Wiki
-- Cloud saves
 
 ...
-- GameMap : Hover/target icons scaling to text length
-- GameMap : Fix fallback icon scaling
 - GameMap : Better resources display
-- GameMap : Better target position for lock => key
 
-- Buildings : level 4 (2-3)
-
-- Management : Sorting by time
-
-- Stardust investition (resources)
-- Artifacts (mine depth) (20-s)
 - Achievements
-- Harvesting points into building the new world (31+)
 
-- GameMap : Backgrounds
+- GameMap : Backgrounds (voronoi?)
 
 - Keyboard : ESC - reset target window
+- Keyboard : Spells on keys
+- Keyboard : Targetting on keys
 
 - Mobile : Pinch zoom / Touch scroll
 - Mobile : Ascend button workaround
 
 - Statistics : Finish
 
-- Sliders : better color picker
+...
+- Endless hexagonal maps?

@@ -469,15 +469,45 @@ const ARTIFACTS = {
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},	
+	expScales: {
+		name : "Scales of rogue decimals",
+		desc : "Doubles growth if your exp change speed is zero or negligibly small",
+		codeLength : 16,
+		codeCost : 5e11,
+		depth : 1.623e35,
+		active() {
+			return game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e14
+		},
+		iconText : "⚖\uFE0E",
+		iconTextColor : "var(--foreground)"
+	},	
+	greatOrb: {
+		name : "Great orb of elements",
+		desc : "",
+		codeLength : 16,
+		codeCost : 5e11,
+		depth : 1.623e35,
+		active() {
+			return game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e14
+		},
+		iconText : "⚖\uFE0E",
+		iconTextColor : "var(--foreground)"
+	},	
 
-//- Artifact : Bonus if rogue decimals / 0 net exp gain
-//- Artifact : Lose damage / ignore 25% barrier
-//- Artifact : Greater orbs
+//- Artifact : Greater orb
+
+//- Artifact : ReLoad charges and lasts longer, bonus boosted
+
+//- Artifact : Doom random node on capture
+
 //- Artifact : Lose damage / add to Mean Machine above (all directions)
+
 //- Artifact : Grow through channelling to summons only
 //- Artifact : Unlimited (still capped) strong element clones
-//- Artifact : ReLoad charges and lasts longer, bonus boosted
-//- Artifact : Doom target node
+//- Artifact : Accompanying summons deal unblockable damage
+//- Artifact : Create summons on capture
+
+//- Artifact : Lose damage / ignore 25% barrier
 
 }
 

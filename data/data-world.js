@@ -160,7 +160,7 @@ const WORLD_ELEMENTS = {
 	},
 	charger: {
 		name : "Thunder station",
-		desc : "Doubles Mean machine damage",
+		desc : "Boosts Mean machine damage",
 		type : WORLD_POINT_ACTIVE,
 		family : "summon",
 		blueprint : "mean1",

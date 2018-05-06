@@ -241,9 +241,19 @@ const ManagementTab = Template({
 const managementPointElementHandler = {
 	_init() {
 		this.dvDisplay = createElement("div", "point "+(this.className || ""), this.parent)
+		
 		this.dvIcon = createElement("div", "level bg-"+POINT_TYPES[this.point.type], this.dvDisplay, this.point.level || "0")
 		this.dvBorder = createElement("img", "management-border", this.dvDisplay)
 		this.dvInfo = createElement("div", "info", this.dvDisplay)
+		this.dvBorder.onclick = this.dvIcon.onclick = this.dvInfo.onclick = (event) => {
+			gui.tabs.setTab("map")
+			gui.mapMouse.closest = this.point
+			gui.mainViewport.setTargetZoom(30/this.point.size)
+			gui.mainViewport.setTargetXY(this.point.x, this.point.y)
+			
+			gui.target.set(this.point, ...gui.mainViewport.getTargetMapXY(this.point.x, this.point.y)/*halfWidth, gui.mainViewport.halfHeight*/)
+		}
+		
 		this.dvIcons = createElement("div", "icons", this.dvDisplay)
 		this.dvLevelUp = createElement("div", "icon", this.dvIcons, "⇮\uFE0E")
 		this.dvLevelUp.style.backgroundColor = gui.theme.icons.levelUp

@@ -124,7 +124,7 @@ const WORLD_ELEMENTS = {
 	},
 	manaPool: {
 		name : "Mana pool",
-		desc : "Doubles mana production",
+		desc : "Multiplies mana production by 1.5",
 		type : WORLD_POINT_ACTIVE,
 		family : "imprint",
 		blueprint : "mana1",

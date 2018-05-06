@@ -191,8 +191,8 @@ const WorldMouse = {
 				if (connections.possible) {//if can move
 					this.state = MOUSE_STATE_FREE
 					game.world.build({
-						x : this.mapX,
-						y : this.mapY,
+						x : this.target.newX,
+						y : this.target.newY,
 						type : this.target.type,
 						world : game.world
 					})

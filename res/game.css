@@ -888,6 +888,8 @@ canvas.foreground : {
 	flex-direction : column;
 	background-color : var(--background);
 	position : relative;
+	width : 180px;
+	height : 25px;
 }
 
 .selector .choice {
@@ -925,7 +927,6 @@ canvas.foreground : {
 .selector .choice.active {
 	height : 15px;
 	background-color : var(--background);
-	position : static;
 	z-index : 2;
 }
 

@@ -10,6 +10,7 @@ const game = {
 	updateWorldBackground : false,
 	skillCostMult : 1,
 	sliders : [],
+	sliderPresets : {},
 	animatingPoints : new Set(),
 	frame : 0,
 	growth : POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 0 : v, v), {}),
@@ -774,6 +775,24 @@ const game = {
 		this.updateRenderData()
 	},
 	
+	saveSlidersPreset(name) {
+		game.sliders.map(x => x.savePreset(name))
+		this.sliderPresets[name] = LZString.compressToBase64(JSON.stringify({
+			master : masterSlider
+		}))
+	},
+	
+	loadSlidersPreset(name) {
+		if (!this.sliderPresets[name]) return
+		game.sliders.map(x => x.loadPreset(name))
+		const data = JSON.parse(LZString.decompressFromBase64(this.sliderPresets[name]))
+		const oldFilter = masterSlider.atFilter
+		Object.assign(masterSlider, data.master)
+		masterSlider.atFilter = Object.assign(oldFilter, masterSlider.atFilter)
+		gui.sliders.onSet()
+		gui.sliders.master.update(true)
+	},
+	
 	toJSON() {
 		this.saveTime = Date.now()
 		let o = Object.assign({}, this)
@@ -877,7 +896,9 @@ const game = {
 		this.sliders = save.sliders.map(x => Slider(x))
 
 		this.sliders.map(x => x.target && x.autoTarget())
-
+		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
+		Object.assign(this.sliderPresets, save.sliderPresets)
+		
 		this.map.getOwnedRadius()
 		
 		
@@ -963,6 +984,7 @@ const game = {
 		this.setMap("main", false)
 
 		Object.assign(masterSlider, baseMasterSlider)
+		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
 		
 		let sliders = Array(1).fill().map(x => Slider({
 			stats : {

@@ -451,7 +451,7 @@ const mapHandler = {
 
 	evolve() {
 		if (!this.complete) return
-		if (!this.virtual || this.level < 31 || !game.skills.evolveVirtual) return
+		if (!this.virtual || this.level < 31 || !game.skills.evolveVirtual || (game.map.evolved && game.map.evolved >= 3)) return
 		let n = this.pointsCount
 		this.evolved = (this.evolved || 0) + 1
 		while (n--) {

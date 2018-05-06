@@ -1059,7 +1059,6 @@ canvas.foreground : {
 
 .tab.menu {
 	display : flex;
-	
 }
 
 .tab.menu > .titles {
@@ -1531,7 +1530,14 @@ canvas.foreground : {
 }
 
 .tab.about {
+	overflow : hidden
+}
+
+.about-holder {
+	display : flex;
+	flex-direction : column;
 	padding : 30px;
+	overflow-y : auto;
 }
 
 .about .title {

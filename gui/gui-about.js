@@ -3,20 +3,21 @@
 const AboutTab = Template({
 	_init() {
 		this.dvDisplay = createElement("div", "about "+(this.className || ""), this.parent)
-		this.dvGameTitle = createElement("div", "title", this.dvDisplay, "Structure")
-		this.dvSubtitle = createElement("div", "subtitle", this.dvDisplay, "The incremental game")
-		this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.5 -- 4 May 2018")
-		//this.dvVersion = createElement("div", "version", this.dvDisplay, "v0.0.2 -- 25 March 2018")
-		this.dvAuthor = createElement("div", "author", this.dvDisplay, "by seihoukei")
-		this.dvLinks = createElement("div", "links", this.dvDisplay)
+		this.dvContent = createElement("div", "about-holder", this.dvDisplay)
+		this.dvGameTitle = createElement("div", "title", this.dvContent, "Structure")
+		this.dvSubtitle = createElement("div", "subtitle", this.dvContent, "The incremental game")
+		this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.5 -- 4 May 2018")
+		//this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.2 -- 25 March 2018")
+		this.dvAuthor = createElement("div", "author", this.dvContent, "by seihoukei")
+		this.dvLinks = createElement("div", "links", this.dvContent)
 		this.dvDiscord = createElement("div", "link", this.dvLinks, "TBA: Discord link")
-		this.dvDiscord.innerHTML = "<a href='https://discord.gg/FpxEvVk'>Discord</a>"
+		this.dvDiscord.innerHTML = "<a target='_blank' rel='noopener' href='https://discord.gg/FpxEvVk'>Discord</a>"
 		this.dvReddit = createElement("div", "link", this.dvLinks, "TBA: Subreddit link")
-		this.dvReddit.innerHTML = "<a href='https://www.reddit.com/r/structure_idle/'>Reddit</a>"
+		this.dvReddit.innerHTML = "<a target='_blank' rel='noopener' href='https://www.reddit.com/r/structure_idle/'>Reddit</a>"
 		this.dvWiki = createElement("div", "link", this.dvLinks, "TBA: Wiki link")
-		this.dvWiki.innerHTML = "<a href='https://www.reddit.com/r/structure_idle/wiki/'>Wiki</a>"
-		this.dvFallback = createElement("div", "credits", this.dvDisplay, "Fallback unicode font : 'Symbola' by George Douros")
-		this.dvChangelog = createElement("div", "changelog", this.dvDisplay, `Changelog
+		this.dvWiki.innerHTML = "<a target='_blank' rel='noopener' href='https://www.reddit.com/r/structure_idle/wiki/'>Wiki</a>"
+		this.dvFallback = createElement("div", "credits", this.dvContent, "Fallback unicode font : 'Symbola' by George Douros")
+		this.dvChangelog = createElement("div", "changelog", this.dvContent, `Changelog
 		
 		-- 0.0.5 -- 04 May 2018 --
 		- Maps up to 39 are safe to go to, map-specific content ends at ~35

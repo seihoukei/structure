@@ -30,6 +30,16 @@ const SlidersTab = Template({
 			
 		})
 		this.hover.dvDisplay.style.position = "absolute"
+
+		this.presetMenu = PresetMenu({
+			prefix : "p_",
+			save(name) {
+				game.saveSlidersPreset(name)
+			},
+			load(name) {
+				game.loadSlidersPreset(name)
+			},
+		})
 	},
 	
 	onSet() {
@@ -72,6 +82,12 @@ const SlidersTab = Template({
 const masterSliderHandler = {
 	_init() {
 		this.dvDisplay = createElement("div", "master", this.parent)
+
+		this.dvPresetsButton = createElement("div", "master-apply apply button", this.dvDisplay, "Presets")
+		this.dvPresetsButton.onclick = (event) => {
+			gui.sliders.presetMenu.presets = game.sliderPresets,
+			gui.sliders.presetMenu.show(event.clientX, event.clientY)
+		}
 
 		this.dvGild = createElement("div", "master-pair", this.dvDisplay)
 		this.cbMasterGild = GuiCheckbox({

@@ -921,17 +921,26 @@ const sliderHandler = {
 	loadPreset(name) {
 		if (!this.presets[name]) return
 		const data = JSON.parse(LZString.decompressFromBase64(this.presets[name]))
-		this.setColor(data.color)
+		const index = game.sliders.indexOf(this)
+		if (index == -1) return
+		game.sliders[index] = Slider (this, data)
+		Object.keys(this.artifacts).map(x => this.unequip(x))
+		Object.keys(game.sliders[index].artifacts).map(x => game.sliders[index].equip(x, data.artifacts[x]))
+		this.fullDestroy()
+/*		this.setColor(data.color)
 		this.gild = data.gild
 		this.imbuement = data.imbuement
 		Object.assign(this.growth, data.growth)
 		this.safeImbuement = data.safeImbuement
 		this.role = data.role
 		this.team = data.team
-//		data.channel = this.channel
-//		data.learn = this.learn
+		this.channel.splice(0, this.channel.length, ...data.channel)
+		this.learn.splice(0, this.learn.length, ...data.learn)
+		Object.keys(this.artifacts).map(x => this.unequip(x))
+		Object.keys(data.artifacts).map(x => this.equip(x, data.artifacts[x]))
+		Object.assign(this.atFilter, data.atFilter)*/
+		
 //		data.atFilter = this.atFilter
-//		data.artifacts = this.artifacts
 	},
 
 	toJSON() {
@@ -978,6 +987,13 @@ const sliderHandler = {
 			delete x.dvDisplay
 		})
 		this.dvMapIcon.remove()
+		if (gui.map.sliderInfo)
+			gui.map.sliderInfo.remove()
+		if (gui.map.slider == this) {
+			delete gui.map.sliderInfo
+			delete gui.map.slider
+			return
+		}
 		delete this.dvMapIcon
 		delete this.displayStats
 	},

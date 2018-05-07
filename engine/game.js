@@ -4,6 +4,11 @@ const GAME_ADVANCE_ITERATIONS = 1000
 const GAME_ADVANCE_ITERATIONS_MAX = 100000
 const GAME_AUTOMATION_PERIOD = 1000
 
+const BASE_AVAILABLE = {
+	buildings : [[],[],[],[],[]],
+	spells : [],
+}
+
 //l = 1,m = Array(51).fill().map((x,n) => GameMap(mapLevel(n), mapMaker)).map(m => m.points.map(x => x.power * x.length).filter(x => x)).map (x => (k=(Math.min(...x)/l),l=Math.max(...x),k)).slice(1), [Math.max(...m), Math.min(...m)]
 const game = {
 	updateMapBackground : false,
@@ -25,6 +30,7 @@ const game = {
 	},
 	production : {},
 	research : {},
+	available : Object.assign({}, BASE_AVAILABLE),
 	attacked : new Set(),
 	harvesting : new Set(),
 	stardust : {},
@@ -404,10 +410,17 @@ const game = {
 		if (STORY[x] && STORY[x].forced >= settings.storyDisplay)
 			gui.story.popupStory()
 	},
+	
+	updateAvailable() {
+		for (let level = 0; level <= POINT_MAX_LEVEL; level++)
+			this.available.buildings[level] = Object.values(BUILDINGS).filter(x => game.skills["build"+x.level] && level >= x.level)
+		this.available.spells = Object.values(SPELLS).filter(x => game.skills.spellcasting && game.skills["book_"+x.book])
+	},
 
 	update() {
 		this.map.update()
 		this.world.update()
+		this.updateAvailable()
 		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		if (!this.offline) {
 			gui.mainViewport.getLimits(this.map.bounds)
@@ -563,7 +576,7 @@ const game = {
 	},
 	
 	autoUpgrade() {
-		const upgradablePoints = this.map.points.filter(x => x.index && x.owned && !x.boss)
+		const upgradablePoints = this.map.points.filter(x => x.index && x.owned && !x.boss && !x.completed)
 		this.autoUpgrading = 1
 		if (game.skills.automation){
 			let points = upgradablePoints.filter(x => this.automation.types.includes(x.type) && ((x.level || 0) < this.automation.maxLevel) && (x.costs.levelUp >= 0)).sort((x,y) => x.costs.levelUp - y.costs.levelUp)
@@ -812,6 +825,7 @@ const game = {
 		delete o.lastCloudSave
 		delete o.slowMode
 		delete o.nextTarget
+		delete o.available
 		delete o.activeRender
 		delete o.animatingPoints
 		delete o.attacked
@@ -848,6 +862,8 @@ const game = {
 		this.multi = save.multi || POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 1 : v, v), {}),
 		Object.assign(this.automation, save.automation)
 
+		this.available = Object.assign({},BASE_AVAILABLE)
+
 		this.attacked.clear()
 		this.autoTimer = GAME_AUTOMATION_PERIOD
 
@@ -861,7 +877,7 @@ const game = {
 		this.feats = Object.assign({}, save.feats)
 
 		this.world = World(BASE_WORLD, save.world)
-		
+				
 		RESOURCES.map(x => {
 			this.resources[x] = save.resources && save.resources[x] || 0
 			this.production[x] = save.production && save.production[x] || 0
@@ -951,6 +967,7 @@ const game = {
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = this.dev && this.dev.autoSkills && this.dev.autoSkills.includes(x)?1:0)
 		this.world = World(BASE_WORLD)
+		this.available = Object.assign({},BASE_AVAILABLE)
 		RESOURCES.map(x => {
 			this.resources[x] = 0
 			this.production[x] = 0

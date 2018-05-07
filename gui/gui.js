@@ -221,7 +221,7 @@ const gui = {
 				this.dvReal.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone == 1).length || this.point && this.point.special == SPECIAL_ALONE)
 				this.dvClones.classList.toggle("hidden", !displaySliders || !game.sliders.filter(x => x.clone == 1).length || this.point && this.point.special == SPECIAL_ALONE)
 				this.dvSliders.classList.toggle("hidden", !displaySliders)
-				this.dvSpells.classList.toggle("hidden", !game.skills.spellcasting || !this.point || !(Object.values(this.point.manaCosts).filter(x => x > -1).length))
+				this.dvSpells.classList.toggle("hidden", !game.skills.spellcasting || !this.point || !(Object.values(this.point.manaCosts).filter(x => x && x > -1).length))
 				
 				if (this.point.harvesting == 1)
 					this.buttons.imprint.update()

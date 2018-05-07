@@ -350,6 +350,10 @@ const sliderHandler = {
 		}
 		
 		this.dvMapIcon.onmousedown = (event) => {
+			if (this.target) {
+				const {x,y} = this.target.coordinatesOn(this.target.position, true)
+				gui.mainViewport.setTargetXY(x, y)
+			}
 			if (gui.map.sliderInfo)
 				gui.map.sliderInfo.remove()
 			if (gui.map.slider == this) {
@@ -683,7 +687,7 @@ const sliderHandler = {
 //		if (!free)
 //			this.target.attack(this, deltaTime)
 		
-		let change = deltaTime / 5
+		let change = deltaTime / (!free && this.artifacts.reloadFlag?60:5)
 		if (game.skills.charge)
 			this.charge = Math.max(0, Math.min(1, free?this.charge + change:this.charge - change))
 		
@@ -757,7 +761,7 @@ const sliderHandler = {
 				this.real.growth[x] *= this.growth[x] * this.real.multi[x]
 			}
 		})
-		if (game.skills.charge && !this.clone) this.real.spirit *= this.charge?2:1
+		if (game.skills.charge && !this.clone) this.real.spirit *= this.charge?this.artifacts.reloadFlag?(2+(this.charge * 5 | 0)):2:1
 		
 		this.real.attackSpirit = gui.target.point?gui.target.point.getActiveSpirit(this):0
 		this.real.spirit = this.target?this.target.getActiveSpirit(this):this.real.spirit
@@ -784,11 +788,15 @@ const sliderHandler = {
 			}
 		}
 		
-		if (this.artifacts.fireRod)   {this.real.absoluteDamage += 0.05 * this.real.fire }
-		if (this.artifacts.iceRod)    {this.real.absoluteDamage += 0.05 * this.real.ice  }
-		if (this.artifacts.bloodRod)  {this.real.absoluteDamage += 0.05 * this.real.blood}
-		if (this.artifacts.metalRod)  {this.real.absoluteDamage += 0.05 * this.real.metal}
-		if (this.artifacts.pierceRod) {this.real.absoluteDamage += 0.02 * (this.real.metal + this.real.blood +  this.real.fire + this.real.ice) * 0.02}
+		if (this.artifacts.bloodRod)   {this.real.absoluteDamage += 0.05 * this.real.blood}
+		if (this.artifacts.fireRod)    {this.real.absoluteDamage += 0.05 * this.real.fire }
+		if (this.artifacts.iceRod)     {this.real.absoluteDamage += 0.05 * this.real.ice  }
+		if (this.artifacts.metalRod)   {this.real.absoluteDamage += 0.05 * this.real.metal}
+		if (this.artifacts.bloodStaff) {this.real.absoluteDamage += this.real.blood}
+		if (this.artifacts.fireStaff)  {this.real.absoluteDamage += this.real.fire }
+		if (this.artifacts.iceStaff)   {this.real.absoluteDamage += this.real.ice  }
+		if (this.artifacts.metalStaff) {this.real.absoluteDamage += this.real.metal}
+		if (this.artifacts.pierceRod)  {this.real.absoluteDamage += 0.02 * (this.real.metal + this.real.blood +  this.real.fire + this.real.ice) * 0.02}
 		
 		if (this.artifacts.powerOrb) {
 			this.real.growth.power += this.real.growth.spirit + this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
@@ -821,6 +829,26 @@ const sliderHandler = {
 		if (this.artifacts.bloodOrb) {
 			this.real.growth.blood = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
 			this.real.growth.metal = this.real.growth.ice = this.real.growth.fire = 0
+		}
+		
+		if (this.artifacts.fireBracelet) {
+			this.real.fire = this.real.fire + this.real.ice + this.real.blood + this.real.metal
+			this.real.metal = this.real.ice = this.real.blood = 0
+		}
+		
+		if (this.artifacts.iceBracelet) {
+			this.real.ice = this.real.fire + this.real.ice + this.real.blood + this.real.metal
+			this.real.metal = this.real.blood = this.real.fire = 0
+		}
+		
+		if (this.artifacts.metalBracelet) {
+			this.real.metal = this.real.fire + this.real.ice + this.real.blood + this.real.metal
+			this.real.ice = this.real.blood = this.real.fire = 0
+		}
+		
+		if (this.artifacts.bloodBracelet) {
+			this.real.blood = this.real.fire + this.real.ice + this.real.blood + this.real.metal
+			this.real.metal = this.real.ice = this.real.fire = 0
 		}
 		
 		this.real.attack = this.target?this.target.getActivePower(this):0
@@ -931,9 +959,11 @@ const sliderHandler = {
 		const data = JSON.parse(LZString.decompressFromBase64(this.presets[name]))
 		const index = game.sliders.indexOf(this)
 		if (index == -1) return
-		game.sliders[index] = Slider (this, data)
+		if (this.target) data.targetIndex = this.target.index
 		Object.keys(this.artifacts).map(x => this.unequip(x))
-		Object.keys(game.sliders[index].artifacts).map(x => game.sliders[index].equip(x, data.artifacts[x]))
+		const newSlider = Slider (this, data)
+		game.sliders[index] = newSlider
+		Object.keys(newSlider.artifacts).map(x => newSlider.equip(x, newSlider.artifacts[x]))
 		this.fullDestroy()
 /*		this.setColor(data.color)
 		this.gild = data.gild

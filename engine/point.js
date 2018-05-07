@@ -159,6 +159,11 @@ const mapPointHandler = {
 		this.buildings = this.buildings || {}
 		this.production = this.production || {}
 		this.harvestTimes = this.harvestTimes || []
+		Object.values(BUILDINGS).map(x => this.costs[x.id] = -1)
+		Object.values(SPELLS).map(x => this.manaCosts[x.id] = -1)
+
+		
+		this.changed = 65535
 	},
 	
 	calculateStats() {
@@ -176,8 +181,10 @@ const mapPointHandler = {
 				this.parent.children.add(this)
 				this.dx = this.parent.x - this.x
 				this.dy = this.parent.y - this.y
-				this.direction = Math.atan2(this.dy, this.dx)
-				this.length = Math.hypot(this.dy, this.dx)
+				if (!this.direction)
+					this.direction = Math.atan2(this.dy, this.dx)
+				if (!this.length)
+					this.length = Math.hypot(this.dy, this.dx)
 				this.pathLength = this.length - this.innerSize - this.parent.innerSize
 			}
 			this.sdx = this.edx = this.x + this.dx * (this.innerSize + 0.45) / this.length
@@ -186,52 +193,66 @@ const mapPointHandler = {
 				this.sdx = this.parent.x - this.dx * (this.parent.innerSize + 0.45) / this.length
 				this.sdy = this.parent.y - this.dy * (this.parent.innerSize + 0.45) / this.length
 			}
-			let depth = 0
-			let pt = this
-			while (pt.parent && pt.parent != pt) {
-				depth++
-				pt = pt.parent
-				this.parents.add(pt)
+			
+			let depth = this.depth || 0
+			if (!depth) {
+				let pt = this
+				while (pt.parent && pt.parent != pt) {
+					depth++
+					pt = pt.parent
+					this.parents.add(pt)
+				}
+				this.depth = depth
 			}
-			this.depth = depth
-			let locks = 0
-			pt = this
-			while (pt.parent && pt.parent != pt) {
-				if (pt.lock) locks++
-				pt = pt.parent
-			}				
-			this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
-			this.totalPower = this.power * this.length * 0.5
+			let locks = this.locks
+			if (locks === undefined) {
+				locks = 0
+				let pt = this
+				while (pt.parent && pt.parent != pt) {
+					if (pt.lock) locks++
+					pt = pt.parent
+				}				
+				this.locks = locks
+			}
+			if (!this.power)
+				this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
+			if (!this.totalPower) 
+				this.totalPower = this.power * this.length * 0.5
 			this.initialized = (this.initialized || 0) + 1
 //		}
-		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
-		this.baseCost = Math.sqrt(this.power) * 25.6
+
+		if (!this.bonus)
+			this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
+		
+		if (!this.baseCost)
+			this.baseCost = Math.sqrt(this.power) * 25.6
 		
 		this.outs = [...this.children].filter(x => !x.owned && (!x.boss || x.boss <= this.map.boss)).length
 		
 		if (this.parent)
 			this.available = this.parent.owned
 
-		this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
-		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
-		Object.values(BUILDINGS).map(x => this.costs[x.id] = !game.skills["build"+x.level] || !this.level || this.level < x.level || this.nobuild?-1:x.cost(this))
-
-		this.noclone = this.special == SPECIAL_NOCLONE
-		Object.values(SPELLS).map(x => this.manaCosts[x.id] = game.skills.spellcasting && game.skills["book_"+x.book] && (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
-
-		this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
-		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
-			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-		
-		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
-		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
-		this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
-		
-		this.completed = this.level == 4 && !this.nobuild && Object.values(BUILDINGS).reduce((v,x) => {
-			if (!v) return false
-			if (this.costs[x.id] > 0 && !this.buildings[x.id]) return false
-			return true
-		}, true)
+//		if (this.changed & 1 || game.map.changed & 1) {
+			this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
+			this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
+			game.available.buildings[this.level || 0].map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
+	
+			this.noclone = this.special == SPECIAL_NOCLONE
+			game.available.spells.map(x => this.manaCosts[x.id] = (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
+	
+			this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
+			if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
+				this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+			
+			this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
+			this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
+			this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
+			this.completed = this.level == 4 && !this.nobuild && Object.values(BUILDINGS).reduce((v,x) => {
+				if (!v) return false
+				if (this.costs[x.id] > 0 && !this.buildings[x.id]) return false
+				return true
+			}, true)
+//		}
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
@@ -240,6 +261,8 @@ const mapPointHandler = {
 		
 		if (!game.offline)
 			this.updateDisplay("management", true)
+		
+		this.changed = 0
 	},
 	
 	levelUp() {
@@ -251,6 +274,8 @@ const mapPointHandler = {
 		this.suspend()
 		
 		this.level = (this.level || 0) + 1
+		
+		this.changed |= 1
 		
 		game.addStatistic("point_level"+this.level)
 		
@@ -303,6 +328,7 @@ const mapPointHandler = {
 		if (!this.costs[name] || this.costs[name] > game.resources.gold || this.costs[name] < 0) return
 		game.resources.gold -= this.costs[name]
 		BUILDINGS[name].build(this)
+		this.changed |= 1
 		game.addStatistic("built_"+name)
 		this.buildings[name] = 1
 		if (game.autoUpgrading)
@@ -321,6 +347,7 @@ const mapPointHandler = {
 		game.resources.mana -= this.manaCosts[name]
 		if (SPELLS[name].recalc) this.suspend()
 		SPELLS[name].cast(this)
+		this.changed |= 1
 		if (SPELLS[name].recalc) this.unsuspend()
 		if (!game.autoUpgrading) {
 			game.update()
@@ -482,12 +509,13 @@ const mapPointHandler = {
 			game.resources["_"+(this.type || 0)] += 1
 		this.harvested = this.harvesting
 		game.update()
+		if (gui.target.point == this) gui.target.update(true)
 		game.harvesting.delete(this)
 		delete this.harvesting
 	},
 	
 	attack(time) {
-		if (this.real.loss < 0 || this.progress && this.progress >= 1-1e-9) {
+		if (this.real.loss < 0 || this.progress && this.progress >= 1-1e-9 || this.owned) {
 			this.real.loss = 0
 			return
 		}
@@ -538,6 +566,7 @@ const mapPointHandler = {
 	},
 	
 	capture() {
+		[this, this.parent, ...this.children].map(x => x?x.changed |= 1:0)
 		let attackers = [...this.attackers] //game.sliders.filter(x => x.target == this)
 
 		game.iterations = GAME_ADVANCE_ITERATIONS

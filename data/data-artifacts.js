@@ -493,8 +493,115 @@ const ARTIFACTS = {
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},	
-
-//- Artifact : Greater orb
+	bloodBracelet: {
+		name : "Bracelet of blood knight",
+		desc : "Focus all the elemental power in blood",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 2.608e236,
+		active() {
+			return this.equipped
+		},
+		iconText : "o",
+		iconTextColor : "var(--bg-blood)"
+	},
+	fireBracelet: {
+		name : "Bracelet of keeper of fire",
+		desc : "Focus all the elemental power in fire",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 7.634e236,
+		active() {
+			return this.equipped
+		},
+		iconText : "o",
+		iconTextColor : "var(--bg-fire)"
+	},
+	iceBracelet: {
+		name : "Bracelet of icepicker",
+		desc : "Focus all the elemental power in ice",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 1.262e237,
+		active() {
+			return this.equipped
+		},
+		iconText : "o",
+		iconTextColor : "var(--bg-ice)"
+	},
+	metalBracelet: {
+		name : "Bracelet of metallurgist",
+		desc : "Focus all the elemental power in metal",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 8.734e237,
+		active() {
+			return this.equipped
+		},
+		iconText : "o",
+		iconTextColor : "var(--bg-metal)"
+	},
+	bloodStaff: {
+		name : "Staff of wounds",
+		desc : "Deals unblockable blood damage",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 2.608e236,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.blood
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-blood)"
+	},
+	fireStaff: {
+		name : "Staff of burns",
+		desc : "Deals unblockable fire damage",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 7.634e236,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.fire
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-fire)"
+	},
+	iceStaff: {
+		name : "Staff of chilblains",
+		desc : "Deals unblockable ice damage",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 1.262e237,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.ice
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-ice)"
+	},
+	metalStaff: {
+		name : "Staff of cuts",
+		desc : "Deals unblockable metal damage",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 8.734e237,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.metal
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-metal)"
+	},
+	reloadFlag: {
+		name : "Flag of high spirits",
+		desc : "Improves ReLoad effect",
+		codeLength : 25,
+		codeCost : 1e13,
+		depth : 8.734e237,
+		active() {
+			return this.equipped && this.equipped.charge
+		},
+		iconText : "⚑\uFE0E",
+		iconTextColor : "var(--bg-spirit)"
+	},
+	
 
 //- Artifact : ReLoad charges and lasts longer, bonus boosted
 

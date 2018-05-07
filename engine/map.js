@@ -413,6 +413,7 @@ const mapHandler = {
 	},
 	
 	getOwnedRadius() {
+		const old = this.ownedRadius
 		const block = this.points.filter(x => !x.owned && (!x.boss || x.boss <= this.boss)).sort((x,y) => (x.distance - x.size) - (y.distance - y.size))[0]
 	
 		this.points.map(point => point.suspend())
@@ -424,10 +425,14 @@ const mapHandler = {
 		}
 		this.points.map(point => point.unsuspend())
 		
+		if (this.ownedRadius != old) 
+			this.changed |= 1
+		
 		return this.ownedRadius
 	},
 	
 	restoreState() {
+		this.changed = 65535
 		this.unlocked = this.unlocked || 0
 		this.failed = Object.assign({}, this.failed)
 		this.keys = Array(this.level + 1).fill().map(x => ({}))
@@ -440,6 +445,7 @@ const mapHandler = {
 		})
 		this.manaBase = this.level ** 2 / 1e8//this.basePower ** 0.25 / 10 ** (9.2 + (Math.abs(this.level - 11)/2.5) ** (1 - (Math.max(0, this.level - 22))/200))
 //		this.buildVoronoi()
+//		this.getOwnedRadius()
 		this.update()
 	},
 
@@ -517,6 +523,7 @@ const mapHandler = {
 		if (!game.offline)
 			this.updateBounds()
 		this.getOwnedRadius()
+		this.changed = 0
 	},
 	
 	getStats() {

@@ -20,7 +20,7 @@ const ARTIFACTS = {
 		codeCost : 1e7,
 		depth : 1.43e2,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.expChange > 0
+			return this.equipped && this.equipped.real && this.equipped.real.producingExp
 		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--shade5)"

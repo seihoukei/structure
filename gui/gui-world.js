@@ -45,6 +45,11 @@ const WorldTab = Template({
 		}
 		this.build = BuildList()
 		
+/*		this.dvFeatsButton = createElement("div", "feats-button", this.dvDisplay, "Feats")
+		this.dvFeatsButton.onclick = (event) => {
+			this.dvFeatsHolder.classList.toggle("hidden", false)
+		}*/
+
 		this.hover = WorldPointInfo({
 			parent : this.dvDisplay
 		})

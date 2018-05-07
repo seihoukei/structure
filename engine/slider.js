@@ -621,8 +621,8 @@ const sliderHandler = {
 			c.restore()
 		}
 		
-		if (!this.target || !this.target.onscreen && (!this.target.parent || !this.target.parent.onscreen)) return
-		
+		if (!this.target || !this.target.onscreen && (!this.target.parent || !this.target.parent.onscreen) || !this.target.index && !settings.minerSparks ) return
+
 		const an = this.target.parent?this.target.direction - 1 + (Math.random() + Math.random()):Math.random()*6.29
 		const length = this.target.index?(Math.random() * Math.min(10, Math.abs(this.real.attack / this.target.power)) + 2) * (Math.random() + 0.6):this.target.size * (0.5 + 0.5 * Math.random())
 		const {x,y} = this.target.coordinatesOn(this.target.position, true)
@@ -795,6 +795,14 @@ const sliderHandler = {
 			this.real.growth.metal = this.real.growth.ice = this.real.growth.blood = this.real.growth.fire = this.real.growth.spirit = 0
 		}
 		
+		if (this.artifacts.greatOrb) {
+			this.real.growth.metal += this.real.growth.power / 4
+			this.real.growth.ice += this.real.growth.power / 4
+			this.real.growth.blood += this.real.growth.power / 4
+			this.real.growth.fire += this.real.growth.power / 4
+			this.real.growth.power = 0
+		}
+		
 		if (this.artifacts.fireOrb) {
 			this.real.growth.fire = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
 			this.real.growth.metal = this.real.growth.ice = this.real.growth.blood = 0
@@ -814,7 +822,6 @@ const sliderHandler = {
 			this.real.growth.blood = this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
 			this.real.growth.metal = this.real.growth.ice = this.real.growth.fire = 0
 		}
-		
 		
 		this.real.attack = this.target?this.target.getActivePower(this):0
 		

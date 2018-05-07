@@ -227,6 +227,36 @@ const SETTINGS = {
 			game.updateMapBackground = true
 		}*/
 	},
+	fireworks: {
+		group : "Map",
+		displayName : "Fireworks",
+		default : true,
+		choices: [{
+			text: "On",
+			value : true
+		},{
+			text: "Off",
+			value : false
+		}],
+/*		onSet() {
+			game.updateMapBackground = true
+		}*/
+	},
+	minerSparks: {
+		group : "Map",
+		displayName : "Miner/worker sparks",
+		default : true,
+		choices: [{
+			text: "On",
+			value : true
+		},{
+			text: "Off",
+			value : false
+		}],
+/*		onSet() {
+			game.updateMapBackground = true
+		}*/
+	},
 	renderDeadZone : {
 		group : "World",
 		displayName: "Display dead zones",

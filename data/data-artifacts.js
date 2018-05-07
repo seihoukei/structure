@@ -32,7 +32,7 @@ const ARTIFACTS = {
 		codeCost : 2e9,
 		depth : 7.777e16,
 		active() {
-			return this.equipped && this.equipped.channel.length
+			return this.equipped && (masterSlider.masterChannel?masterSlider:this.equipped).channel.length
 		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
@@ -476,19 +476,19 @@ const ARTIFACTS = {
 		codeCost : 5e11,
 		depth : 1.623e35,
 		active() {
-			return game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e14
+			return this.equipped && game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e14
 		},
 		iconText : "⚖\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},	
 	greatOrb: {
 		name : "Great orb of elements",
-		desc : "WIP",
+		desc : "Redistributes power growth among elements",
 		codeLength : 21,
 		codeCost : 5e12,
 		depth : 7.634e35,
 		active() {
-			return false
+			return this.equipped
 		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"

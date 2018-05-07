@@ -31,6 +31,10 @@ const Spark = Template(sparkHandler)
 const fireworksHandler = {
 	_init() {
 		this.sparks = new Set()
+		if (!settings.fireworks) {
+			this.dead = true
+			return
+		}
 		for (let i = 0; i < this.count; i++) {
 			const an = Math.random() * 6.29
 			const length = (1 - Math.random() ** 2) * this.power

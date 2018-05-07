@@ -515,7 +515,7 @@ const mapPointHandler = {
 	},
 	
 	attack(time) {
-		if (this.real.loss < 0 || this.progress && this.progress >= 1-1e-9 || this.owned) {
+		if (this.real.loss < 0 || this.index && (this.progress && this.progress >= 1-1e-9 || this.owned)) {
 			this.real.loss = 0
 			return
 		}

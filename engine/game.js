@@ -888,6 +888,7 @@ const game = {
 		delete o.map
 		delete o.renderData
 		delete o.offline
+		delete o.tempOffline
 		delete o.autoUpgrading
 		delete o.iterations
 		delete o.badSave

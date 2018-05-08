@@ -801,7 +801,7 @@ const game = {
 			return
 		}
 		this.slowMode = x
-		this.worker.postMessage({
+		core.worker.postMessage({
 			name : "setFPS",
 			value : settings.slowDataFPS
 		})
@@ -823,7 +823,7 @@ const game = {
 	disableSlowMode() {
 //		console.log("Unset slow mode")
 		this.slowMode = 0
-		this.worker.postMessage({
+		core.worker.postMessage({
 			name : "setFPS",
 			value : settings.dataFPS
 		})

@@ -543,8 +543,8 @@ const game = {
 	},
 	
 	advance(deltaTime, callback) {
-		const tempOffline = (deltaTime > 60000) && !this.offline
-		if (tempOffline) this.offline = true
+		this.tempOffline = (deltaTime > 60000) && !this.offline
+		if (this.tempOffline) this.offline = true
 		if (game.dev && game.dev.boost) deltaTime *= game.dev.boost
 		
 		this.activeRender = !document.hidden && gui.tabs.activeTab == "map" && !this.slowMode
@@ -583,7 +583,7 @@ const game = {
 		setTimeout(() => {
 			this.timeStep(deltaTime / 1000, () => {
 					
-				if (tempOffline) {
+				if (this.tempOffline && this.offline) {
 					this.offline = false
 					this.update()
 				}
@@ -708,7 +708,7 @@ const game = {
 //			if (stepsDone == GAME_ADVANCE_ITERATIONS_STEP && !this.cancelTimeStep) {
 			if (performance.now() - startTime > GAME_ADVANCE_ITERATIONS_STEP_TIME) {
 				if (!this.offline) {
-					this.offline = true
+//					this.offline = true
 					this.tempOffline = true
 				}
 				this.advanceCallback = callback

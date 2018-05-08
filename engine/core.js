@@ -7,7 +7,7 @@ const SAVE_PREFIX_LENGTH = SAVE_PREFIX.length
 const core = {}
 
 function frame() {
-	if (!game.offline) {
+	if (!game.offline && !game.tempOffline) {
 		gui.mainViewport.advanceView()
 		gui.worldViewport.advanceView()
 	}

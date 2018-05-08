@@ -279,6 +279,7 @@ const mapPointHandler = {
 		
 		game.addStatistic("point_level"+this.level)
 		
+		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))		
 		this.calculateStats()
 				
 		this.unsuspend()

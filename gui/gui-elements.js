@@ -656,7 +656,7 @@ const presetMenuHandler = {
 		while (this.dvPresets.firstChild) {
 			this.dvPresets.firstChild.remove()
 		}			
-		this.presetItems = [this.newName, ...Object.keys(this.presets)].map(x => {
+		this.presetItems = [this.newName, ...Object.keys(this.presets).sort()].map(x => {
 			const display = createElement("div", "presets-item "+(x == this.activePreset?"active":""), this.dvPresets, x.slice(this.prefix.length))
 			display.onclick = (event) => {
 				this.activePreset = x

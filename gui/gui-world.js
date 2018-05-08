@@ -45,11 +45,31 @@ const WorldTab = Template({
 		}
 		this.build = BuildList()
 		
-/*		this.dvFeatsButton = createElement("div", "feats-button", this.dvDisplay, "Feats")
+		this.dvFeatsButton = createElement("div", "feats-button", this.dvDisplay, "Feats")
 		this.dvFeatsButton.onclick = (event) => {
+			this.showingFeats = true
+			this.updateFeats()
 			this.dvFeatsHolder.classList.toggle("hidden", false)
-		}*/
+		}
 
+		this.dvFeatsHolder = createElement("div", "fullscreen-holder hidden", document.body)
+		this.dvFeatsHolder.onclick = (event) => {
+			if (event.target == this.dvFeatsHolder) {
+				this.showingFeats = false
+				this.dvFeatsHolder.classList.toggle("hidden", true)
+			}
+		}
+		
+		this.dvFeats = createElement("div", "dialog", this.dvFeatsHolder)
+		this.dvFeatsTitle = createElement("div", "dialog-title", this.dvFeats, "Feats")
+		this.dvFeatsList = createElement("div", "feats", this.dvFeats)
+		
+		this.feats = Object.values(FEATS).map(x => {
+			const display = {id : x.id, feat : x}
+			display.dvDisplay = createElement("div", "feat", this.dvFeatsList, x.desc)
+			return display
+		})
+		
 		this.hover = WorldPointInfo({
 			parent : this.dvDisplay
 		})
@@ -65,11 +85,22 @@ const WorldTab = Template({
 		getSize()
 	},
 	
+	updateFeats() {
+		this.feats.map(x => {
+			const done = game.feats[x.id]
+			const failed = !done && game.map.failed[x.id]
+			x.dvDisplay.classList.toggle("done", !!done)
+			x.dvDisplay.classList.toggle("failed", !!failed)
+		})
+	},
+	
 	update(forced) {
 		this.build.update()
 		this.dvWorkers.innerText = "Workers: "+game.world.workers.length
 		if (this.hover.point)
 			this.hover.update()
+		if (this.showingFeats) 
+			this.updateFeats()
 	}
 })
 

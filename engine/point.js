@@ -233,25 +233,27 @@ const mapPointHandler = {
 			this.available = this.parent.owned
 
 //		if (this.changed & 1 || game.map.changed & 1) {
+		if (!this.level || this.level < POINT_MAX_LEVEL)
 			this.costs.levelUp = this.bonus * 2 ** (this.level || 0)
-			this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
-			game.available.buildings[this.level || 0].map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
+		
+		this.nobuild = [...this.children].filter(x => x.special == SPECIAL_NOBUILD).length > 0
+		game.available.buildings[this.level || 0].map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
 	
-			this.noclone = this.special == SPECIAL_NOCLONE
-			game.available.spells.map(x => this.manaCosts[x.id] = (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
+		this.noclone = this.special == SPECIAL_NOCLONE
+		game.available.spells.map(x => this.manaCosts[x.id] = (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
 	
-			this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
-			if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
-				this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
-			
-			this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
-			this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
-			this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
-			this.completed = this.level == 4 && !this.nobuild && Object.values(BUILDINGS).reduce((v,x) => {
-				if (!v) return false
-				if (this.costs[x.id] > 0 && !this.buildings[x.id]) return false
-				return true
-			}, true)
+		this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
+		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
+			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
+		
+		this.production.mana = this.buildings.manalith?BUILDINGS.manalith.production(this):0
+		this.production.gold = this.buildings.goldFactory?BUILDINGS.goldFactory.production(this):0
+		this.production.science = this.buildings.scienceLab?BUILDINGS.scienceLab.production(this):0
+		this.completed = this.level == 4 && !this.nobuild && Object.values(BUILDINGS).reduce((v,x) => {
+			if (!v) return false
+			if (this.costs[x.id] > 0 && !this.buildings[x.id]) return false
+			return true
+		}, true)
 //		}
 
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
@@ -274,12 +276,12 @@ const mapPointHandler = {
 		this.suspend()
 		
 		this.level = (this.level || 0) + 1
+		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
 		
 		this.changed |= 1
 		
 		game.addStatistic("point_level"+this.level)
 		
-		this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))		
 		this.calculateStats()
 				
 		this.unsuspend()

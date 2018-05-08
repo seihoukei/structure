@@ -1,7 +1,9 @@
 'use strict'
 const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds","thunderstone","_0","_1","_2","_3","_4","_5","_6"]
-const GAME_ADVANCE_ITERATIONS = 1000
+const GAME_ADVANCE_ITERATIONS = 10000
 const GAME_ADVANCE_ITERATIONS_MAX = 100000
+const GAME_ADVANCE_ITERATIONS_STEP = 200
+const GAME_ADVANCE_ITERATIONS_STEP_TIME = 500
 const GAME_AUTOMATION_PERIOD = 1000
 
 const BASE_AVAILABLE = {
@@ -71,50 +73,60 @@ const game = {
 	
 	render() {
 		this.frame++
-
-		if (gui.tabs.activeTab == "map") {
-			if (this.slowMode) {
-				if (this.updateInterface) 
-					gui.map.updateLowLoad()
-			} else {
-				if (this.updateMapBackground) {
-					this.renderBackground(gui.backgroundContext)
-					this.updateMapBackground = false
+		
+		gui.dvOffline.classList.toggle("hidden", !this.offline)
+		
+		if (this.offline) {
+/*			const time = timeString(this.timeLeft * 1000, 1).split(" ")
+			let timeStr = time.slice(0,4).join(" ")
+			if (time.length > 4)
+				timeStr += "\n"+time.slice(4).join(" ")*/
+			gui.dvOfflineCountdown.innerText = shortTimeString(this.timeLeft, 0, 2, false)
+		} else {
+			if (gui.tabs.activeTab == "map") {
+				if (this.slowMode) {
+					if (this.updateInterface) 
+						gui.map.updateLowLoad()
+				} else {
+					if (this.updateMapBackground) {
+						this.renderBackground(gui.backgroundContext)
+						this.updateMapBackground = false
+					}
+					this.renderForeground(gui.foregroundContext)
+					
+					if (this.updateInterface) {
+						gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[0][0]=="_"?v:x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
+						gui.map.updateGrowth()
+						gui.map.updateHarvest()
+					}
 				}
-				this.renderForeground(gui.foregroundContext)
-				
+			}
+	
+			if (gui.tabs.activeTab == "stardust") {
+				gui.map.updateGrowth()
+			}
+		
+			if (gui.tabs.activeTab == "world") {
+				if (this.updateWorldBackground)
+					this.world.renderBackground(gui.world.backgroundContext)
+				this.updateWorldBackground = false
+				this.world.render(gui.world.foregroundContext)
 				if (this.updateInterface) {
-					gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[0][0]=="_"?v:x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
-					gui.map.updateGrowth()
 					gui.map.updateHarvest()
 				}
 			}
-		}
-
-		if (gui.tabs.activeTab == "stardust") {
-			gui.map.updateGrowth()
-		}
-		
-		if (gui.tabs.activeTab == "world") {
-			if (this.updateWorldBackground)
-				this.world.renderBackground(gui.world.backgroundContext)
-			this.updateWorldBackground = false
-			this.world.render(gui.world.foregroundContext)
+	
 			if (this.updateInterface) {
-				gui.map.updateHarvest()
+				gui.update()
 			}
+	
+			if (!(this.frame % 60)) {
+				gui.skills.updateExp()
+				gui.artifacts.updateTitle()
+			}		
+	
+			this.updateInterface = false
 		}
-
-		if (this.updateInterface) {
-			gui.update()
-		}
-
-		if (!(this.frame % 60)) {
-			gui.skills.updateExp()
-			gui.artifacts.updateTitle()
-		}		
-
-		this.updateInterface = false
 	},
 	
 	renderBackground(c) {
@@ -530,7 +542,7 @@ const game = {
 		delete this.maps[name]
 	},
 	
-	advance(deltaTime) {
+	advance(deltaTime, callback) {
 		const tempOffline = (deltaTime > 60000) && !this.offline
 		if (tempOffline) this.offline = true
 		if (game.dev && game.dev.boost) deltaTime *= game.dev.boost
@@ -562,17 +574,28 @@ const game = {
 		else
 			this.addStatistic("onlineTime", deltaTime)
 		
-		this.timeStep(deltaTime / 1000)
-				
-		if (tempOffline) {
-			this.offline = false
-			this.update()
+		if (this.offline) {
+			gui.dvOffline.classList.toggle("hidden", false)
+			this.timeLeft = deltaTime / 1000
+//			gui.dvOfflineCountdown.innerText = "TST"+shortTimeString(deltaTime / 1000)
 		}
-
-		this.updateInterface = true
+			
+		setTimeout(() => {
+			this.timeStep(deltaTime / 1000, () => {
+					
+				if (tempOffline) {
+					this.offline = false
+					this.update()
+				}
 		
-		if (!this.feats.mana1 && this.resources.mana >= 1e13)
-			this.feats.mana1 = true
+				this.updateInterface = true
+				
+				if (!this.feats.mana1 && this.resources.mana >= 1e13)
+					this.feats.mana1 = true
+
+				callback && callback()
+			})
+		}, 0)
 	},
 	
 	autoUpgrade() {
@@ -610,9 +633,11 @@ const game = {
 		this.fullMoney += toFinish.reduce((v, point) => v + buildings.filter(b => !point.buildings[b] && point.costs[b] > 0).reduce((v,b) => v + point.costs[b],0), 0)
 	},
 	
-	timeStep(time) {
+	timeStep(time, callback) {
 		this.iterations = GAME_ADVANCE_ITERATIONS
 		let totalIterations = GAME_ADVANCE_ITERATIONS_MAX
+		let stepsDone = 0
+		let startTime = performance.now()
 		while (time > 1e-6) {
 			this.iterations--
 			if (!--totalIterations)
@@ -661,7 +686,6 @@ const game = {
 			RESOURCES.map(x => {
 				if (this.resources[x] < 1e-8) this.resources[x] = 0
 			})
-			
 
 			this.autoTimer = (this.autoTimer || GAME_AUTOMATION_PERIOD) - deltaTime * (this.offline?10:1000)
 			if (this.autoTimer <= 0) {
@@ -680,7 +704,33 @@ const game = {
 					this.sliders.filter (x => x.target && !x.target.index).map(x => x.autoTarget())
 				this.nextTarget = false
 			}
+			stepsDone++
+//			if (stepsDone == GAME_ADVANCE_ITERATIONS_STEP && !this.cancelTimeStep) {
+			if (performance.now() - startTime > GAME_ADVANCE_ITERATIONS_STEP_TIME) {
+				if (!this.offline) {
+					this.offline = true
+					this.tempOffline = true
+				}
+				this.advanceCallback = callback
+				this.advanceTimeout = setTimeout(() => {
+					this.timeStep(time, callback)
+				}, 0)
+				return
+			}
+			this.timeLeft = time
 		}
+		this.timeLeft = 0
+		delete this.advanceTimeout
+		delete this.advanceCallback
+		callback()
+	},
+	
+	stopAdvance() {
+		if (!this.advanceTimeout) return
+		clearTimeout(this.advanceTimeout)
+		this.advanceCallback()
+		delete this.advanceTimeout
+		delete this.advanceCallback
 	},
 	
 	getSkill(skill, free) {
@@ -823,6 +873,9 @@ const game = {
 		delete o.frame
 		delete o.lastSave
 		delete o.lastCloudSave
+		delete o.timeLeft
+		delete o.advanceTimeout
+		delete o.advanceCallback
 		delete o.slowMode
 		delete o.nextTarget
 		delete o.available
@@ -852,6 +905,8 @@ const game = {
 
 		delete game.badSave
 
+		this.stopAdvance()
+		
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = 0)
@@ -937,32 +992,36 @@ const game = {
 		this.updateHarvesting()
 
 		this.offline = true
+		
+		const callback = () => {
+			this.offline = false
+			this.update()
+			
+			gui.setTheme(settings.theme, this.map.boss?"boss":"main")
+			gui.tabs.setTab("map")
+	
+			gui.stardust.newMapLevelSlider.setMax(this.realMap.level)
+			gui.stardust.newMapLevelSlider.steps = this.realMap.level
+			gui.stardust.newMapLevelSlider.setValue(this.realMap.level)
+			
+			gui.sliders.update(true)
+			
+			core.getNextFrame && core.getNextFrame()
+		}
+		
 		if (save.saveTime && !hibernated) {
 			let time = Math.max(1, Date.now() - save.saveTime)
-			if (time > 5001) {
-				this.advance(5001)
-				time -= 5001
-			}
-			this.advance(time)
+			this.advance(time, callback)
 		} else 
-			this.advance(1)
-		this.offline = false
-		this.update()
-		
-		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
-		gui.tabs.setTab("map")
-
-		gui.stardust.newMapLevelSlider.setMax(this.realMap.level)
-		gui.stardust.newMapLevelSlider.steps = this.realMap.level
-		gui.stardust.newMapLevelSlider.setValue(this.realMap.level)
-		
-		gui.sliders.update(true)
+			this.advance(1, callback)
 	},
 	
 	reset(auto) {
 		if (!auto)
 			saveState("_Autosave before reset", 1)
 		
+		this.stopAdvance()
+
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = this.dev && this.dev.autoSkills && this.dev.autoSkills.includes(x)?1:0)
@@ -1031,7 +1090,7 @@ const game = {
 		this.sliders.map (slider => slider.getReal())
 		this.getRealProduction()
 
-		this.advance(1)
+		this.advance(1, core.getNextFrame)
 		this.update()
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
 //		gui.artifacts.smart = false

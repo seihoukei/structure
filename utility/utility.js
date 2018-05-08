@@ -220,10 +220,10 @@ let shortTimeStringCodes = [{
 }]
 const shortTimeResult = []
 	
-function shortTimeString(t = 0, start = 0, length = 2) {
+function shortTimeString(t = 0, start = 0, length = 2, cap = true) {
 	let step = 0
 	let value
-	if (t > 24.192e5) return "months"
+	if (cap && t > 24.192e5) return "months"
 	shortTimeResult.length = 0
 	
 	if (t == Infinity || t == -Infinity) return "No damage dealt"

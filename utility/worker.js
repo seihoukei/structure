@@ -22,10 +22,18 @@ onmessage = function(event) {
 	let data = event.data
 	switch (data.name) {
 		case "start":
+			if (timeout)
+				clearTimeout(timeout)
+			
 			lastTime = performance.now()
 			frameTime = data.frameTime || frameTime
 			
 			nextFrame()
+			
+			break
+
+		case "stop":
+			clearTimeout(timeout)
 			
 			break
 			

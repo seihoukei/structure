@@ -334,6 +334,7 @@ const worldHandler = {
 		this.points.map(x => (x.active = x.depth <= this.workers.length)?this.activePoints.add(x):0)
 		Object.keys(WORLD_ELEMENTS).map(x => this.active[x] = 0)
 		;[...this.activePoints].map(x => this.active[x.type]++)
+		//cap : 50 * (n+1) ** ((n+20)/28)
 /*		this.harvestSpeed = 2 ** this.active.imprinter
 		this.goldSpeed = 2 ** this.active.goldMine
 		this.scienceSpeed = 1 + this.active.library

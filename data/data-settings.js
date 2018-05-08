@@ -360,7 +360,7 @@ const SETTINGS = {
 		}],
 		onSet () {
 			if (!game.slowMode)
-				game.worker.postMessage({
+				core.worker.postMessage({
 					name : "setFPS",
 					value : settings.dataFPS
 				})
@@ -382,7 +382,7 @@ const SETTINGS = {
 		}],
 		onSet () {
 			if (game.slowMode)
-				game.worker.postMessage({
+				core.worker.postMessage({
 					name : "setFPS",
 					value : settings.slowDataFPS
 				})

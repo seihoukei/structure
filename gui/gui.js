@@ -5,6 +5,14 @@ const gui = {
 		
 		this.measureDiv = createElement("div", "utility-measure", document.body)
 		
+		this.dvOffline = createElement("div", "offline", document.body)
+		this.dvOfflineTitle = createElement("div", "offline-title", this.dvOffline, "Processing offline progress:")
+		this.dvOfflineCountdown = createElement("div", "offline-time", this.dvOffline)
+		this.dvOfflineStop = createElement("div", "offline-stop", this.dvOffline, "Stop")
+		this.dvOfflineStop.onclick = (event) => {
+			game.stopAdvance()
+		}
+		
 		this.mapMouse = MapMouse
 		this.worldMouse = WorldMouse
 		this.mainViewport = Viewport()

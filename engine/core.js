@@ -4,9 +4,13 @@ const GAME_PREFIX = "sliders_"
 const SAVE_PREFIX = GAME_PREFIX + "saveData"
 const SAVE_PREFIX_LENGTH = SAVE_PREFIX.length
 
+const core = {}
+
 function frame() {
-	gui.mainViewport.advanceView()
-	gui.worldViewport.advanceView()
+	if (!game.offline) {
+		gui.mainViewport.advanceView()
+		gui.worldViewport.advanceView()
+	}
 	game.render()
 	
 	requestAnimationFrame(frame)
@@ -42,13 +46,17 @@ window.onload = (event) => {
 	initEvents()
 //	gui.mainViewport.init()
 
-	let worker = new Worker ("./utility/worker.js")
+	core.worker = new Worker ("./utility/worker.js")
 	
-	let readyMessage = {
+	core.readyMessage = {
 		name : "ready"
 	}
 	
-	worker.onmessage = (event) => {
+	core.getNextFrame = () => {
+		core.worker.postMessage(core.readyMessage)
+	}
+	
+	core.worker.onmessage = (event) => {
 		let data = event.data
 
 		switch (data.name) {
@@ -56,21 +64,18 @@ window.onload = (event) => {
 				
 				if (!game.offline) {
 					let time = performance.now()
-					game.advance(data.time)
+					game.advance(data.time, core.getNextFrame)
 				}
 				
-				worker.postMessage(readyMessage)
 				break
 		}
 	}
 
-	worker.postMessage({
+	core.worker.postMessage({
 		name : "start",
 		frameTime : 1000 / settings.dataFPS
 	})
 	
-	game.worker = worker
-
 	requestAnimationFrame(frame)
 }
 

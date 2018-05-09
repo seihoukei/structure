@@ -1027,11 +1027,9 @@ const sliderHandler = {
 		const data = JSON.parse(LZString.decompressFromBase64(this.presets[name]))
 		const index = game.sliders.indexOf(this)
 		if (index == -1) return
-		if (this.target) data.targetIndex = this.target.index
-		Object.keys(this.artifacts).map(x => this.unequip(x))
 		const newSlider = Slider (this, data)
 		game.sliders[index] = newSlider
-		Object.keys(newSlider.artifacts).map(x => newSlider.equip(x, newSlider.artifacts[x]))
+//		Object.keys(newSlider.artifacts).map(x => newSlider.equip(x, newSlider.artifacts[x]))
 		this.fullDestroy()
 /*		this.setColor(data.color)
 		this.gild = data.gild

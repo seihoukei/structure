@@ -851,6 +851,14 @@ const game = {
 	
 	loadSlidersPreset(name) {
 		if (!this.sliderPresets[name]) return
+		game.sliders.map(x => {
+			if (x.presets[name]) {
+				Object.keys(x.artifacts).map(y => x.unequip(y))
+				if (x.target) x.targetIndex = x.target.index
+				x.assignTarget(null, true)
+				delete x.target
+			}
+		})
 		game.sliders.map(x => x.loadPreset(name))
 		const data = JSON.parse(LZString.decompressFromBase64(this.sliderPresets[name]))
 		const oldFilter = masterSlider.atFilter

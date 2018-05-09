@@ -312,7 +312,7 @@ const sliderHandler = {
 				return !n || game.statistics[["_","special_blocks","_","special_clones","special_resists","special_nobuilds","special_noclones","special_alones","special_nochannels"][n]]
 			},
 			onSet : () => game.nextTarget = true,
-			visible : () =>	game.skills.autoTargetSelector
+			visible : () =>	game.skills.autoTargetSelector && game.realMap.level > 12
 		})
 		
 		this.dvATSelector = createElement("div", "selectors", this.dvAutoTarget)

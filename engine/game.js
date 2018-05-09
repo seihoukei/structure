@@ -629,7 +629,7 @@ const game = {
 //	calculate full autobuild cost
 		const buildings = Object.entries(this.automation.buildings).filter(x => x[1]).map(x => x[0])
 		const toFinish = this.map.points.filter(x => x.index && x.owned && (!x.level || x.level < 4 || buildings.filter(b => !x.buildings[b] && x.costs[b] > 0).length))
-		this.fullMoney = toFinish.reduce((v, point) => v + point.costs.levelUp * ([0,1,9,73,585][4-(point.level || 0)]), 0)
+		this.fullMoney = toFinish.reduce((v, point) => v + (point.costs.levelUp || 0) * ([0,1,9,73,585][4-(point.level || 0)]), 0)
 		this.fullMoney += toFinish.reduce((v, point) => v + buildings.filter(b => !point.buildings[b] && point.costs[b] > 0).reduce((v,b) => v + point.costs[b],0), 0)
 	},
 	

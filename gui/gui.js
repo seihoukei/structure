@@ -315,8 +315,11 @@ const gui = {
 		if (THEMES[theme] && THEMES[theme][subtheme])
 			Object.assign(this.theme,THEMES[theme][subtheme])
 //		this.theme = (THEMES[theme] || THEMES["light"])[subtheme || "main"] || THEMES.light.main
-		document.body.className = theme + " " + theme + "-" + subtheme
+		document.body.className = theme + " " + theme + "-" + subtheme + (settings.invert?" invert":"")
 		this.initImages()
+		if (game && game.sliders) game.sliders.map(x => {
+			x.specialPriorities.updateImages()
+		})
 	},
 
 	updateTabs() {

@@ -192,6 +192,10 @@ const specialPickerHandler = {
 		this.update()
 	},
 
+	updateImages() {
+		this.attributes.map((x,n) => x.dvDisplay.style.backgroundImage = "url("+gui.images.specialBorders[n]+")")
+	},
+	
 	updateVisibility() {
 		this.dvDisplay.classList.toggle("hidden", !(!this.visible || this.visible()) || !!(settings.masterHide == 2 && this.override && this.override()))
 		this.dvDisplay.classList.toggle("faded", !!(settings.masterHide == 1 && this.override && this.override()))

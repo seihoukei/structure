@@ -36,17 +36,24 @@ window.onload = (event) => {
 			},
 		}
 
-	gui.init()
-	cloud.init()
-	animations.init()
-	
-	if (!loadState("_Autosave", false, true))
-		game.reset(true)
-
-	initEvents()
-//	gui.mainViewport.init()
-
 	core.worker = new Worker ("./utility/worker.js")
+	
+	core.callbacks = {}
+	
+	core.setTimeout = (callback, time) => {
+		const id = Math.random()+"-"+performance.now()
+		core.callbacks[id] = callback
+		core.worker.postMessage({
+			name : "delay",
+			id : id,
+			delay : time
+		})
+		return id
+	}
+	
+	core.clearTimeout = (id) => {
+		delete core.callbacks[id]
+	}
 	
 	core.readyMessage = {
 		name : "ready"
@@ -68,8 +75,23 @@ window.onload = (event) => {
 				}
 				
 				break
+			case "delay": {
+				const callback = core.callbacks[data.id]
+				callback && callback()
+				delete core.callbacks[data.id]
+			}
 		}
 	}
+
+	gui.init()
+	cloud.init()
+	animations.init()
+	
+	if (!loadState("_Autosave", false, true))
+		game.reset(true)
+
+	initEvents()
+//	gui.mainViewport.init()
 
 	core.worker.postMessage({
 		name : "start",

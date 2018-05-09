@@ -580,7 +580,7 @@ const game = {
 //			gui.dvOfflineCountdown.innerText = "TST"+shortTimeString(deltaTime / 1000)
 		}
 			
-		setTimeout(() => {
+		core.setTimeout(() => {
 			this.timeStep(deltaTime / 1000, () => {
 					
 				if (this.tempOffline && this.offline) {
@@ -712,7 +712,7 @@ const game = {
 					this.tempOffline = true
 				}
 				this.advanceCallback = callback
-				this.advanceTimeout = setTimeout(() => {
+				this.advanceTimeout = core.setTimeout(() => {
 					this.timeStep(time, callback)
 				}, 0)
 				return
@@ -727,7 +727,7 @@ const game = {
 	
 	stopAdvance() {
 		if (!this.advanceTimeout) return
-		clearTimeout(this.advanceTimeout)
+		core.clearTimeout(this.advanceTimeout)
 		this.advanceCallback()
 		delete this.advanceTimeout
 		delete this.advanceCallback

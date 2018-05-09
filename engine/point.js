@@ -262,7 +262,8 @@ const mapPointHandler = {
 //		this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
 		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
 
-		this.harvestTimes[1] = (this.map.level - 26) ** 4
+		if (!this.harvestTimes[1])
+			this.harvestTimes[1] = (this.map.level - 26) ** 4
 		
 		if (!game.offline)
 			this.updateDisplay("management", true)

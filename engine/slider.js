@@ -1015,6 +1015,7 @@ const sliderHandler = {
 		data.channel = this.channel
 		data.learn = this.learn
 		data.atFilter = this.atFilter
+		data.atSelector = this.atSelector
 		data.artifacts = this.artifacts
 		data.role = this.role
 		data.team = this.team

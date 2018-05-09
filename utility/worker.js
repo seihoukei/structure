@@ -32,6 +32,15 @@ onmessage = function(event) {
 			
 			break
 
+		case "delay":
+			setTimeout(() => {
+				postMessage({
+					name : "delay",
+					id : data.id
+				})
+			}, data.delay)
+			break
+		
 		case "stop":
 			clearTimeout(timeout)
 			

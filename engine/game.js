@@ -542,12 +542,12 @@ const game = {
 		delete this.maps[name]
 	},
 	
-	advance(deltaTime, callback) {
+	advance(deltaTime, callback = core.getNextFrame) {
 		this.tempOffline = (deltaTime > 60000) && !this.offline
 		if (this.tempOffline) this.offline = true
 		if (game.dev && game.dev.boost) deltaTime *= game.dev.boost
 		
-		this.activeRender = !document.hidden && gui.tabs.activeTab == "map" && !this.slowMode
+		this.activeRender = !document.hidden && gui.tabs.activeTab == "map" && !this.slowMode && !this.offline
 		
 		if (settings.slowModeIdle && performance.now() - this.lastAction > settings.slowModeIdle)
 			this.enableSlowMode(1)

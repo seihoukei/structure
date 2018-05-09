@@ -455,6 +455,15 @@ const SKILLS = {
 		exp : 1e30,
 		mult : 2
 	},
+	virtualImprint : {
+		name : "Memories of a time to come",
+		desc : "Imprint stardust nodes from current-level virtual maps",
+		req : ["imprint"],
+		science : 8.5e14,
+		map : 33,
+		exp : 1e30,
+		mult : 2
+	},
 	world : {
 		name : "Brave new world",
 		desc : "Build a new world based on your memories",
@@ -472,6 +481,15 @@ const SKILLS = {
 		exp : 1e30,
 		mult : 2
 	},
+	levelSummons : {
+		name : "Rising force",
+		desc : "Summons gain a level and build up strength upon capturing a point",
+		req : ["smartSummons"],
+		map : 34,
+		exp : 1e30,
+		mult : 2
+	},
+
 	world_blood1 : {
 		name : "Upon haunted battlefields",
 		desc : "Blueprint - Battlefield",

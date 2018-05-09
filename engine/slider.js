@@ -51,7 +51,7 @@ const SELECTORS = {
 		return points.map(x => [x, x.getActivePower(slider) / (x.real?x.real.defence:x.power*x.length)]).sort((x,y) => y[1] - x[1])[0][0]
 	},	
 }
-
+		
 const sliderHandler = {
 	_init() {
 		this.color = this.color || (this.element?(gui.theme.typeColors[this.element]):("hsl("+(Math.random()*360|0)+(this.clone?",30%,40%)":",100%,30%)")))
@@ -89,9 +89,11 @@ const sliderHandler = {
 		this.atFilter = Object.assign({
 			types : [],
 			specials : [],
+			pointSpecials : [],
 			disabled : false,
 			autoZero : true,
-			autoMine : true
+			autoMine : true,
+			childNext : false
 		}, this.atFilter)
 		
 		this.atSelector = this.atSelector || "Random"
@@ -111,7 +113,8 @@ const sliderHandler = {
 		this.dvDisplay = createElement("div", "slider"+(this.clone?" clone":""), this.clone?gui.sliders.dvClones:gui.sliders.dvReal)
 		this.dvHeader = createElement("div", "slider-header", this.dvDisplay)
 		this.dvLevel = createElement("div", "slider-level", this.dvHeader, this.level || "0")
-		this.dvLevel.onclick = (event) => gui.sliders.levelUp.set(this)
+		if (!this.clone)
+			this.dvLevel.onclick = (event) => gui.sliders.levelUp.set(this)
 		
 		this.dvBigColor = createElement("div", "slider-color", this.dvHeader, this.clone?this.clone == 2?"SUMMON":"CLONE":"")
 		this.dvBigColor.title = this.clone?this.clone==2?"Summonned clones only exist while attacking specific node":"Mechanical clones don't have concept of growth, learning, ascending or lack of spirit":"Double click to change color"
@@ -276,6 +279,15 @@ const sliderHandler = {
 			hint : "Enables autotargetting if mining"
 		})
 				
+		this.cbAutoTargetChild = GuiCheckbox({
+			parent : this.dvAutoTarget,
+			container : this.atFilter,
+			value : "childNext",
+			title : "Target connected if possible",
+//			visible : () => game.skills.smartMine,
+			hint : "Targets a new node connected to captured one if possible"
+		})
+				
 		this.priorities = MultiAttributePicker({
 			parent : this.dvAutoTarget,
 			container : this.atFilter,
@@ -285,6 +297,19 @@ const sliderHandler = {
 			attributeVisible(x, n) {
 				if (n > 2) return game.skills.autoTargetElements && game.growth[x]
 				return true
+			},
+			onSet : () => game.nextTarget = true,
+			visible : () =>	game.skills.autoTargetFilter
+		})
+		
+		this.specialPriorities = MultiSpecialPicker({
+			parent : this.dvAutoTarget,
+			container : this.atFilter,
+			value : "pointSpecials",
+			title : "Shields: ",
+			hint : "Prioritizes points with chosen shields when autotargetting",
+			attributeVisible(x, n) {
+				return !n || game.statistics[["_","special_blocks","_","special_clones","special_resists","special_nobuilds","special_noclones","special_alones","special_nochannels"][n]]
 			},
 			onSet : () => game.nextTarget = true,
 			visible : () =>	game.skills.autoTargetFilter
@@ -452,27 +477,33 @@ const sliderHandler = {
 	},
 	
 	canLevelUp() {
+		if (this.level && this.level >= 9) return false
+		if (this.clone == 2 && game.skills.levelSummons) return true
 		if (this.levelUpCost > game.resources.exp) return false
-		if (this.level >= 9) return false
 		return true
 	},
 	
 	levelUp() {
 		if (!this.canLevelUp()) return
-		game.resources.exp -= this.levelUpCost
-		const data = this.getStatTiers()
-		Object.keys(this.multi).map(x => {
-			if (this.level)
-				this.multi[x] *= 5//this.levelMulti[x]
-			this.levelMulti[x] = data && data[x] || 1
-		})
-		Object.keys(this.stats).map(x => this.stats[x] = 0)
-		Object.values(this.start).map(x => Object.assign(x, this.stats))
-		Object.values(this.end).map(x => Object.assign(x, this.stats))
-		this.level++
-		this.getLevelStats()
-		gui.sliders.update(true)
-		gui.sliders.levelUp.update(true)
+		if (!this.clone) {
+			game.resources.exp -= this.levelUpCost
+			const data = this.getStatTiers()
+			Object.keys(this.multi).map(x => {
+				if (this.level)
+					this.multi[x] *= 5//this.levelMulti[x]
+				this.levelMulti[x] = data && data[x] || 1
+			})
+			Object.keys(this.stats).map(x => this.stats[x] = 0)
+			Object.values(this.start).map(x => Object.assign(x, this.stats))
+			Object.values(this.end).map(x => Object.assign(x, this.stats))
+			this.level++
+			this.getLevelStats()
+			gui.sliders.update(true)
+			gui.sliders.levelUp.update(true)
+		} else if (this.clone == 2) {
+			this.level = (this.level || 0) + 1
+			this.stats[POINT_TYPES[this.element]] *= (this.level + 1) / this.level
+		}
 	},
 	
 	raiseMulti(name) {
@@ -484,8 +515,21 @@ const sliderHandler = {
 		gui.sliders.levelUp.update(true)
 	},
 	
+	realign(element) {
+		if (this.clone != 2 || this.element == element) return
+		const temp = this.stats[POINT_TYPES[this.element]]
+		this.stats[POINT_TYPES[this.element]] = 0
+		this.element = element
+		this.stats[POINT_TYPES[this.element]] = temp
+		this.setColor(gui.theme.typeColors[this.element])
+		this.updateFullVisibility()
+	},
+	
 	autoTarget(forced) {
 		if (this.clone == 2) return
+		let baseParent = (this.target && this.atFilter.childNext)?this.target:null
+//		if (baseParent) console.log(baseParent)
+			
 		if (game.skills.mining && this.atSelector == "Mining") this.assignTarget(game.map.points[0])
 		if (this.target && (!this.target.owned || (!game.skills.smartMine || !this.atFilter.autoMine) && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.atFilter.autoZero && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
@@ -493,13 +537,25 @@ const sliderHandler = {
 			this.assignTarget(null)
 			return
 		}
+
+		const pointFilterFunction = x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size)	
 		
-		let points = game.map.points.filter(x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size)).map(x => [x, (this.atFilter.types.includes(x.type)?1:0) + 
-												(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
-												(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
-												(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||
-												(this.atFilter.specials.includes(AT_F_BOSS) && x.boss))?1:0)
-											]).sort((x,y) => y[1]-x[1])	
+		let basePoints = baseParent?[...baseParent.children]:game.map.points
+		
+		let points = basePoints.filter(pointFilterFunction)
+		if (baseParent && !points.length) {
+			baseParent = null
+			basePoints = game.map.points
+			points = basePoints.filter(pointFilterFunction)
+		}
+		
+		points = points.map(x => [x, (this.atFilter.types.includes(x.type)?1:0) +
+						(this.atFilter.pointSpecials.includes(x.special || 0)?1:0)+
+						(((this.atFilter.specials.includes(AT_F_KEY) && x.key) ||
+						(this.atFilter.specials.includes(AT_F_LOCK) && x.lock) ||
+						(this.atFilter.specials.includes(AT_F_EXIT) && x.exit) ||
+						(this.atFilter.specials.includes(AT_F_BOSS) && x.boss))?1:0)
+					]).sort((x,y) => y[1]-x[1])	
 		points = points.filter(x => x[1] == points[0][1]).map(x => x[0])
 		
 		if (!points.length) {
@@ -565,7 +621,7 @@ const sliderHandler = {
 	updateSliders() {
 		if (!this.displayStats) return
 		this.displayStats.map((x, n) => {
-			const channel = (masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb
+			const channel = (masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb && !this.artifacts.summonOrb
 			const boost = this.learn.includes(n+1) && !channel
 			x.expSlider.dvDisplay.classList.toggle("boost", boost)
 			x.expSlider.dvDisplay.classList.toggle("channel", channel)
@@ -582,7 +638,7 @@ const sliderHandler = {
 			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2 || !!(settings.masterHide == 2 && masterSlider.masterAutotarget))
-		this.dvLevel.classList.toggle("hidden", !!(!(game.skills.sliderLevels) || this.clone))
+		this.dvLevel.classList.toggle("hidden", !!(!(game.skills.sliderLevels) || this.clone && (this.clone != 2 || !game.skills.levelSummons)))
 		this.dvATApply.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2)
 		this.dvAutoTarget.classList.toggle("faded", !!(settings.masterHide == 1 && masterSlider.masterAutotarget))
 		this.dvATSelector.classList.toggle("hidden", !(game.skills.autoTargetSelector))
@@ -593,6 +649,7 @@ const sliderHandler = {
 		this.imbuements.updateVisibility()
 		this.channels.updateVisibility()
 		this.priorities.updateVisibility()
+		this.specialPriorities.updateVisibility()
 		this.learns.updateVisibility()
 		this.updateSliders()
 		this.cbGild.updateVisibility()
@@ -711,7 +768,7 @@ const sliderHandler = {
 		
 		POINT_TYPES.map((x,n) => {
 			if (!n) return
-			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n) && !this.artifacts.channelOrb) return
+			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n) && !this.artifacts.channelOrb && !this.artifacts.summonOrb) return
 			this.stats[x] += this.real.growth[x] * mul
 		})
 	},
@@ -741,6 +798,8 @@ const sliderHandler = {
 					let times = 0
 					if (slider.artifacts.channelCrown && slider.target == this.target) times++
 					if ((masterSlider.masterChannel?masterSlider.channel:slider.channel).includes(n+1)) times++
+					if (slider.artifacts.summonOrb)
+						times *= (this.clone==2)?2:0
 					if (times) {
 						if (this.artifacts.channelReceiver) times *= 2
 						this.real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
@@ -748,7 +807,7 @@ const sliderHandler = {
 					}
 				})
 			
-			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb) {
+			if ((masterSlider.masterChannel?masterSlider.channel:this.channel).includes(n+1) && !this.artifacts.channelOrb && !this.artifacts.summonOrb) {
 				this.real.growth[x] = 0
 			} else if (this.learn.includes(n+1)) {
 				if (game.resources.exp > 1e-6) {
@@ -854,6 +913,10 @@ const sliderHandler = {
 			this.real.blood = this.real.fire + this.real.ice + this.real.blood + this.real.metal
 			this.real.metal = this.real.ice = this.real.fire = 0
 		}
+		
+		if (this.clone == 2 && this.element && this.target && ARTIFACTS.summonBreaker.equipped && ARTIFACTS.summonBreaker.equipped.target == this.target) {
+			this.real.absoluteDamage += this.real[POINT_TYPES[this.element]] * 0.1
+		}			
 		
 		this.real.attack = this.target?this.target.getActivePower(this):0
 		
@@ -998,11 +1061,13 @@ const sliderHandler = {
 		delete o.imbuements
 		delete o.safeImbuementsSwitch
 		delete o.priorities
+		delete o.specialPriorities
 		delete o.selector
 		delete o.cbGild
 		delete o.cbAutoTarget
 		delete o.cbAutoTargetMine
 		delete o.cbAutoTargetZero
+		delete o.cbAutoTargetChild
 		delete o.rolePicker
 		delete o.channels
 		Object.keys(o).filter(x => x.substr(0,2) == "dv").map (x => {

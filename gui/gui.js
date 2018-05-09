@@ -2,7 +2,7 @@
 
 const gui = {
 	init() {
-		
+	
 		this.measureDiv = createElement("div", "utility-measure", document.body)
 		
 		this.dvOffline = createElement("div", "offline", document.body)
@@ -21,6 +21,7 @@ const gui = {
 		this.setTheme(settings.theme, "main")
 		
 		this.initImages()
+		this.initSounds()
 
 		this.tabs = TabGroup({
 			name : "main"
@@ -108,7 +109,7 @@ const gui = {
 						}
 					},
 					available: () => !this.point.harvesting,
-					visible: () => game.skills.imprint && this.point && (!this.point.map.virtual || game.skills.virtualImprint && this.point.map.level > game.realMap.level - 2) && (this.point && !this.point.boss && this.point.completed && !this.point.harvested),
+					visible: () => game.skills.imprint && this.point && (!this.point.map.virtual || game.skills.virtualImprint && (this.point.map.level == game.realMap.level) && this.point.exit) && (this.point && !this.point.boss && this.point.completed && !this.point.harvested),
 					iconText: "M", 
 					iconColor: "#3399FF",
 					text: () => this.point?this.point.harvesting?"Imprinting\n"+(100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")\nImprinting: "+game.harvesting.size:""
@@ -484,5 +485,10 @@ const gui = {
 			c.restore()
 			this.images.specialBorders.push(canvas.toDataURL())
 		}		
+	},
+	
+	initSounds() {
+		this.sounds = {}
+		this.sounds.capture = new Audio("./res/capture.mp3")
 	}
 }

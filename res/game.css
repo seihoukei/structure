@@ -989,6 +989,21 @@ canvas.foreground : {
 	cursor : pointer;
 }
 
+.gui-picker .special {
+	display : flex;
+	width : 20px;
+	height : 20px;
+	margin : 0 2px;
+	align-items : center;
+	justify-content : center;
+	cursor : pointer;
+	background-size:cover;
+}
+
+.gui-picker .special:first-child {
+	border : 1px dotted var(--darkframe);
+}
+
 .gui-picker .all {
 	display : flex;
 	width : 40px;

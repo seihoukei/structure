@@ -171,6 +171,34 @@ const attributePickerHandler = {
 	},
 }
 
+const specialPickerHandler = {
+	_init() {
+		this.dvDisplay = createElement("div", "gui-picker "+(this.className||"")+" " +this.value, this.parent || document.body)
+		this.dvDisplay.title = this.hint || ""
+		this.dvTitle = createElement("div", "name", this.dvDisplay, this.title)
+		this.dvAttributes = createElement("div", "attributes", this.dvDisplay)
+		this.attributes = SPECIAL_NAMES.map((x,n) => {
+			let attribute = {
+				name : x,
+				index : n
+			}			
+			attribute.dvDisplay = createElement("div", "special", this.dvAttributes)
+			attribute.dvDisplay.style.backgroundImage = "url("+gui.images.specialBorders[n]+")"
+			attribute.dvDisplay.onclick = (event) => {this.switch(n)}
+			attribute.dvDisplay.ondblclick = (event) => {this.reset(), this.switch(n)}
+			attribute.dvDisplay.title = x.capitalizeFirst()
+			return attribute
+		})
+		this.update()
+	},
+
+	updateVisibility() {
+		this.dvDisplay.classList.toggle("hidden", !(!this.visible || this.visible()) || !!(settings.masterHide == 2 && this.override && this.override()))
+		this.dvDisplay.classList.toggle("faded", !!(settings.masterHide == 1 && this.override && this.override()))
+		this.attributes.map((x, n) => x.dvDisplay.classList.toggle("hidden", this.attributeVisible && !this.attributeVisible(x.name, n)))
+	},
+}
+
 const singlePickerHandler = {
 	switch(n) {
 		if (this.container[this.value] == n)
@@ -246,6 +274,9 @@ const multiPickerHandler = {
 
 const SingleAttributePicker = Template(attributePickerHandler, singlePickerHandler)
 const MultiAttributePicker = Template(attributePickerHandler, multiPickerHandler)
+
+const SingleSpecialPicker = Template(specialPickerHandler, multiPickerHandler)
+const MultiSpecialPicker = Template(specialPickerHandler, multiPickerHandler)
 
 const iconButtonHandler = {
 	_init() {

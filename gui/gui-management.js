@@ -96,7 +96,7 @@ const ManagementTab = Template({
 		this.dvImprintAll = createElement("div", "imprint button active", this.dvBuildAutomation, "Imprint displayed")
 		this.dvImprintAll.onclick = (event) => {
 			game.autoUpgrading = 1
-			game && game.map && game.map.points.filter(x => x.owned && x.index && x.completed).filter(x => x.getDisplay("management").visible).map(point => point.startHarvest(1))
+			game && game.map && game.map.points.filter(x => x.owned && x.index && x.completed && (!x.map.virtual || x.exit)).filter(x => x.getDisplay("management").visible).map(point => point.startHarvest(1))
 			game.autoUpgrading = 0
 			game.update()
 			gui.management.update()
@@ -204,7 +204,7 @@ const ManagementTab = Template({
 			this.dvAutomation.classList.toggle("hidden", !game.skills.automation)
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			this.dvEnchantAutomationText.classList.toggle("hidden", !game.skills.massEnchant)
-			this.dvImprintAll.classList.toggle("hidden", !game.skills.imprint || !game.skills.massEnchant || (game.map.virtual && !game.skills.virtualImprint))
+			this.dvImprintAll.classList.toggle("hidden", !game.skills.imprint || !game.skills.massEnchant || (game.map.virtual && (!game.skills.virtualImprint || game.map.level != game.realMap.level)))
 			if (game.skills.automation) {
 				this.maxLevel.update(true)
 				this.maxCost.update()
@@ -397,7 +397,7 @@ const managementPointElementHandler = {
 				x.visible = !this.point.boss && game.skills.magicManagement && (this.point.manaCosts[x.id] > -1) && (game.skills["book_"+x.spell.book])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)
 			})
-			this.dvImprint.classList.toggle("hidden", !(game.skills.imprint && (!this.point.map.virtual || game.skills.virtualImprint && this.point.map.level > game.realMap.level - 2) && (this.point && !this.point.boss && this.point.completed)))
+			this.dvImprint.classList.toggle("hidden", !(game.skills.imprint && (!this.point.map.virtual || game.skills.virtualImprint && (this.point.map.level == game.realMap.level && this.point.exit)) && (this.point && !this.point.boss && this.point.completed)))
 			this.dvImprint.classList.toggle("active", !(this.point.harvesting || this.point.harvested))
 			this.dvImprint.innerText = this.point.harvested?"Imprinted":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")"
 		}

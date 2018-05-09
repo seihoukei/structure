@@ -496,6 +496,21 @@ const SETTINGS = {
 			value : 2,
 		}]
 	},
+	captureSound: {
+		group : "Sounds",
+		displayName: "Captured node notification",
+		default : 0,
+		choices : [{
+			text : "Off",
+			value : 0,
+		},{
+			text : "Low load mode only",
+			value : 1,
+		},{
+			text : "Always",
+			value : 2,
+		}]
+	},
 }
 
 Object.keys(SETTINGS).map(x => {

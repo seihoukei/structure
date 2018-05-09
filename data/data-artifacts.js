@@ -37,6 +37,18 @@ const ARTIFACTS = {
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
+	summonOrb: {
+		name : "Summonner's orb",
+		desc : "Channelling is doubled and does not prevent growth, but only affects summons",
+		codeLength : 29,
+		codeCost : 75e12,
+		depth : 2.456e39,
+		active() {
+			return this.equipped && (masterSlider.masterChannel?masterSlider:this.equipped).channel.length && game.sliders.filter(x => x.clone == 2).length
+		},
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--enchantdoom)"
+	},
 	growthOrb: {
 		name : "Orb of growth",
 		desc : "Triples equipped slider's actual growth",
@@ -109,6 +121,18 @@ const ARTIFACTS = {
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},
+	greatOrb: {
+		name : "Great orb of elements",
+		desc : "Redistributes power growth among elements",
+		codeLength : 21,
+		codeCost : 5e12,
+		depth : 7.634e35,
+		active() {
+			return this.equipped
+		},
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--foreground)"
+	},	
 	bloodRod: {
 		name : "Rod of blood",
 		desc : "Deals unblockable 5% of slider's blood damage",
@@ -181,6 +205,54 @@ const ARTIFACTS = {
 		iconText : "/",
 		iconTextColor : "var(--shade13)"
 	},
+	bloodStaff: {
+		name : "Staff of wounds",
+		desc : "Deals unblockable blood damage",
+		codeLength : 23,
+		codeCost : 15e12,
+		depth : 1.743e45,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.blood
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-blood)"
+	},
+	fireStaff: {
+		name : "Staff of burns",
+		desc : "Deals unblockable fire damage",
+		codeLength : 23,
+		codeCost : 15e12,
+		depth : 3.764e37,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.fire
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-fire)"
+	},
+	iceStaff: {
+		name : "Staff of chilblains",
+		desc : "Deals unblockable ice damage",
+		codeLength : 23,
+		codeCost : 15e12,
+		depth : 4.335e42,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.ice
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-ice)"
+	},
+	metalStaff: {
+		name : "Staff of cuts",
+		desc : "Deals unblockable metal damage",
+		codeLength : 23,
+		codeCost : 15e12,
+		depth : 9.985e39,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.metal
+		},
+		iconText : "╱",
+		iconTextColor : "var(--bg-metal)"
+	},
 	channelReceiver: {
 		name: "Student's amulet",
 		desc: "Slider receives double bonus from channelling",
@@ -240,6 +312,18 @@ const ARTIFACTS = {
 		},
 		iconText : "V",
 		iconTextColor : "var(--bg-fire)"
+	},
+	legendarySummonAmulet: {
+		name : "Grandmaster's amulet",
+		desc : "Slider has a chance to summon strong elemental",
+		codeLength : 30,
+		codeCost : 5e13,
+		depth : 1.481e43,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.type > 2 && this.equipped.target.index
+		},
+		iconText : "V",
+		iconTextColor : "var(--bg-ice)"
 	},
 	emeraldSword: {
 		name : "Emerald sword",
@@ -397,6 +481,18 @@ const ARTIFACTS = {
 		iconText : "O",
 		iconTextColor : "#DD55DD"
 	},
+	doomShield: {
+		name : "Shield of doom",
+		desc : "Whenever slider captures a point, random uncaptured point connected to it gets doomed",
+		codeLength : 15,
+		codeCost : 4e13,
+		depth : 6.498e37,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index
+		},
+		iconText : "O",
+		iconTextColor : "var(--enchantdoom)"
+	},
 	stormGem: {
 		name : "Gem of storms",
 		desc : "Boosts Mean machine damage to slider's target",
@@ -481,24 +577,15 @@ const ARTIFACTS = {
 		iconText : "⚖\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},	
-	greatOrb: {
-		name : "Great orb of elements",
-		desc : "Redistributes power growth among elements",
-		codeLength : 21,
-		codeCost : 5e12,
-		depth : 7.634e35,
-		active() {
-			return this.equipped
-		},
-		iconText : "🔮️\uFE0E",
-		iconTextColor : "var(--foreground)"
-	},	
+	
+	//distribute
+	
 	bloodBracelet: {
 		name : "Bracelet of blood knight",
 		desc : "Focus all the elemental power in blood",
 		codeLength : 25,
 		codeCost : 1e13,
-		depth : 2.608e236,
+		depth : 2.608e36,
 		active() {
 			return this.equipped
 		},
@@ -510,7 +597,7 @@ const ARTIFACTS = {
 		desc : "Focus all the elemental power in fire",
 		codeLength : 25,
 		codeCost : 1e13,
-		depth : 7.634e236,
+		depth : 5.377e38,
 		active() {
 			return this.equipped
 		},
@@ -522,7 +609,7 @@ const ARTIFACTS = {
 		desc : "Focus all the elemental power in ice",
 		codeLength : 25,
 		codeCost : 1e13,
-		depth : 1.262e237,
+		depth : 2.623e41,
 		active() {
 			return this.equipped
 		},
@@ -534,88 +621,65 @@ const ARTIFACTS = {
 		desc : "Focus all the elemental power in metal",
 		codeLength : 25,
 		codeCost : 1e13,
-		depth : 8.734e237,
+		depth : 8.261e43,
 		active() {
 			return this.equipped
 		},
 		iconText : "o",
 		iconTextColor : "var(--bg-metal)"
 	},
-	bloodStaff: {
-		name : "Staff of wounds",
-		desc : "Deals unblockable blood damage",
-		codeLength : 25,
-		codeCost : 1e13,
-		depth : 2.608e236,
-		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.blood
-		},
-		iconText : "╱",
-		iconTextColor : "var(--bg-blood)"
-	},
-	fireStaff: {
-		name : "Staff of burns",
-		desc : "Deals unblockable fire damage",
-		codeLength : 25,
-		codeCost : 1e13,
-		depth : 7.634e236,
-		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.fire
-		},
-		iconText : "╱",
-		iconTextColor : "var(--bg-fire)"
-	},
-	iceStaff: {
-		name : "Staff of chilblains",
-		desc : "Deals unblockable ice damage",
-		codeLength : 25,
-		codeCost : 1e13,
-		depth : 1.262e237,
-		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.ice
-		},
-		iconText : "╱",
-		iconTextColor : "var(--bg-ice)"
-	},
-	metalStaff: {
-		name : "Staff of cuts",
-		desc : "Deals unblockable metal damage",
-		codeLength : 25,
-		codeCost : 1e13,
-		depth : 8.734e237,
-		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.metal
-		},
-		iconText : "╱",
-		iconTextColor : "var(--bg-metal)"
-	},
 	reloadFlag: {
 		name : "Flag of high spirits",
-		desc : "Improves ReLoad effect",
-		codeLength : 25,
-		codeCost : 1e13,
-		depth : 8.734e237,
+		desc : "Spirit charge lasts longer and provides higher bonus with high charge",
+		codeLength : 22,
+		codeCost : 3e13,
+		depth : 7.754e41,
 		active() {
 			return this.equipped && this.equipped.charge
 		},
 		iconText : "⚑\uFE0E",
 		iconTextColor : "var(--bg-spirit)"
 	},
+	aligner: {
+		name : "Radiant stone",
+		desc : "Slider has a chance to realign accompanying elementals to strong element",
+		codeLength : 20,
+		codeCost : 3e13,
+		depth : 9.797e36,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.type > 2 && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2 && x.element > 2).length
+		},
+		iconText : "☀\uFE0E",
+		iconTextColor : "var(--bg-power)"
+	},
+	summonBreaker: {
+		name : "Oblivion stone",
+		desc : "Accompanying summons deal 10% unblockable damage",
+		codeLength : 20,
+		codeCost : 85e12,
+		depth : 5.546e44,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length
+		},
+		iconText : "☀\uFE0E",
+		iconTextColor : "var(--bg-spirit)"
+	},
+	stormStone: {
+		name : "Thunderstone shard",
+		desc : "Boosts power of Mean machine on a nearby node",
+		codeLength : 15,
+		codeCost : 1e13,
+		depth : 3.004e40,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.parent && this.equipped.target.parent.buildings && this.equipped.target.parent.buildings["earthquakeMachine"]
+		},
+		iconText : "☀\uFE0E",
+		iconTextColor : "#5588DD"
+	},
 	
-
-//- Artifact : ReLoad charges and lasts longer, bonus boosted
-
-//- Artifact : Doom random node on capture
-
-//- Artifact : Lose damage / add to Mean Machine above (all directions)
-
-//- Artifact : Grow through channelling to summons only
-//- Artifact : Unlimited (still capped) strong element clones
-//- Artifact : Accompanying summons deal unblockable damage
-//- Artifact : Create summons on capture
-
-//- Artifact : Lose damage / ignore 25% barrier
-
+//- Artifact : Lose damage / add to Mean Machine above (all directions) ?
+//- Artifact : Create summons on capture ?
+//- Artifact : Lose damage / ignore 25% barrier ?
 }
 
 Object.keys(ARTIFACTS).map(x => ARTIFACTS[x].id = x)

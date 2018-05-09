@@ -22,6 +22,7 @@ const POINT_COLORS = [
 
 const POINT_MAX_LEVEL = 4
 
+const SPECIAL_NONE = 0
 const SPECIAL_BLOCK = 1
 const SPECIAL_COLONY = 2
 const SPECIAL_CLONE = 3
@@ -30,6 +31,8 @@ const SPECIAL_NOBUILD = 5
 const SPECIAL_NOCLONE = 6
 const SPECIAL_ALONE = 7
 const SPECIAL_NOCHANNEL = 8
+
+const SPECIALS_COUNT = 9
 
 const SPECIAL_NAMES = [
 	"None",
@@ -534,7 +537,7 @@ const mapPointHandler = {
 			return
 		}
 		
-		let oldProgress0 = (this.progress || 0) * 100 | 0
+		const oldProgress0 = (this.progress || 0) * 100 | 0
 		this.progress = this.progress || 0
 		const start = this.totalPower * this.progress ** 2
 		const end = Math.min(this.totalPower, start + power)
@@ -542,18 +545,21 @@ const mapPointHandler = {
 		if (this.progress >= 1-1e-9) {
 			this.capture()
 		}
-		const hasSummons = [...this.attackers].filter(x => x.clone == 2).length
-		const canSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.summonAmulet.equipped) && this.special != SPECIAL_ALONE
-		const canMasterSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.masterSummonAmulet.equipped) && this.special != SPECIAL_ALONE
-		if (canSummon || canMasterSummon) {
-			while (oldProgress0 < (this.progress* 100|0)) {
-				oldProgress0++
+		const summonsHere = [...this.attackers].filter(x => x.clone == 2)
+		let hasSummons = summonsHere.length
+		let canSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.summonAmulet.equipped) && this.special != SPECIAL_ALONE
+		let canMasterSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.masterSummonAmulet.equipped) && this.special != SPECIAL_ALONE
+		let canGrandmasterSummon = !this.noclone && this.attackers && this.attackers.has(ARTIFACTS.legendarySummonAmulet.equipped) && this.special != SPECIAL_ALONE && this.summon != SPECIAL_RESIST
+		if (canSummon || canMasterSummon || canGrandmasterSummon) {
+			let oldProgress1 = oldProgress0
+			while (oldProgress1 < (this.progress* 100|0)) {
+				oldProgress1++
 				if (canSummon && (Math.random() * (ARTIFACTS.summonAmulet.equipped.onSame + 900) < ARTIFACTS.summonAmulet.equipped.onSame)) {
 					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
 					createSummon(this, 1)
 					if (gui.target.point == this)
 						gui.target.set(this, -1)
-					break
+					canMasterSummon = canSummon = false
 				}
 				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
 					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
@@ -562,8 +568,33 @@ const mapPointHandler = {
 					createSummon(this, element)
 					if (gui.target.point == this)
 						gui.target.set(this, -1)
-					break
+					canMasterSummon = canSummon = false
 				}
+				if (canGrandmasterSummon && (Math.random() * (ARTIFACTS.legendarySummonAmulet.equipped.onSame + 300 * (2 ** hasSummons)) < ARTIFACTS.legendarySummonAmulet.equipped.onSame)) {
+					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
+					let element = this.type < 3?Math.random() * 4 + 3 | 0:(this.type)%4+3
+//					if (this.special == SPECIAL_RESIST) element = 1
+					createSummon(this, element)
+					if (gui.target.point == this)
+						gui.target.set(this, -1)
+					hasSummons++
+					canMasterSummon = canSummon = false
+				}
+			}
+		}
+		if (this.type > 2 && this.attackers.has(ARTIFACTS.aligner.equipped) && hasSummons) {
+			let oldProgress1 = oldProgress0
+			const targetElement = (this.type)%4+3
+			const elementals = [...this.attackers].filter(x => x.clone == 2 && x.element > 2 && x.element != targetElement)
+			while (oldProgress1 < (this.progress* 100|0)) {
+				oldProgress1++
+				elementals.map(x => {
+					if (Math.random() * (ARTIFACTS.aligner.equipped.onSame + 300) < ARTIFACTS.aligner.equipped.onSame) {
+						x.realign(targetElement)
+						if (gui.target.point == this)
+							gui.target.set(this, -1)
+					}
+				})
 			}
 		}
 	},
@@ -573,6 +604,9 @@ const mapPointHandler = {
 		let attackers = [...this.attackers] //game.sliders.filter(x => x.target == this)
 
 		game.iterations = GAME_ADVANCE_ITERATIONS
+		
+		if (settings.captureSound == 2 || settings.captureSound == 1 && game.slowMode)
+			gui.sounds.capture.play()
 		
 		game.unlockStory("type_"+POINT_TYPES[this.type])
 		if (this.special)
@@ -724,6 +758,14 @@ const mapPointHandler = {
 			this.animating = 0
 		}
 			
+		if (ARTIFACTS.doomShield.equipped && ARTIFACTS.doomShield.equipped.target == this) {
+			const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_RESIST)
+			const target = outs[Math.random() * outs.length | 0]
+			if (target) {
+				target.enchanted = ENCHANT_DOOM
+			}
+		}
+
 		game.update()
 		
 		attackers.sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => {
@@ -735,6 +777,9 @@ const mapPointHandler = {
 				if (!outs.length || game.sliders.filter(x => x.clone == 2).length > game.world.stats.maxSummons)
 					x.fullDestroy()
 				else {
+					if (game.skills.levelSummons) {
+						x.levelUp()
+					}
 					if (game.skills.smartSummons) {
 						x.assignTarget(outs.sort((y,z) => z.getActivePower(x) - y.getActivePower(x))[0], true)						
 					} else {
@@ -839,7 +884,11 @@ const mapPointHandler = {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
 		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))*(this.enchanted==ENCHANT_DOOM?this.map.level:1) * (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1) * game.world.stats.meanBoost:0
+			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))
+			*(this.enchanted==ENCHANT_DOOM?this.map.level:1)
+			*(ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1) 
+			*(ARTIFACTS.stormStone.equipped && ARTIFACTS.stormStone.equipped.target && ARTIFACTS.stormStone.equipped.target.parent === this.parent?this.map.level:1) 
+			* game.world.stats.meanBoost:0
 		if (this.real.passiveDamage) this.map.failed.noabsolute1 = 1
 		if (this.real.loss && !this.owned) game.attacked.add(this)
 	},

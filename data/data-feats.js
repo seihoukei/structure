@@ -6,19 +6,19 @@ const FEATS = {
 		map : 31
 	},
 	blood1: {
-		desc : "Complete evolved blood-focused firtual map",
+		desc : "Complete evolved blood-focused virtual map",
 		map : 32
 	},
 	fire1: {
-		desc : "Complete evolved fire-focused firtual map",
+		desc : "Complete evolved fire-focused virtual map",
 		map : 32
 	},
 	ice1: {
-		desc : "Complete evolved ice-focused firtual map",
+		desc : "Complete evolved ice-focused virtual map",
 		map : 32
 	},
 	metal1: {
-		desc : "Complete evolved metal-focused firtual map",
+		desc : "Complete evolved metal-focused virtual map",
 		map : 32
 	},
 	mana1: {

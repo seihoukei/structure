@@ -456,7 +456,7 @@ const SKILLS = {
 		mult : 2
 	},
 	virtualImprint : {
-		name : "Memories of a time to come",
+		name : "Memories of a dream",
 		desc : "Imprint stardust nodes from current-level virtual maps",
 		req : ["imprint"],
 		science : 8.5e14,

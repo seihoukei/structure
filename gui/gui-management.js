@@ -19,7 +19,8 @@ const BASE_SORTING = {
 	sortOften : false,
 	hideEnchanted : false,
 	hideCompleted : false,
-	buildings : []
+	buildings : [],
+	notBuildings : []
 }
 
 const ManagementTab = Template({
@@ -158,9 +159,13 @@ const ManagementTab = Template({
 		this.filterBuildings = Object.keys(BUILDINGS).map(x => BuildingIcon(x, this.dvExtraFilter))
 		this.filterBuildings.map(x => {
 			x.dvDisplay.onclick = (event) => {
-				if (this.sorting.buildings.includes(x.id))
-					this.sorting.buildings.splice(this.sorting.buildings.indexOf(x.id),1)
-				else
+				if (this.sorting.buildings.includes(x.id)) {
+					while (this.sorting.buildings.indexOf(x.id) > -1)
+						this.sorting.buildings.splice(this.sorting.buildings.indexOf(x.id),1)
+					this.sorting.notBuildings.push(x.id)
+				} else if (this.sorting.notBuildings.includes(x.id)) {
+					this.sorting.notBuildings.splice(this.sorting.notBuildings.indexOf(x.id),1)
+				} else
 					this.sorting.buildings.push(x.id)
 //				game.automation.buildings[x.id] = game.automation.buildings[x.id]?0:1
 //				game.getFullMoney()
@@ -225,6 +230,7 @@ const ManagementTab = Template({
 				if (visible) {
 					x.dvDisplay.classList.toggle("active", !!game.automation.buildings[x.id])
 					this.filterBuildings[n].dvDisplay.classList.toggle("active", !!this.sorting.buildings.includes(x.id))
+					this.filterBuildings[n].dvDisplay.classList.toggle("crossed", !!this.sorting.notBuildings.includes(x.id))
 				}
 			})
 			this.enchantments.map(x => {
@@ -374,7 +380,9 @@ const managementPointElementHandler = {
 					this.point.boss || 
 					gui.management.sorting.hideCompleted && this.point.completed ||
 					gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type) || 
-					gui.management.sorting.buildings.length && !gui.management.sorting.buildings.reduce((v,x) => v && this.point.buildings[x], true)) {
+					gui.management.sorting.buildings.length && !gui.management.sorting.buildings.reduce((v,x) => v && this.point.buildings[x], true) ||
+					gui.management.sorting.notBuildings.length && !gui.management.sorting.notBuildings.reduce((v,x) => v && !this.point.buildings[x] && this.point.costs[x] > -1, true)
+			) {
 				this.visible = false
 				this.dvDisplay.classList.toggle("hidden", true)
 				return

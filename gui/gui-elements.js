@@ -157,7 +157,8 @@ const attributePickerHandler = {
 			}			
 			attribute.dvDisplay = createElement("div", "attribute bg-"+x, this.dvAttributes)
 			attribute.dvDisplay.onclick = (event) => {this.switch(n)}
-			attribute.dvDisplay.ondblclick = (event) => {this.reset(), this.switch(n)}
+			if (!this.valueNot)
+				attribute.dvDisplay.ondblclick = (event) => {this.reset(), this.switch(n)}
 			attribute.dvDisplay.title = x.capitalizeFirst()
 			return attribute
 		})
@@ -185,7 +186,8 @@ const specialPickerHandler = {
 			attribute.dvDisplay = createElement("div", "special", this.dvAttributes)
 			attribute.dvDisplay.style.backgroundImage = "url("+gui.images.specialBorders[n]+")"
 			attribute.dvDisplay.onclick = (event) => {this.switch(n)}
-			attribute.dvDisplay.ondblclick = (event) => {this.reset(), this.switch(n)}
+			if (!this.valueNot)
+				attribute.dvDisplay.ondblclick = (event) => {this.reset(), this.switch(n)}
 			attribute.dvDisplay.title = x.capitalizeFirst()
 			return attribute
 		})
@@ -246,8 +248,10 @@ const multiPickerHandler = {
 	},
 	
 	switch(n) {
-		if (this.container[this.value].includes(n))
+		if (this.container[this.value].includes(n) && !this.valueNot || this.valueNot && this.container[this.valueNot].includes(n))
 			this.unset(n)
+		else if (this.valueNot && this.container[this.value].includes(n))
+			this.setNot(n)
 		else
 			this.set(n)
 	},
@@ -259,9 +263,26 @@ const multiPickerHandler = {
 		this.update()
 	},
 	
+	setNot(n) {		
+		if (!this.valueNot) {
+			this.unset(n)
+			return
+		}
+		const position = this.container[this.value].indexOf(n)
+		if (position > -1) this.container[this.value].splice(position, 1)
+		const positionNot = this.container[this.valueNot].indexOf(n)
+		if (positionNot == -1) this.container[this.valueNot].push(n)
+		this.onSet && this.onSet()
+		this.update()
+	},
+	
 	unset(n) {
 		const position = this.container[this.value].indexOf(n)
 		if (position > -1) this.container[this.value].splice(position, 1)
+		if (this.valueNot) {
+			const positionNot = this.container[this.valueNot].indexOf(n)
+			if (positionNot > -1) this.container[this.valueNot].splice(positionNot, 1)
+		}
 		this.update()
 	},
 	
@@ -271,7 +292,7 @@ const multiPickerHandler = {
 	},
 	
 	update() {
-		this.attributes.map((x,n) => x.dvDisplay.innerText = this.container[this.value].includes(n)?"✓\uFE0E":"")
+		this.attributes.map((x,n) => x.dvDisplay.innerText = (this.valueNot && this.container[this.valueNot].includes(n))?"X":this.container[this.value].includes(n)?"✓\uFE0E":"")
 		this.onUpdate && this.onUpdate()
 	},
 }
@@ -279,7 +300,7 @@ const multiPickerHandler = {
 const SingleAttributePicker = Template(attributePickerHandler, singlePickerHandler)
 const MultiAttributePicker = Template(attributePickerHandler, multiPickerHandler)
 
-const SingleSpecialPicker = Template(specialPickerHandler, multiPickerHandler)
+const SingleSpecialPicker = Template(specialPickerHandler, singlePickerHandler)
 const MultiSpecialPicker = Template(specialPickerHandler, multiPickerHandler)
 
 const iconButtonHandler = {

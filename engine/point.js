@@ -538,14 +538,11 @@ const mapPointHandler = {
 			return
 		}
 		
-		const oldProgress0 = (this.progress || 0) * 100 | 0
 		this.progress = this.progress || 0
+		const oldProgress0 = this.progress * 100 | 0
 		const start = this.totalPower * this.progress ** 2
 		const end = Math.min(this.totalPower, start + power)
 		this.progress = (end / this.totalPower) ** 0.5
-		if (this.progress >= 1-1e-9) {
-			this.capture()
-		}
 		const summonsHere = [...this.attackers].filter(x => x.clone == 2)
 		let hasSummons = summonsHere.length
 		let canSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.summonAmulet.equipped) && this.special != SPECIAL_ALONE
@@ -597,6 +594,9 @@ const mapPointHandler = {
 					}
 				})
 			}
+		}
+		if (this.progress >= 1-1e-9) {
+			this.capture()
 		}
 	},
 	

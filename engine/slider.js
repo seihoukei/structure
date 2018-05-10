@@ -90,6 +90,7 @@ const sliderHandler = {
 			types : [],
 			specials : [],
 			pointSpecials : [],
+			neverSpecials : [],
 			disabled : false,
 			autoZero : true,
 			autoMine : true,
@@ -306,6 +307,7 @@ const sliderHandler = {
 			parent : this.dvAutoTarget,
 			container : this.atFilter,
 			value : "pointSpecials",
+			valueNot : "neverSpecials",
 			title : "Shields: ",
 			hint : "Prioritizes points with chosen shields when autotargetting",
 			attributeVisible(x, n) {
@@ -314,6 +316,19 @@ const sliderHandler = {
 			onSet : () => game.nextTarget = true,
 			visible : () =>	game.skills.autoTargetSelector && game.realMap.level > 12
 		})
+		
+/*		this.specialAvoid = MultiSpecialPicker({
+			parent : this.dvAutoTarget,
+			container : this.atFilter,
+			value : "neverSpecials",
+			title : "Avoid: ",
+			hint : "Never targets points with chosen shields when autotargetting",
+			attributeVisible(x, n) {
+				return !n || game.statistics[["_","special_blocks","_","special_clones","special_resists","special_nobuilds","special_noclones","special_alones","special_nochannels"][n]]
+			},
+			onSet : () => game.nextTarget = true,
+			visible : () =>	game.skills.autoTargetSelector && game.realMap.level > 12
+		})*/
 		
 		this.dvATSelector = createElement("div", "selectors", this.dvAutoTarget)
 		
@@ -538,7 +553,7 @@ const sliderHandler = {
 			return
 		}
 
-		const pointFilterFunction = x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size)	
+		const pointFilterFunction = x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size) && !this.atFilter.neverSpecials.includes(x.special || 0)
 		
 		let basePoints = baseParent?[...baseParent.children]:game.map.points
 		
@@ -1061,6 +1076,7 @@ const sliderHandler = {
 		delete o.safeImbuementsSwitch
 		delete o.priorities
 		delete o.specialPriorities
+		delete o.specialAvoid
 		delete o.selector
 		delete o.cbGild
 		delete o.cbAutoTarget

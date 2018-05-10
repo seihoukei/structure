@@ -571,7 +571,7 @@ const mapPointHandler = {
 						gui.target.set(this, -1)
 					canMasterSummon = canSummon = false
 				}
-				if (canGrandmasterSummon && (Math.random() * (ARTIFACTS.legendarySummonAmulet.equipped.onSame + 300 * (2 ** hasSummons)) < ARTIFACTS.legendarySummonAmulet.equipped.onSame)) {
+				if (canGrandmasterSummon && (Math.random() * (ARTIFACTS.legendarySummonAmulet.equipped.onSame + 300 * (3 ** hasSummons)) < ARTIFACTS.legendarySummonAmulet.equipped.onSame)) {
 					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
 					let element = this.type < 3?Math.random() * 4 + 3 | 0:(this.type)%4+3
 //					if (this.special == SPECIAL_RESIST) element = 1
@@ -786,6 +786,8 @@ const mapPointHandler = {
 					} else {
 						x.assignTarget(outs[outs.length * Math.random() | 0], true)
 					}
+					if (x.target == this)
+						x.fullDestroy()
 				}
 			} else {
 				if (!x.target || x.target == this) {

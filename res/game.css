@@ -1415,6 +1415,11 @@ canvas.foreground : {
 	transform : none;
 }
 
+.management .automation .icon.visible.crossed {
+	opacity : 0.5;
+	transform : none;
+}
+
 .management .list-hover {
 	position : absolute;
 	background-color : var(--shade13);

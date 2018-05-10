@@ -854,7 +854,7 @@ const game = {
 		game.sliders.map(x => {
 			if (x.presets[name]) {
 				Object.keys(x.artifacts).map(y => x.unequip(y))
-				if (x.target) x.targetIndex = x.target.index
+				if (x.target) x.targetIndex = x.target.index else delete x.targetIndex
 				x.assignTarget(null, true)
 				delete x.target
 			}

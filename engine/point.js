@@ -774,7 +774,7 @@ const mapPointHandler = {
 				this.map.failed.noreal1 = 1
 			x.victoryTimer = 60 * this.map.level
 			if (x.clone == 2) {
-				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !x.element || x.element < 3 || y.type != x.element))
+				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && (y.special != SPECIAL_ALONE || (!game.skills.smartSummons || (y.type < 3 || x.element == y.type % 4 + 3 ) && y.getActivePower(x)) && !y.attackers.size) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !x.element || x.element < 3 || y.type != x.element))
 				if (!outs.length || game.sliders.filter(x => x.clone == 2).length > game.world.stats.maxSummons)
 					x.fullDestroy()
 				else {

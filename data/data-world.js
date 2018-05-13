@@ -98,7 +98,7 @@ const WORLD_ELEMENTS = {
 	},
 	fireSelf: {
 		name : "Volcano",
-		desc : "Boosts workers' metal growth",
+		desc : "Boosts workers' fire growth",
 		type : WORLD_POINT_ACTIVE,
 		family : "fire",
 		blueprint : "fire1",

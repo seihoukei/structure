@@ -43,6 +43,8 @@ const SlidersTab = Template({
 	},
 	
 	onSet() {
+		delete gui.map.sliderInfo
+		delete gui.map.slider
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
 		game.sliders.map(slider => {
 			//this.dvSliders.appendChild(slider.dvDisplay)

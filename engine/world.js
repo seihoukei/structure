@@ -349,7 +349,7 @@ const worldHandler = {
 			if (!element.stat || !this.stats[element.stat]) return
 			if (element.effect == WORLD_BONUS_MUL)
 				this.stats[element.stat] *= element.value(x)
-			if (element.effect == WORLD_BONUS_ADD || WORLD_BONUS_ADD_MULT)
+			if (element.effect == WORLD_BONUS_ADD || element.effect == WORLD_BONUS_ADD_MULT)
 				this.stats[element.stat] += element.value(x)
 		})
 		

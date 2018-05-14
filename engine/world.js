@@ -384,7 +384,7 @@ const worldHandler = {
 	},
 	
 	savePreset(name) {
-		const data = JSON.stringify(this.points.slice(1))
+		const data = JSON.stringify(this.points)
 		this.presets[name] = LZString.compressToBase64(data)
 	},
 	
@@ -396,7 +396,13 @@ const worldHandler = {
 		if (missing.length && !confirm("You don't have enough memories for this preset:\n"+missing.map(x => POINT_TYPES[x[0].slice(1)].capitalizeFirst() +": "+(x[1] - (resources[x[0]] || 0))).join("\n")+"\nDo you still want to load it?")) return
 		
 		this.sellAll()
-		data.map(x => this.build(x))
+		data.map(x => {
+			if (x.type == "entryPoint") {
+				this.points[0].x = x.x
+				this.points[0].y = x.y
+			} else
+				this.build(x)
+		})
 	},
 }
 

@@ -466,7 +466,12 @@ const mapHandler = {
 			const size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount * (this.virtual?1.5:1) - n) ** 0.4) * Math.random()).toDigits(3)
 			const type = this.focus && Math.random() < 0.5 + (this.evolved) * 0.1? this.focus : (1 + Math.random() * 6 | 0)
 			const point = createPoint(this.points, size, angle, spacing, type)
-			point.special = [SPECIAL_RESIST, SPECIAL_BLOCK, SPECIAL_NOCLONE, SPECIAL_NOBUILD, 0][Math.min(4, (Math.random() * Math.max(5, 10 - this.evolved))| 0)]
+			const shields = [SPECIAL_RESIST, SPECIAL_BLOCK, SPECIAL_NOCLONE, SPECIAL_NOBUILD]
+			if (this.level > 35) {
+				shields.push(SPECIAL_ALONE)
+				shields.push(SPECIAL_NOCHANNEL)
+			}
+			point.special = shields[(Math.random() * Math.max(shields.length, 10 - this.evolved))| 0]||0
 		}
 		delete this.completeTime
 		this.points.sort((x,y) => x.distance - y.distance)

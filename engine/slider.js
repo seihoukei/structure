@@ -517,7 +517,7 @@ const sliderHandler = {
 			gui.sliders.levelUp.update(true)
 		} else if (this.clone == 2) {
 			this.level = (this.level || 0) + 1
-			this.stats[POINT_TYPES[this.element]] *= (this.level + 1) / this.level
+			this.stats[POINT_TYPES[this.element]] *= 2.1-this.level * 0.1//(this.level + 1) / this.level
 		}
 	},
 	
@@ -866,16 +866,6 @@ const sliderHandler = {
 			}
 		}
 		
-		if (this.artifacts.bloodRod)   {this.real.absoluteDamage += 0.05 * this.real.blood}
-		if (this.artifacts.fireRod)    {this.real.absoluteDamage += 0.05 * this.real.fire }
-		if (this.artifacts.iceRod)     {this.real.absoluteDamage += 0.05 * this.real.ice  }
-		if (this.artifacts.metalRod)   {this.real.absoluteDamage += 0.05 * this.real.metal}
-		if (this.artifacts.bloodStaff) {this.real.absoluteDamage += this.real.blood}
-		if (this.artifacts.fireStaff)  {this.real.absoluteDamage += this.real.fire }
-		if (this.artifacts.iceStaff)   {this.real.absoluteDamage += this.real.ice  }
-		if (this.artifacts.metalStaff) {this.real.absoluteDamage += this.real.metal}
-		if (this.artifacts.pierceRod)  {this.real.absoluteDamage += 0.02 * (this.real.metal + this.real.blood +  this.real.fire + this.real.ice) * 0.02}
-		
 		if (this.artifacts.powerOrb) {
 			this.real.growth.power += this.real.growth.spirit + this.real.growth.fire + this.real.growth.ice + this.real.growth.blood + this.real.growth.metal
 			this.real.growth.metal = this.real.growth.ice = this.real.growth.blood = this.real.growth.fire = this.real.growth.spirit = 0
@@ -929,6 +919,16 @@ const sliderHandler = {
 			this.real.metal = this.real.ice = this.real.fire = 0
 		}
 		
+		if (this.artifacts.bloodRod)   {this.real.absoluteDamage += 0.05 * this.real.blood}
+		if (this.artifacts.fireRod)    {this.real.absoluteDamage += 0.05 * this.real.fire }
+		if (this.artifacts.iceRod)     {this.real.absoluteDamage += 0.05 * this.real.ice  }
+		if (this.artifacts.metalRod)   {this.real.absoluteDamage += 0.05 * this.real.metal}
+		if (this.artifacts.bloodStaff) {this.real.absoluteDamage += this.real.blood}
+		if (this.artifacts.fireStaff)  {this.real.absoluteDamage += this.real.fire }
+		if (this.artifacts.iceStaff)   {this.real.absoluteDamage += this.real.ice  }
+		if (this.artifacts.metalStaff) {this.real.absoluteDamage += this.real.metal}
+		if (this.artifacts.pierceRod)  {this.real.absoluteDamage += 0.02 * (this.real.metal + this.real.blood +  this.real.fire + this.real.ice) * 0.02}
+
 		if (this.clone == 2 && this.element && this.target && ARTIFACTS.summonBreaker.equipped && ARTIFACTS.summonBreaker.equipped.target == this.target) {
 			this.real.absoluteDamage += this.real[POINT_TYPES[this.element]] * 0.1
 		}			
@@ -1127,7 +1127,7 @@ const sliderHandler = {
 		const index = game.sliders.indexOf(this)
 		if (index > -1)
 			game.sliders.splice(index, 1)
-		game.map.update()
+//		game.map.update()
 		if (gui.target.point) {
 			gui.target.update()
 			gui.target.updateUpgrades()

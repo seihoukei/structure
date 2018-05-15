@@ -103,6 +103,8 @@ const sliderHandler = {
 		this.dvTarget.onclick = (event) => {
 			if (this.clone == 2 && this.target == gui.target.point) {
 				this.fullDestroy()
+				game.map.updateSpellCosts()
+				if (gui.target.point) gui.target.updateUpgrades(true)
 			} else
 				this.target == gui.target.point?(this.assignTarget(null)):this.assignTarget(gui.target.point)
 		}
@@ -380,6 +382,8 @@ const sliderHandler = {
 			this.dvUnsummon = createElement("div", "unsummon button", this.dvDisplay, "Unsummon")
 			this.dvUnsummon.onclick = (event) => {
 				this.fullDestroy()
+				game.map.updateSpellCosts()
+				if (gui.target.point) gui.target.updateUpgrades(true)
 			}
 		}
 
@@ -1127,7 +1131,6 @@ const sliderHandler = {
 		const index = game.sliders.indexOf(this)
 		if (index > -1)
 			game.sliders.splice(index, 1)
-//		game.map.update()
 		if (gui.target.point) {
 			gui.target.update()
 			gui.target.updateUpgrades()

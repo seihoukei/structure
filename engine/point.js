@@ -243,7 +243,7 @@ const mapPointHandler = {
 		game.available.buildings[this.level || 0].map(x => this.costs[x.id] = this.nobuild?-1:x.cost(this))
 	
 		this.noclone = this.special == SPECIAL_NOCLONE
-		game.available.spells.map(x => this.manaCosts[x.id] = (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
+		this.updateSpellCosts()
 	
 		this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
@@ -271,6 +271,10 @@ const mapPointHandler = {
 		this.changed = 0
 	},
 	
+	updateSpellCosts() {
+		game.available.spells.map(x => this.manaCosts[x.id] = (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
+	},
+
 	levelUp() {
 		if (game.resources.gold < this.costs.levelUp) return
 		if (this.level && this.level >= POINT_MAX_LEVEL) return
@@ -769,6 +773,8 @@ const mapPointHandler = {
 
 		game.update()
 		
+		const slidersLength = game.sliders.length
+		
 		attackers.sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => {
 			if (!x.clone)
 				this.map.failed.noreal1 = 1
@@ -796,6 +802,11 @@ const mapPointHandler = {
 				}
 			}
 		})
+		
+		if (slidersLength != game.sliders.length) {
+			this.map.updateSpellCosts()
+			if (gui.target.point) gui.target.updateUpgrades(true)
+		}
 	},
 
 	animate (id, time) {

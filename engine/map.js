@@ -507,6 +507,10 @@ const mapHandler = {
 		this.points.map (x => x.updateAway())
 	},
 	
+	updateSpellCosts() {
+		this.points.map (x => x.updateSpellCosts())
+	},
+	
 	updateBounds() {
 		if (!this.bounds)
 			this.bounds = {}

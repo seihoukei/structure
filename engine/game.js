@@ -386,8 +386,8 @@ const game = {
 			if (name != "main") {
 				this.sliders.map(slider => {
 					Object.keys(slider.stats).map(x => {
-						if (slider.end[name] && slider.end[name][x]) {
-							slider.start[name][x] += slider.stats[x] - slider.end[name][x]
+						if (slider.end[name]) {
+							slider.start[name][x] += slider.stats[x] - (slider.end[name][x] || slider.start[name][x] || 0)
 						}
 					})
 				})				
@@ -774,12 +774,12 @@ const game = {
 			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
 			if (x == "spirit" && this.skills.spiritStar)
 				this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
+			if (x == "power" && this.real.multi.power > 1e15) {
+				this.feats.power1 = 1
+				this.real.multi.power = 1e15
+			}
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
-		if (this.real.multi.power > 1e15) {
-			this.feats.power1 = 1
-			this.real.multi.power = 1e15
-		}
 		
 	},
 	

@@ -982,7 +982,6 @@ const game = {
 
 		this.sliders = save.sliders.map(x => Slider(x))
 
-		this.sliders.map(x => x.target && x.autoTarget())
 		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
 		Object.assign(this.sliderPresets, save.sliderPresets)
 		
@@ -998,6 +997,7 @@ const game = {
 		this.getReal()
 		this.map.points.map (point => point.getReal())
 		this.sliders.map (slider => slider.getReal())
+		this.sliders.sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => x.target && x.autoTarget())
 		this.getRealProduction()
 
 //		this.harvesting.clear()

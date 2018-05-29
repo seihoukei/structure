@@ -247,7 +247,12 @@ const sliderHandler = {
 			stat.dvDisplay = createElement("div", "slider-stat", this.dvStats)
 			stat.dvName = createElement("div", "slider-name", stat.dvDisplay, x.capitalizeFirst()+ ": ")
 			stat.dvValue = createElement("div", "slider-value", stat.dvDisplay)
+			stat.dvName.onclick = stat.dvValue.onclick = (event) => {
+				this.displayStatName = this.displayStatName == x?"":x
+				this.displayStats.map(x => x.expSlider.update())
+			}
 			stat.expSlider = createGrowthSlider(this.growth, x, stat.dvDisplay)			
+			stat.expSlider.visible = () => (settings.showGrowthSliders || this.displayStatName == x)
 			return stat
 		})
 		

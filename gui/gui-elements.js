@@ -84,6 +84,7 @@ const guiSliderHandler = {
 	},
 	
 	update() {
+		this.visible && this.dvDisplay.classList.toggle("hidden", !this.visible())			
 		this.dvRunner.innerText = this.forceText || displayNumber(this.getValue(), this.digits)
 		let position = this.forcePosition === undefined?this.getPosition():this.forcePosition
 		this.dvRunner.style.left = ((position * (this.dvLine.offsetWidth - this.dvRunner.offsetWidth)) | 0) + "px"

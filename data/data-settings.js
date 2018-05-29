@@ -141,6 +141,18 @@ const SETTINGS = {
 			value : 1
 		}],
 	},
+	showGrowthSliders : {
+		group : "Display",
+		displayName : "Show growth controls (available by click if hidden)",
+		default : 1,
+		choices : [{
+			text : "Show",
+			value : 1
+		},{
+			text : "Hide",
+			value : 0
+		}],
+	},
 	masterHide : {
 		group : "Display",
 		displayName : "Show overriden controls",

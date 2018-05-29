@@ -287,6 +287,18 @@ const SETTINGS = {
 			game.updateWorldBackground = true
 		}
 	},
+	allowDetached : {
+		group : "World",
+		displayName: "Allow detached node placement",
+		default : false,
+		choices: [{
+			text: "On",
+			value : true
+		},{
+			text: "Off",
+			value : false
+		}],
+	},
 	storyMainDisplay : {
 		group : "Story",
 		displayName : "Main story display",

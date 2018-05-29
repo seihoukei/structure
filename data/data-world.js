@@ -8,6 +8,51 @@ const WORLD_BONUS_ADD = 1
 const WORLD_BONUS_MUL = 2
 const WORLD_BONUS_ADD_MULT = 3
 
+const WORLD_STATS = {
+	goldSpeed : {
+		name: "Mining speed x",
+		default: 1
+	},
+	harvestSpeed : {
+		name: "Imprinting speed x",
+		default: 1
+	},
+	scienceSpeed : {
+		name: "Research speed x",
+		default: 1
+	},
+	bloodBoost : {
+		name: "Workers' blood growth x",
+		default: 1
+	},
+	fireBoost : {
+		name: "Workers' fire growth x",
+		default: 1
+	},
+	iceBoost : {
+		name: "Workers' ice growth x",
+		default: 1
+	},
+	metalBoost : {
+		name: "Workers' metal growth x",
+		default: 1
+	},
+	manaSpeed : {
+		name: "Mana production x",
+		default: 1
+	},
+	maxSummons : {
+		name: "Summon limit: ",
+		default: 10
+	},
+	meanBoost : {
+		name: "Mean machine damage x",
+		default: 1
+	},
+}
+
+const BASE_WORLD_STATS = Object.keys(WORLD_STATS).reduce((v,x) => (v[x]=WORLD_STATS[x].default, v), {})
+
 const WORLD_ELEMENTS = {
 	entryPoint: {
 		name : "World core",

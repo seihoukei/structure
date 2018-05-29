@@ -3,19 +3,6 @@
 const BASE_WORLD = {
 }
 
-const BASE_WORLD_STATS = {
-	goldSpeed : 1,
-	harvestSpeed : 1,
-	scienceSpeed : 1,
-	bloodBoost : 1,
-	fireBoost : 1,
-	iceBoost : 1,
-	metalBoost : 1,
-	manaSpeed : 1,
-	maxSummons : 10,
-	meanBoost : 1	
-}
-
 const worldHandler = {
 	_init() {
 		this.edges = []
@@ -324,7 +311,7 @@ const worldHandler = {
 //		const maxDepth = Math.max(...this.points.map(pt => pt.newDepth))
 		return {
 			points : connectedPoints,
-			possible : connectedPoints.length && !intersectPoints.length/* && maxDepth < 100*/ && !connectedPoints.filter(x => x.family == point.family).length
+			possible : (settings.allowDetached || connectedPoints.length) && !intersectPoints.length/* && maxDepth < 100*/ && !connectedPoints.filter(x => x.family == point.family).length
 		}
 	},
 	

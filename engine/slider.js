@@ -521,6 +521,8 @@ const sliderHandler = {
 			gui.sliders.levelUp.update(true)
 		} else if (this.clone == 2) {
 			this.level = (this.level || 0) + 1
+			if (this.level == 9 && game.map.level > 34) 
+				game.feats.summonLevel9 = 1
 			this.stats[POINT_TYPES[this.element]] *= 2.1-this.level * 0.1//(this.level + 1) / this.level
 		}
 	},
@@ -549,7 +551,10 @@ const sliderHandler = {
 		let baseParent = (this.target && this.atFilter.childNext)?this.target:null
 //		if (baseParent) console.log(baseParent)
 			
-		if (game.skills.mining && this.atSelector == "Mining") this.assignTarget(game.map.points[0])
+		if (game.skills.mining && this.atSelector == "Mining") {
+			this.assignTarget(game.map.points[0])
+			return
+		}
 		if (this.target && (!this.target.owned || (!game.skills.smartMine || !this.atFilter.autoMine) && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.atFilter.autoZero && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if ((!game.skills.autoTarget || this.atFilter.disabled) && !forced) {

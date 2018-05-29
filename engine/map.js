@@ -495,6 +495,7 @@ const mapHandler = {
 				if (this.virtual && this.focus > 2 && this.evolved) game.feats[POINT_TYPES[this.focus]+"1"] = 1
 				if (this.virtual && this.evolved && !this.failed.noreal1) game.feats.noreal1 = 1
 				if (this.virtual && this.evolved && !this.failed.noabsolute1) game.feats.noabsolute1 = 1
+				if (this.virtual && this.level == game.realMap.level && this.level >= 36) game.feats["same"+(this.evolved||0)] = 1
 			}
 			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		}

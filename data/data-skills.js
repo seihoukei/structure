@@ -15,19 +15,12 @@ const SKILLS = {
 		mult : 1.2,
 		exp : 500
 	},
-	mining: {
-		name: "The deep & the dark",
-		desc: "Ability to mine gold at starting point",
-		map : 2,
-		mult: 2,
-		exp : 500
-	},
 	charge: {
 		name: "ReLoad",
 		desc: "Ability to charge spirit by resting",
-		map : 3,
+		map : 2,
 		mult : 2,
-		exp : 2500
+		exp : 1000
 	},
 	autoTargetFilter: {
 		name: "Destination set to nowhere",
@@ -43,6 +36,13 @@ const SKILLS = {
 		map : 3,
 		mult : 10,
 		exp : 7500
+	},
+	mining: {
+		name: "The deep & the dark",
+		desc: "Ability to mine gold at starting point",
+		map : 4,
+		mult: 2,
+		exp : 2500
 	},
 	autoTargetSelector: {
 		name: "Journey of souls",

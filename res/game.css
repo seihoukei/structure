@@ -579,7 +579,7 @@ canvas.foreground : {
 	margin : -30px;
 }
 
-.map > div.growth, .stardust div.growth {
+.world > div.bonus, .map > div.growth, .stardust div.growth {
 	position : absolute;
 	bottom : 3px;
 	left : 3px;
@@ -596,10 +596,27 @@ canvas.foreground : {
 	font-size : 9.5px;
 	border : 1px solid var(--darkframe);
 }
+
 .map .growth .growth-value, .stardust .growth .growth-value {
 	display : inline-block;
 	padding : 0 0 0 3px;
+	width : 0;
+	overflow : visible;
+	pointer-events : none;
 	white-space: nowrap;
+	text-shadow:
+		-1px -1px 0 var(--background),
+		1px -1px 0 var(--background),
+		-1px 1px 0 var(--background),
+		1px 1px 0 var(--background);
+}
+
+.map.complete .growth .growth-value, .map.complete .harvest .harvest-line, .map.complete .resources{
+	text-shadow:
+		-1px -1px 0 var(--background-complete),
+		1px -1px 0 var(--background-complete),
+		-1px 1px 0 var(--background-complete),
+		1px 1px 0 var(--background-complete);
 }
 
 .map > .sliders {
@@ -641,6 +658,11 @@ canvas.foreground : {
 	z-index : 4;
 	white-space: nowrap;
 	pointer-events : none;
+	text-shadow:
+		-1px -1px 0 var(--background),
+		1px -1px 0 var(--background),
+		-1px 1px 0 var(--background),
+		1px 1px 0 var(--background);
 }
 
 .map .harvest, .world .harvest {
@@ -660,6 +682,11 @@ canvas.foreground : {
 	justify-content : right;
 	align-self : right;
 	margin : 2px 0 2px auto;
+	text-shadow:
+		-1px -1px 0 var(--background),
+		1px -1px 0 var(--background),
+		-1px 1px 0 var(--background),
+		1px 1px 0 var(--background);
 }
 
 .harvest-icon {

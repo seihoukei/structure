@@ -16,6 +16,7 @@ const WorldTab = Template({
 		this.backgroundContext = this.background.getContext("2d")
 		
 		this.dvWorkers = createElement("div", "workers", this.dvDisplay)
+		this.dvBonus = createElement("div", "bonus", this.dvDisplay)
 		
 		this.dvBuildButton = createElement("div", "build-button", this.dvDisplay, "Build")
 		this.dvBuildButton.onclick = (event) => {
@@ -91,6 +92,7 @@ const WorldTab = Template({
 			const failed = !done && game.map.failed[x.id]
 			x.dvDisplay.classList.toggle("done", !!done)
 			x.dvDisplay.classList.toggle("failed", !!failed)
+			x.dvDisplay.classList.toggle("hidden", !(game.realMap.level >= x.feat.map))
 		})
 	},
 	
@@ -101,6 +103,7 @@ const WorldTab = Template({
 			this.hover.update()
 		if (this.showingFeats) 
 			this.updateFeats()
+		this.dvBonus.innerText = Object.keys(WORLD_STATS).filter(x => game.world.stats[x] != WORLD_STATS[x].default).map(x => WORLD_STATS[x].name + displayNumber(game.world.stats[x])).join("\n")
 	}
 })
 

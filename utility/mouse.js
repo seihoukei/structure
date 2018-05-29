@@ -189,14 +189,18 @@ const WorldMouse = {
 			} else if (this.state == MOUSE_STATE_BUILD) {
 				const connections = game.world.predictConnections(this.target)
 				if (connections.possible) {//if can move
-					this.state = MOUSE_STATE_FREE
 					game.world.build({
 						x : this.target.newX,
 						y : this.target.newY,
 						type : this.target.type,
 						world : game.world
 					})
-					delete this.target
+					if (!event.shiftKey || !game.world.canAfford(this.target.type)) {
+						this.state = MOUSE_STATE_FREE
+						delete this.target
+					} else {
+						this.target.newConnections = game.world.predictConnections(this.target)
+					}
 /*					game.world.updateConnections()
 					game.world.update()
 					game.updateWorldBackground = true*/

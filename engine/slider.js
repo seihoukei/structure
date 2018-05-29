@@ -252,7 +252,7 @@ const sliderHandler = {
 				this.displayStats.map(x => x.expSlider.update())
 			}
 			stat.expSlider = createGrowthSlider(this.growth, x, stat.dvDisplay)			
-			stat.expSlider.visible = () => (settings.showGrowthSliders || this.displayStatName == x)
+			stat.expSlider.visible = () => (!this.clone && game.skills.invest) && (settings.showGrowthSliders || this.displayStatName == x)
 			return stat
 		})
 		
@@ -666,7 +666,7 @@ const sliderHandler = {
 	updateFullVisibility() {
 		this.displayStats.map(y => {
 			y.dvDisplay.classList.toggle("hidden",!!(!(game.growth[y.name] || this.stats[y.name]) || (this.clone && !this.stats[y.name])))
-			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
+//			y.expSlider.dvDisplay.classList.toggle("hidden",this.clone || !(game.skills.invest))
 		})
 		this.dvAutoTarget.classList.toggle("hidden", !(game.skills.autoTarget) || this.clone == 2 || !!(settings.masterHide == 2 && masterSlider.masterAutotarget))
 		this.dvLevel.classList.toggle("hidden", !!(!(game.skills.sliderLevels) || this.clone && (this.clone != 2 || !game.skills.levelSummons)))

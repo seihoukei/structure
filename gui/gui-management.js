@@ -390,7 +390,7 @@ const managementPointElementHandler = {
 			if (this.point.enchanted && gui.management.sorting.hideEnchanted || 
 					this.point.boss || 
 					gui.management.sorting.hideCompleted && this.point.completed ||
-					gui.management.sorting.hideImprinted && (!this.point.canImprint || this.point.harvestTime && this.point.harvestTime == this.point.harvestTimeTotal) ||
+					gui.management.sorting.hideImprinted && (!this.point.canImprint || this.point.harvested) ||
 					gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type) || 
 					gui.management.sorting.buildings.length && !gui.management.sorting.buildings.reduce((v,x) => v && this.point.buildings[x], true) ||
 					gui.management.sorting.notBuildings.length && !gui.management.sorting.notBuildings.reduce((v,x) => v && !this.point.buildings[x] && this.point.costs[x] > -1, true)

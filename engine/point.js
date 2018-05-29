@@ -217,10 +217,12 @@ const mapPointHandler = {
 				}				
 				this.locks = locks
 			}
-			if (!this.power)
+			
+			if (!this.tempSize || this.tempSize != this.map.size) {
 				this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
-			if (!this.totalPower) 
 				this.totalPower = this.power * this.length * 0.5
+				this.tempSize = this.map.size
+			}
 			this.initialized = (this.initialized || 0) + 1
 //		}
 
@@ -944,6 +946,7 @@ const mapPointHandler = {
 		delete o.pathLength
 		delete o.children
 		delete o.depth
+		delete o.tempSize
 		delete o.available
 		delete o.locked
 		delete o.away

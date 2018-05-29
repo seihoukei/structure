@@ -982,7 +982,7 @@ const game = {
 
 		this.sliders = save.sliders.map(x => Slider(x))
 
-		;[...this.sliders].sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => x.target && x.autoTarget())
+		//;[...this.sliders].sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => x.target && x.autoTarget())
 		
 		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
 		Object.assign(this.sliderPresets, save.sliderPresets)

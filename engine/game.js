@@ -50,25 +50,27 @@ const game = {
 		if (!this.renderData.radarCV) {
 			this.renderData.radarCV = document.createElement("canvas")
 		}
-		this.renderData.radarCV.width  = gui.mainViewport.width
-		this.renderData.radarCV.height = gui.mainViewport.height
-		const c = this.renderData.radarCV.getContext("2d")
-		const grad = gui.foregroundContext.createRadialGradient(0, 0, 0, 0, 0, 5)
-		grad.addColorStop(0, gui.theme.radar)
-		grad.addColorStop(1, "transparent")
-		c.translate(gui.mainViewport.halfWidth, gui.mainViewport.halfHeight)
-		c.fillStyle = grad
-		this.map.points.filter(pt => pt.owned).map(pt => {
-			c.save()
-			c.beginPath()
-			c.translate(pt.x, pt.y)
-			c.scale(pt.size, pt.size)
-			c.moveTo(5, pt.y)
-			c.arc(0, 0, 5, 0, 6.29)
-			c.fill()
-			c.restore()
-		})
-		this.renderData.radar = gui.foregroundContext.createPattern(this.renderData.radarCV, "repeat")
+		if (game.map.markers && game.map.markers.length) {
+			this.renderData.radarCV.width  = gui.mainViewport.width / gui.mainViewport.min.zoom | 0
+			this.renderData.radarCV.height = gui.mainViewport.height / gui.mainViewport.min.zoom | 0
+			const c = this.renderData.radarCV.getContext("2d")
+			const grad = gui.foregroundContext.createRadialGradient(0, 0, 0, 0, 0, 5)
+			grad.addColorStop(0, gui.theme.radar)
+			grad.addColorStop(1, "transparent")
+			c.translate(gui.mainViewport.halfWidth / gui.mainViewport.min.zoom, gui.mainViewport.halfHeight / gui.mainViewport.min.zoom)
+			c.fillStyle = grad
+			this.map.points.filter(pt => pt.owned).map(pt => {
+				c.save()
+				c.beginPath()
+				c.translate(pt.x, pt.y)
+				c.scale(pt.size, pt.size)
+				c.moveTo(5, pt.y)
+				c.arc(0, 0, 5, 0, 6.29)
+				c.fill()
+				c.restore()
+			})
+			this.renderData.radar = gui.foregroundContext.createPattern(this.renderData.radarCV, "repeat")
+		}
 	},
 	
 	render() {
@@ -320,10 +322,21 @@ const game = {
 	},
 	
 	renderMarkers(c) {
+/*
+			c.save()
+			c.beginPath()
+
+			c.globalAlpha = 0.5
+			c.fillStyle = this.renderData.radar
+			c.arc(0,0,game.map.size * 2, 0, 6.29)
+			c.translate(-gui.mainViewport.halfWidth / gui.mainViewport.min.zoom, -gui.mainViewport.halfHeight / gui.mainViewport.min.zoom)
+			c.fill()
+			c.restore()
+//*/
 		if (!this.map.markers) 
 			return
 		
-		const frame = this.frame % 1000
+		const frame = this.frame % 500
 
 		if (this.renderData.radar && frame < 250) {
 			c.save()
@@ -334,10 +347,10 @@ const game = {
 						
 			this.map.markers.map(pt => {
 				c.moveTo(pt.x + frame, pt.y)
-				c.arc(pt.x, pt.y, frame, 0, 6.29)
+				c.arc(pt.x, pt.y, frame * 2, 0, 6.29)
 			})
 			
-			c.translate(-gui.mainViewport.halfWidth, -gui.mainViewport.halfHeight)
+			c.translate(-gui.mainViewport.halfWidth / gui.mainViewport.min.zoom, -gui.mainViewport.halfHeight / gui.mainViewport.min.zoom)
 			c.stroke()
 			c.restore()
 		}		
@@ -458,8 +471,15 @@ const game = {
 			
 		if ((this.resources.stars >= this.map.ascendCost || this.map.virtual) && !this.map.boss || this.map.boss && !this.map.points.filter(x => x.boss == this.map.boss && !x.owned).length) {
 			
-			if (!this.map.virtual && !confirm(this.map.virtual?"Abandon this virtual map?":"Ascend to the next map?")) 
-				return
+			let progress = game.realMap.level > 20 && game.map.points.filter(x => x.boss && x.boss > game.map.boss).length
+			if (!progress && !this.map.virtual) {
+				let txt = ""
+				if (!game.map.complete) txt += "The map is not completed.\n"
+				if (game.map.points.filter(x => x.exit && !x.owned).length) txt += "There are stars you are leaving behind.\n"
+				if (game.map.points.filter(x => x.harvestTime && x.harvestTime < x.harvestTimeTotal).length) txt += "Unfinished imprints will be lost.\n"
+				if (!confirm(txt + "Ascend to the next map?"))
+					return
+			}
 			
 			gui.hover.reset()
 			gui.target.reset()
@@ -1014,7 +1034,9 @@ const game = {
 			gui.tabs.setTab("map")
 	
 			gui.stardust.newMapLevelSlider.setMax(this.realMap.level)
-			gui.stardust.newMapLevelSlider.steps = this.realMap.level
+			gui.stardust.newMapLevelSlider.setMin(this.realMap.level / 2 | 0)
+			gui.stardust.newMapLevelSlider.steps = this.realMap.level / 2 | 0
+			gui.stardust.newMapLevelSlider.dvRight.innerText = this.realMap.level
 			gui.stardust.newMapLevelSlider.setValue(this.realMap.level)
 			
 			gui.sliders.update(true)

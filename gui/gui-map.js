@@ -44,6 +44,10 @@ const MapTab = Template({
 		this.foreground.oncontextmenu = (event) => event.preventDefault()
 		
 		this.dvLowLoad = createElement("div", "low-load", this.dvDisplay)
+		this.dvLowLoad.onclick = (event) => {
+			if (event.target == this.dvLowLoad)
+				gui.target.reset()
+		}
 		
 		const temp = {slow : false}
 		this.lowLoad = GuiCheckbox({

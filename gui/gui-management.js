@@ -19,6 +19,7 @@ const BASE_SORTING = {
 	sortOften : false,
 	hideEnchanted : false,
 	hideCompleted : false,
+	hideImprinted : false,
 	buildings : [],
 	notBuildings : []
 }
@@ -190,6 +191,15 @@ const ManagementTab = Template({
 			onSet : () => this.update(true)
 		})
 		
+		this.cbHideImprinted = GuiCheckbox({
+			parent : this.dvExtraFilter,
+			title : "Hide imprinted/unimprintable",
+			container : this.sorting,
+			visible : () => !!game.skills.imprint,
+			value : "hideImprinted",
+			onSet : () => this.update(true)
+		})
+		
 		this.dvList = createElement("div", "list", this.dvDisplay)
 		
 		this.dvHover = createElement("div", "list-hover hidden", this.dvDisplay)
@@ -221,6 +231,7 @@ const ManagementTab = Template({
 			this.sortSorter.update(true)
 			this.cbHideEnchanted.update()
 			this.cbHideCompleted.update()
+			this.cbHideImprinted.update()
 			this.cbSortOften.update()
 			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
 			this.buildings.map((x, n) => {
@@ -379,6 +390,7 @@ const managementPointElementHandler = {
 			if (this.point.enchanted && gui.management.sorting.hideEnchanted || 
 					this.point.boss || 
 					gui.management.sorting.hideCompleted && this.point.completed ||
+					gui.management.sorting.hideImprinted && (!this.point.canImprint || this.point.harvestTime && this.point.harvestTime == this.point.harvestTimeTotal) ||
 					gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type) || 
 					gui.management.sorting.buildings.length && !gui.management.sorting.buildings.reduce((v,x) => v && this.point.buildings[x], true) ||
 					gui.management.sorting.notBuildings.length && !gui.management.sorting.notBuildings.reduce((v,x) => v && !this.point.buildings[x] && this.point.costs[x] > -1, true)
@@ -405,7 +417,7 @@ const managementPointElementHandler = {
 				x.visible = !this.point.boss && game.skills.magicManagement && (this.point.manaCosts[x.id] > -1) && (game.skills["book_"+x.spell.book])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)
 			})
-			this.dvImprint.classList.toggle("hidden", !(game.skills.imprint && (!this.point.map.virtual || game.skills.virtualImprint && (this.point.map.level == game.realMap.level && this.point.exit)) && (this.point && !this.point.boss && this.point.completed)))
+			this.dvImprint.classList.toggle("hidden", !this.point.canImprint)
 			this.dvImprint.classList.toggle("active", !(this.point.harvesting || this.point.harvested))
 			this.dvImprint.innerText = this.point.harvested?"Imprinted":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")"
 		}

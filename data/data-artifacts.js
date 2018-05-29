@@ -128,7 +128,7 @@ const ARTIFACTS = {
 		codeCost : 5e12,
 		depth : 7.634e35,
 		active() {
-			return this.equipped
+			return this.equipped && (this.equipped.growth.power || this.equipped.learn.includes(1))
 		},
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
@@ -212,7 +212,7 @@ const ARTIFACTS = {
 		codeCost : 15e12,
 		depth : 1.743e45,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.blood
+			return this.equipped && this.equipped.real && this.equipped.real.blood && this.equipped.target && this.equipped.target.index
 		},
 		iconText : "╱",
 		iconTextColor : "var(--bg-blood)"
@@ -224,7 +224,7 @@ const ARTIFACTS = {
 		codeCost : 15e12,
 		depth : 3.764e37,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.fire
+			return this.equipped && this.equipped.real && this.equipped.real.fire && this.equipped.target && this.equipped.target.index
 		},
 		iconText : "╱",
 		iconTextColor : "var(--bg-fire)"
@@ -236,7 +236,7 @@ const ARTIFACTS = {
 		codeCost : 15e12,
 		depth : 4.335e42,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.ice
+			return this.equipped && this.equipped.real && this.equipped.real.ice && this.equipped.target && this.equipped.target.index
 		},
 		iconText : "╱",
 		iconTextColor : "var(--bg-ice)"
@@ -248,7 +248,7 @@ const ARTIFACTS = {
 		codeCost : 15e12,
 		depth : 9.985e39,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.real.metal
+			return this.equipped && this.equipped.real && this.equipped.real.metal && this.equipped.target && this.equipped.target.index
 		},
 		iconText : "╱",
 		iconTextColor : "var(--bg-metal)"
@@ -320,7 +320,7 @@ const ARTIFACTS = {
 		codeCost : 5e13,
 		depth : 1.481e43,
 		active() {
-			return this.equipped && this.equipped.target && this.equipped.target.type > 2 && this.equipped.target.index
+			return this.equipped && this.equipped.target && this.equipped.target.index
 		},
 		iconText : "V",
 		iconTextColor : "var(--bg-ice)"
@@ -356,7 +356,7 @@ const ARTIFACTS = {
 		codeCost : 25e9,
 		depth : 7.651e25,
 		active() {
-			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
+			return this.equipped && this.equipped.target && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
 		},
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--foreground)"

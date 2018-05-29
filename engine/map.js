@@ -457,7 +457,7 @@ const mapHandler = {
 
 	evolve() {
 		if (!this.complete) return
-		if (!this.virtual || this.level < 31 || !game.skills.evolveVirtual || (game.map.evolved && game.map.evolved >= 3)) return
+		if (!this.virtual || this.level < 31 || !game.skills.evolveVirtual || (this.evolved && this.evolved >= 3)) return
 		let n = this.pointsCount
 		this.evolved = (this.evolved || 0) + 1
 		while (n--) {
@@ -561,7 +561,7 @@ const mapHandler = {
 			created : this.createTime?timeString(currentTime - this.createTime) + " ago":"unknown",
 			completed : this.complete?this.completeTime?timeString(currentTime - this.completeTime) + " ago":"unknown":progress.toFixed(1)+"%",
 			took : this.complete?this.completeTime&&this.createTime?timeString(this.completeTime - this.createTime):"unknown":this.createTime?timeString(currentTime - this.createTime):"unknown",
-			tookLocal : this.complete?this.completeTime&&this.relativeStart?timeString(this.completeTime - this.relativeStart):"unknown":this.relativeStart?timeString(currentTime - this.relativeStart):"unknown",
+			tookLocal : this.complete?this.completeTime&&this.relativeStart?timeString(this.completeTime - this.relativeStart):"unknown":this.relativeStart?timeString((game.map != this?(this.lastLeft || this.relativeStart):(currentTime)) - this.relativeStart):"unknown",
 			nodeSpecial, nodeType, locksOpen, maxDepth, totalNodes
 		}
 	},
@@ -634,7 +634,8 @@ const mapMaker = {
 					this.points.push(point)
 				}
 
-				this.points.sort((x,y) => x.distance - y.distance)
+			this.boss = 1
+			this.points.sort((x,y) => x.distance - y.distance)
 			this.points.map((x,n) => x.index = n)
 			this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
 			this.restoreState()
@@ -730,7 +731,7 @@ const mapMaker = {
 						type : newType,
 						size : baseSize * ([1,2,1.5][newBoss]),
 						depth : (parent.depth || 0) + 1,
-						boss : newBoss
+						boss : newBoss?newBoss+1:0
 					})
 					if (newBoss == 1) point.customPower = 2e68
 					if (newBoss == 2) {
@@ -756,6 +757,10 @@ const mapMaker = {
 						spawnPoint(Math.abs(i) - layer * 2, i, layer == layers)
 					}
 				}
+				const ends = new Set(this.points.filter(x => !x.boss))
+				;[...ends].map(x => ends.delete(x.parent))
+				;[...ends].map(x => (x.boss = 1, x.size *= 1.2))
+				this.boss = 1
 			} else if ((this.virtual && this.level <= 30) || (!this.virtual && this.level >= 30)) {
 				const baseSize = 5 + this.level / 10
 				const distance = baseSize * 8 

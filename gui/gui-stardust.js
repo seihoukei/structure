@@ -91,9 +91,9 @@ const StardustTab = Template({
 			parent : this.dvVirtualCreate,
 			container : this,
 			value : "newMapLevel",
-			min : 0,
+			min : 10,
 			max : 20,
-			steps : 20,
+			steps : 10,
 			shortStep : 1,
 			digits : 0,
 			onSet : () => {
@@ -234,7 +234,8 @@ const StardustTab = Template({
 			})
 			if (game.skills.virtualMaps) {
 				this.newMapLevelSlider.setMax (game.realMap.level)
-				this.newMapLevelSlider.steps = game.realMap.level
+				this.newMapLevelSlider.setMin (game.realMap.level / 2 | 0)
+				this.newMapLevelSlider.steps = game.realMap.level / 2 | 0
 				this.newMapLevelSlider.dvRight.innerText = game.realMap.level
 				this.newMapLevelSlider.update()
 				this.selector.update(true)
@@ -257,6 +258,16 @@ const StardustTab = Template({
 		if (this.displayMap && performance.now() - this.lastUpdate > 2000/* == game.activeMap*/) {
 			this.updateMapStats(this.displayMap)
 		}
+		const currentMap = gui.stardust.virtualMaps.filter(x => x.name == game.activeMap)[0]
+		if (currentMap) {
+			const map = game.map
+			const stars = map.points.filter(x => x.exit && x.owned).length
+			const progress = map.points.filter(x => x.owned).length / map.points.length * 100
+			const exits = map.exitsCount
+			currentMap.dvLevel.innerText = "Level "+map.level+", "+Math.floor(progress)+(map.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+((map.level == game.realMap.level && progress < 100)?"???":exits)
+			if (currentMap.dvEvolve)
+				currentMap.dvEvolve.classList.toggle("enabled", progress == 100 && (!map.evolved || map.evolved < 3))
+		}
 	}
 })
 
@@ -274,7 +285,7 @@ const mapDisplayHandler = {
 		const stars = map.points.filter(x => x.exit && x.owned).length
 		const progress = map.points.filter(x => x.owned).length / map.points.length * 100
 		const exits = map.exitsCount
-		this.dvLevel = createElement("div", "virtual-map-level", this.dvDisplay, "Level "+map.level+", "+progress.toFixed(0)+(this.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+(map.level == game.realMap.level?"???":exits))
+		this.dvLevel = createElement("div", "virtual-map-level", this.dvDisplay, "Level "+map.level+", "+Math.floor(progress)+(this.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+((map.level == game.realMap.level && progress < 100)?"???":exits))
 		const focus = map.focus?POINT_TYPES[map.focus]:0
 		this.dvFocus = createElement("div", "virtual-map-focus"+(focus?" bg-"+focus:""), this.dvDisplay, focus?focus.capitalizeFirst():"")
 		this.dvGo = createElement("div", "button" + (game.activeMap == this.name?"":" enabled"), this.dvDisplay, "Visit")
@@ -285,6 +296,14 @@ const mapDisplayHandler = {
 					return
 				game.setMap(this.name, true)
 				gui.tabs.setTab("map")
+			}
+		}
+
+		if (game.skills.evolveVirtual) {
+			this.dvEvolve = createElement("div", "button" + ((!map.virtual || map.level < 31 || progress < 100 || map.evolved && map.evolved >= 3)?"":" enabled"), this.dvDisplay, "Evolve")
+			this.dvEvolve.onclick = (event) => {
+				map.evolve()
+				gui.stardust.update(true)
 			}
 		}
 
@@ -309,4 +328,3 @@ const mapDisplayHandler = {
 }
 
 const MapDisplay = Template(mapDisplayHandler)
-

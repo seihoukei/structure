@@ -40,6 +40,16 @@ const guiSliderHandler = {
 	
 	setMax(max) {
 		this.max = max
+		if (this.container[this.value] > max) 
+			this.container[this.value] = max
+		this.range = this.max - this.min
+		this.update()
+	},
+	
+	setMin(min) {
+		this.min = min
+		if (this.container[this.value] < min) 
+			this.container[this.value] = min
 		this.range = this.max - this.min
 		this.update()
 	},

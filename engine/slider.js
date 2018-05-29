@@ -88,6 +88,7 @@ const sliderHandler = {
 		
 		this.atFilter = Object.assign({
 			types : [],
+			neverTypes : [],
 			specials : [],
 			pointSpecials : [],
 			neverSpecials : [],
@@ -295,6 +296,7 @@ const sliderHandler = {
 			parent : this.dvAutoTarget,
 			container : this.atFilter,
 			value : "types",
+			valueNot : "neverTypes",
 			title : "Priorities: ",
 			hint : "Prioritizes points of chosen types when autotargetting",
 			attributeVisible(x, n) {
@@ -562,7 +564,7 @@ const sliderHandler = {
 			return
 		}
 
-		const pointFilterFunction = x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size) && !this.atFilter.neverSpecials.includes(x.special || 0)
+		const pointFilterFunction = x => x.away == 1 && !x.locked && (!x.boss || x.boss <= game.map.boss) && (!game.skills.smartAuto || !this.atFilter.autoZero || x.real && (x.getActivePower(this) > 0)) && (x.special != SPECIAL_ALONE || !x.attackers.size) && !this.atFilter.neverSpecials.includes(x.special || 0) && !this.atFilter.neverTypes.includes(x.type || 0)
 		
 		let basePoints = baseParent?[...baseParent.children]:game.map.points
 		

@@ -201,7 +201,7 @@ const WORLD_ELEMENTS = {
 		radius : 15,
 		deadZone : 25,
 		reach : 45,
-		iconText : "M",
+		iconText : "✨\uFE0E",
 		effect : WORLD_BONUS_MUL,
 		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
 		stat : "manaSpeed",

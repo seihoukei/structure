@@ -67,22 +67,25 @@ const Fireworks = Template(fireworksHandler)
 const animations = {
 	init() {
 		this.sparkPool = []
+		this.sparks = 0
 		this.effects = new Set()
 	},
 	
 	Spark(x, y, length, an) {
 		let spark = this.sparkPool.pop() || Spark()
 		spark.spawn(x, y, length, an)
+		this.sparks++
 		return spark
 	},
 	
 	freeSpark(spark) {
 		if (this.sparkPool.length < 100)
 		this.sparkPool.push(spark)
+		this.sparks--
 	},
 	
 	Fireworks(x, y, color, sparks, power) {
-		if (game.offline) return
+		if (game.offline || this.sparks > 1000) return
 		this.effects.add(Fireworks({
 			x, y, color, count : sparks, power
 		}))

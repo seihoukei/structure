@@ -244,7 +244,7 @@ const mapPointHandler = {
 	
 		this.noclone = this.special == SPECIAL_NOCLONE
 		this.updateSpellCosts()
-	
+		
 		this.renderSize = this.level && settings.levelDisplay == 2?this.innerSize + 0.25 + 2 * this.level * settings.nodeScale:this.innerSize
 		if (game && game.skills.magicGrowthBoost && this.map.ownedRadius)
 			this.bonusMult = (game.skills.magicGrowthBoost && this.type > 2)?Math.max(0, this.map.ownedRadius - this.distance):0
@@ -265,7 +265,9 @@ const mapPointHandler = {
 		if (!this.harvestTimes[1])
 			this.harvestTimes[1] = (this.map.level - 26) ** 4
 		
-		if (!game.offline)
+		this.canImprint = game.realMap && (game.skills.imprint && (!this.map.virtual || game.skills.virtualImprint && (this.map.level == game.realMap.level && this.exit)) && (!this.boss && this.completed))
+		
+		if (!game.offline && gui.tabs.activeTab == "management" && this.displays.management && this.displays.management.visible)
 			this.updateDisplay("management", true)
 		
 		this.changed = 0
@@ -762,12 +764,16 @@ const mapPointHandler = {
 			this.animationProgress = 1
 			this.animating = 0
 		}
+		
+		if (wantSpecial || wantEnchant)
+			this.calculateStats()
 			
 		if (ARTIFACTS.doomShield.equipped && ARTIFACTS.doomShield.equipped.target == this) {
 			const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_RESIST)
 			const target = outs[Math.random() * outs.length | 0]
 			if (target) {
 				target.enchanted = ENCHANT_DOOM
+				target.calculateStats()
 			}
 		}
 

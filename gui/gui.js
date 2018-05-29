@@ -109,7 +109,7 @@ const gui = {
 						}
 					},
 					available: () => !this.point.harvesting,
-					visible: () => game.skills.imprint && this.point && (!this.point.map.virtual || game.skills.virtualImprint && (this.point.map.level == game.realMap.level) && this.point.exit) && (this.point && !this.point.boss && this.point.completed && !this.point.harvested),
+					visible: () => game.skills.imprint && this.point && this.point.canImprint,
 					iconText: "M", 
 					iconColor: "#3399FF",
 					text: () => this.point?this.point.harvesting?"Imprinting\n"+(100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")\nImprinting: "+game.harvesting.size:""
@@ -324,7 +324,8 @@ const gui = {
 
 	updateTabs() {
 		let distress = game.map.markers && game.map.markers.length
-		this.map.dvAscend.innerText = game.map.virtual?"Evolve":distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
+		//let progress = game.realMap.level > 20 && game.map.points.filter(x => x.boss && x.boss > game.map.boss).length
+		this.map.dvAscend.innerText = game.map.virtual?"Evolve":distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":/*progress?"Advance(⚔\uFE0E)":*/game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
 		this.map.dvAscend.classList.toggle("disabled", !!(!game.map.virtual && (distress || game.resources.stars < game.map.ascendCost && !game.map.boss || game.map.boss && game.map.points.filter(x => !x.owned && x.boss == game.map.boss).length) || game.map.virtual && !game.map.complete))
 		this.map.dvAscend.classList.toggle("hidden", !!(!game.map.virtual && !game.statistics.stars || game.map.virtual && (game.map.level < 31 || (game.map.evolved && game.map.evolved >= 3) || !game.skills.evolveVirtual)))
 		this.dvMana.classList.toggle("hidden", !game.skills.magic)

@@ -554,6 +554,14 @@ const SKILLS = {
 		exp : 0,
 		mult : 2
 	},
+	world_power1 : {
+		name : "Maximum overload",
+		desc : "Blueprint - Power station",
+		req : ["world"],
+		feat : "power1",
+		exp : 0,
+		mult : 2
+	},
 }
 
 Object.keys(SKILLS).map(x => SKILLS[x].id = x)

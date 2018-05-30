@@ -49,6 +49,10 @@ const WORLD_STATS = {
 		name: "Mean machine damage x",
 		default: 1
 	},
+	powerCap : {
+		name: "Power multiplier cap x",
+		default: 1e15
+	},
 }
 
 const BASE_WORLD_STATS = Object.keys(WORLD_STATS).reduce((v,x) => (v[x]=WORLD_STATS[x].default, v), {})
@@ -254,6 +258,24 @@ const WORLD_ELEMENTS = {
 			_4 : 8,
 			_5 : 8,
 			_6 : 8
+		}
+	},
+	powerLift: {
+		name : "Power station",
+		desc : "Increases power cap",
+		type : WORLD_POINT_ACTIVE,
+		family : "power",
+		blueprint : "power1",
+		radius : 20,
+		deadZone : 30,
+		reach : 25,
+		iconText : "P",
+		effect : WORLD_BONUS_MUL,
+		value : (point) => 1 + 0.5 * (2 ** (0.5 - point.depth / 2)),
+		stat : "powerCap",
+		cost : {
+			_1 : 75,
+			_2 : 30,
 		}
 	},
 }

@@ -1035,7 +1035,7 @@ const game = {
 	
 			gui.stardust.newMapLevelSlider.setMax(this.realMap.level)
 			gui.stardust.newMapLevelSlider.setMin(this.realMap.level / 2 | 0)
-			gui.stardust.newMapLevelSlider.steps = this.realMap.level / 2 | 0
+			gui.stardust.newMapLevelSlider.steps = gui.stardust.newMapLevelSlider.range
 			gui.stardust.newMapLevelSlider.dvRight.innerText = this.realMap.level
 			gui.stardust.newMapLevelSlider.setValue(this.realMap.level)
 			

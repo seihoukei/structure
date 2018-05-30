@@ -759,8 +759,60 @@ const mapMaker = {
 				}
 				const ends = new Set(this.points.filter(x => !x.boss))
 				;[...ends].map(x => ends.delete(x.parent))
-				;[...ends].map(x => (x.boss = 1, x.size *= 1.2))
+				;[...ends].map(x => (x.boss = 1, x.size *= 1.2, x.customPower = 5e67))
 				this.boss = 1
+/*			} else if (!this.virtual && this.level == 40) {
+				const space = 40
+				const baseSize = 6
+				
+				const spawnPoint = (angle, distance, finalLayer) => {
+					const newX = space * distance * Math.cos(angle)
+					const newY = space * distance * Math.sin(angle)
+					const parent = this.points.reduce((v,p) => !p.boss && Math.abs(Math.sin(p.angle - angle)) > 1e-3 && Math.hypot(p.x-newX,p.y-newY) < Math.hypot(v.x-newX,v.y-newY)? p : v, this.points[0])
+					const newType = Math.random() * 6 + 1 | 0//((x + y) / 2 + 100 + y * 2) % 6 + 1
+					const newBoss = 0//(((y & 1) * 3 + x) % 6 == 0)?finalLayer?1:2:0
+					const point = MapPoint({
+						x : newX,
+						y : newY,
+						angle : Math.atan2(newY, newX).toDigits(3),
+						distance : Math.hypot(newX, newY).toDigits(3),
+						parent, 
+						type : newType,
+						size : baseSize,// * ([1,2,1.5][newBoss]),
+						depth : (parent.depth || 0) + 1,
+						boss : newBoss?newBoss+1:0
+					})
+//					if (newBoss == 1) point.customPower = 2e68
+//					if (newBoss == 2) {
+//						point.customPower = 1e68
+//						point.special = (Math.random() < 0.5)?SPECIAL_ALONE:SPECIAL_NOCHANNEL
+//					}
+//					if (!newBoss || !finalLayer)
+					this.points.push(point)
+					return point
+				}
+				
+				const layers = 12
+				let radius = 1
+				for (let layer = 1; layer <= layers; layer++) {
+					for (let i = layer%2; i < 10; i += 2) {
+						spawnPoint(i * Math.PI / 5 + Math.PI/10, radius, layer == layers).type = layer==6?3:1
+					}
+					if (layer > 5 && layer != layers) {
+						radius /= Math.cos(Math.PI / 10)
+						for (let i = 0; i < 20; i += 2) {
+							spawnPoint(i * Math.PI / 10, radius, layer == layers).type = 2
+						}
+						radius *= Math.cos(Math.PI / 10)
+						radius /= Math.cos(Math.PI / 5)
+					} else {
+						radius /= Math.cos(Math.PI / 5)
+					}
+				}
+				const ends = new Set(this.points.filter(x => !x.boss))
+				;[...ends].map(x => ends.delete(x.parent))
+				;[...ends].map(x => (x.boss = 1, x.size *= 1.2))
+				this.boss = 1*/
 			} else if ((this.virtual && this.level <= 30) || (!this.virtual && this.level >= 30)) {
 				const baseSize = 5 + this.level / 10
 				const distance = baseSize * 8 
@@ -991,6 +1043,7 @@ const mapMaker = {
 			if ((this.level > 12 && this.level != 30) || this.virtual){				
 				for (let i = 0; i < (this.level | 0) - (this.virtual?0:10); i++) {
 					const point = [...canBlock][canBlock.size * Math.random()|0]
+					if (!point) break
 					point.special = i&1?SPECIAL_RESIST:SPECIAL_BLOCK
 					canBlock.delete(point)
 				}
@@ -999,6 +1052,7 @@ const mapMaker = {
 			if (this.level > 25 && this.level != 30){				
 				for (let i = 0; i < (this.level | 0) - (this.virtual?10:20); i++) {
 					const point = [...canBlock][canBlock.size * Math.random()|0]
+					if (!point) break
 					point.special = i&1?SPECIAL_NOBUILD:SPECIAL_NOCLONE
 					canBlock.delete(point)
 				}
@@ -1007,6 +1061,7 @@ const mapMaker = {
 			if (this.level > 35){				
 				for (let i = 0; i < (this.level | 0) - (this.virtual?10:20); i++) {
 					const point = [...canBlock][canBlock.size * Math.random()|0]
+					if (!point) break
 					point.special = i&1?SPECIAL_NOCHANNEL:SPECIAL_ALONE
 					canBlock.delete(point)
 				}

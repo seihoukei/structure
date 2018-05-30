@@ -772,7 +772,7 @@ const mapPointHandler = {
 			this.calculateStats()
 			
 		if (ARTIFACTS.doomShield.equipped && ARTIFACTS.doomShield.equipped.target == this) {
-			const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && y.special != SPECIAL_RESIST)
+			const outs = [...this.children].filter(y => !y.locked && (!y.boss) && y.special != SPECIAL_RESIST)
 			const target = outs[Math.random() * outs.length | 0]
 			if (target) {
 				target.enchanted = ENCHANT_DOOM

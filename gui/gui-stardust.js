@@ -258,15 +258,17 @@ const StardustTab = Template({
 		if (this.displayMap && performance.now() - this.lastUpdate > 2000/* == game.activeMap*/) {
 			this.updateMapStats(this.displayMap)
 		}
-		const currentMap = gui.stardust.virtualMaps.filter(x => x.name == game.activeMap)[0]
-		if (currentMap) {
-			const map = game.map
-			const stars = map.points.filter(x => x.exit && x.owned).length
-			const progress = map.points.filter(x => x.owned).length / map.points.length * 100
-			const exits = map.exitsCount
-			currentMap.dvLevel.innerText = "Level "+map.level+", "+Math.floor(progress)+(map.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+((map.level == game.realMap.level && progress < 100)?"???":exits)
-			if (currentMap.dvEvolve)
-				currentMap.dvEvolve.classList.toggle("enabled", progress == 100 && (!map.evolved || map.evolved < 3))
+		if (gui.stardust && gui.stardust.virtualMaps) {
+			const currentMap = gui.stardust.virtualMaps.filter(x => x.name == game.activeMap)[0]
+			if (currentMap) {
+				const map = game.map
+				const stars = map.points.filter(x => x.exit && x.owned).length
+				const progress = map.points.filter(x => x.owned).length / map.points.length * 100
+				const exits = map.exitsCount
+				currentMap.dvLevel.innerText = "Level "+map.level+", "+Math.floor(progress)+(map.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+((map.level == game.realMap.level && progress < 100)?"???":exits)
+				if (currentMap.dvEvolve)
+					currentMap.dvEvolve.classList.toggle("enabled", progress == 100 && (!map.evolved || map.evolved < 3))
+			}
 		}
 	}
 })

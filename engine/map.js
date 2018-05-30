@@ -805,12 +805,12 @@ const mapMaker = {
 				let radius = 1
 				for (let layer = 1; layer <= layers; layer++) {
 					for (let i = layer%2; i < 10; i += 2) {
-						spawnPoint(i * Math.PI / 5 + Math.PI/10, radius, layer == layers?1:0).type = 1
+						spawnPoint(i * Math.PI / 5 + Math.PI/10, radius, layer == layers?1:0).type = layer % 6 + 1
 					}
 					if (layer > 5 && layer != layers) {
 						radius /= Math.cos(Math.PI / 10)
 						for (let i = 0; i < 20; i += 2) {
-							spawnPoint(i * Math.PI / 10, radius, false).type = 1
+							spawnPoint(i * Math.PI / 10, radius, false).type = layer % 6 + 1
 						}
 						radius *= Math.cos(Math.PI / 10)
 						radius /= Math.cos(Math.PI / 5)

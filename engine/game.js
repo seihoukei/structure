@@ -443,9 +443,9 @@ const game = {
 	},
 
 	update() {
+		this.updateAvailable()
 		this.map.update()
 		this.world.update()
-		this.updateAvailable()
 		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		if (!this.offline) {
 			gui.mainViewport.getLimits(this.map.bounds)

@@ -299,7 +299,12 @@ const mapHandler = {
 				pt.x > gui.mainViewport.window.left - pt.size - 1 &&
 				pt.y < gui.mainViewport.window.bottom + pt.size + 1&&
 				pt.y > gui.mainViewport.window.top - pt.size - 1)
-		this.renderedPoints = this.renderedPoints.filter(pt => (pt.onscreen || pt.parent && pt.parent.onscreen) && !pt.animating)
+		this.renderedPoints = this.renderedPoints.filter(pt => (pt.onscreen || pt.parent && (pt.parent.onscreen ||
+				pt.x > gui.mainViewport.window.right + pt.size + 1 && pt.parent.x < gui.mainViewport.window.left - pt.size - 1 ||
+				pt.parent.x > gui.mainViewport.window.right + pt.size + 1 && pt.x < gui.mainViewport.window.left - pt.size - 1 ||
+				pt.y > gui.mainViewport.window.bottom + pt.size + 1 && pt.parent.y < gui.mainViewport.window.top - pt.size - 1 ||
+				pt.parent.y > gui.mainViewport.window.bottom + pt.size + 1 && pt.y < gui.mainViewport.window.top - pt.size - 1				
+			)) && !pt.animating)
 		
 		const ownedRendered = this.renderedPoints.filter(x => x.owned)
 		
@@ -761,16 +766,16 @@ const mapMaker = {
 				;[...ends].map(x => ends.delete(x.parent))
 				;[...ends].map(x => (x.boss = 1, x.size *= 1.2, x.customPower = 5e67))
 				this.boss = 1
-/*			} else if (!this.virtual && this.level == 40) {
+			} else if (!this.virtual && this.level == 40) {
 				const space = 40
 				const baseSize = 6
 				
 				const spawnPoint = (angle, distance, finalLayer) => {
 					const newX = space * distance * Math.cos(angle)
 					const newY = space * distance * Math.sin(angle)
-					const parent = this.points.reduce((v,p) => !p.boss && Math.abs(Math.sin(p.angle - angle)) > 1e-3 && Math.hypot(p.x-newX,p.y-newY) < Math.hypot(v.x-newX,v.y-newY)? p : v, this.points[0])
+					const parent = this.points.reduce((v,p) => (finalLayer == 2 || Math.abs(Math.sin(p.angle - angle)) > 1e-3) && Math.hypot(p.x-newX,p.y-newY) < Math.hypot(v.x-newX,v.y-newY)? p : v, this.points[0])
 					const newType = Math.random() * 6 + 1 | 0//((x + y) / 2 + 100 + y * 2) % 6 + 1
-					const newBoss = 0//(((y & 1) * 3 + x) % 6 == 0)?finalLayer?1:2:0
+					const newBoss = finalLayer//(((y & 1) * 3 + x) % 6 == 0)?finalLayer?1:2:0
 					const point = MapPoint({
 						x : newX,
 						y : newY,
@@ -780,7 +785,7 @@ const mapMaker = {
 						type : newType,
 						size : baseSize,// * ([1,2,1.5][newBoss]),
 						depth : (parent.depth || 0) + 1,
-						boss : newBoss?newBoss+1:0
+						boss : newBoss?newBoss:0
 					})
 //					if (newBoss == 1) point.customPower = 2e68
 //					if (newBoss == 2) {
@@ -792,16 +797,20 @@ const mapMaker = {
 					return point
 				}
 				
+				const spawnPointXY = (x, y, layer) => {
+					return spawnPoint(Math.atan2(y,x), Math.hypot(x,y), layer)
+				}
+				
 				const layers = 12
 				let radius = 1
 				for (let layer = 1; layer <= layers; layer++) {
 					for (let i = layer%2; i < 10; i += 2) {
-						spawnPoint(i * Math.PI / 5 + Math.PI/10, radius, layer == layers).type = layer==6?3:1
+						spawnPoint(i * Math.PI / 5 + Math.PI/10, radius, layer == layers?1:0).type = 1
 					}
 					if (layer > 5 && layer != layers) {
 						radius /= Math.cos(Math.PI / 10)
 						for (let i = 0; i < 20; i += 2) {
-							spawnPoint(i * Math.PI / 10, radius, layer == layers).type = 2
+							spawnPoint(i * Math.PI / 10, radius, false).type = 1
 						}
 						radius *= Math.cos(Math.PI / 10)
 						radius /= Math.cos(Math.PI / 5)
@@ -809,10 +818,55 @@ const mapMaker = {
 						radius /= Math.cos(Math.PI / 5)
 					}
 				}
-				const ends = new Set(this.points.filter(x => !x.boss))
+				radius *=  Math.cos(Math.PI/5) 
+				radius *=  Math.cos(Math.PI/5) + Math.sin(Math.PI/5) / Math.sin(Math.PI/10)
+				for (let i = 0; i < 5; i++) {
+					const bossPoint = spawnPoint(2 * i * Math.PI / 5 - Math.PI/10, radius, 2)
+					bossPoint.boss = 2
+					const bossX = bossPoint.x / space
+					const bossY = bossPoint.y / space
+					const angle = Math.PI / 10
+					for (let j = 1; j < 7; j++) {
+						for (let sign = -1; sign < 2; sign+=2) {
+							const base = spawnPointXY(
+								bossX - j * Math.cos(bossPoint.angle + sign * angle) * radius / 10,
+								bossY - j * Math.sin(bossPoint.angle + sign * angle) * radius / 10,
+								0)
+							base.type = (i+1)%5 + 2
+							const baseX = base.x / space
+							const baseY = base.y / space
+							let lastParent = base
+							for (let k = 1; k < 8-j; k++) {
+								let point = spawnPointXY(
+									baseX - k * Math.cos(bossPoint.angle) * radius / 13,
+									baseY - k * Math.sin(bossPoint.angle) * radius / 13,
+									0)
+								point.type = (i+1)%5 + 2
+								point.parent = lastParent
+								lastParent = point
+							}
+							lastParent.boss = 3
+							if (j == 1) {
+								base.parent = bossPoint
+							}
+						}
+					}
+				}
+/*				const ends = new Set(this.points.filter(x => !x.boss))
 				;[...ends].map(x => ends.delete(x.parent))
-				;[...ends].map(x => (x.boss = 1, x.size *= 1.2))
-				this.boss = 1*/
+				;[...ends].map(x => (x.boss = 1, x.size *= 1.2))*/
+				this.points.filter(x => x.boss == 1).map(x => {
+					x.customPower = 5e84
+					const newPoint = spawnPoint(x.angle, x.distance * 2 / space, 0)
+					newPoint.type = 1
+					newPoint.size = 150
+					newPoint.boss = 4
+					newPoint.customPower = 5e86
+					newPoint.parent = x
+				})
+				this.points.filter(x => x.boss == 2).map(x => x.customPower = 1e85)
+				this.points.filter(x => x.boss == 3).map(x => x.customPower = 2e86)
+				this.boss = 1
 			} else if ((this.virtual && this.level <= 30) || (!this.virtual && this.level >= 30)) {
 				const baseSize = 5 + this.level / 10
 				const distance = baseSize * 8 
@@ -1078,6 +1132,16 @@ const mapMaker = {
 			while (clonePoint && clonePoint.parent && clonePoint.parent.index) {
 				free.delete(clonePoint)
 				clonePoint = clonePoint.parent
+			}
+			
+			if (!this.virtual && this.level == 40) {
+				this.points.filter(x => x.boss == 2 || x.boss == 1).map(point => {
+					let pt = point
+					while (pt && pt.parent && pt.parent.index) {
+						free.delete(pt)
+						pt = pt.parent
+					}
+				})
 			}
 			
 			for (let k = 0; (k < this.level && free.size); k++) {

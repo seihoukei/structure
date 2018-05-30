@@ -406,6 +406,8 @@ const mapPointHandler = {
 		while (!pt.owned && pt.parent && pt.parent != pt) {
 			this.away++
 			pt = pt.parent
+			if (pt.boss && !pt.owned)
+				this.away++
 			if (pt.lock && !pt.unlocked && !pt.keyData.keyPoint.owned)
 				this.locked = 2
 		}

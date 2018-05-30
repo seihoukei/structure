@@ -173,7 +173,11 @@ const worldHandler = {
 			c.lineWidth = 1/gui.worldViewport.current.zoom
 			c.strokeStyle = gui.theme.shades[13]
 			c.beginPath()
-			this.points.map(renderReach)
+			this.points.filter(x => x.reach > x.deadZone).map(renderReach)
+			c.stroke()
+			c.strokeStyle = gui.theme.background
+			c.beginPath()
+			this.points.filter(x => x.reach < x.deadZone).map(renderReach)
 			c.stroke()
 		}
 		c.restore()

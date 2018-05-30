@@ -528,7 +528,7 @@ const sliderHandler = {
 			gui.sliders.levelUp.update(true)
 		} else if (this.clone == 2) {
 			this.level = (this.level || 0) + 1
-			if (this.level == 9 && game.map.level > 34) 
+			if (this.level == 9 && game.map.level >= 34) 
 				game.feats.summonLevel9 = 1
 			this.stats[POINT_TYPES[this.element]] *= 2.1-this.level * 0.1//(this.level + 1) / this.level
 		}

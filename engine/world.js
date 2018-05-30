@@ -175,7 +175,7 @@ const worldHandler = {
 			c.beginPath()
 			this.points.filter(x => x.reach > x.deadZone).map(renderReach)
 			c.stroke()
-			c.strokeStyle = gui.theme.background
+			c.strokeStyle = settings.renderDeadZone?gui.theme.background:gui.theme.shades[13]
 			c.beginPath()
 			this.points.filter(x => x.reach < x.deadZone).map(renderReach)
 			c.stroke()

@@ -235,7 +235,7 @@ const StardustTab = Template({
 			if (game.skills.virtualMaps) {
 				this.newMapLevelSlider.setMax (game.realMap.level)
 				this.newMapLevelSlider.setMin (game.realMap.level / 2 | 0)
-				this.newMapLevelSlider.steps = game.realMap.level / 2 | 0
+				this.newMapLevelSlider.steps = this.newMapLevelSlider.range
 				this.newMapLevelSlider.dvRight.innerText = game.realMap.level
 				this.newMapLevelSlider.update()
 				this.selector.update(true)

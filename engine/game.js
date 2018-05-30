@@ -794,9 +794,9 @@ const game = {
 			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
 			if (x == "spirit" && this.skills.spiritStar)
 				this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
-			if (x == "power" && this.real.multi.power > 1e15) {
+			if (x == "power" && this.real.multi.power > this.world.stats.powerCap) {
 				this.feats.power1 = 1
-				this.real.multi.power = 1e15
+				this.real.multi.power = this.world.stats.powerCap
 			}
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})

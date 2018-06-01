@@ -109,7 +109,7 @@ const gui = {
 						}
 					},
 					available: () => !this.point.harvesting,
-					visible: () => game.skills.imprint && this.point && this.point.canImprint,
+					visible: () => game.skills.imprint && this.point && this.point.canImprint && !this.point.harvested,
 					iconText: "M", 
 					iconColor: "#3399FF",
 					text: () => this.point?this.point.harvesting?"Imprinting\n"+(100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")\nImprinting: "+game.harvesting.size:""

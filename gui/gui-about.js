@@ -16,7 +16,6 @@ const AboutTab = Template({
 		this.dvReddit.innerHTML = "<a target='_blank' rel='noopener' href='https://www.reddit.com/r/structure_idle/'>Reddit</a>"
 		this.dvWiki = createElement("div", "link", this.dvLinks, "TBA: Wiki link")
 		this.dvWiki.innerHTML = "<a target='_blank' rel='noopener' href='https://www.reddit.com/r/structure_idle/wiki/'>Wiki</a>"
-		this.dvFallback = createElement("div", "credits", this.dvContent, "Fallback unicode font : 'Symbola' by George Douros")
 		this.dvChangelog = createElement("div", "changelog", this.dvContent, `Changelog
 		
 		-- 0.0.6 -- 29 May 2018 --

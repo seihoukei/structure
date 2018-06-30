@@ -149,6 +149,13 @@ body.dark.dark-boss {
   font-weight: 400;
 }
 
+@font-face {
+    font-family: 'Structure';
+    src: url('structure.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
 html, body {
 	width : 100%;
 	height : 100%;
@@ -157,7 +164,7 @@ html, body {
 	color : var(--foreground);
 	padding : 0;
 	margin : 0;
-	font-family : 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif;
+	font-family : 'Structure', 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif;
 	font-size : 15px;
 	-webkit-user-select: none;
 	-moz-user-select: none;

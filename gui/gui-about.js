@@ -6,7 +6,7 @@ const AboutTab = Template({
 		this.dvContent = createElement("div", "about-holder", this.dvDisplay)
 		this.dvGameTitle = createElement("div", "title", this.dvContent, "Structure")
 		this.dvSubtitle = createElement("div", "subtitle", this.dvContent, "The incremental game")
-		this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.6 -- 29 May 2018")
+		this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.7 -- 1 Jujy 2018")
 		//this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.2 -- 25 March 2018")
 		this.dvAuthor = createElement("div", "author", this.dvContent, "by seihoukei")
 		this.dvLinks = createElement("div", "links", this.dvContent)
@@ -16,6 +16,9 @@ const AboutTab = Template({
 		this.dvReddit.innerHTML = "<a target='_blank' rel='noopener' href='https://www.reddit.com/r/structure_idle/'>Reddit</a>"
 		this.dvWiki = createElement("div", "link", this.dvLinks, "TBA: Wiki link")
 		this.dvWiki.innerHTML = "<a target='_blank' rel='noopener' href='https://www.reddit.com/r/structure_idle/wiki/'>Wiki</a>"
+		this.dvDev = createElement("div", "credits", this.dvContent, "Idea and development: seihoukei")
+		this.dvArt1 = createElement("div", "credits", this.dvContent, "Artifact icons: ykoc and seihoukei")
+		this.dvArt2 = createElement("div", "credits", this.dvContent, "Structure font and flat icons: Dandelion")
 		this.dvChangelog = createElement("div", "changelog", this.dvContent, `Changelog
 		
 		-- 0.0.6 -- 29 May 2018 --

@@ -1,6 +1,6 @@
 'use strict'
 
-const fontName = " 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif"
+const fontName = "'Structure', 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif"
 
 function fixHomeAtLastBug() {
 	game.map.points[0].mineDepth = game.map.points.reduce((v,x) => v + x.level?x.bonus * 8 ** x.level / 2:0, 0) + game.resources.gold

@@ -24,6 +24,7 @@ const SkillsTab = Template({
 	
 	onSet() {
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
+		gui.setHeader(["exp", "science"])
 		this.updateSkills()
 	},
 	
@@ -78,7 +79,11 @@ const SkillsTab = Template({
 	},
 	
 	update(forced) {
+		let fullUpdate = false
 		this.scienceSkills.map(skill => {
+			if (skill.science <= game.resources.science) {
+				fullUpdate = true
+			}
 			if (game.real)
 				skill.dvCost.innerText = "Science: "+displayNumber(skill.science) + " (" + shortTimeString((skill.science - game.resources.science) / game.real.production.science) + ")"
 		})
@@ -86,5 +91,6 @@ const SkillsTab = Template({
 			if (game.real)
 				skill.dvCost.innerText = "EXP: " + displayNumber(skill.exp * game.skillCostMult, 0) + ETAString(skill.exp * game.skillCostMult, "exp", true) +" / x" + (skill.mult || 1)
 		})
+		if (fullUpdate) this.updateSkills()
 	}
 })

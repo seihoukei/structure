@@ -161,6 +161,7 @@ const WorldMouse = {
 				gui.worldViewport.setTargetXY(this.mapX, this.mapY)
 			} else if (this.state == MOUSE_STATE_MOVE || this.state == MOUSE_STATE_BUILD) {
 				this.state = MOUSE_STATE_FREE
+				gui.world.dvControlHint.classList.toggle("hidden", this.state == MOUSE_STATE_FREE)
 				game.updateWorldBackground = true
 				delete this.target
 			}
@@ -182,6 +183,7 @@ const WorldMouse = {
 					this.target.y = this.target.newY.toDigits(3)
 					this.target.calculateStats()
 					delete this.target
+					gui.world.dvControlHint.classList.toggle("hidden", this.state == MOUSE_STATE_FREE)
 					game.world.updateConnections()
 					game.world.update()
 					game.updateWorldBackground = true
@@ -193,14 +195,17 @@ const WorldMouse = {
 						x : this.target.newX,
 						y : this.target.newY,
 						type : this.target.type,
+						projected : true,
 						world : game.world
 					})
-					if (!event.shiftKey || !game.world.canAfford(this.target.type)) {
+					gui.world.update(true)
+					if (!event.shiftKey/* || !game.world.canAfford(this.target.type)*/) {
 						this.state = MOUSE_STATE_FREE
 						delete this.target
 					} else {
 						this.target.newConnections = game.world.predictConnections(this.target)
 					}
+					gui.world.dvControlHint.classList.toggle("hidden", this.state == MOUSE_STATE_FREE)
 /*					game.world.updateConnections()
 					game.world.update()
 					game.updateWorldBackground = true*/
@@ -244,8 +249,52 @@ const WorldMouse = {
 				else 
 					gui.world.hover.reset()
 			} else if (this.state == MOUSE_STATE_MOVE || this.state == MOUSE_STATE_BUILD) {
-				this.target.newX = this.mapX
-				this.target.newY = this.mapY
+				if (event.ctrlKey) {
+					const snapTarget = game.world.points.map(x => {
+						if (x == this.target) return [x, 1e5]
+						const r1 = x.reach
+						const r2 = this.target.reach
+						const d = Math.hypot(x.x - this.mapX, x.y - this.mapY)
+						return [x, Math.min(Math.abs(r1-r2-d), Math.abs(r2-d-r1), Math.abs(d-r1-r2))]
+					}).sort((x,y) => x[1]-y[1])[0][0]
+					if (snapTarget == this.target) {
+						this.target.newX = this.mapX.toDigits(3)
+						this.target.newY = this.mapY.toDigits(3)
+					} else {
+						let distance = Math.hypot(snapTarget.x - this.mapX, snapTarget.y - this.mapY)
+						const angle = Math.atan2(this.mapY - snapTarget.y, this.mapX - snapTarget.x)
+						const delta = this.target.reach + (this.target.family == snapTarget.family && distance > Math.min(snapTarget.reach, this.target.reach)?0.1:-0.1)
+						distance = snapTarget.reach + (distance > snapTarget.reach?delta:-delta)
+						this.target.newX = snapTarget.x + distance * Math.cos(angle).toDigits(3)
+						this.target.newY = snapTarget.y + distance * Math.sin(angle).toDigits(3)
+					}
+				} else if (event.altKey && game.world.points.length > 1) {
+					const snapTargets = game.world.points.map(x => {
+						if (x == this.target) return [x, 1e5]
+						const r1 = x.reach
+						const r2 = this.target.reach
+						const d = Math.hypot(x.x - this.mapX, x.y - this.mapY)
+						return [x, Math.min(Math.abs(r1-r2-d), Math.abs(r2-d-r1), Math.abs(d-r1-r2))]
+					}).sort((x,y) => x[1]-y[1]).slice(0,2).map(x => x[0])
+					const mx = this.mapX
+					const my = this.mapY
+					const x1 = snapTargets[0].x
+					const y1 = snapTargets[0].y
+					const x2 = snapTargets[1].x
+					const y2 = snapTargets[1].y
+					const d1 = Math.hypot(mx-x1, my-y1)
+					const d2 = Math.hypot(mx-x2, my-y2)
+					const delta1 = this.target.reach + (this.target.family == snapTargets[0].family && d1 > Math.min(snapTargets[0].reach, this.target.reach)?0.1:-0.1)
+					const delta2 = this.target.reach + (this.target.family == snapTargets[1].family && d2 > Math.min(snapTargets[1].reach, this.target.reach)?0.1:-0.1)
+					const td1 = snapTargets[0].reach + (d1 > snapTargets[0].reach?delta1:-delta1)
+					const td2 = snapTargets[1].reach + (d2 > snapTargets[0].reach?delta2:-delta2)
+					const inter = intersectCircles(x1,y1,td1,x2,y2,td2,mx,my)
+					this.target.newX = inter.x.toDigits(3)
+					this.target.newY = inter.y.toDigits(3)
+				} else {
+					this.target.newX = this.mapX.toDigits(3)
+					this.target.newY = this.mapY.toDigits(3)
+				}
 				this.target.newConnections = game.world.predictConnections(this.target)
 //				this.target.calculateStats()
 //				game.world.updateConnections()
@@ -255,8 +304,6 @@ const WorldMouse = {
 	},
 	
 	onwheel(event) {
-		if (game.slowMode) 
-			return
 		if (event.deltaY && !this.down) {
 			if (this.state == MOUSE_STATE_FREE) {
 				let oldZoom = gui.worldViewport.current.zoom

@@ -54,7 +54,7 @@ const SPELLS = {//function context == point
 		iconText : "D",
 		iconColor : "#DD55DD",
 	},
-	destroyNobuild : {
+/*	destroyNobuild : {
 		name : "Dispel build shield",
 		desc : "Removes shield from building-preventing point",
 		book : "dispels2",
@@ -68,7 +68,7 @@ const SPELLS = {//function context == point
 		},
 		iconText : "D",
 		iconColor : "#DD55DD",
-	},
+	},*/
 	destroyLock : {
 		name : "Rest in keys",
 		desc : "Unlock the nearby locked points",
@@ -193,6 +193,55 @@ const SPELLS = {//function context == point
 		},
 		iconText : "M",
 		iconColor : "var(--bg-metal)",
+	},
+	summonExplosion : {
+		name : "Summon explosion",
+		desc : "Summons attacking this point explode, reducing remaining barrier by 5% + 5% per slider level",
+		book : "explosive1",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			const clones = [...point.attackers].reduce((v,x) => x.clone==2?v+(x.level || 0)+1:v,0)
+			if (!clones) return -1
+			return clones * point.baseCost ** 0.4/25
+		},
+		cast(point) {
+			[...point.attackers].filter(x => x.clone == 2).map(slider => {
+				const level = 5 + (slider.level || 0) * 5
+				point.dealDamage(level, true)
+				const {x,y} = point.coordinatesOn(point.progress, true)
+				animations.Fireworks(x, y, gui.theme.typeColors[slider.element], level * 3, level * 3)
+				slider.fullDestroy()
+			})
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "X",
+		iconColor : "var(--bg-fire)",
+	},
+	summonAlignment : {
+		name : "Summon conversion",
+		desc : "Summons attacking this point change element to most efficient one",
+		book : "realign1",
+		type : SPELL_TYPE_POINT,
+		cost(point) { 
+			const clones = [...point.attackers].reduce((v,x) => x.clone==2?v+(x.level || 0)+1:v,0)
+			if (!clones) return -1
+			return clones * point.baseCost ** 0.4/50
+		},
+		cast(point) {
+			[...point.attackers].filter(x => x.clone == 2).map(slider => {
+				slider.realign([1,3,4,5,6].map(element => {
+					slider.realign(element, false)
+					return [element, slider.predictDamage(point)]
+				}).sort((x,y) => y[1]-x[1])[0][0], false)
+				slider.setColor(gui.theme.typeColors[slider.element])
+				slider.updateFullVisibility()
+			})
+			if (gui.target.point == point)
+				gui.target.set(point, -1)
+		},
+		iconText : "C",
+		iconColor : "#111111",
 	},
 	enchantGold: {
 		name: "Land of gold",

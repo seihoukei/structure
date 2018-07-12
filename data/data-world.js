@@ -49,10 +49,6 @@ const WORLD_STATS = {
 		name: "Mean machine damage x",
 		default: 1
 	},
-	powerCap : {
-		name: "Power multiplier cap x",
-		default: 1e15
-	},
 }
 
 const BASE_WORLD_STATS = Object.keys(WORLD_STATS).reduce((v,x) => (v[x]=WORLD_STATS[x].default, v), {})
@@ -77,7 +73,7 @@ const WORLD_ELEMENTS = {
 		deadZone : 10,
 		reach : 20,
 		effect : WORLD_BONUS_MUL,
-		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		value : (depth) => 1 + 2 ** (0.5 - depth / 2),
 		stat : "goldSpeed",
 		cost : {
 			_1 : 3,
@@ -94,7 +90,7 @@ const WORLD_ELEMENTS = {
 		reach : 25,
 		deadZone : 15,
 		effect : WORLD_BONUS_MUL,
-		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		value : (depth) => 1 + 2 ** (0.5 - depth / 2),
 		stat : "harvestSpeed",
 		cost : {
 			_1 : 5,
@@ -118,7 +114,7 @@ const WORLD_ELEMENTS = {
 		iconText : "🔍\uFE0E",
 		effect : WORLD_BONUS_ADD_MULT,
 		stat : "scienceSpeed",
-		value : (point) => 1,
+		value : (depth) => 1,
 		cost : {
 			_1 : 5,
 			_2 : 5,
@@ -139,7 +135,7 @@ const WORLD_ELEMENTS = {
 		reach : 30,
 		iconText : "B",
 		effect : WORLD_BONUS_ADD_MULT,
-		value : (point) => 1,
+		value : (depth) => 1,
 		stat : "bloodBoost",
 		cost : {
 			_3 : 15
@@ -156,7 +152,7 @@ const WORLD_ELEMENTS = {
 		reach : 30,
 		iconText : "F",
 		effect : WORLD_BONUS_ADD_MULT,
-		value : (point) => 1,
+		value : (depth) => 1,
 		stat : "fireBoost",
 		cost : {
 			_4 : 15
@@ -173,7 +169,7 @@ const WORLD_ELEMENTS = {
 		reach : 30,
 		iconText : "I",
 		effect : WORLD_BONUS_ADD_MULT,
-		value : (point) => 1,
+		value : (depth) => 1,
 		stat : "iceBoost",
 		cost : {
 			_5 : 15
@@ -190,7 +186,7 @@ const WORLD_ELEMENTS = {
 		reach : 30,
 		iconText : "M",
 		effect : WORLD_BONUS_ADD_MULT,
-		value : (point) => 1,
+		value : (depth) => 1,
 		stat : "metalBoost",
 		cost : {
 			_6 : 15
@@ -207,7 +203,7 @@ const WORLD_ELEMENTS = {
 		reach : 45,
 		iconText : "✨\uFE0E",
 		effect : WORLD_BONUS_MUL,
-		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+		value : (depth) => 1 + 2 ** (0.5 - depth / 2),
 		stat : "manaSpeed",
 		cost : {
 			_3 : 4,
@@ -227,7 +223,7 @@ const WORLD_ELEMENTS = {
 		reach : 25,
 		iconText : "S",
 		effect : WORLD_BONUS_ADD,
-		value : (point) => 1,
+		value : (depth) => 1,
 		stat : "maxSummons",
 		cost : {
 			_1 : 4,
@@ -240,7 +236,7 @@ const WORLD_ELEMENTS = {
 	},
 	charger: {
 		name : "Thunder station",
-		desc : "Multiplies Mean machine damage",
+		desc : "Multiplies thunderstone power",
 		type : WORLD_POINT_ACTIVE,
 		family : "summon",
 		blueprint : "mean1",
@@ -249,33 +245,100 @@ const WORLD_ELEMENTS = {
 		reach : 40,
 		iconText : "T",
 		effect : WORLD_BONUS_MUL,
-		value : (point) => 1 + 2 ** (0.5 - point.depth / 2),
+//		value : (depth) => 1 + 2 ** (0.5 - (depth ** 1.5) * 0.15),
+		value : (depth) => 1 + 2 ** (0.5 - depth * 0.3),
 		stat : "meanBoost",
-		cost : {
+		legacyCost : {
 			_1 : 5,
 			_2 : 5,
 			_3 : 8,
 			_4 : 8,
 			_5 : 8,
 			_6 : 8
+		},
+		cost : {
+			_1 : 4,
+			_2 : 4,
+			_3 : 6,
+			_4 : 6,
+			_5 : 6,
+			_6 : 6
 		}
 	},
 	powerLift: {
-		name : "Power station",
-		desc : "Increases power cap",
+		name : "Void",
+		desc : "Does nothing",
 		type : WORLD_POINT_ACTIVE,
-		family : "power",
-		blueprint : "power1",
-		radius : 20,
-		deadZone : 30,
-		reach : 25,
-		iconText : "P",
-		effect : WORLD_BONUS_MUL,
-		value : (point) => 1 + 0.5 * (2 ** (0.5 - point.depth / 2)),
-		stat : "powerCap",
+		family : "core",
+		blueprint : "power1_disabled",
+		radius : 5,
+		deadZone : 15,
+		reach : 0,
+		iconText : " ",
 		cost : {
+		},
+		legacyCost : {
 			_1 : 75,
 			_2 : 30,
+		}
+	},
+	minorConnector : {
+		name : "Plains",
+		desc : "Utility connector node",
+		type : WORLD_POINT_ACTIVE,
+		family : "core",
+		blueprint : "connect1",
+		radius : 5,
+		deadZone : 10,
+		reach : 75,
+		iconText : " ",
+		cost : {
+			_1 : 50,
+			_2 : 50,
+			_3 : 30,
+			_4 : 30,
+			_5 : 30,
+			_6 : 30,
+		}
+	},
+	minusConnector : {
+		name : "Island",
+		desc : "Utility connector node, does not increase depth",
+		type : WORLD_POINT_ACTIVE,
+		family : "core",
+		blueprint : "connect2",
+		radius : 5,
+		deadZone : 10,
+		reach : 25,
+		nodepth : 1,
+		iconText : "+",
+		cost : {
+			_1 : 100,
+			_2 : 100,
+			_3 : 60,
+			_4 : 60,
+			_5 : 60,
+			_6 : 60,
+		}
+	},
+	bigMinusConnector : {
+		name : "Mountain",
+		desc : "Utility connector node, does not increase depth",
+		type : WORLD_POINT_ACTIVE,
+		family : "core",
+		blueprint : "connect3",
+		radius : 5,
+		deadZone : 55,
+		reach : 50,
+		nodepth : 1,
+		iconText : "+",
+		cost : {
+			_1 : 100,
+			_2 : 100,
+			_3 : 60,
+			_4 : 60,
+			_5 : 60,
+			_6 : 60,
 		}
 	},
 }

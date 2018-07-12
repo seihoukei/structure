@@ -1,13 +1,31 @@
-function saveState(slot = "_Autosave", nobackup = false, data = game) {
+function saveState(slot = "_Autosave", nobackup = false, data = game, async = true) {
 //	const saveData = btoa(compressSaveData(JSON.stringify(data)))+"|"+(data.realMap?data.realMap.level:data.map?data.map.level:data.maps && data.maps.main?data.maps.main.level:0)+"|"+data.saveTime+"|"+Math.round((data.statistics.offlineTime || 0) + (data.statistics.onlineTime || 0))
-	const saveData = LZString.compressToBase64("lzstr"+compressSaveData(JSON.stringify(data)))+"|"+(data.realMap?data.realMap.level:data.map?data.map.level:data.maps && data.maps.main?data.maps.main.level:0)+"|"+data.saveTime+"|"+Math.round((data.statistics.offlineTime || 0) + (data.statistics.onlineTime || 0))
+//	const saveData = LZString.compressToBase64("lzstr"+compressSaveData(JSON.stringify(data)))
+	const postfix = "|"+(data.realMap?data.realMap.level:data.map?data.map.level:data.maps && data.maps.main?data.maps.main.level:0)+"|"+(data.saveTime || Date.now())+"|"+Math.round((data.statistics.offlineTime || 0) + (data.statistics.onlineTime || 0))
+	if (async) {
+		if (core.saving) return false
+		core.saving = true
+		core.lzWorker.postMessage({
+			name : "compress",
+			data : JSON.stringify(data),
+			postfix, nobackup, slot
+		})
+	} else {
+		const saveData = LZString.compressToBase64("lzstr"+compressSaveData(JSON.stringify(data)))		
+		finalizeSave(slot, saveData, postfix, nobackup)
+	}
+	delete game.badSave
+}
+
+function finalizeSave(slot, data, postfix, nobackup) {
+	const saveData = data + postfix
 	if (!nobackup && localStorage[SAVE_PREFIX+slot])
 		localStorage[SAVE_PREFIX + "_Last deleted/overwritten save backup"] = localStorage[SAVE_PREFIX+slot]
 	localStorage[SAVE_PREFIX+slot] = saveData
 	if (slot == "_Cloud save" && settings.cloudUpdate)
 		cloud.save()
+	core.saving = false
 	gui.updateSaves()
-	delete game.badSave	
 }
 
 function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
@@ -33,8 +51,10 @@ function loadState(slot = "_Autosave", hibernated = false, nobackup = false) {
 		return true
 	} catch(e) {
 		game.badSave = true
-		alert("Invalid save data")
 		console.log(e)
+		localStorage[SAVE_PREFIX+"__Possibly corrupted save"] = localStorage[SAVE_PREFIX+slot]
+		alert("Invalid save data.\nTry refreshing with CTRL+F5.\nIf error persists, contact developer.")
+		game.reset()
 //		console.log(saveData)
 		return false
 	}
@@ -60,6 +80,12 @@ function exportState(slot = "_Autosave", decode = 0) {
 }
 
 function importState(saveData) {
+	if (!saveData) return
+	saveData = saveData.trim()
+	if (saveData.slice(0,10) == "structure:"){
+		cloud.fetchSave(saveData.split("\n")[0].slice(10).trim())
+		return
+	}
 	try {
 		let uSaveData = saveData
 		if (saveData[0] != "{") {
@@ -75,14 +101,15 @@ function importState(saveData) {
 
 		if (saveData[0] == "{") {
 			saveData = JSON.parse(saveData)
-			saveState("_Last imported save", true, saveData)
+			saveState("_Last imported save", true, saveData, false)
 		}
 		gui.updateSaves("_Last imported save")
 		return loadState("_Last imported save")
 	} catch(e) {
 		game.badSave = true
-		alert("Invalid save data")
 		console.log(e)
+		alert("Invalid save data.\nTry refreshing with CTRL+F5.\nIf error persists, contact developer.")
+		game.reset()
 //		console.log(saveData)
 	}
 }
@@ -235,5 +262,53 @@ const cloud = {
 		gui.menu.saves.dvCloudStatus.innerText = "Currently not connected to the cloud"
 		gui.menu.saves.dvCloudName.innerText = ""
 		gui.menu.saves.dvCloudLogin.innerText = "Connect"
-	}
+	},
+	
+	shareSave(slot = "_Autosave") {
+		const data = localStorage[SAVE_PREFIX+slot]
+		gui.menu.saves.dvTextSave.value = "Uploading "+slot
+		fetch(this.server+"share.php", {
+				method: "POST",
+				body: JSON.stringify({
+					data
+				})
+			}).then(httpStatus)
+				.then((res) => res.json())
+				.then((data) => {
+					if (!data.success) {
+						console.log(data.error)
+						gui.menu.saves.dvTextSave.value = "Failed to upload save: " + data.error
+						return
+					}
+					gui.menu.saves.dvTextSave.value = "structure:"+data.code+ "\n\n\nImport the line above to load shared save\nSave expires in 24 hours"
+				})
+				.catch(x => {
+					gui.menu.saves.dvTextSave.value = "Failed to upload save: " + x
+					console.log(x)
+				})
+	},
+	
+	fetchSave(code) {
+		if (!code) 
+			return false		
+		fetch(this.server+"fetch.php", {
+				method: "POST",
+				body: JSON.stringify({
+					code
+				})
+			}).then(httpStatus)
+				.then((res) => res.json())
+				.then((data) => {
+					if (!data.success) {
+						console.log(data.error)
+						gui.menu.saves.dvTextSave.value = gui.menu.saves.dvTextSave.value.split("\n")[0]+"\n\nFailed to fetch save: " + data.error
+						return
+					}
+					importState(data.savedata)
+				})
+				.catch(x => {
+					gui.menu.saves.dvTextSave.value = gui.menu.saves.dvTextSave.value.split("\n")[0]+"\n\nFailed to fetch save: " + x
+					console.log(x)
+				})
+	},
 }

@@ -1,6 +1,7 @@
 :root {
 	--background : white;
 	--background-complete : #EEFFEE;
+	--background-starfield : #DDEEFF;
 	--foreground : black;
 	--lightframe : gray;
 	--alertframe : red;
@@ -60,11 +61,13 @@
 	--tablet-absent : #FFAAAA;
 	--artifact-active : #3399FF;
 	--cost-more : #7f0000;
+	--core-cost-more : #FFDDDD;
 }
 
 body.dark {
 	--background : #222222;
 	--background-complete : #223322;
+	--background-starfield : #223344;
 	--foreground : #DDDDDD;
 	--lightframe : #BBBBBB;
 	--darkframe : #DDDDDD;
@@ -123,6 +126,7 @@ body.dark {
 	--tablet-present : #22FF22;
 	--tablet-absent : #AF3333;
 	--cost-more : #DD7F7F;
+	--core-cost-more : #6F3F3F;
 }
 
 /*body.light.light-boss {
@@ -134,6 +138,13 @@ body.dark.dark-boss {
 	--background : #000000;
 	--background-complete : #001100;
 }*/
+
+@font-face {
+    font-family: 'Structure';
+    src: url('structure.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 @font-face {
   font-family: 'Open Sans';
@@ -150,10 +161,10 @@ body.dark.dark-boss {
 }
 
 @font-face {
-    font-family: 'Structure';
-    src: url('structure.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Share Tech Mono';
+  src: url('share-tech-400.woff') format('woff');
+  font-style: normal;
+  font-weight: 400;
 }
 
 html, body {
@@ -252,6 +263,10 @@ body.invert {
 	background-color : var(--background-complete);
 }
 
+.tab.map.complete.starfield {
+	background-color : var(--background-starfield);
+}
+
 canvas {
 	position : absolute;
 	left : 0;
@@ -271,6 +286,7 @@ canvas.foreground : {
 	z-index : 4;
 	position : absolute;
 	pointer-events : none;
+	font-family: 'Share Tech Mono';
 }
 
 .ascend {
@@ -464,10 +480,9 @@ canvas.foreground : {
 	color : var(--button-active-text);
 }
 
-.icon-button .icon {
+.icon-button .icon, .icon-button .icon-image {
 	width : 40px;
 	height : 40px;
-	background-color : maroon;
 	display : flex;
 	color : #FFFFFF;
 	align-items : center;
@@ -587,6 +602,16 @@ canvas.foreground : {
 	cursor : default;
 }
 
+.growth-title {
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+}
+
+.growth-subtitle {
+	margin-right : 3px;
+}
+
 .map .growth .growth-type, .stardust .growth .growth-type  {
 	display : inline-block;
 	width : 10px;
@@ -619,6 +644,14 @@ canvas.foreground : {
 		1px 1px 0 var(--background-complete);
 }
 
+.map.complete.starfield .growth .growth-value, .map.complete.starfield .harvest .harvest-line, .map.complete.starfield .resources{
+	text-shadow:
+		-1px -1px 0 var(--background-starfield),
+		1px -1px 0 var(--background-starfield),
+		-1px 1px 0 var(--background-starfield),
+		1px 1px 0 var(--background-starfield);
+}
+
 .map > .sliders {
 	display : inline-flex;
 	position : absolute;
@@ -649,14 +682,28 @@ canvas.foreground : {
 	overflow : hidden;
 	color : #FFFFFF;
 	order : 1;
+	cursor : pointer;
 }
 
 .map .resources {
 	position : absolute;
 	top : 31px;
 	left : 3px;
+	width : 24px;
+	overflow : visible;
 	z-index : 4;
 	white-space: nowrap;
+}
+
+.resource-line {
+	display : flex;
+	flex-direction : row;
+	white-space : nowrap;
+	align-items : center;
+}
+
+.resource-value {
+	margin-left : 3px;
 	pointer-events : none;
 	text-shadow:
 		-1px -1px 0 var(--background),
@@ -672,7 +719,7 @@ canvas.foreground : {
 	z-index : 4;
 	display : flex;
 	flex-direction : column;
-	align-items : stretch;
+	align-items : right;
 	pointer-events : none;
 }
 
@@ -701,7 +748,7 @@ canvas.foreground : {
 	flex-direction : row;
 	flex-wrap : wrap;
 	overflow-y : auto;
-	z-index : 3;
+	z-index : 4;
 }
 
 .map > .low-load > .point-info {
@@ -722,8 +769,8 @@ canvas.foreground : {
 
 .map .low-load-checkbox {
 	position : absolute;
-	right : 3px;
-	top : 3px;
+	right : 28px;
+	top : 4px;
 	z-index : 4;
 	padding : 0 5px;
 	border-radius : 5px;
@@ -732,6 +779,10 @@ canvas.foreground : {
 
 .map.complete .low-load-checkbox {
 	background-color : var(--background-complete);
+}
+
+.map.complete.starfield .low-load-checkbox {
+	background-color : var(--background-starfield);
 }
 
 .tab.sliders, .tab.story, .tab.skills, .tab.management, .tab.artifacts, .tab.map {
@@ -751,6 +802,10 @@ canvas.foreground : {
 	flex-grow : 999;
 }
 
+.tab.artifacts .artifacts {
+	padding-top : 0;
+}
+
 .tab.sliders .sliders {
 	align-items : start;
 	flex-direction : row;
@@ -764,19 +819,28 @@ canvas.foreground : {
 }
 
 .header {
+	display : flex;
+	flex-direction : row;
 	padding : 5px;
+	width : calc(100vw - 34px);
 	border : 2px solid var(--lightframe);
 	margin : 10px 10px 0 10px;
+	flex-shrink : 0;
+	align-items : center;
+	justify-content : center;
 }
 
-.header div {
-	display : inline-block; 
+.header > div {
 	width : 250px;
+	justify-content : center;
 }
 
-.tab.sliders .header .exp-mult, .tab.sliders .header .science, .tab.skills .header .mana,
-.tab.skills .header .gold, .tab.management .header .exp-mult {
+.header > .exp-mult {
 	display : none;
+}
+
+.tab.skills .header > .exp-mult {
+	display : flex;
 }
 
 .skills .skill {
@@ -1641,6 +1705,7 @@ canvas.foreground : {
 }
 
 .settings > .titles {
+	flex-shrink : 0;
 	margin : 20px 20px 0 20px;
 	display : flex;
 	flex-direction : row;
@@ -1757,7 +1822,14 @@ canvas.foreground : {
 	width : 65px;
 }
 
-.tab.stardust  .button.equal {
+.tab.stardust .buttons {
+	display : flex;
+	flex-direction : row;
+	width : 100%;
+	justify-content : space-evenly;
+}
+
+.tab.stardust .button.equal {
 	padding : 10px;
 	margin : 10px 0 0 0;
 	border : 2px solid var(--lightframe);
@@ -1835,7 +1907,18 @@ canvas.foreground : {
 	width : 150px;
 	text-align : center;
 }
-
+.tab.stardust .virtual-map-charge {
+	position : relative;
+	left : -75px;
+	margin : 0 -75px;
+	width : 150px;
+	height : 30px;
+	background-color : var(--lightframe);
+	opacity : 0.3;
+	pointer-events : none;
+	transform-origin : center left;
+	transform : scale(0,1);
+}
 .tab.stardust .virtual .button {
 	padding : 5px;
 	border : 2px solid var(--shade10);
@@ -1852,6 +1935,13 @@ canvas.foreground : {
 
 .tab.stardust .virtual .button.enabled:hover {
 	background-color : var(--shade12)
+}
+
+.tab.stardust .special-core-info {
+	position : absolute;
+	right : 3px;
+	bottom : 3px;
+	text-align : right;
 }
 
 .hidden {
@@ -2035,6 +2125,12 @@ canvas.foreground : {
 	font-size : 30px;
 }
 
+.artifact-icon-image {
+	position : relative;
+	top : -29px;
+	left : -4px;
+}
+
 .artifact-title {
 	text-align : center;
 	font-weight : bold;
@@ -2074,7 +2170,7 @@ canvas.foreground : {
 	display : flex;
 	flex-shrink : 0;
 	flex-direction : row;
-	width : 200px;
+	width : 250px;
 	height : 20px;
 	transition : background-color 0.2s;
 	padding : 2px;
@@ -2093,6 +2189,18 @@ canvas.foreground : {
 	font-size :20px;
 	align-items : center;
 	justify-content : center;
+	order : 0;
+}
+
+.equip-icon-image {
+	width : 20px;
+	height : 20px;
+	flex-shrink : 0;
+	order : 0;
+}
+
+.equip-title {
+	order : 1;
 }
 
 .equipment {
@@ -2103,8 +2211,9 @@ canvas.foreground : {
 }
 
 .equipment-slot {
-	margin : auto;
+	margin : 0 auto;
 	height : 20px;
+	width : 30px;
 	background-color : var(--shade12);
 	border-radius : 50%;
 	position : relative;
@@ -2121,7 +2230,18 @@ canvas.foreground : {
 	height : 30px;
 }
 
-.equipment-icon.active {
+.equipment-icon-image {
+	position : absolute;
+	margin : -25px;
+	top : -5px;
+	pointer-events : none;
+}
+
+.equipment-slot.active > .equipment-icon-image {
+	filter : drop-shadow(0 0 5px var(--artifact-active)) drop-shadow(0px 0px 5px var(--artifact-active));
+}
+
+.equipment-slot.active > .equipment-icon {
 	text-shadow: 2px 2px 10px var(--artifact-active),
 				2px -2px 10px var(--artifact-active),
 				-2px 2px 10px var(--artifact-active),
@@ -2130,12 +2250,22 @@ canvas.foreground : {
 
 .sliders .master {
 	display : flex;
-	flex-direction : row;
+	flex-direction : column;
+	padding : 10px;
+	border : 2px solid var(--lightframe);
 	align-items : start;
 	justify-content : center;
 	margin : 10px 10px 0 10px;
-	padding : 10px;
-	border : 2px solid var(--lightframe);
+	flex-shrink : 0;
+}
+
+.sliders .master-row {
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+	justify-content : space-evenly;
+	width : 100%;
+	margin : 0 10px 0 10px;
 	flex-shrink : 0;
 }
 
@@ -2185,7 +2315,7 @@ canvas.foreground : {
 }
 
 .fullscreen-holder {
-	z-index : 10;
+	z-index : 100;
 	background-color : rgba(0,0,0,0.5);
 	position : absolute;
 	width : 100%;
@@ -2337,7 +2467,7 @@ canvas.foreground : {
 	justify-content : start;
 }
 
-.build-button, .presets-button, .feats-button {
+.build-button, .worlds-button, .feats-button, .cancel-button, .approve-button, .core-button {
 	padding : 5px;
 	border : 2px solid var(--lightframe);
 	transition : opacity 0.2s, background-color 0.2s;
@@ -2350,16 +2480,28 @@ canvas.foreground : {
 	z-index : 5;
 }
 
-.build-button:hover, .presets-button:hover, .feats-button:hover {
+.build-button:hover, .worlds-button:hover, .feats-button:hover, .approve-button:hover, .cancel-button:hover, .core-button:hover {
 	background-color : var(--shade12);
 }
 
-.presets-button {
+.worlds-button {
 	left : 115px;
 }
 
 .feats-button {
 	left : 220px;
+}
+
+.core-button {
+	left : 325px;
+}
+
+.approve-button {
+	top : 55px;
+}
+
+.cancel-button {
+	top : 100px;
 }
 
 .build {
@@ -2374,7 +2516,7 @@ canvas.foreground : {
 
 .build .building {
 	width : 200px;
-	height : 150px;
+	height : 160px;
 	margin : 5px;
 	background-color : var(--background);
 	border : 2px solid var(--lightframe);
@@ -2416,6 +2558,12 @@ canvas.foreground : {
 	padding : 5px;
 }
 
+.building-stored {
+	text-align : right;
+	padding : 2px;
+	font-size : smaller;
+}
+
 .building-title {
 	text-align : center;
 	flex-grow : 999;
@@ -2455,8 +2603,8 @@ canvas.foreground : {
 
 .workers {
 	position : absolute;
-	top : 2px;
-	right : 2px;
+	top : 5px;
+	right : 30px;
 	white-space : nowrap;
 	pointer-events : none;
 }
@@ -2466,7 +2614,7 @@ canvas.foreground : {
 	display : flex;
 	flex-direction : row;
 	border : 2px solid var(--lightframe);
-	width : 240px;
+	width : 360px;
 	height : 60px;
 	background-color : var(--background);
 	pointer-events : none;
@@ -2483,8 +2631,9 @@ canvas.foreground : {
 
 .world-point-info {
 	font-size : 13.3px;
-	width : 180px;
+	width : 300px;
 	padding : 1px 0 1px 5px;
+	white-space : nowrap;
 }
 
 .world-target .world-point {
@@ -2497,7 +2646,7 @@ canvas.foreground : {
 	display : flex;
 	flex-direction : column;
 	border : 2px solid var(--lightframe);
-	width : 240px;
+	width : 360px;
 	height : 110px;
 	background-color : var(--background);
 }
@@ -2626,4 +2775,374 @@ canvas.foreground : {
 	border : 2px solid var(--lightframe);
 	padding : 10px;
 	cursor : pointer;
+}
+
+
+.world-list {
+	max-height : 70vh;
+	overflow-y : auto;
+}
+.world-info {
+	display : flex;
+	flex-direction : row;
+	width : 500px;
+	align-items : center;
+	padding : 5px;
+	margin : 5px;
+	border : 2px solid var(--lightframe);
+	transition : background-color 0.2s;
+}
+
+.world-info:hover {
+	background-color : var(--shade13);
+	cursor : pointer;
+}
+
+.world-info.active {
+	background-color : var(--shade12);
+	cursor : default;
+}
+
+.world-info .button {
+	padding : 5px 20px;
+	margin : 0 5px;
+}
+
+.world-title {
+	width : 300px;
+	white-space : nowrap;
+}
+
+.world-hint {
+	position : absolute;
+	right : 3px;
+	bottom : 3px;
+	text-align : right;
+}
+
+.core-board {
+	display : flex;
+	flex-direction : row;
+	justify-content : center;
+	align-items : center;
+}
+
+.core-column {
+	display : flex;
+	flex-direction : column;
+	justify-content : center;
+	align-items : center;
+}
+
+.core-element-holder {
+	width : 6.5vmin;
+	height : 7.5vmin;
+	position : relative;
+	transform : scale(0.7,0.7);
+	transition : transform 0.5s, opacity 0.2s;
+	opacity : 0.5;
+}
+
+
+.core-element-holder.available {
+	cursor : pointer;
+	opacity : 1;
+}
+
+.core-element-holder.expensive {
+	cursor : default;
+}
+
+.core-element-holder.expensive > .core-element-bg::after, .core-element-holder.expensive > .core-element-bg::before {
+	box-sizing: border-box;
+	border-top : 5px solid var(--core-cost-more);
+	border-bottom : 5px solid var(--core-cost-more);
+}
+
+.core-element-holder.blocked {
+	opacity : 0.1;
+}
+
+.core-element-holder.active {
+	transform : scale(1,1);
+	opacity : 1;	
+}
+
+.core-element-holder.available:hover {
+	transform : scale(0.8,0.8);
+}
+
+.core-element-holder.active:hover {
+	transform : scale(1,1);
+	cursor : default;
+}
+
+.core-element {
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	position : absolute;
+	width : 100%;
+	height : 100%;
+	text-align : center;
+	font-family : 'Share Tech Mono';
+	font-size : 4vmin;
+	line-height : 3.7vmin;
+}
+
+.core-element-holder.locked > .core-element {
+	font-size : 4vmin;
+}
+
+.core-element-holder.active > .core-element-bg {
+	transform : rotate(60deg);
+}
+
+.core-element-bg, .core-element-bg::before, .core-element-bg::after {
+	position : absolute;
+	left : 1.08vmin;
+	width : 4.33vmin;
+	height : 7.5vmin;
+	transition : transform 0.5s;
+}
+
+.core-element-bg::before, .core-element-bg::after {
+	content : "";
+	left : 0;
+	background-color : inherit;
+}
+
+.core-element-bg::before {
+	transform : rotate(60deg);
+}
+
+.core-element-bg::after {
+	transform : rotate(120deg);
+}
+
+.cell-hover {
+	display : flex;
+	flex-direction : column;
+	padding : 2px;
+	border : 2px solid var(--lightframe);
+	background-color : var(--background);
+	position : absolute;
+	z-index : 5;
+	pointer-events : none;
+	width : 280px;
+}
+
+.cell-hover-title {
+	display : flex;
+	flex-direction : row;
+	align-items : center;
+}
+
+.cell-hover-icon-holder {
+	width : 32.5px;
+	height : 37.5px;
+	margin : 0 10px;
+	position : relative;
+}
+
+.cell-hover-icon {
+	display : flex;
+	align-items : center;
+	justify-content : center;
+	position : absolute;
+	width : 100%;
+	height : 100%;
+	text-align : center;
+	font-family : 'Share Tech Mono';
+	font-size : 20px;
+	line-height : 18.5px;
+}
+
+.cell-hover-icon-holder.locked > .cell-hover-icon {
+	font-size : 20px;
+}
+
+.cell-hover-icon-bg, .cell-hover-icon-bg::before, .cell-hover-icon-bg::after {
+	position : absolute;
+	left : 5.4px;
+	width : 21.65px;
+	height : 37.5px;
+	transition : transform 0.5s;
+}
+
+.cell-hover-icon-bg::before, .cell-hover-icon-bg::after {
+	content : "";
+	left : 0;
+	background-color : inherit;
+}
+
+.cell-hover-icon-bg::before {
+	transform : rotate(60deg);
+}
+
+.cell-hover-icon-bg::after {
+	transform : rotate(120deg);
+}
+
+.cell-hover-desc {
+	width : 210px;
+}
+
+.cell-hover-costs, .cell-hover-enablers {
+	display : flex;
+	flex-direction : row;
+	flex-wrap : wrap;
+	border-top : 1px solid var(--lightframe);
+	padding : 2px;
+	margin : 2px;
+}
+
+.cell-hover-enablers-header, .cell-hover-costs-header {
+	width : 100%;
+}
+
+.cell-hover-cost, .cell-hover-cost-paid, .cell-hover-enabler {
+	display : flex;
+	flex-direction : row;
+	margin : 2px;
+	align-items : center;
+}
+
+.cell-hover-cost-paid {
+	width : 60px;
+}
+
+.cell-hover-cost-value {
+	margin-left : 2px;
+}
+
+.cell-hover-cost-value.missing, .cell-hover-enabler-value.missing{
+	color : var(--cost-more);
+}
+
+.tablet-numbers {
+	display : flex;
+	flex-direction : column;
+	height : 450px;
+	width : 700px;
+	align-items : center;
+}
+
+.tablet-numbers-letters {
+	display : flex;
+	font-size : 15px;
+	flex-direction : column;
+	flex-wrap : wrap;
+	height : 350px;
+	width : 700px;
+	align-items : center;
+}
+
+.tablet-numbers-letter {
+	display : flex;
+	flex-direction : row;
+	width : 145px;
+	margin : 8px 15px;
+}
+
+.tablet-numbers-letter-letter {
+	width : 20px;
+	text-align : right;
+}
+
+.tablet-numbers-letter-numbers {
+	width : 130px;
+	display : flex;
+	justify-content : center;
+	align-items : center;
+}
+
+.tablet-numbers-letter-number {
+	color : var(--tablet-unknown);
+	width : 15px;
+	text-align : center;
+}
+
+.tablet-numbers-letter-number.known {
+	color : var(--tablet-present);
+}
+
+.tablet-numbers-odd, .tablet-numbers-even {
+	font-size : 15px;
+	display : flex;
+	flex-direction : row;
+}
+
+.tablet-numbers-odd {
+	display : flex;
+	flex-direction : row;
+	margin-left : 50px;
+	margin-right : -50px;
+}
+
+.tablet-numbers-hint {
+	display : flex;
+	flex-direction : row;
+	justify-content : center;
+	width : 100px;
+	margin-right : -1px;
+	border-left : solid 1px var(--shade8);
+	border-right : solid 1px var(--shade8);
+}
+
+.map-hover {
+	position : absolute;
+	z-index : 5;
+	padding : 2px 4px;
+	border : 1px solid var(--lightframe);
+	background-color : var(--background);
+	pointer-events : none;
+}
+
+.guide-content {
+	display : flex;
+	flex-direction : column;
+	width : 600px;
+	height : 80vh;
+	overflow : auto;
+	padding : 20px;
+}
+
+.guide-subtitle {
+	font-size : larger;
+	font-weight : bold;
+	padding : 20px 0 0 0;
+}
+
+.guide-text {
+	padding : 10px 0 0 20px;
+	text-align : justify;
+	text-indent : 20px;
+}
+
+.help-button {
+	width : 20px;
+	max-width : 20px;
+	height : 20px;
+	max-height : 20px;
+	border : 2px solid var(--lightframe);
+	background-color : var(--background);
+	text-align : center;
+	z-index : 99;
+}
+
+.help-button:hover {
+	background-color : var(--shade12);
+	cursor : pointer;
+}
+
+.float-top-right {
+	position : absolute;
+	top : 3px;
+	right : 3px;
+}
+
+.float-header {
+	position : absolute;
+	right : 18px;
 }

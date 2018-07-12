@@ -6,7 +6,7 @@ const AboutTab = Template({
 		this.dvContent = createElement("div", "about-holder", this.dvDisplay)
 		this.dvGameTitle = createElement("div", "title", this.dvContent, "Structure")
 		this.dvSubtitle = createElement("div", "subtitle", this.dvContent, "The incremental game")
-		this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.6a -- 29 May 2018")
+		this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.7 -- 12 July 2018")
 		//this.dvVersion = createElement("div", "version", this.dvContent, "v0.0.2 -- 25 March 2018")
 		this.dvAuthor = createElement("div", "author", this.dvContent, "by seihoukei")
 		this.dvLinks = createElement("div", "links", this.dvContent)
@@ -20,6 +20,15 @@ const AboutTab = Template({
 		this.dvArt1 = createElement("div", "credits", this.dvContent, "Artifact icons: ykoc and seihoukei")
 		this.dvArt2 = createElement("div", "credits", this.dvContent, "Structure font and flat icons: Dandelion")
 		this.dvChangelog = createElement("div", "changelog", this.dvContent, `Changelog
+		
+		-- 0.0.7 -- 12 July 2018 --
+		- Major maths and logic rework and optimizations
+		- Content up to map 40 (including new 36+ mechanic)
+		- In-game adaptive manual
+		- Full world rework
+		- New artifacts
+		- QoL changes (primarily for World tab)
+		- Graphics! Real icons are slowly coming to the game!
 		
 		-- 0.0.6 -- 29 May 2018 --
 		- Long break is over \o/

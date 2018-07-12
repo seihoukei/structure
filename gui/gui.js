@@ -46,11 +46,11 @@ const gui = {
 		
 		//Header
 		this.dvHeader = createElement("div", "header", this.skills.dvDisplay)
-		this.dvGold = createElement("div", "gold", this.dvHeader)
-		this.dvExp = createElement("div", "exp", this.dvHeader)
 		this.dvExpMult = createElement("div", "exp-mult", this.dvHeader)
-		this.dvMana = createElement("div", "mana", this.dvHeader)
-		this.dvScience = createElement("div", "science", this.dvHeader)
+		this.dvHelp = createElement("div", "help-button float-header", this.dvHeader, "?")
+		this.dvHelp.onclick = (event) => gui.guide.show(gui.tabs.activeTab)
+		
+		this.guide = Guide()
 		
 		this.backgroundContext = this.map.background.getContext("2d")
 		this.foregroundContext = this.map.foreground.getContext("2d")
@@ -112,7 +112,7 @@ const gui = {
 					visible: () => game.skills.imprint && this.point && this.point.canImprint && !this.point.harvested,
 					iconText: "M", 
 					iconColor: "#3399FF",
-					text: () => this.point?this.point.harvesting?"Imprinting\n"+(100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")\nImprinting: "+game.harvesting.size:""
+					text: () => this.point?this.point.harvested?"Imprinted":this.point.harvesting?"Imprinting\n"+(100 * this.point.harvestTime / this.point.harvestTimeTotal).toFixed(3)+"% ("+shortTimeString((this.point.harvestTimeTotal - this.point.harvestTime) / game.real.harvestSpeed)+")":"Imprint ("+shortTimeString(this.point.harvestTimes[1]*(game.harvesting.size+1)/(game.world.stats.harvestSpeed))+")\nImprinting: "+game.harvesting.size:""
 				})
 				
 				this.dvBuildings = createElement("div", "buildings", this.dvUpgrades)
@@ -156,6 +156,8 @@ const gui = {
 						owned: () => false,
 						iconText: x.iconText,
 						iconColor: x.iconColor,
+						imageContainer : gui.images.spells,
+						id : x.id,
 						desc : x.desc,
 						text: () => this.point?x.name + "\n" + "Mana: "+displayNumber(this.point.manaCosts[x.id]):""
 					})
@@ -194,19 +196,19 @@ const gui = {
 			onSet () {
 				gui.mapMouse.state = MOUSE_STATE_INFO
 				this.pointDisplay.set(this.point)
+				this.dvDisplay.classList.toggle("hidden", true)
 				
 				game.sliders.map((slider, n) => {
-					slider.getReal()
 					slider.dvTarget.classList.toggle("notransition",true)
 					this.dvSliders.appendChild(slider.dvTarget)
 					slider.dvTarget.offsetWidth && slider.dvTarget.classList.toggle("notransition",false)
-					slider.getReal(true)
 					slider.updateTarget(this.point)
 				})
 				
 				Object.values(this.buttons).map (x => x.dvDisplay.classList.toggle("notransition", true))
 				this.updateUpgrades()
 				Object.values(this.buttons).map (x => x.dvDisplay.offsetWidth && x.dvDisplay.classList.toggle("notransition", false))
+				this.dvDisplay.classList.toggle("hidden", false)
 			},
 
 			targetAll(sliders) {
@@ -248,6 +250,7 @@ const gui = {
 			updateUpgrades() {
 				Object.values(this.buttons).map(x => x.update())
 				Object.values(this.spellButtons).map(x => x.update())
+				this.updatePosition()
 			},
 			
 			onReset() {
@@ -307,7 +310,20 @@ const gui = {
 		this.hover.reset(true)
 		this.colorPicker = ColorPicker()
 	},	
-	
+
+	setHeader(resources) {
+		const resourceList = [...resources]
+		this.map.resources.map(x => {
+			const n = resources.indexOf(x.name)
+			if (n > -1) {
+				resourceList[n] = x.dvDisplay
+			} else
+				x.dvDisplay.remove()
+		})
+		resourceList.map(x => this.dvHeader.appendChild(x))
+		this.dvHeader.appendChild(this.dvHelp)
+	},
+		
 	setTheme(theme, subtheme) {
 		this.theme = Object.assign({}, THEMES.light.main)
 		if (THEMES[theme] && THEMES[theme].main)
@@ -328,10 +344,9 @@ const gui = {
 		this.map.dvAscend.innerText = game.map.virtual?"Evolve":distress?"Ascend(📡\uFE0E"+game.map.markers.length+")":/*progress?"Advance(⚔\uFE0E)":*/game.map.boss?"Ascend(⚔\uFE0E)":"Ascend (🌟\uFE0E" + game.map.ascendCost + ")"
 		this.map.dvAscend.classList.toggle("disabled", !!(!game.map.virtual && (distress || game.resources.stars < game.map.ascendCost && !game.map.boss || game.map.boss && game.map.points.filter(x => !x.owned && x.boss == game.map.boss).length) || game.map.virtual && !game.map.complete))
 		this.map.dvAscend.classList.toggle("hidden", !!(!game.map.virtual && !game.statistics.stars || game.map.virtual && (game.map.level < 31 || (game.map.evolved && game.map.evolved >= 3) || !game.skills.evolveVirtual)))
-		this.dvMana.classList.toggle("hidden", !game.skills.magic)
-		this.dvScience.classList.toggle("hidden", !game.resources.science)
 		this.map.dvDisplay.classList.toggle("dark", !!game.map.boss)
 		this.map.dvDisplay.classList.toggle("complete", !!game.map.complete)
+		this.map.dvDisplay.classList.toggle("starfield", !!game.map.starfield)
 		this.tabs.setTitle("sliders", game.sliders.length > 1?game.sliders.length+" "+"Sliders":"Slider")
 		this.tabs.toggleDisplay("skills", game.realMap.level)
 		this.tabs.toggleDisplay("management", game.skills.management)
@@ -353,32 +368,41 @@ const gui = {
 		const activeTab = this[this.tabs.activeTab]
 		
 		activeTab && activeTab.update && activeTab.update()
-		
-		if (this.tabs.activeTab == "sliders" || this.tabs.activeTab == "skills" || this.tabs.activeTab == "management") {
-			this.dvExp.innerText = "Exp: " + displayNumber(game.resources.exp) + (game.real.production.exp?(game.real.production.exp>0?" (+":" (")+displayNumber(game.real.production.exp)+"/s)":"")
-			if (game.skills.magic)
-				this.dvMana.innerText = "Mana: " + displayNumber(game.resources.mana) + (game.real.production.mana?(game.real.production.mana>0?" (+":" (")+displayNumber(game.real.production.mana)+"/s)":"")
-			if (game.resources.science)
-				this.dvScience.innerText = "Science: " + displayNumber(game.resources.science) + (game.real.production.science?(game.real.production.science>0?" (+":" (")+displayNumber(game.real.production.science)+"/s)":"")
-		}
-		
-		if (this.tabs.activeTab == "management" || this.tabs.activeTab == "sliders")
-			this.dvGold.innerText = "Gold: " + displayNumber(game.resources.gold) + (game.real.production.gold?(game.real.production.gold>0?" (+":" (")+displayNumber(game.real.production.gold)+"/s)":"")
-		
+				
 		this.target.update()
 		this.hover.update()
 	},
 	
+	updateArtifactIcons() {
+		Object.keys(ARTIFACTS).filter(x => ARTIFACTS[x].glyph).map(x => {
+			if (ARTIFACTS[x].display) {
+				ARTIFACTS[x].display.dvIcon.remove()
+				ARTIFACTS[x].menuItem.dvIcon.remove()
+				if (settings.artifactGlyphs && this.images.artifacts[x]) {
+					ARTIFACTS[x].display.dvIcon = createElement("img", "artifact-icon-image", ARTIFACTS[x].display.dvIconHolder)
+					ARTIFACTS[x].display.dvIcon.src = this.images.artifacts[x]
+					ARTIFACTS[x].menuItem.dvIcon = createElement("img", "equip-icon-image", ARTIFACTS[x].menuItem.dvDisplay)
+					ARTIFACTS[x].menuItem.dvIcon.src = this.images.artifacts[x]
+				} else {
+					ARTIFACTS[x].display.dvIcon = createElement("div", "artifact-icon", ARTIFACTS[x].display.dvIconHolder, ARTIFACTS[x].iconText)
+					ARTIFACTS[x].display.dvIcon.style.color = ARTIFACTS[x].iconTextColor
+					ARTIFACTS[x].menuItem.dvIcon = createElement("div", "equip-icon", ARTIFACTS[x].menuItem.dvDisplay, ARTIFACTS[x].iconText)
+					ARTIFACTS[x].menuItem.dvIcon.style.color = ARTIFACTS[x].iconTextColor
+				}
+			}
+		})
+	},
+	
 	initImages() {
-		this.images = {
-			specialBorders:[]
+		if (!this.images) this.images = {
+			specialBorders:[],
 		}
 
 		const canvas = document.createElement("canvas")
-		canvas.width = canvas.height = 60
 		const c = canvas.getContext("2d")
 		
 		for (let i = 0; i < 16; i++) {
+			canvas.width = canvas.height = 60
 			c.clearRect(0, 0, 60, 60)
 			c.save()
 			c.globalAlpha = 0.5
@@ -489,6 +513,64 @@ const gui = {
 			c.restore()
 			this.images.specialBorders.push(canvas.toDataURL())
 		}		
+		
+		if (!this.images.svgs) {
+			this.images.svgs = {}
+			Object.keys(GUI_SVGS).map(x => {
+				const image = new Image()
+				image.src = GUI_SVGS[x]
+				this.images.svgs[x] = image
+			})
+		}
+		
+		if (!this.images.pngs) {
+			this.images.pngs = {}
+			Object.keys(GUI_PNGS).map(x => {
+				const image = new Image()
+				image.src = GUI_PNGS[x]
+				this.images.pngs[x] = image
+			})
+		}
+		
+		if (!this.images.spells) {
+			this.images.spells = {}
+			Object.keys(SPELL_PNGS).map(x => {
+				const image = new Image()
+				image.onload = (event) => this.images.spells[x] = image
+				image.src = SPELL_PNGS[x]
+			})
+		}
+				
+		if (!this.images.resources) {
+			this.images.resources = {}
+			RESOURCES.filter(x => x.slice(0,1) != "_").map(x => {
+				this.images.resources[x] = new Image()
+				this.images.resources[x].src = GUI_RESOURCE_IMAGES+x+".png"
+			})
+		}
+		
+		if (!this.images.artifacts) {
+			this.images.artifacts = {}
+			const names = [
+					["none", "power", "spirit", "blood", "fire", "ice", "metal", "storm", "mana", "dark"],
+					["staff", "orb", "rod", "pendant", "amulet", "sword", "crown", "ring", "shield", "emptygem", "bracer", "scales", "flag", "stone", "gem", "emptyorb", "pickaxe", "orb2", "bracelet"]
+				]
+			const image = new Image()
+			image.onload = (event) => {
+				Object.keys(ARTIFACTS).filter(x => ARTIFACTS[x].glyph).map(x => {
+					const [color, icon] = ARTIFACTS[x].glyph.split('-').map((x,n) => names[n].indexOf(x))
+					if (color == -1 || icon == -1) return
+					canvas.width = 48
+					canvas.height = 48
+					c.clearRect(0,0,48,48)
+					c.drawImage(image, icon * 48, color * 48, 48, 48, 0, 0, 48, 48)
+					this.images.artifacts[x] = canvas.toDataURL()
+				})
+				this.updateArtifactIcons()
+			}
+			image.src = "images/artifacts.png"
+		}
+
 	},
 	
 	initSounds() {
@@ -496,3 +578,38 @@ const gui = {
 		this.sounds.capture = new Audio("./res/capture.mp3")
 	}
 }
+
+const guideHandler = {
+	_init() {
+		this.dvHolder = createElement("div", "fullscreen-holder hidden", document.body)
+		this.dvHolder.onclick = (event) => {
+			if (event.target == this.dvHolder) {
+				this.dvHolder.classList.toggle("hidden", true)
+			}
+		}
+
+		this.dvDisplay = createElement("div", "dialog", this.dvHolder)
+		this.dvTitle = createElement("div", "dialog-title", this.dvDisplay, "Guide")
+		this.dvContent = createElement("div", "guide-content", this.dvDisplay)
+	},
+	
+	show(id) {
+		const guide = GUIDE[id]
+		if (!guide) return
+		this.dvTitle.innerText = guide.title || "Guide"
+		this.dvHolder.classList.toggle("hidden", false)
+		while (this.dvContent.firstChild) this.dvContent.firstChild.remove()
+		let lastDiv
+		guide.content.map(x => {
+			if (x.condition && !x.condition()) return
+			if (x.subtitle) {
+				lastDiv = null
+				createElement("div", "guide-subtitle", this.dvContent, x.subtitle)
+			}
+			if (!lastDiv || x.newBlock) lastDiv = createElement("div", "guide-text", this.dvContent)
+			lastDiv.innerText = lastDiv.innerText?lastDiv.innerText+" "+x.text:x.text
+		})
+	},
+}
+
+const Guide = Template(guideHandler)

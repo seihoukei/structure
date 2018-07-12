@@ -18,6 +18,7 @@ function frame() {
 
 window.onload = (event) => {
 	const settingsData = localStorage[GAME_PREFIX + "settings"]
+	
 	if (settingsData) 
 		Object.assign(settings, JSON.parse(settingsData))
 	
@@ -30,13 +31,17 @@ window.onload = (event) => {
 //			boost : 60,
 //			autoSkills : ["autoTarget", "sensor"],
 //			seeAll : true,
+			coreCoordinates : true,
 			setMap(n, v, f) {
 				game.createMap("dev", n, v, f)
 				game.setMap("dev", 1)
 			},
 		}
+		
+	core.lastStarfield = localStorage[GAME_PREFIX + "starfield"] || Date.now()
 
 	core.worker = new Worker ("./utility/worker.js")
+	core.lzWorker = new Worker ("./utility/lzworker.js")
 	
 	core.callbacks = {}
 	
@@ -83,6 +88,13 @@ window.onload = (event) => {
 		}
 	}
 
+	core.lzWorker.onmessage = (event) => {
+		const data = event.data
+		if (data.name == "done") {
+			finalizeSave(data.slot, data.data, data.postfix, data.nobackup)
+		}
+	}
+	
 	gui.init()
 	cloud.init()
 	animations.init()

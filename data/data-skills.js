@@ -187,7 +187,7 @@ const SKILLS = {
 	},
 	smartMine: {
 		name: "Little look back",
-		desc: "Mining sliders keep checking for new available targets",
+		desc: "Mining and attacking sliders can keep checking for better targets",
 		req : ["smartHome"],
 		res : ['science'],
 		map : 9,
@@ -359,6 +359,15 @@ const SKILLS = {
 		exp : 1e22,
 		mult : 1.1
 	},
+	controlSummons : {
+		name : "Change direction",
+		desc : "Advanced summon targetting",
+		req : ["smartSummons", "masterSlider"],
+		science : 5e17,
+		map : 36,
+		exp : 1e22,
+		mult : 1.1
+	},
 	artifacts: {
 		name : "Hidden treasure",
 		desc : "Research artifacts found during mining",
@@ -398,9 +407,18 @@ const SKILLS = {
 		exp : 2e20,
 		mult : 1.5
 	},
+	book_realign1 : {
+		name: "Welcome to the other side",
+		desc: "Spellbook - Summon conversion",
+		req : ["spellcasting", "book_summons2"],
+		map : 28,
+		science : 3e14,
+		exp : 3e20,
+		mult : 1.1,
+	},
 	book_dispels2 : {
 		name: "Break the silence",
-		desc: "Spellbook - Break advanced point shields",
+		desc: "Spellbook - Break antisummon shields",
 		req : ["spellcasting"],
 		map : 28,
 		science : 6e14,
@@ -489,6 +507,46 @@ const SKILLS = {
 		exp : 1e30,
 		mult : 2
 	},
+	starfall : {
+		name : "Starfall",
+		desc : "Completed virtual maps of real map level produce stardust for each evolution until deleted",
+		req : ["evolveVirtual"],
+		map : 36,
+		exp : 1e45,
+		mult : 2
+	},
+	worldCore : {
+		name : "Kingdom for a heart",
+		desc : "Filter memories for more efficient worlds",
+		req : ["world"],
+		sliders : 8,
+		exp : 1e45,
+		mult : 2
+	},
+	autoStar : {
+		name : "Astronomy",
+		desc : "Automated stardust redistribution",
+		req : ["starfall"],
+		map : 37,
+		exp : 1e45,
+		mult : 2
+	},
+	book_explosive1 : {
+		name: "Suicide by my side",
+		desc: "Spellbook - Summon explosions",
+		req : ["spellcasting"],
+		map : 38,
+		science : 1e16,
+		exp : 1e44,
+		mult : 1.1,
+	},
+	starfire : {
+		name : "Starfire",
+		desc : "Stars don't crumble to dust on ascension",
+		map : 41,
+		exp : 1e45,
+		mult : 2
+	},
 
 	world_blood1 : {
 		name : "Upon haunted battlefields",
@@ -558,7 +616,24 @@ const SKILLS = {
 		name : "Maximum overload",
 		desc : "Blueprint - Power station",
 		req : ["world"],
-		feat : "power1",
+		feat : "power1_disabled",
+		map : 52,
+		exp : 0,
+		mult : 2
+	},
+	world_connect1 : {
+		name : "Fields of ascension",
+		desc : "Blueprint - Plains",
+		req : ["world"],
+		feat : "same1",
+		exp : 0,
+		mult : 2
+	},
+	world_connect2 : {
+		name : "Old routes - new waters",
+		desc : "Blueprint - Island",
+		req : ["world"],
+		feat : "same3",
 		exp : 0,
 		mult : 2
 	},

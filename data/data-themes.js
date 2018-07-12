@@ -1,11 +1,40 @@
 'use strict'
 
+const GUI_SVGS = {
+	swords : 'images/swords.svg',
+}
+const GUI_PNGS = {
+	summon : 'images/summon.png',
+}
+
+const SPELL_PNGS = {
+	summonPower : 'images/spells/summonPower.png',
+	summonRandom : 'images/spells/summonRandom.png',
+	summonBlood : 'images/spells/summonBlood.png',
+	summonFire : 'images/spells/summonFire.png',
+	summonIce : 'images/spells/summonIce.png',
+	summonMetal : 'images/spells/summonMetal.png',
+	summonExplosion : 'images/spells/summonExplosion.png',
+	summonAlignment : 'images/spells/summonAlignment.png',
+}
+
+const GUI_RESOURCE_IMAGES = "images/resources/"
+
 const THEMES = {
 	light : {
 		main : {
 			background : "white",
 			foreground : "black",
 			shades : ["#000000","#111111","#222222","#333333","#444444","#555555","#666666","#777777","#888888","#999999","#AAAAAA","#BBBBBB","#CCCCCC","#DDDDDD","#EEEEEE","#FFFFFF"],
+			typeStarColors : [
+				"#444444",
+				"#AAAA00",
+				"#00AA00",
+				"#AA0000",
+				"#AA6600",
+				"#0066AA",
+				"#666666",
+			],    
 			typeColors : [
 				"#EEEEEE",
 				"#FFFF55",
@@ -77,6 +106,15 @@ const THEMES = {
 				"#0066AA",
 				"#666666",
 			],    
+			typeStarColors : [
+				"#EEEEEE",
+				"#FFFF55",
+				"#ADFF2F",
+				"#DC143C",
+				"#FF8C00",
+				"#00FFFF",
+				"#BBBBBB",
+			],
 			enchantmentColors : [
 				"#858585",
 				"#AAAA66",
@@ -96,10 +134,10 @@ const THEMES = {
 			mouseEnemy : "maroon",
 			progress : "maroon",
 			world : {
-				core : "#7F7F7F",
+				core : "#9F9F9F",
 				resource : "#9f7f2f",
 				imprint : "#3399FF",
-				summon : "#C0FF33",
+				summon : "#607F33",
 				power : "#AAAA00",
 				blood : "#AA0000",
 				fire : "#AA6600",

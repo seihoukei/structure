@@ -46,6 +46,7 @@ const SlidersTab = Template({
 		delete gui.map.sliderInfo
 		delete gui.map.slider
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
+		gui.setHeader(["gold", "exp", "mana"])
 		game.sliders.map(slider => {
 			//this.dvSliders.appendChild(slider.dvDisplay)
 			if (slider.clone)
@@ -84,14 +85,16 @@ const SlidersTab = Template({
 const masterSliderHandler = {
 	_init() {
 		this.dvDisplay = createElement("div", "master", this.parent)
+		this.dvRow1 = createElement("div", "master-row", this.dvDisplay)
+		this.dvRow2 = createElement("div", "master-row", this.dvDisplay)
 
-		this.dvPresetsButton = createElement("div", "master-apply apply button", this.dvDisplay, "Presets")
+		this.dvPresetsButton = createElement("div", "master-apply apply button", this.dvRow1, "Presets")
 		this.dvPresetsButton.onclick = (event) => {
 			gui.sliders.presetMenu.presets = game.sliderPresets,
 			gui.sliders.presetMenu.show(event.clientX, event.clientY)
 		}
 
-		this.dvGild = createElement("div", "master-pair", this.dvDisplay)
+		this.dvGild = createElement("div", "master-pair", this.dvRow1)
 		this.cbMasterGild = GuiCheckbox({
 			parent : this.dvGild,
 			container : masterSlider,
@@ -113,7 +116,7 @@ const masterSliderHandler = {
 			override : () => !masterSlider.masterGild
 		})
 		
-		this.dvImbuement = createElement("div", "master-pair", this.dvDisplay)
+		this.dvImbuement = createElement("div", "master-pair", this.dvRow1)
 		this.cbMasterImbuement = GuiCheckbox({
 			parent : this.dvImbuement,
 			container : masterSlider,
@@ -150,7 +153,7 @@ const masterSliderHandler = {
 			hint : "Disable imbuement if less than 10 seconds available"
 		})
 		
-		this.dvChannels = createElement("div", "master-pair", this.dvDisplay)
+		this.dvChannels = createElement("div", "master-pair", this.dvRow1)
 		this.cbMasterChannels = GuiCheckbox({
 			parent : this.dvChannels,
 			container : masterSlider,
@@ -180,7 +183,7 @@ const masterSliderHandler = {
 			},
 		})
 		
-/*		this.dvAutotarget = createElement("div", "master-autotarget", this.dvDisplay)
+/*		this.dvAutotarget = createElement("div", "master-autotarget", this.dvRow1)
 		this.cbMasterAutotarget = GuiCheckbox({
 			parent : this.dvAutotarget,
 			container : masterSlider,
@@ -191,13 +194,29 @@ const masterSliderHandler = {
 			title : "Master autotarget control"
 		})*/
 		
-		this.dvAutotargetAll = createElement("div", "master-apply apply button", this.dvDisplay, "Autotarget all")
+		this.dvAutotargetAll = createElement("div", "master-apply apply button", this.dvRow1, "Autotarget all")
 		this.dvAutotargetAll.onclick = (event) => {
 			game.sliders.map(x => {
 				if (x.clone != 2 && (x.role != ROLE_FOLLOWER || !x.target))
 					x.dvATApply.click()
 			})
 		}
+		
+		this.cbSummonAvoidSame = GuiCheckbox({
+			parent : this.dvRow2,
+			container : masterSlider,
+			value: "summonAvoidSame",
+			visible: () => game.skills.controlSummons,
+			title: "Elemental summons avoid same element"
+		})
+
+		this.cbSummonAvoidNarrow = GuiCheckbox({
+			parent : this.dvRow2,
+			container : masterSlider,
+			value: "summonAvoidNarrow",
+			visible: () => game.skills.controlSummons,
+			title: "Summons avoid narrow path"
+		})
 
 	},
 	
@@ -210,6 +229,8 @@ const masterSliderHandler = {
 //			this.dvAutotarget.classList.toggle("hidden", !game.skills.autoTarget)
 			this.dvAutotargetAll.classList.toggle("hidden", !game.skills.autoTarget)
 
+			this.cbSummonAvoidSame.update()
+			this.cbSummonAvoidNarrow.update()
 			this.cbMasterGild.update()
 			this.cbMasterImbuement.update()
 			this.cbMasterChannels.update()
@@ -309,6 +330,7 @@ const sliderLevelUpHandler = {
 			x.dvRaise.classList.toggle("transparent", !this.slider.level)
 		})
 		this.dvLevelUpButton.classList.toggle("available", this.slider.canLevelUp())
+		this.dvLevelUpButton.classList.toggle("hidden", this.slider.level == 9)
 	}
 }
 

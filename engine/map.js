@@ -82,9 +82,10 @@ const mapHandler = {
 			c.restore()
 		}
 		function drawOutline(point) {
+			if (point.map.starfield && (point.harvested || point.index && point.owned && !point.exit)) return
 			c.save()
 			c.translate(point.x, point.y)
-			if (point.owned) {
+			if (point.owned && !point.map.starfield) {
 				c.moveTo(0, 0)
 				c.lineTo(point.dx, point.dy)
 			}
@@ -96,6 +97,7 @@ const mapHandler = {
 			c.restore()
 		}
 		function drawExtra(point) {
+			if (point.map.starfield && (point.harvested || point.index && point.owned && !point.exit)) return
 			c.save()
 			c.translate(point.x, point.y)
 			if (point.locked != 1 || game.dev && game.dev.seeAll) {
@@ -192,6 +194,7 @@ const mapHandler = {
 		}
 		function drawLevel(point) {
 			if (point.locked == 1) return
+			if (point.map.starfield && (point.harvested || point.index && point.owned && !point.exit)) return
 			c.save()
 			c.translate(point.x, point.y)
 			if (settings.levelDisplay == 2)
@@ -212,6 +215,7 @@ const mapHandler = {
 		}
 		function drawPoint(point) {
 			if (point.locked == 1) return
+			if (point.map.starfield && (point.harvested || point.index && point.owned && !point.exit)) return
 			c.save()
 			c.translate(point.x, point.y)
 			c.moveTo(point.innerSize, 0)
@@ -268,14 +272,23 @@ const mapHandler = {
 		function drawSpecial(point) {
 			c.save()
 			c.translate(point.x, point.y)
-			if (point.owned && point.index && (point.key && point.keyData.lockPoint.owned || point.lock || point.exit || point.boss))
-				c.globalAlpha = 0.55
-			const w = point.specialTextSize
-			c.font = (point.innerSize / w * 15).toFixed(2)+"px" + fontName
-			c.fillText(point.specialText, 0, 0)
+			if (point.boss) {
+				const ratio = gui.images.svgs.swords.width / gui.images.svgs.swords.height
+				c.drawImage(gui.images.svgs.swords, -point.size / 2 * ratio, -point.size / 2, point.size * ratio, point.size)
+			} else {
+				if (point.owned && point.index && (point.key && point.keyData.lockPoint.owned || point.lock || point.exit || point.boss) && !(point.map.starfield && point.exit && point.harvested))
+					c.globalAlpha = 0.55
+				if (point.map.starfield && point.harvested && point.exit) 
+					c.fillStyle = gui.theme.typeStarColors[point.type]
+				
+				const w = point.specialTextSize
+				c.font = (point.innerSize / w * 15).toFixed(2)+"px" + fontName
+				c.fillText(point.specialText, 0, 0)
+			}
 			c.restore()
 		}
 		function drawHarvest(point) {
+			if (point.map.starfield && point.harvested) return
 			c.save()
 			c.translate(point.x, point.y)
 			c.moveTo(point.renderSize, 0)
@@ -439,7 +452,19 @@ const mapHandler = {
 	restoreState() {
 		this.changed = 65535
 		this.unlocked = this.unlocked || 0
+		if (this.completeTime && !this.tookTime) {
+			this.tookTime = this.completeTime - this.relativeStart
+			this.chargeTime = 0
+		}
 		this.failed = Object.assign({}, this.failed)
+		Object.keys(FEATS).filter(x => FEATS[x].minMap).map(x => {
+			if (FEATS[x].minMap > this.level) this.failed[x] = 1
+		})
+		if (this.focus != 3) this.failed.blood1 = 1
+		if (this.focus != 4) this.failed.fire1 = 1
+		if (this.focus != 5) this.failed.ice1 = 1
+		if (this.focus != 6) this.failed.metal1 = 1
+		if (this.focus != 2) this.failed.null1 = 1
 		this.keys = Array(this.level + 1).fill().map(x => ({}))
 		this.points.map((point,index) => {
 			point.index = index
@@ -467,7 +492,7 @@ const mapHandler = {
 		this.evolved = (this.evolved || 0) + 1
 		while (n--) {
 			const angle = (Math.random() * 6.29).toDigits(3)
-			const spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random())
+			const spacing = MAP_MINIMUM_DISTANCE * (1 + 2 * Math.random()) * (1 + this.evolved * (game.world.coreStats.evolutionScale || 0))
 			const size = (MAP_MINIMUM_POINT_SIZE + ((this.pointsCount * (this.virtual?1.5:1) - n) ** 0.4) * Math.random()).toDigits(3)
 			const type = this.focus && Math.random() < 0.5 + (this.evolved) * 0.1? this.focus : (1 + Math.random() * 6 | 0)
 			const point = createPoint(this.points, size, angle, spacing, type)
@@ -477,8 +502,13 @@ const mapHandler = {
 				shields.push(SPECIAL_NOCHANNEL)
 			}
 			point.special = shields[(Math.random() * Math.max(shields.length, 10 - this.evolved))| 0]||0
+			if (this.starfield)
+				point.exit = 1
 		}
+		this.exitsCount = this.points.filter(x => x.exit).length
 		delete this.completeTime
+		delete this.tookTime
+		delete this.chargeTime
 		this.points.sort((x,y) => x.distance - y.distance)
 		this.points.map((x,n) => x.index = n)
 		this.points.map((x,n) => x.parentIndex = x.parent && x.parent.index || 0)
@@ -486,9 +516,13 @@ const mapHandler = {
 		game.update()
 	},
 	
+	updateHarvestTimes() {
+		this.points.map(x => x.updateHarvestTimes())
+	},
+	
 	updatePoints() {
 		this.points.map((point,index) => {
-			point.calculateStats()
+			point.calculateStats()//??
 		})		
 		if (!game.offline) {
 			this.points.map((point,index) => {
@@ -496,11 +530,17 @@ const mapHandler = {
 			})	
 			this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
 			if (this.complete && !this.completeTime) {
+				if (!this.evolved)
+					game.addStatistic(this.virtual?"completed_virtual_maps":"completed_maps")
 				this.completeTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
+				this.tookTime = this.completeTime - this.relativeStart
+				this.chargeTime = 0
 				if (this.virtual && this.focus > 2 && this.evolved) game.feats[POINT_TYPES[this.focus]+"1"] = 1
 				if (this.virtual && this.evolved && !this.failed.noreal1) game.feats.noreal1 = 1
 				if (this.virtual && this.evolved && !this.failed.noabsolute1) game.feats.noabsolute1 = 1
-				if (this.virtual && this.level == game.realMap.level && this.level >= 36) game.feats["same"+(this.evolved||0)] = 1
+				if (this.virtual && this.focus == 2 && !this.failed.null1 && this.level >= FEATS.null1.map) game.feats.null1 = 1
+				if (this.virtual && this.tookTime < 900000 && this.level >= FEATS.speedrun1.minMap) game.feats.speedrun1 = 1
+				if (this.virtual && game.realMap && this.level == game.realMap.level && this.level >= 36) game.feats["same"+(this.evolved||0)] = 1
 			}
 			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		}
@@ -534,6 +574,8 @@ const mapHandler = {
 	},
 	
 	update() {
+		if (!this.failed.speedrun1 && (Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0)) - this.relativeStart) > 900000)
+			this.failed.speedrun1 = 1
 		this.updatePoints()
 		if (!game.offline)
 			this.updateBounds()
@@ -566,9 +608,28 @@ const mapHandler = {
 			created : this.createTime?timeString(currentTime - this.createTime) + " ago":"unknown",
 			completed : this.complete?this.completeTime?timeString(currentTime - this.completeTime) + " ago":"unknown":progress.toFixed(1)+"%",
 			took : this.complete?this.completeTime&&this.createTime?timeString(this.completeTime - this.createTime):"unknown":this.createTime?timeString(currentTime - this.createTime):"unknown",
-			tookLocal : this.complete?this.completeTime&&this.relativeStart?timeString(this.completeTime - this.relativeStart):"unknown":this.relativeStart?timeString((game.map != this?(this.lastLeft || this.relativeStart):(currentTime)) - this.relativeStart):"unknown",
+			tookLocal : this.complete?this.tookTime?timeString(this.tookTime):"unknown":this.relativeStart?timeString((game.map != this?(this.lastLeft || this.relativeStart):(currentTime)) - this.relativeStart):"unknown",
 			nodeSpecial, nodeType, locksOpen, maxDepth, totalNodes
 		}
+	},
+	
+	addCharge(x) {
+		if (!this.tookTime || !this.focus) return
+		this.chargeTime += x
+		const times = Math.floor(this.chargeTime / this.tookTime)
+		if (times) {
+			this.chargeTime -= this.tookTime * times
+			game.growth[POINT_TYPES[this.focus]] += this.getGrowth(this.focus) * times
+		}
+	},
+	
+	getGrowth(type) {
+		const points = this.points.filter(x => x.index && x.owned)
+		let growth = points.filter(x => x.type == type).reduce((v,x) => v + x.totalBonus, 0)
+		if (type == 1) growth += points.filter(x => x.buildings.powerTower).reduce((v,x) => v + x.totalBonus, 0)
+		if (type == 2) growth += points.filter(x => x.buildings.spiritTower).reduce((v,x) => v + x.totalBonus, 0)
+		if (type > 2) growth += points.filter(x => x.buildings.rainbowTower).reduce((v,x) => v + x.totalBonus, 0)
+		return growth
 	},
 	
 	destroyDisplays() {
@@ -599,6 +660,14 @@ const mapLoader = {
 
 const mapMaker = {
 	_init() {
+		const canStarfield = game.canStarfield && (Date.now() - core.lastStarfield > 60000)
+		if (this.virtual && canStarfield && this.level > 30) {
+			localStorage[GAME_PREFIX + "starfield"] = core.lastStarfield = Date.now()
+			if (((Math.random() * 500 | 0) == 0))
+				this.starfield = 1
+		}
+		if (this.virtual && game.realMap && game.realMap.level == this.level && game.world && game.world.coreStats && game.world.coreStats.goldenMaps)
+			this.starfield = 1
 		this.points = []
 		this.boss = 0
 		this.createTime = this.relativeStart = game.now()
@@ -695,10 +764,14 @@ const mapMaker = {
 				const spacing = 12
 				const type = 0
 				const point = createPoint(this.points, size, angle, spacing, type, 10e33)
-				point.exit = 1
+				if (i < 9)
+					point.exit = 1
+				else
+					point.boss = 1
 				point.parent = lastPoint
 				lastPoint = point
 			}
+			
 
 			{
 				const angle = 0
@@ -1181,6 +1254,16 @@ const mapMaker = {
 			this.restoreState()
 		}
 		
+		//mistery letters go here
+
+		if (this.starfield) {
+			this.points.map (point => {
+				if (point.key || point.lock || point.exit || point.boss || point.letter || !point.parent) return
+				point.exit = 1
+			})			
+			this.exitsCount = this.points.filter(x => x.exit).length
+			this.restoreState()
+		}
 	},
 }
 

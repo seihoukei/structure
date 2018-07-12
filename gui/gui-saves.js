@@ -82,6 +82,9 @@ const SavesTab = Template({
 		this.dvExport = createElement("div", "button", this.dvSaveButtons, "⇓\uFE0E Export save ⇓\uFE0E")
 		this.dvExport.onclick = (event) => this.dvTextSave.value = exportState(this.activeSave.name, event.shiftKey?1:event.ctrlKey?2:0)
 
+		this.dvShare = createElement("div", "button", this.dvSaveButtons, "☁\uFE0E Share save ☁\uFE0E")
+		this.dvShare.onclick = (event) => cloud.shareSave(this.activeSave.name)
+
 		this.dvImport = createElement("div", "button", this.dvSaveButtons, "⇑\uFE0E Import save ⇑\uFE0E")
 		this.dvImport.onclick = (event) => importState(this.dvTextSave.value)
 		
@@ -99,7 +102,7 @@ const SavesTab = Template({
 	update(forced, target) {
 		if (forced) {
 			const progress = []
-			Object.keys(localStorage).filter(x => x.substr(0, SAVE_PREFIX.length) == SAVE_PREFIX).sort((x,y) => x[SAVE_PREFIX_LENGTH] == "_" || !y[SAVE_PREFIX_LENGTH] == "_").map(saveName => {
+			Object.keys(localStorage).filter(x => x.substr(0, SAVE_PREFIX.length) == SAVE_PREFIX).sort((x,y) => ((x[SAVE_PREFIX_LENGTH] == "_"?1:0) - (y[SAVE_PREFIX_LENGTH] == "_"?1:0)) || (x < y?-1:1)).map(saveName => {
 				const name = saveName.substr(SAVE_PREFIX_LENGTH)
 				const saveData = localStorage[saveName]
 				let save = this.saves[name]

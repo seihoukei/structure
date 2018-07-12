@@ -1,5 +1,5 @@
 'use strict'
-const RESOURCES = ["exp","science","stars","gold","mana","stardust","fears","clouds","thunderstone","_0","_1","_2","_3","_4","_5","_6"]
+const RESOURCES = ["exp","stars","stardust","gold","science","mana","fears","clouds","thunderstone","_0","_1","_2","_3","_4","_5","_6"]
 const GAME_ADVANCE_ITERATIONS = 10000
 const GAME_ADVANCE_ITERATIONS_MAX = 100000
 const GAME_ADVANCE_ITERATIONS_STEP = 200
@@ -23,7 +23,9 @@ const game = {
 	growth : POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 0 : v, v), {}),
 	multi : POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 1 : v, v), {}),
 	skills : Object.keys(SKILLS).reduce((v,x) => (v[x] = 0,v),{}),
+	canStarfield : true,
 	resources : {},
+	letters : {},
 	automation : {
 		types : [],
 		maxLevel : 0,
@@ -97,13 +99,17 @@ const game = {
 					this.renderForeground(gui.foregroundContext)
 					
 					if (this.updateInterface) {
-						gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[0][0]=="_"?v:x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
+//						gui.map.dvResources.innerText = Object.entries(game.resources).reduce((v,x) => x[0][0]=="_"?v:x[1]?v+"\n"+x[0].capitalizeFirst() + ": " + displayNumber(x[1]) + (game.real.production[x[0]]?" ("+(game.real.production[x[0]]>0?(x[0] == "science" && game.researching?"Researching ":"+"):"")+displayNumber(game.real.production[x[0]])+"/s)":""):v,"").trim()
 						gui.map.updateGrowth()
 						gui.map.updateHarvest()
+						gui.map.updateResources()
 					}
 				}
 			}
-	
+
+			if (this.updateInterface && gui.tabs.activeTab == "sliders" || gui.tabs.activeTab == "skills" || gui.tabs.activeTab == "management" || gui.tabs.activeTab == "stardust" || gui.tabs.activeTab == "artifacts")
+				gui.map.updateResources()
+			
 			if (gui.tabs.activeTab == "stardust") {
 				gui.map.updateGrowth()
 			}
@@ -120,6 +126,8 @@ const game = {
 	
 			if (this.updateInterface) {
 				gui.update()
+				if (this.updateStardust)
+					gui.stardust.updateStardust()
 			}
 	
 			if (!(this.frame % 60)) {
@@ -346,7 +354,7 @@ const game = {
 			c.strokeStyle = this.renderData.radar
 						
 			this.map.markers.map(pt => {
-				c.moveTo(pt.x + frame, pt.y)
+				c.moveTo(pt.x + frame * 2, pt.y)
 				c.arc(pt.x, pt.y, frame * 2, 0, 6.29)
 			})
 			
@@ -412,7 +420,8 @@ const game = {
 			if (this.map.relativeStart && this.map.lastLeft && !this.map.complete)
 				this.map.relativeStart += this.now() - this.map.lastLeft
 
-			this.sliders.map(x => x.autoTarget())
+			;[...this.sliders].sort((x,y) => +(x.role == ROLE_LEADER) - +(y.role == ROLE_LEADER)).map(x => x.autoTarget())
+//			this.sliders.map(x => x.autoTarget())
 			this.map.points[0].mineDepth = depth
 		}
 		gui.target.reset()
@@ -425,6 +434,18 @@ const game = {
 		gui.skills.updateSkills()
 		this.unlockStory((this.map.virtual?"v":"m")+this.map.level.digits(3)+"")
 		gui.mainViewport.init(this.map.bounds)
+		gui.worldViewport.init(this.world.bounds)
+	},
+	
+	setWorld(name, update = true) {
+		if (!this.worlds[name]) 
+			return
+		this.world = this.worlds[name]
+		this.activeWorld = name
+		update && this.map && this.update()
+		gui.world.update(true)
+		gui.world.hover.reset()
+		gui.world.target.reset()
 		gui.worldViewport.init(this.world.bounds)
 	},
 	
@@ -448,7 +469,7 @@ const game = {
 		this.world.update()
 		//this.production.mana = this.skills.magic?(this.map.level ** 2) * (this.map.ownedRadius ** 2) / 1e8:0
 		if (!this.offline) {
-			gui.mainViewport.getLimits(this.map.bounds)
+			this.map && gui.mainViewport.getLimits(this.map.bounds)
 			this.updateMapBackground = true
 			this.updateWorldBackground = true
 			gui.updateTabs()
@@ -475,8 +496,10 @@ const game = {
 			if (!progress && !this.map.virtual) {
 				let txt = ""
 				if (!game.map.complete) txt += "The map is not completed.\n"
-				if (game.map.points.filter(x => x.exit && !x.owned).length) txt += "There are stars you are leaving behind.\n"
-				if (game.map.points.filter(x => x.harvestTime && x.harvestTime < x.harvestTimeTotal).length) txt += "Unfinished imprints will be lost.\n"
+				if (game.map.points.some(x => x.exit && !x.owned)) txt += "There are stars you are leaving behind.\n"
+				if (game.skills.book_enchantments1 && game.map.points.some(x => x.index && !x.enchanted && !x.boss && (x.manaCosts.enchantDoom || x.manaCosts.enchantGold || x.manaCosts.enchantMana || x.manaCosts.enchantGrowth))) txt += "There are nodes you can enchant.\n"
+				if (game.skills.imprint && game.map.points.some(x => x.canImprint && !x.harvested && !x.harvestTime)) txt += "There are nodes you can imprint.\n"
+				if (game.map.points.some(x => x.harvesting)) txt += "There are unfinished imprints that will be lost.\n"
 				if (!confirm(txt + "Ascend to the next map?"))
 					return
 			}
@@ -486,11 +509,12 @@ const game = {
 
 			let bossPoints = this.map.points.filter(x => x.boss && x.boss > this.map.boss && !x.owned)
 			if (bossPoints.length) {
-				if (!this.map.boss && !this.map.virtual) {
+				if (!this.map.boss && !this.map.virtual && !this.skills.starfire) {
 					const foundStars = this.map.points.filter(x => x.exit && x.owned).length
 					this.resources.stardust += this.resources.stars - foundStars
 					this.addStatistic("stardust", this.resources.stars - foundStars)
 					this.resources.stars = foundStars - this.map.ascendCost
+					this.updateStardust = true
 				}
 				
 				this.map.boss++
@@ -515,7 +539,6 @@ const game = {
 					this.addStatistic("stardust", this.resources.stars - foundStars)
 					this.resources.stars = foundStars - this.map.ascendCost
 				}
-				if (this.map.complete) this.addStatistic(this.map.virtual?"completed_virtual_maps":"completed_maps")
 			
 				if (this.map.virtual) {
 					if (repeat) {
@@ -531,9 +554,11 @@ const game = {
 					this.sliders.filter(x => x.clone).map (x => x.fullDestroy())
 					this.createMap("main", this.realMap.level+(repeat?0:1), false)
 					this.setMap("main", true)
+					if (this.map.level == 21) 
+						gui.guide.show("level21")
 				}
 			}
-			this.map.points.map(x => x.getReal())
+			this.getReals()
 			this.sliders.map(x => x.autoTarget())
 			gui.skills.updateSkills()
 			gui.setTheme(settings.theme, this.map.boss?"boss":"main")
@@ -551,6 +576,7 @@ const game = {
 	
 	deleteMap(name, keepStats = false) {
 		const map = this.maps[name]
+		this.canStarfield = !!map.complete
 		if (this.activeMap == name)
 			this.setMap("main", true)
 		if (!keepStats) {
@@ -578,7 +604,7 @@ const game = {
 		}		
 		
 		if (!this.badSave && settings.cloudPeriod && performance.now() - this.lastCloudSave > settings.cloudPeriod) {
-			if (settings.cloudUpdate)
+			if (settings.cloudUpdate && cloud.local.username)
 				saveState("_Cloud save", 1)
 			this.lastCloudSave = performance.now()
 		}		
@@ -589,11 +615,6 @@ const game = {
 			this.autoTimer = GAME_AUTOMATION_PERIOD
 		}*/
 
-		if (this.offline)
-			this.addStatistic("offlineTime", deltaTime)
-		else
-			this.addStatistic("onlineTime", deltaTime)
-		
 		if (this.offline) {
 			gui.dvOffline.classList.toggle("hidden", false)
 			this.timeLeft = deltaTime / 1000
@@ -612,6 +633,8 @@ const game = {
 				
 				if (!this.feats.mana1 && this.resources.mana >= 1e13)
 					this.feats.mana1 = true
+
+				this.getReals()
 
 				callback && callback()
 			})
@@ -674,15 +697,48 @@ const game = {
 			}, 60)
 			
 			const deltaTime = this.iterations?Math.min(damageTime, time, manaTime, expTime):time
+			
+			if (this.offline)
+				this.addStatistic("offlineTime", deltaTime * 1000)
+			else
+				this.addStatistic("onlineTime", deltaTime * 1000)
+		
+			if (!deltaTime) console.log("Suspicious deltaTime: "+deltaTime, {deltaTime, damageTime, time, manaTime, expTime})
+			
+			if (this.skills.starfall) {
+				this.starTime += deltaTime
+				if (this.starTime > 1) {
+					let times = Math.floor(this.starTime)
+					this.starTime -= times
+					if (this.real)
+						this.real.stardustChange = 0
+
+					for (let i = 0; i < 5; i++) {
+						const map = this.maps["virtual"+i]
+						if (map && map.level == this.realMap.level && map.evolved && map.complete) {
+							if (this.real) {
+								this.real.stardustChange += map.evolved + (map.evolved >= 3?game.world.coreStats.extraStars:0)
+							}
+							this.resources.stardust += times * map.evolved
+							this.addStatistic("stardust", times * map.evolved)
+						}
+					}
+					if (this.real.stardustChange == 15 && this.realMap.level >= FEATS.stars1.minMap)
+						this.feats.stars1 = true
+					this.updateStardust = true
+				}
+			}
+			
+			if (game.world.coreStats.mapChargeSpeed) {
+				Object.values(game.maps).filter(x => x.virtual && x.focus && x.complete && x.tookTime).map(x => x.addCharge(deltaTime * game.world.coreStats.mapChargeSpeed))
+			}
 						
 			const mul = deltaTime / 2
 			this.sliders.map(slider => slider.grow(mul))
 
 			this.getReal()
 			
-			this.attacked.clear()
-			this.map.points.map (point => point.getReal())
-			this.sliders.map (slider => slider.getReal())
+			this.getReals()
 			this.getRealProduction()
 						
 			for (let point of this.attacked) point.attack(deltaTime)
@@ -714,21 +770,19 @@ const game = {
 			}
 
 			this.getReal()
-			this.map.points.map (point => point.getReal())
-			this.sliders.map (slider => slider.getReal())
-	
 			time -= deltaTime
 			
 			if (this.nextTarget) {
 				if (game.skills.smartMine)
-					this.sliders.filter (x => x.target && !x.target.index).map(x => x.autoTarget())
+					this.sliders.filter (x => x.target && (!x.target.index && x.atFilter.autoMine || x.target.index && x.atFilter.autoNew && !x.atFilter.childNext && !(x.role == ROLE_FOLLOWER && [...x.target.attackers].some(y => y.role == ROLE_LEADER && y.team == x.team)))).map(x => x.autoTarget())
+				if (game.skills.autoTarget)
+					this.sliders.filter (x => !x.target && !x.atFilter.disabled).map(x => x.autoTarget())
 				this.nextTarget = false
 			}
+			
 			stepsDone++
-//			if (stepsDone == GAME_ADVANCE_ITERATIONS_STEP && !this.cancelTimeStep) {
 			if (performance.now() - startTime > GAME_ADVANCE_ITERATIONS_STEP_TIME) {
 				if (!this.offline) {
-//					this.offline = true
 					this.tempOffline = true
 				}
 				this.advanceCallback = callback
@@ -777,6 +831,22 @@ const game = {
 		gui.skills.updateExp()
 		this.unlockStory("s_"+skill)
 	},
+	
+	payStardust(cost) {
+		if (game.resources.stardust < cost) return false
+		game.resources.stardust -= cost
+		
+		let stardustTotal = POINT_TYPES.slice(1).reduce((v, y) => v + game.stardust[y], 0)
+		
+		let n = -1
+		while (stardustTotal > game.resources.stardust) {
+			n = (n + 1) % 4
+			if (game.stardust[POINT_TYPES[n + 3]] <= 0) continue
+			game.stardust[POINT_TYPES[n + 3]]--
+			stardustTotal--
+		}
+		return true
+	},
 		
 	addStatistic(name, value = 1) {
 		this.statistics[name] = (this.statistics[name] || 0) + value
@@ -792,26 +862,114 @@ const game = {
 
 		Object.keys(this.growth).map(x => {
 			this.real.multi[x] = this.multi[x] * (1 + 1 * (this.stardust[x] || 0) * (this.resources.clouds || 0))
-			if (x == "spirit" && this.skills.spiritStar)
-				this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
-			if (x == "power" && this.real.multi.power > this.world.stats.powerCap) {
-				this.feats.power1 = 1
-				this.real.multi.power = this.world.stats.powerCap
+			if (x == "spirit") {
+				if (this.skills.spiritStar)
+					this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
+			} else if (x == "power") {
+				if (this.real.multi.power > this.world.coreStats.powerCap)
+					this.real.multi.power = this.world.coreStats.powerCap
+				if (this.real.multi.power >= 1e15)
+					this.feats.power1 = 1
+			} else {
+				if (this.real.multi[x] > this.world.coreStats.elementalCap)
+					this.real.multi[x] = this.world.coreStats.elementalCap
 			}
 			this.real.growth[x] = this.growth[x] * this.real.multi[x]
 		})
+		if (this.real.multi.ice >= 1e15 && this.real.multi.fire >= 1e15 && this.real.multi.metal >= 1e15 && this.real.multi.blood >= 1e15)
+			this.feats.elemental1 = true
 		
 	},
 	
+	getReals(extraSlider) {
+		if (extraSlider) game.sliders.push(extraSlider)
+		
+		this.attacked.clear()
+		
+		const pointsLen = this.map.points.length
+		for (let i = 0; i < pointsLen; ++i)
+			this.map.points[i].getReal()
+		
+		this.getRealSliders()
+		
+/*		const nearbyPointsLen = this.map.nearbyPoints.length
+		for (let i = 0; i < nearbyPointsLen; ++i)
+			this.map.nearbyPoints[i].getDamage()*/
+		
+		for (let i = 0; i < pointsLen; ++i)
+			this.map.points[i].getDamage()
+
+		if (extraSlider) game.sliders.pop()
+	},
+	
+	alignDamage(value, element, targetElement, chapter = 1) {
+		return value * DAMAGE_MATRIX[chapter][element][targetElement]
+	},
+
+	getRealSliders() {
+		const slidersLength = this.sliders.length
+
+		for (let i = 0; i < slidersLength; ++i)
+			this.sliders[i].getBaseRealGrowth()
+		
+		//apply elementShare
+		for (let n = 3; n < 7; ++n) {
+			const name = POINT_TYPES[n]
+			if (this.world.coreStats[name+"Share"]) {
+				let totalAmount = 0
+				for (let i = 0; i < slidersLength; ++i) {
+					if (!this.sliders[i].clone)
+						totalAmount += this.sliders[i].real.growth[name]
+				}
+				for (let i = 0; i < slidersLength; ++i) {
+					if (!this.sliders[i].clone)
+						this.sliders[i].real.growth[name] = totalAmount
+				}
+			}
+		}						
+
+		for (let i = 0; i < slidersLength; ++i)
+			this.sliders[i].applyGrowthArtifacts()
+
+		for (let i = 0; i < slidersLength; ++i)
+			this.sliders[i].getReal()
+
+		if (!this.real.flagBonus)
+			this.real.flagBonus = {}
+
+		for (let n = 0; n < 7; ++n) {
+			this.real.flagBonus[POINT_TYPES[n]] = 0
+			if (n > 2) {
+				const name = POINT_TYPES[n]
+				const artifact = ARTIFACTS[name+"Flag"]
+				if (artifact.equipped)
+					this.real.flagBonus[name] += artifact.equipped.real[name]
+			}
+		}
+
+
+		for (let i = 0; i < slidersLength; ++i)
+			this.sliders[i].getAttack()
+
+	},
+
 	getRealProduction() {
 		RESOURCES.map (x => this.real.production[x] = this.production[x])
 		this.real.production.mana += this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
+		let slidersLength = this.sliders.length
 		this.real.production.mana *= this.world.stats.manaSpeed
-		this.real.production.mana -= this.sliders.reduce((v,x) => v + (x.real && x.real.usedMana || 0), 0)
-		this.real.production.exp += this.sliders.reduce((v,x) => v + (x.real && x.real.expChange || 0), 0)
-		this.real.production.gold += this.sliders.reduce((v,x) => x.target && !x.target.index?v + (x.real && x.real.attack || 0):v, 0)
-		this.real.production.gold += this.sliders.reduce((v,x) => v + (x.real && x.real.madeGold || 0), 0)
 		this.real.production.science *= this.world.stats.scienceSpeed
+		for (let i = 0; i < slidersLength; ++i) {
+			const slider = this.sliders[i]
+			if (slider.real) {
+				RESOURCES.map(x => {
+					if (slider.real.production[x]) 
+						this.real.production[x] += slider.real.production[x] * (slider.real.production[x] > 0 ? x == "mana" ? this.world.stats.manaSpeed : x == "science" ? this.world.stats.scienceSpeed : 1 : 1)
+				})
+				if (slider.target && !slider.target.index)
+					this.real.production.gold += slider.real.attack
+			}
+		}
 	},
 		
 	enableSlowMode(x = 1) {
@@ -830,7 +988,7 @@ const game = {
 			gui.tabs.setTab("map")
 //		gui.map.foreground.classList.toggle("hidden", this.slowMode)
 //		gui.map.background.classList.toggle("hidden", this.slowMode)
-		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
+//		gui.map.dvGrowth.classList.toggle("hidden", this.slowMode)
 		gui.map.dvResources.classList.toggle("hidden", this.slowMode)
 //		gui.map.dvAscend.classList.toggle("hidden", this.slowMode)
 		gui.map.dvSliders.classList.toggle("hidden", this.slowMode)
@@ -872,8 +1030,8 @@ const game = {
 	loadSlidersPreset(name) {
 		if (!this.sliderPresets[name]) return
 		game.sliders.map(x => {
+			Object.keys(x.artifacts).map(y => x.unequip(y))
 			if (x.presets[name]) {
-				Object.keys(x.artifacts).map(y => x.unequip(y))
 				if (x.target) 
 					x.targetIndex = x.target.index 
 				else 
@@ -897,6 +1055,7 @@ const game = {
 		o.saveSkills = Object.keys(o.skills).filter(x => o.skills[x])
 		o.masterSlider = masterSlider
 		o.managementSorting = gui.management.sorting
+		o.stardustControls = gui.stardust.stardustControls
 //		o.tabletSmart = gui.artifacts.smart
 		delete o.skills
 		delete o.updateMapBackground
@@ -905,6 +1064,7 @@ const game = {
 		delete o.lastSave
 		delete o.lastCloudSave
 		delete o.timeLeft
+		delete o.starTime
 		delete o.advanceTimeout
 		delete o.advanceCallback
 		delete o.slowMode
@@ -917,6 +1077,7 @@ const game = {
 		delete o.real
 		delete o.realMap
 		delete o.map
+		delete o.world
 		delete o.renderData
 		delete o.offline
 		delete o.tempOffline
@@ -924,6 +1085,7 @@ const game = {
 		delete o.iterations
 		delete o.badSave
 		delete o.updateInterface
+		delete o.updateStardust
 		delete o.fullMoney
 		delete o.harvesting
 		return o
@@ -935,7 +1097,10 @@ const game = {
 		if (!auto)
 			saveState("_Autosave before load", 1)
 
-		delete game.badSave
+		this.loading = true
+		
+		delete this.badSave
+		delete this.mustImport
 
 		this.stopAdvance()
 		
@@ -944,7 +1109,8 @@ const game = {
 		Object.keys(this.skills).map(x => this.skills[x] = 0)
 		this.sliders.map(x => x.destroy())
 		
-		//this.skillCostMult = save.skillCostMult || this.skillCostMult
+		this.starTime = 0
+		
 		this.growth = save.growth || POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 0 : v, v), {}),
 		this.multi = save.multi || POINT_TYPES.reduce((v, x, n) => (n ? v[x] = 1 : v, v), {}),
 		Object.assign(this.automation, save.automation)
@@ -954,16 +1120,12 @@ const game = {
 		this.attacked.clear()
 		this.autoTimer = GAME_AUTOMATION_PERIOD
 
-//		gui.artifacts.smart = save.tabletSmart || false
-
 		this.story = save.story || {}
 		this.statistics = save.statistics || {}
 		this.lastViewedStory = save.lastViewedStory || 0
 		gui.story.updateStory()
 		
 		this.feats = Object.assign({}, save.feats)
-
-		this.world = World(BASE_WORLD, save.world)
 				
 		RESOURCES.map(x => {
 			this.resources[x] = save.resources && save.resources[x] || 0
@@ -972,19 +1134,34 @@ const game = {
 		POINT_TYPES.slice(1).map(x => {
 			this.stardust[x] = save.stardust && save.stardust[x] || 0
 		})
+		LETTERS.map(x => {
+			this.letters[x] = save.letters && save.letters[x] || 0
+		})
+		
+		if (!save.worlds && save.world && save.world.presets && Object.entries(save.world.presets).length)
+			this.mustImport = true
+		this.worlds = save.worlds || {"0" : save.world || BASE_WORLD, "1" : BASE_WORLD}
+		Object.keys(this.worlds).map(x => this.worlds[x] = World(BASE_WORLD, this.worlds[x], {id : x}))
+		
+		const activeWorld = save.activeWorld || "0"
+		
+		this.setWorld(activeWorld, false)
+
+		this.canStarfield = save.canStarfield || true
 		
 		Object.assign(gui.management.sorting, BASE_SORTING, save.managementSorting)
-
+		Object.assign(gui.stardust.stardustControls, BASE_STARDUST_CONTROLS, save.stardustControls)
 		this.skillCostMult = 1
 		save.saveSkills.map(x => {
 			this.skills[x] = 1
 			this.skillCostMult *= SKILLS[x].mult
 		})
 		
-		this.researching = save.researching
+		this.researching = ARTIFACTS[save.researching]?save.researching:""
 
 		Object.keys(ARTIFACTS).map(x => {
-			this.research[x] = save.research?Research(save.research[x], {name : x}):Research({name : x})//Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
+			const researchClass = [Research, NumericResearch][ARTIFACTS[x].researchType || RESEARCH_LETTERS]
+			this.research[x] = save.research?researchClass(save.research[x], {name : x}):researchClass({name : x})//Object.assign({}, createArtifactResearch(x), save.research && save.research[x])
 		})
 
 		const done = Object.values(this.research).filter(x => x.done).length
@@ -1001,14 +1178,11 @@ const game = {
 		Object.assign(masterSlider, baseMasterSlider, save.masterSlider)
 
 		this.sliders = save.sliders.map(x => Slider(x))
-
-		//;[...this.sliders].sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => x.target && x.autoTarget())
 		
 		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
 		Object.assign(this.sliderPresets, save.sliderPresets)
 		
 		this.map.getOwnedRadius()
-		
 		
 		this.update()
 		gui.skills.updateSkills()
@@ -1017,11 +1191,9 @@ const game = {
 		this.lastCloudSave = performance.now()
 
 		this.getReal()
-		this.map.points.map (point => point.getReal())
-		this.sliders.map (slider => slider.getReal())
+		this.getReals()
 		this.getRealProduction()
 
-//		this.harvesting.clear()
 		this.updateHarvesting()
 
 		this.offline = true
@@ -1042,25 +1214,44 @@ const game = {
 			gui.sliders.update(true)
 			
 			core.getNextFrame && core.getNextFrame()
+			
+			if (this.mustImport) {
+				game.badSave = true
+				gui.tabs.setTab("world")
+				gui.world.importPresets()
+				delete this.mustImport
+			}
 		}
-		
+
+		this.loading = false		
+
 		if (save.saveTime && !hibernated) {
 			let time = Math.max(1, Date.now() - save.saveTime)
 			this.advance(time, callback)
 		} else 
 			this.advance(1, callback)
+
 	},
 	
 	reset(auto) {
 		if (!auto)
 			saveState("_Autosave before reset", 1)
 		
+		this.loading = true
+
 		this.stopAdvance()
 
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = this.dev && this.dev.autoSkills && this.dev.autoSkills.includes(x)?1:0)
-		this.world = World(BASE_WORLD)
+
+		this.worlds = {"0" : BASE_WORLD, "1" : BASE_WORLD}
+		Object.keys(this.worlds).map(x => this.worlds[x] = World(BASE_WORLD, this.worlds[x], {id : x}))
+		
+		const activeWorld = "0"
+		
+		this.setWorld(activeWorld, false)
+		
 		this.available = Object.assign({},BASE_AVAILABLE)
 		RESOURCES.map(x => {
 			this.resources[x] = 0
@@ -1068,6 +1259,9 @@ const game = {
 		})
 		POINT_TYPES.slice(1).map(x => {
 			this.stardust[x] = 0
+		})
+		LETTERS.map(x => {
+			this.letters[x] = 0
 		})
 		this.feats = {}
 		Object.assign(this.automation, {
@@ -1077,14 +1271,21 @@ const game = {
 			buildings : {}
 		})
 		Object.assign(gui.management.sorting, BASE_SORTING)
+		Object.assign(gui.stardust.stardustControls, BASE_STARDUST_CONTROLS)
 		this.story = {}
 		gui.story.updateStory()
 		this.lastViewedStory = 0,
 		this.statistics = {
 			onlineTime : 1
 		}
-		Object.keys(ARTIFACTS).map(x => this.research[x] = Research({name : x}))
+		Object.keys(ARTIFACTS).map(x => {
+			const researchClass = [Research, NumericResearch][ARTIFACTS[x].researchType || RESEARCH_LETTERS]
+			this.research[x] = researchClass({name : x})
+		})
 		this.researching = false
+
+		this.starTime = 0
+		this.canStarfield = false
 
 		Object.keys(this.growth).map(x => this.growth[x] = 0)
 		Object.keys(this.multi).map(x => this.multi[x] = 1)
@@ -1121,14 +1322,14 @@ const game = {
 		this.attacked.clear()
 
 		this.getReal()
-		this.map.points.map (point => point.getReal())
-		this.sliders.map (slider => slider.getReal())
+		this.getReals()
 		this.getRealProduction()
+
+		this.loading = false
 
 		this.advance(1, core.getNextFrame)
 		this.update()
 		gui.setTheme(settings.theme, this.map.boss?"boss":"main")
-//		gui.artifacts.smart = false
 		gui.tabs.setTab("map")
 		gui.sliders.update(true)
 	}

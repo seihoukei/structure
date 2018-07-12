@@ -7,8 +7,23 @@ const worldHandler = {
 	_init() {
 		this.edges = []
 		this.active = {}
+		this.stored = this.stored || {}
+		this.owned = this.owned || {}
+		this.coreStats = Object.assign({},BASE_WORLD_CORE_STATS)
 		this.stats = Object.assign({},BASE_WORLD_STATS)
+		this.projectedStats = Object.assign({},BASE_WORLD_STATS)
 		this.activePoints = new Set()
+		if (this.title === undefined) {
+			const pos = game.worlds?Object.values(game.worlds).filter(x => x.title !== undefined).length + 1:0
+			this.title = "World " + pos
+		}
+		this.core = this.core || {}
+		if (!this.core["0,0"])
+			this.core["0,0"] = 1
+		Object.keys(this.core).map(x => {
+			if (!WORLD_CORE_CELLS[x])
+				delete this.core[x]
+		})
 		this.presets = this.presets || {}
 		if (!this.points || this.points.filter(x => x.type == "entryPoint").length != 1) {
 			this.points = []
@@ -20,9 +35,21 @@ const worldHandler = {
 			})
 		} else {
 			this.points = this.points.map(x => WorldPoint(x))
+			if (!this.version) {
+				this.points.map(point => {
+					const cost = WORLD_ELEMENTS[point.type].legacyCost || WORLD_ELEMENTS[point.type].cost
+					if (cost) 
+						Object.keys(cost).map(x => game.resources[x] += cost[x])
+				})
+				this.version = 2
+			}
 			this.restoreState()
 		}
+		this.version = 2
+		this.updateCore()
 		this.update()
+		this.updateCoreCost()
+		this.updateCost()
 	},
 
 	render(c) {
@@ -138,6 +165,9 @@ const worldHandler = {
 				c.fill()
 				c.globalAlpha = 0.5
 			}
+			if (point.projected) {
+				c.setLineDash([2,2])
+			}
 			c.beginPath()
 			if (gui.worldMouse.target && point == gui.worldMouse.target) c.globalAlpha = 0.25
 			c.moveTo(point.radius, 0)
@@ -185,8 +215,14 @@ const worldHandler = {
 		const renderEdges = this.edges.filter(x => x.points[0] != gui.worldMouse.target && x.points[1] != gui.worldMouse.target)
 		c.strokeStyle = gui.theme.foreground
 		c.beginPath()
-		renderEdges.filter(x => x.points[0].active && x.points[1].active).map(renderEdge)
+		renderEdges.filter(x => x.points[0].active && x.points[1].active && !x.points[0].projected && !x.points[1].projected).map(renderEdge)
 		c.stroke()
+		c.save()
+		c.beginPath()
+		c.setLineDash([2,2])
+		renderEdges.filter(x => x.points[0].projected || x.points[1].projected).map(renderEdge)
+		c.stroke()
+		c.restore()
 		c.save()
 		c.beginPath()
 		c.globalAlpha = 0.5
@@ -210,25 +246,24 @@ const worldHandler = {
 		this.points.map((point,index) => {
 			point.world = this
 		})
+		this.updateCost()
 		this.updateConnections()
+	},
+	
+	getResource(name, projected = false, extraCost = 0) {
+		return Math.floor(game.resources[name] * (1 - this.coreCost[name]) * (1 - extraCost)) - (projected?this.projectedCost[name]:this.cost[name]) || 0
+	},
+		
+	getMaxResource(name, extraCost = 0) {
+		return Math.floor(game.resources[name] * (1 - this.coreCost[name]) * (1 - extraCost))
 	},
 		
 	canAfford(name) {
 		const building = WORLD_ELEMENTS[name]
 		if (!building) return false
+		if (this.stored[name]) return true
 		if (building.cost) {
-			if (Object.keys(building.cost).reduce((v,x) => v || (game.resources[x] < building.cost[x]), false)) return false
-		}
-		return true
-	},
-	
-	pay(name) {
-		const building = WORLD_ELEMENTS[name]
-		if (!building) return false
-		if (building.cost) {
-			Object.keys(building.cost).map(x => {
-				game.resources[x] -= building.cost[x]
-			})
+			if (Object.keys(building.cost).reduce((v,x) => v || (this.getResource(x) < building.cost[x]), false)) return false
 		}
 		return true
 	},
@@ -237,7 +272,7 @@ const worldHandler = {
 		if (!data || !data.type || !WORLD_ELEMENTS[data.type]) 
 			return
 		
-		if (!data.free) {
+		if (!data.free && !data.projected) {
 			if (!this.canAfford(data.type)) return
 		}
 		
@@ -247,6 +282,8 @@ const worldHandler = {
 			type : data.type,
 			world : this
 		})
+		if (data.projected)
+			point.projected = true
 		
 		const canBuild = this.points.reduce((v,pt) => {
 //			console.log(v, Math.hypot(point.x - pt.x, point.y - pt.y) , point.radius + pt.radius + 10)
@@ -255,16 +292,39 @@ const worldHandler = {
 		
 		if (!canBuild) return false
 		
-		if (!data.free) {
+/*		if (!data.free) {
 			this.pay(data.type)
-		}
+		}*/
 		
 		point.x = point.x.toDigits(3)
 		point.y = point.y.toDigits(3)
+		if (this.stored[data.type] && point.projected) {
+			delete point.projected
+			this.stored[data.type]--
+			if (!this.stored[data.type])
+				delete this.stored[data.type]
+		}
 		this.points.push(point)		
 		this.updateConnections()
+		this.updateCost()
 		this.update()
 		game.updateWorldBackground = true
+	},
+	
+	finalize(point, update = true) {
+		if (!point.projected) return
+		if (!this.canAfford(point.type)) return
+		delete point.projected
+		if (this.stored[point.type]) {
+			this.stored[point.type]--
+			if (!this.stored[point.type])
+				delete this.stored[point.type]
+		}		
+		this.updateCost()
+		if (update) {
+			this.updateConnections()
+			this.update()
+		}
 	},
 	
 	free(point) {
@@ -272,14 +332,18 @@ const worldHandler = {
 		const index = this.points.indexOf(point)
 		if (index < 0) return
 		this.points.splice(index, 1)
-		const cost = WORLD_ELEMENTS[point.type].cost
-		if (cost) 
-			Object.keys(cost).map(x => game.resources[x] += cost[x])
 		if (gui.worldMouse.closest == point)
 			delete gui.worldMouse.closest
 		this.updateConnections()
+		this.updateCost()
 		this.update()
 		game.updateWorldBackground = true
+	},
+	
+	store(point) {
+		if (point.type == "entryPoint") return
+		this.stored[point.type] = (this.stored[point.type] || 0) + 1
+		this.free(point)		
 	},
 	
 	updateConnections() {
@@ -291,7 +355,7 @@ const worldHandler = {
 			for (let j = i+1; j < pointsLength; j++) {
 				const point2 = this.points[j]
 				const length = Math.hypot(point1.x - point2.x, point1.y - point2.y)
-				if (length < point1.reach + point2.reach) {
+				if (length < point1.reach + point2.reach && length > Math.abs(point1.reach - point2.reach)) {
 					point1.connect(point2)
 					this.edges.push({
 						points : [point1, point2],
@@ -302,11 +366,14 @@ const worldHandler = {
 		}
 		this.points.map(pt => pt.depth = 100)
 		this.points[0].depth = 0
-		while (this.points.reduce((v,pt) => (pt.depth != (pt.depth = Math.min(pt.depth,...pt.connections.map(x => (x.depth + 1))))) || v, false));
+		while (this.points.filter(x => !x.projected).reduce((v,pt) => (pt.depth != (pt.depth = Math.min(pt.depth,...pt.connections.map(x => (x.depth + (WORLD_ELEMENTS[pt.type].nodepth?0:1)))))) || v, false));
+		this.points.map(pt => pt.projectedDepth = 100)
+		this.points[0].projectedDepth = 0
+		while (this.points.reduce((v,pt) => (pt.projectedDepth != (pt.projectedDepth = Math.min(pt.projectedDepth,...pt.connections.map(x => (x.projectedDepth + (WORLD_ELEMENTS[pt.type].nodepth?0:1)))))) || v, false));
 	},
 	
 	predictConnections(point) {
-		const connectedPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < point.reach + pt.reach)
+		const connectedPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < point.reach + pt.reach && Math.hypot(point.newX - pt.x, point.newY - pt.y) > Math.abs(point.reach - pt.reach))
 		const intersectPoints = this.points.filter(pt => pt != point && Math.hypot(point.newX - pt.x, point.newY - pt.y) < Math.max(pt.deadZone + point.radius, point.deadZone + pt.radius))
 		this.points.map(pt => pt.newDepth = 100)
 		point.newDepth = 100
@@ -319,29 +386,135 @@ const worldHandler = {
 		}
 	},
 	
-	update() {
-		this.workers = game.sliders.filter(x => x.target && x.target.index == 0)	
+	canAffordCore(name) {
+		const cell = WORLD_CORE_CELLS[name]
+		if (!cell) return false
+		if (cell.feat && !game.feats[cell.feat]) return false
+		const cost = cell.cost
+		if (cost) {
+			if (!Object.keys(cost).every(x => this.getResource(x, 0, cost[x]) >= 0)) return false
+		}
+		const enablers = cell.enablers
+		if (enablers) {
+			if (!Object.keys(enablers).every(x => this.owned[x] + (this.stored[x] || 0) >= enablers[x])) return false
+		}
+		return true
+	},
+	
+	clearCore() {
+		Object.keys(this.core).map(x => delete this.core[x])
+		this.core["0,0"] = 1
+		this.updateCore()
+		this.update()
+		gui.world.coreScreen.update(true)
+	},
+	
+	getCore(name) {
+		if (!this.canAffordCore(name)) return false
+		if (this.core[name]) 
+			delete this.core[name]
+		else
+			this.core[name] = 1
+		this.updateCore()
+		this.update()
+	},
+	
+	updateCore() {
+		this.coreResetCost = 0
+		Object.keys(this.coreStats).map(x => this.coreStats[x] = BASE_WORLD_CORE_STATS[x])
+		Object.keys(this.core).map(x => {
+			if (!this.core[x]) return
+			if (!WORLD_CORE_CELLS[x]) return
+			if (!WORLD_CORE_CELLS[x].stat) return
+			if (WORLD_CORE_CELLS[x].effect == WORLD_BONUS_ADD)
+				this.coreStats[WORLD_CORE_CELLS[x].stat] += WORLD_CORE_CELLS[x].value
+			if (WORLD_CORE_CELLS[x].effect == WORLD_BONUS_MUL)
+				this.coreStats[WORLD_CORE_CELLS[x].stat] *= WORLD_CORE_CELLS[x].value
+		})
+		this.updateCoreCost()
+	},
+	
+	updateCost() {
+		if (!this.cost)
+			this.cost = {}
+		if (!this.projectedCost)
+			this.projectedCost = {}
+		for (let i = 1; i <= 6; i++) 
+			this.cost["_"+i] = this.projectedCost["_"+i] = 0
+//		this.workers = game.sliders.filter(x => x.target && x.target.index == 0)	
 		this.activePoints.clear()
-		this.points.map(x => (x.active = x.depth <= this.workers.length)?this.activePoints.add(x):0)
-		Object.keys(WORLD_ELEMENTS).map(x => this.active[x] = 0)
+		this.points.map(point => {
+			const cost = WORLD_ELEMENTS[point.type].cost
+			if (cost) {
+				if (!point.projected)
+					Object.keys(cost).map(x => this.cost[x] += cost[x])			
+				Object.keys(cost).map(x => this.projectedCost[x] += cost[x])			
+			}
+		})
+		Object.keys(this.stored).map(type => {
+			if (!this.stored[type]) return
+			const cost = WORLD_ELEMENTS[type].cost
+			if (cost) {
+				Object.keys(cost).map(x => {
+					this.projectedCost[x] += cost[x] * this.stored[type]
+					this.cost[x] += cost[x] * this.stored[type]
+				})
+			}
+		})
+	},
+	
+	updateCoreCost() {
+		if (!this.coreCost)
+			this.coreCost = {}
+		for (let i = 1; i <= 6; i++) 
+			this.coreCost["_"+i] = 0
+		this.coreResetCost = 0
+		
+		Object.keys(this.core).map(x => {
+			if (!this.core[x]) return
+			this.coreResetCost += 1e4
+			if (!WORLD_CORE_CELLS[x]) return
+			const cost = WORLD_CORE_CELLS[x].cost
+			if (!cost) return
+			Object.keys(cost).map(x => this.coreCost[x] = 1 - (1-this.coreCost[x]) * (1-cost[x]))
+		})
+		this.coreResetCost -= 1e4 //0,0
+/*		this.coreCost._1 = 0.6
+		this.coreCost._2 = 0.5
+		this.coreCost._3 = 0.4
+		this.coreCost._4 = 0.3
+		this.coreCost._5 = 0.2
+		this.coreCost._6 = 0.1*/
+	},
+	
+	update() {
+		this.workers = game.sliders.filter(x => x.target && x.target.index == 0).length
+		if (ARTIFACTS.doublePickaxe.equipped && ARTIFACTS.doublePickaxe.equipped.target && !ARTIFACTS.doublePickaxe.equipped.target.index) this.workers++
+		if (ARTIFACTS.alwaysPickaxe.equipped && (!ARTIFACTS.alwaysPickaxe.equipped.target || ARTIFACTS.alwaysPickaxe.equipped.target.index)) this.workers++
+		this.activePoints.clear()
+		this.points.map(x => (x.active = x.depth <= this.workers) && !x.projected?this.activePoints.add(x):0)
+		this.points.map(x => (x.projectedActive = x.projectedDepth <= this.workers))
+		Object.keys(WORLD_ELEMENTS).map(x => this.owned[x] = this.active[x] = 0)
 		;[...this.activePoints].map(x => this.active[x.type]++)
-		//cap : 50 * (n+1) ** ((n+20)/28)
-/*		this.harvestSpeed = 2 ** this.active.imprinter
-		this.goldSpeed = 2 ** this.active.goldMine
-		this.scienceSpeed = 1 + this.active.library
-		this.manaSpeed = 1.5 ** this.active.manaPool
-		this.maxSummons = 10 + this.active.stabilizer
-		this.meanBoost = 1 + this.active.charger//2 ** this.active.charger*/
+		this.points.map(x => !x.projected?this.owned[x.type]++:0)
 		
 		Object.assign(this.stats, BASE_WORLD_STATS)
+		Object.assign(this.projectedStats, BASE_WORLD_STATS)
 
-		this.points.filter(x => x.active && WORLD_ELEMENTS[x.type].stat).sort((x,y) => WORLD_ELEMENTS[x.type].effect - WORLD_ELEMENTS[y.type].effect).map(x => {
+		this.points.filter(x => (x.active || x.projectedActive) && WORLD_ELEMENTS[x.type].stat).sort((x,y) => WORLD_ELEMENTS[x.type].effect - WORLD_ELEMENTS[y.type].effect).map(x => {
 			const element = WORLD_ELEMENTS[x.type]
+			const minus = (this.coreStats.finalLayer && x.depth == this.workers && x.depth > 1)?1:0
 			if (!element.stat || !this.stats[element.stat]) return
-			if (element.effect == WORLD_BONUS_MUL)
-				this.stats[element.stat] *= element.value(x)
-			if (element.effect == WORLD_BONUS_ADD || element.effect == WORLD_BONUS_ADD_MULT)
-				this.stats[element.stat] += element.value(x)
+			if (element.effect == WORLD_BONUS_MUL) {
+				this.projectedStats[element.stat] *= element.value(x.projectedDepth - minus)
+				if (!x.projected && x.active)
+					this.stats[element.stat] *= element.value(x.depth - minus)
+			}
+			if (element.effect == WORLD_BONUS_ADD || element.effect == WORLD_BONUS_ADD_MULT) {
+				this.projectedStats[element.stat] += element.value(x.projectedDepth - minus)
+				if (!x.projected && x.active)
+					this.stats[element.stat] += element.value(x.depth - minus)
+			}
 		})
 		
 		this.updateBounds()
@@ -352,10 +525,10 @@ const worldHandler = {
 	updateBounds() {
 		if (!this.bounds)
 			this.bounds = {}
-		this.bounds.left = Math.min(...this.points.map(pt => pt.x - pt.radius)) - 50
-		this.bounds.right = Math.max(...this.points.map(pt => pt.x + pt.radius)) + 50
-		this.bounds.top = Math.min(...this.points.map(pt => pt.y - pt.radius)) - 50
-		this.bounds.bottom = Math.max(...this.points.map(pt => pt.y + pt.radius)) + 50
+		this.bounds.left = Math.min(...this.points.map(pt => pt.x - pt.radius)) - 100
+		this.bounds.right = Math.max(...this.points.map(pt => pt.x + pt.radius)) + 100
+		this.bounds.top = Math.min(...this.points.map(pt => pt.y - pt.radius)) - 100
+		this.bounds.bottom = Math.max(...this.points.map(pt => pt.y + pt.radius)) + 100
 		this.bounds.width = this.bounds.right - this.bounds.left
 		this.bounds.height = this.bounds.bottom - this.bounds.top
 	},
@@ -365,9 +538,24 @@ const worldHandler = {
 		delete o.edges
 		delete o.workers
 		delete o.active
+		delete o.projectedActive
+		delete o.owned
 		delete o.stats
+		delete o.projectedStats
 		delete o.activePoints
+		delete o.cost
+		delete o.projectedCost
 		return o
+	},
+	
+	cancelProject() {
+		this.points.filter(x => x.projected).map(x => this.free(x))
+	},
+	
+	finalizeProject() {
+		this.points.filter(x => x.projected).sort((x,y) => x.depth - y.depth).map(x => this.finalize(x, false))
+		this.updateConnections()
+		this.update()		
 	},
 	
 	sellAll() {

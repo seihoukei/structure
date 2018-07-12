@@ -1,6 +1,28 @@
 'use strict'
 
-const fontName = "'Structure', 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', sans-serif"
+const fontName = "'Structure', 'Open Sans', 'Arial Unicode MS', 'Segoe UI Symbol', 'Symbols', sans-serif"
+
+const DAMAGE_MATRIX = [
+	[	// Chapter 0 (00-20)
+//	Source:		none	power	spirit	blood	fire	ice		metal	Target:
+		[		1,		1,		1, 		1, 		1, 		1, 		1	], 	//none
+		[		1,		1,		1, 		1, 		1, 		1, 		1	], 	//power
+		[		1,		1,		1, 		1, 		1, 		1, 		1	], 	//spirit
+		[		1,		1,		1, 		0, 		4, 		1, 		0.5	], 	// blood
+		[		1,		1,		1, 		0.5, 	0, 		4, 		1	], 	// fire
+		[		1,		1,		1, 		1, 		0.5, 	0, 		4	], 	// ice
+		[		1,		1,		1, 		4, 		1, 		0.5, 	0	], 	// metal
+	],[	// Chapter 1 (21-)
+//	Source:		none	power	spirit	blood	fire	ice		metal		Target:
+		[		1,		1,		1, 		0.001, 	0.001, 	0.001, 	0.001	], 	//none
+		[		1,		1,		1, 		0.001, 	0.001, 	0.001, 	0.001	], 	//power
+		[		1,		1,		1, 		0.001, 	0.001, 	0.001, 	0.001	], 	//spirit
+		[		1,		1,		1, 		-1, 	1, 		0.1, 	0		], 	// blood
+		[		1,		1,		1, 		0, 		-1, 	1, 		0.1		], 	// fire
+		[		1,		1,		1, 		0.1, 	0, 		-1, 	1		], 	// ice
+		[		1,		1,		1,		1, 		0.1, 	0, 		-1		], 	// metal
+	]
+]
 
 function fixHomeAtLastBug() {
 	game.map.points[0].mineDepth = game.map.points.reduce((v,x) => v + x.level?x.bonus * 8 ** x.level / 2:0, 0) + game.resources.gold
@@ -97,59 +119,6 @@ function httpStatus(response) {
 	} else {  
 		return Promise.reject(new Error(response.statusText))  
 	}  
-}
-
-const saveCompression = {
-	"#01" : `"goldFactory"`,
-	"#02" : `"scienceLab"`,
-	"#03" : `"obelisk"`,
-	"#04" : `"banner"`,
-	"#05" : `"hopeFactory"`,
-	"#06" : `"cloudFactory"`,
-	"#07" : `"manalith"`,
-	"#08" : `"powerTower"`,
-	"#09" : `"spiritTower"`,
-	"#10" : `"rainbowTower"`,
-	"#11" : `"thunderstoneFactory"`,
-	"#12" : `"earthquakeMachine"`,
-	"#A" : `"angle":`,
-	"#B" : `"buildings":`,
-	"#b" : `"blood":`,
-	"#C" : `"progress":`,
-	"#c" : `"color":"hsl`,
-	"#_C": `"customPower":`,
-	"#D" : `"distance":`,
-	"#E" : `"exit":true`,
-	"#e" : `"enchanted":`,
-	"#f" : `"fire":`,
-	"#G" : `"growth":`,
-	"#i" : `"ice":`,
-	"#K" : `"key":`,
-	"#L" : `"lock":`,
-	"#l" : `"level":`,
-	"#M" : `"bonusMult":`,
-	"#m" : `"metal":`,
-	"#O" : `"owned":true`,
-	"#P" : `"parentIndex":`,
-	"#p" : `"power":`,
-	"#S" : `"size":`,
-	"#s" : `"spirit":`,
-	"#_S": `"special":`,
-	"#T" : `"type":`,
-}
-
-function compressSaveData(s) {
-	s = s.replace(RegExp("#","g"), "&&")
-	for (let [s2, s1] of Object.entries(saveCompression))
-		s = s.replace(RegExp(s1,"g"), s2)
-	return s
-}
-
-function uncompressSaveData(s) {
-	for (let [s1, s2] of Object.entries(saveCompression))
-		s = s.replace(RegExp(s1,"g"), s2)
-	s = s.replace(RegExp("&&","g"), "#")
-	return s
 }
 
 function pluralize(value, forms, noValue = false) {
@@ -251,7 +220,7 @@ function ETAString(value, resource, percent = false) {
 	const have = game.resources[resource]
 	if (have >= value) return percent?" ("+(value/have*100).toFixed(1)+"%)":""
 	const prod = game.real.production[resource]
-	if (prod <= 0) return ""
+	if (prod <= 0) return percent==2?" (have "+(have/value*100).toFixed(1)+"%)":""
 	return " ("+shortTimeString((value - have) / prod)+")"
 }
 
@@ -346,7 +315,32 @@ function superScript(n) {
 	}
 	return n > 0 ? result : ("⁻" + result)
 }
-		
+
+function intersectCircles(x0, y0, r0, x1, y1, r1, sx, sy) {
+	let a, dx, dy, d, h, rx, ry
+	let x2, y2
+	dx = x1 - x0
+	dy = y1 - y0
+	d = Math.hypot(dy, dx)
+	if (d > (r0 + r1) || d < Math.abs(r0 - r1)) {
+		return {x: sx, y : sy}
+	}
+	
+	a = ((r0*r0) - (r1*r1) + (d*d)) / (2 * d) 
+	
+	x2 = x0 + (dx * a/d)
+	y2 = y0 + (dy * a/d)
+	
+	h = ((r0*r0) - (a*a)) ** 0.5
+	
+	rx = -dy * (h/d)
+	ry = dx * (h/d)
+	
+	let p1 = {x : x2 + rx, y : y2 + ry, d : Math.hypot(x2 + rx - sx, y2 + ry - sy)}
+	let p2 = {x : x2 - rx, y : y2 - ry, d : Math.hypot(x2 - rx - sx, y2 - ry - sy)}
+	
+	return p1.d < p2.d ? p1 : p2
+}		
 ///\uFE0E - selector
 //✓ - tick
 //⭕ - circle (plain point)

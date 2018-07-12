@@ -321,6 +321,9 @@ const iconButtonHandler = {
 		this.dvDisplay.title = getString(this.desc)
 		this.dvIcon = createElement("div", "icon", this.dvDisplay, getString(this.iconText))
 		this.dvIcon.style.backgroundColor = getString(this.iconColor)
+		this.dvImage = createElement("img", "icon-image hidden", this.dvDisplay)
+		this.imaged = false
+		//this.dvImage.src = this.image
 		this.dvText = createElement("div", "text", this.dvDisplay, getString(this.text))
 	},
 	
@@ -328,8 +331,19 @@ const iconButtonHandler = {
 		this.visible && this.dvDisplay.classList.toggle("hidden", !this.visible())
 		this.owned && this.dvDisplay.classList.toggle("owned", !!this.owned())
 		this.desc && typeof(this.desc) === 'function' && (this.dvDisplay.title = this.desc())
-		this.iconText && typeof(this.iconText) === 'function' && (this.dvIcon.innerText = this.iconText())
-		this.iconColor && typeof(this.iconColor) === 'function' && (this.dvIcon.style.backgroundColor = this.iconColor())
+		if (this.imageContainer && this.imageContainer[this.id]	) {
+			if (!this.imaged) {
+				this.dvIcon.classList.toggle("hidden", true)
+				this.dvImage.classList.toggle("hidden", false)
+				this.imaged = true
+			}
+			if (this.imaged && this.dvImage.src != this.imageContainer[this.id].src) {
+				this.dvImage.src = this.imageContainer[this.id].src
+			}
+		} else if (this.dvIcon) {
+			this.iconText && typeof(this.iconText) === 'function' && (this.dvIcon.innerText = this.iconText())
+			this.iconColor && typeof(this.iconColor) === 'function' && (this.dvIcon.style.backgroundColor = this.iconColor())
+		}
 		this.text && typeof(this.text) === 'function' && (this.dvText.innerText = this.text())
 	},
 	
@@ -379,6 +393,8 @@ const tabGroupHandler = {
 	
 	setTab(name) {
 		if (!this.tabs[name]) return
+		if (this.activeTab && this.tabs[this.activeTab])
+			this.tabs[this.activeTab].onUnset && this.tabs[this.activeTab].onUnset()
 		Object.values(this.tabs).map(tab => {
 			tab.dvDisplay && tab.dvDisplay.classList.toggle("hidden", tab.name != name)
 			tab.dvTitle && tab.dvTitle.classList.toggle("active", tab.name == name)			

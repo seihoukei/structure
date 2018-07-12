@@ -1,5 +1,11 @@
 'use strict'
 
+const BASE_STARDUST_CONTROLS = {
+	overspend : false,
+	autoSpread : false,
+	autoEqual : false
+}
+
 const StardustTab = Template({
 	_init() {
 		this.dvDisplay = createElement("div", "stardust "+(this.className || ""), this.parent)
@@ -24,7 +30,7 @@ const StardustTab = Template({
 					game.stardust[x] = Math.round(game.stardust[x])
 					const otherTotal = POINT_TYPES.slice(1).reduce((v, y) => y != x?v + game.stardust[y]:v, 0)
 					let otherDust = game.resources.stardust - game.stardust[x]
-					if (this.overspend) {
+					if (this.stardustControls.overspend) {
 						const scale = otherDust / otherTotal
 						if (scale < 1) {
 							POINT_TYPES.slice(3).map(y => {
@@ -48,33 +54,53 @@ const StardustTab = Template({
 						if (game.stardust[x] + otherTotal > game.resources.stardust)
 							this.sliders[n].setValue(game.resources.stardust - otherTotal)
 					}
-					const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
-					this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + (game.resources.stardust - freeDust) + "/" + game.resources.stardust + ")"
-					gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
+					this.updateStardust()
 				}
 			})
 		})
-		this.overspend = false
+		this.stardustControls = Object.assign({}, BASE_STARDUST_CONTROLS)
 		this.cbOverspend = GuiCheckbox({
 			parent : this.dvSliders,
 			title : "Redistribute if exceeding total",
-			container : this,
+			container : this.stardustControls,
 			value : "overspend"
 		})
-		this.dvEqual = createElement("div", "equal button", this.dvSliders, "Distribute equally")
-		this.dvEqual.onclick = (event) => {
-			let number = POINT_TYPES.slice(3).reduce((v,x) => v + (game.growth[x]?1:0), 0)
-			let whole = game.resources.stardust / number | 0
-			let fract = game.resources.stardust % number
-			POINT_TYPES.slice(3).map(x => {
-				if (game.growth[x]) {
-					game.stardust[x] = whole + (fract?1:0)
-					fract = fract?fract-1:0
+		this.cbEqual = GuiCheckbox({
+			parent : this.dvSliders,
+			title : "Distribute for equal growth on change",
+			container : this.stardustControls,
+			value : "autoEqual",
+			onSet : () => {
+				if (this.stardustControls.autoEqual) {
+					this.stardustControls.autoSpread = false
+					this.cbSpread.update()
 				}
-			})
-			this.sliders.map(y => y.update())
-			this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + game.resources.stardust + "/" + game.resources.stardust + ")"
-			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + ("Stardust"))
+			},
+			visible : () => game.skills.autoStar
+		})
+		this.cbSpread = GuiCheckbox({
+			parent : this.dvSliders,
+			title : "Distribute equally on change",
+			container : this.stardustControls,
+			value : "autoSpread",
+			onSet : () => {
+				if (this.stardustControls.autoSpread) {
+					this.stardustControls.autoEqual = false
+					this.cbEqual.update()
+				}
+			},
+			visible : () => game.skills.autoStar
+		})
+		this.dvSpreadButtons = createElement("div", "buttons", this.dvSliders)
+		this.dvSpread = createElement("div", "equal button", this.dvSpreadButtons, "Equalize amounts")
+		this.dvSpread.onclick = (event) => {
+			this.spreadStardust()
+			this.updateStardust()
+		}
+		this.dvEqual = createElement("div", "equal button", this.dvSpreadButtons, "Equalize growth")
+		this.dvEqual.onclick = (event) => {
+			this.equalStardust()
+			this.updateStardust()
 		}
 		
 		this.dvVirtual = createElement("div", "virtual", this.dvSubdisplay)
@@ -97,7 +123,7 @@ const StardustTab = Template({
 			shortStep : 1,
 			digits : 0,
 			onSet : () => {
-				this.dvVirtualCreateCost.innerText = "Cost: " + virtualMapCost(this.newMapLevel) + " stardust"
+				this.dvVirtualCreateCost.innerText = "Cost: " + displayNumber(virtualMapCost(this.newMapLevel),0) + " stardust"
 			}
 		})
 		
@@ -145,18 +171,7 @@ const StardustTab = Template({
 		this.dvVirtualCreateButton.onclick = (event) => {
 			const name = Array(Math.min(5, game.realMap.level - 20)).fill().map((x,n) => "virtual"+n).filter(x => !game.maps[x])[0]
 			if (!name) return
-			if (game.resources.stardust < virtualMapCost(this.newMapLevel)) return
-			game.resources.stardust -= virtualMapCost(this.newMapLevel)
-			
-			let stardustTotal = POINT_TYPES.slice(1).reduce((v, y) => v + game.stardust[y], 0)
-			
-			let n = -1
-			while (stardustTotal > game.resources.stardust) {
-				n = (n + 1) % 4
-				if (game.stardust[POINT_TYPES[n + 3]] <= 0) continue
-				game.stardust[POINT_TYPES[n + 3]]--
-				stardustTotal--
-			}
+			if (!game.payStardust(virtualMapCost(this.newMapLevel))) return
 			
 			game.createMap(name, Math.round(this.newMapLevel), true, this.newMapFocus)
 			this.update(true)
@@ -182,9 +197,13 @@ const StardustTab = Template({
 		this.dvDiscoveredTypes = createElement("div", "stats-info", this.dvDiscoveredContainer)
 		this.dvDiscoveredSpecials = createElement("div", "stats-info", this.dvDiscoveredContainer)
 		this.dvDiscoveredInfo = createElement("div", "stats-info", this.dvDiscoveredContainer)
+
+		this.dvCoreSpecials = createElement("div", "special-core-info", this.dvDisplay)
 	},
 	
 	onSet() {
+		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
+		gui.setHeader(["clouds", "stardust", "exp", "gold"])
 		this.dvDisplay.appendChild(gui.map.dvGrowth)
 		this.update(true)
 	},
@@ -193,7 +212,7 @@ const StardustTab = Template({
 		const map = game.maps[name]
 		this.displayMap = name
 		const stats = map.getStats()
-		this.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+" map"
+		this.dvStatsTitle.innerText = "Level "+map.level+(map.virtual?" virtual":"")+(map.focus?" "+POINT_TYPES[map.focus]:"")+(map.starfield?" starfield":" map") + (map.evolved?" evolved "+pluralize(map.evolved, ["time", "times"]):"")
 		this.dvStatsTime.innerText = "Created: "+stats.created + 
 											"\nCompleted: "+stats.completed + 
 											"\nTime spent: "+stats.took +
@@ -211,6 +230,54 @@ const StardustTab = Template({
 		this.lastUpdate = performance.now()
 	},
 	
+	spreadStardust() {
+		let number = POINT_TYPES.slice(3).reduce((v,x) => v + (game.growth[x]?1:0), 0)
+		let whole = game.resources.stardust / number | 0
+		let fract = game.resources.stardust % number
+		POINT_TYPES.slice(3).map(x => {
+			if (game.growth[x]) {
+				game.stardust[x] = whole + (fract?1:0)
+				fract = fract?fract-1:0
+			}
+		})
+	},
+	
+	equalStardust() {
+		let number = POINT_TYPES.slice(3).reduce((v,x) => v + (game.growth[x]?1:0), 0)
+		//let totalGrowth = POINT_TYPES.slice(3).reduce((v,x) => v + (game.growth[x] || 0), 0)
+		let shares = POINT_TYPES.slice(3).map(x => game.growth[x]?1 / game.growth[x] : 0, 0)
+		let totalShares = shares.reduce((v,x) => v+x, 0)
+		shares = shares.map(x => x/totalShares)
+		let totalUsed = 0
+		POINT_TYPES.slice(3).map((x,n) => totalUsed += (game.stardust[x] = Math.floor(game.resources.stardust * shares[n])))
+		let fract = game.resources.stardust - totalUsed
+		POINT_TYPES.slice(3).map(x => {
+			if (game.growth[x]) {
+				game.stardust[x] += (fract?1:0)
+				fract = fract?fract-1:0
+			}
+		})
+	},
+	
+	updateStardust() {
+		if (this.stardustControls.autoSpread) {
+			this.spreadStardust()
+		}
+		if (this.stardustControls.autoEqual) {
+			this.equalStardust()
+		}
+		const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
+		this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + displayNumber(game.resources.stardust - freeDust) + "/" + displayNumber(game.resources.stardust) + ")"
+		gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
+		this.sliders.map(x => {
+			x.setMax(game.resources.stardust)
+			x.steps = game.resources.stardust
+			x.dvRight.innerText = displayNumber(game.resources.stardust)
+			x.dvDisplay.classList.toggle("hidden", !game.growth[x.value])
+			x.update()
+		})
+	},
+	
 	update(forced) {
 		if (forced) {
 			const maxMaps = Math.max(0,Math.min(5, game.realMap.level - 20))
@@ -222,16 +289,10 @@ const StardustTab = Template({
 			}
 			this.dvFocusSelector.classList.toggle("hidden", !game.skills.virtualMapFocus)
 			if (!game.skills.virtualMapFocus) this.newMapFocus = 0
-			const freeDust = game.resources.stardust - Object.values(game.stardust).reduce((v,x) => v+x, 0)
-			this.dvGrowthTitle.innerText = "Growth boost (Stardust: " + (game.resources.stardust - freeDust) + "/" + game.resources.stardust + ")"
-			gui.tabs.setTitle("stardust", (game.skills.virtualMaps?"Maps / ":"") + (freeDust?"Stardust ("+displayNumber(freeDust, 0)+")":"Stardust"))
-			this.sliders.map(x => {
-				x.setMax(game.resources.stardust)
-				x.steps = game.resources.stardust
-				x.dvRight.innerText = game.resources.stardust
-				x.dvDisplay.classList.toggle("hidden", !game.growth[x.value])
-				x.update()
-			})
+			this.updateStardust()
+			this.cbOverspend.update()
+			this.cbEqual.update()
+			this.cbSpread.update()
 			if (game.skills.virtualMaps) {
 				this.newMapLevelSlider.setMax (game.realMap.level)
 				this.newMapLevelSlider.setMin (game.realMap.level / 2 | 0)
@@ -239,7 +300,7 @@ const StardustTab = Template({
 				this.newMapLevelSlider.dvRight.innerText = game.realMap.level
 				this.newMapLevelSlider.update()
 				this.selector.update(true)
-				this.dvVirtualCreateCost.innerText = "Cost: " + virtualMapCost(this.newMapLevel) + " stardust"
+				this.dvVirtualCreateCost.innerText = "Cost: " + displayNumber(virtualMapCost(this.newMapLevel),0) + " stardust"
 				
 				while (this.dvVirtualMaps.firstChild)
 					this.dvVirtualMaps.firstChild.remove()
@@ -254,6 +315,12 @@ const StardustTab = Template({
 					name : x
 				}))
 			}
+			
+			let specials = ""
+			if (game.world.coreStats.evolutionScale) specials += "\nVirtual map evolutions have longer distances"
+			if (game.world.coreStats.mapChargeSpeed) specials += "\nCompleted focused virtual maps produce their focus attribute growth at " + Math.floor(game.world.coreStats.mapChargeSpeed / 10) + "% completion speed"
+			if (game.world.coreStats.goldenMaps) specials += "\nMaximum level virtual maps are created as starfields"
+			this.dvCoreSpecials.innerText = specials
 		}
 		if (this.displayMap && performance.now() - this.lastUpdate > 2000/* == game.activeMap*/) {
 			this.updateMapStats(this.displayMap)
@@ -267,13 +334,24 @@ const StardustTab = Template({
 				const exits = map.exitsCount
 				currentMap.dvLevel.innerText = "Level "+map.level+", "+Math.floor(progress)+(map.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+((map.level == game.realMap.level && progress < 100)?"???":exits)
 				if (currentMap.dvEvolve)
-					currentMap.dvEvolve.classList.toggle("enabled", progress == 100 && (!map.evolved || map.evolved < 3))
+					currentMap.dvEvolve.classList.toggle("enabled", progress == 100 && (map.level > 30 && !map.evolved || map.evolved < 3))
+			}
+			if (game.world && game.world.coreStats && game.world.coreStats.mapChargeSpeed) {
+				gui.stardust.virtualMaps.map(x => {
+					const map = game.maps[x.name]
+					if (!map.virtual || !map.complete || !map.focus) return
+					const progress = Math.floor(map.chargeTime / map.tookTime * 10000)/100
+					//x.dvFocus.title = POINT_TYPES[map.focus].capitalizeFirst() + " charge: " + progress.toFixed(2) + "% (" + shortTimeString((map.tookTime - map.chargeTime)/game.world.coreStats.mapChargeSpeed) + ") "
+					x.dvFocus.innerText = POINT_TYPES[map.focus].capitalizeFirst() + " (" + shortTimeString((map.tookTime - map.chargeTime)/game.world.coreStats.mapChargeSpeed) + ") "
+					x.dvCharge.style.transform = "scale("+(progress/100)+",1)"
+				})
 			}
 		}
 	}
 })
 
 function virtualMapCost(level) {
+	if (game.world.coreStats.goldenMaps && game.realMap.level == level) return level * 125e2
 	if (game.realMap.level == level) return 0
 	if (game.realMap.level == level + 1) return Math.ceil(mapLevel(level).exitsCount / 2)
 	return mapLevel(level).exitsCount
@@ -283,13 +361,14 @@ const mapDisplayHandler = {
 	_init() {
 		const map = game.maps[this.name]
 		this.dvDisplay = createElement("div", "virtual-map"+(game.activeMap == this.name?" active":""), this.parent)
-		this.dvTitle = createElement("div", "virtual-map-title", this.dvDisplay, this.name == "main"?"Real":this.name.capitalizeFirst()+(map.evolved?"\nEvolved: "+pluralize(map.evolved,["time","times"]):""))
+		this.dvTitle = createElement("div", "virtual-map-title", this.dvDisplay, this.name == "main"?"Real":this.name.capitalizeFirst()+(map.starfield?" (Starfield)":"")+(map.evolved?"\nEvolved: "+pluralize(map.evolved,["time","times"]):""))
 		const stars = map.points.filter(x => x.exit && x.owned).length
 		const progress = map.points.filter(x => x.owned).length / map.points.length * 100
 		const exits = map.exitsCount
 		this.dvLevel = createElement("div", "virtual-map-level", this.dvDisplay, "Level "+map.level+", "+Math.floor(progress)+(this.name == "main"?"%\nStars: ":"%\nStardust: ")+stars+"/"+((map.level == game.realMap.level && progress < 100)?"???":exits))
 		const focus = map.focus?POINT_TYPES[map.focus]:0
-		this.dvFocus = createElement("div", "virtual-map-focus"+(focus?" bg-"+focus:""), this.dvDisplay, focus?focus.capitalizeFirst():"")
+		this.dvFocus = createElement("div", "virtual-map-focus"+(focus?" bg-"+focus:""), this.dvDisplay, (focus?focus.capitalizeFirst():""))
+		this.dvCharge = createElement("div", "virtual-map-charge", this.dvDisplay)
 		this.dvGo = createElement("div", "button" + (game.activeMap == this.name?"":" enabled"), this.dvDisplay, "Visit")
 		if (this.name != game.activeMap) {
 			this.dvGo.onclick = (event) => {
@@ -320,8 +399,14 @@ const mapDisplayHandler = {
 		if (this.name != "main"){
 			this.dvDelete.onclick = (event) => {
 				let ask = !game.skills.retainVirtualBonus?"You will lose all bonuses from this virtual map\n":""
-				ask += game.maps[this.name].points.filter(x => x.exit && !x.owned).length?"You have not collected all the stardust on this virtual map\n":""
-				if (ask && !confirm(ask+"Are you sure you want to delete it?")) return
+				ask += game.maps[this.name].points.some(x => x.exit && !x.owned)?"You have not collected all the stardust on this virtual map\n":""
+				if (game.skills.retainVirtualBonus && game.skills.book_enchantments1 && game.maps[this.name].points.some(x => !x.enchanted && (x.manaCosts.enchantDoom != -1 || x.manaCosts.enchantGold != -1 || x.manaCosts.enchantMana != -1 || x.manaCosts.enchantGrowth != -1))) ask += "There are nodes you can enchant.\n"
+				if (game.skills.virtualImprint && game.maps[this.name].points.some(x => x.canImprint && !x.harvested && !x.harvestTime)) ask += "There are nodes you can imprint.\n"
+				if (game.maps[this.name].points.some(x => x.harvesting)) ask += "There are unfinished imprints that will be lost.\n"
+				if (game.maps[this.name].focus && game.maps[this.name].complete && game.world.coreStats.mapChargeSpeed) ask += "Map will stop charging to produce " + POINT_TYPES[game.maps[this.name].focus] + " growth.\n"
+				if (game.skills.starfall && game.maps[this.name].complete && game.maps[this.name].evolved) ask += "Map will stop producing stardust.\n"
+
+				if (ask && !confirm(ask+"\nAre you sure you want to delete this map?")) return
 				game.deleteMap(this.name, game.skills.retainVirtualBonus)
 				gui.stardust.update(true)
 			}

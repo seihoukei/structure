@@ -172,6 +172,7 @@ const mapPointHandler = {
 	calculateStats() {
 //		if (!this.initialized || this.initialized < 5) {
 			this.innerSize = this.size * settings.nodeScale
+//			console.log(this.lock)
 			if (this.key) {
 				this.keyData = this.map.keys[this.key]
 				this.keyData.keyPoint = this
@@ -263,9 +264,12 @@ const mapPointHandler = {
 		this.totalBonus = this.bonus * ((this.bonusMult || 0) + 1) * (this.enchanted == ENCHANT_GROWTH?this.map.level:1) * (this.enchanted == ENCHANT_DOOM?0.2:1)
 
 		if (!this.harvestTimes[1])
-			this.harvestTimes[1] = (this.map.level - 26) ** 4
+			this.updateHarvestTimes()
 		
 		this.canImprint = game.realMap && (game.skills.imprint && (!this.map.virtual || game.skills.virtualImprint && (this.map.level == game.realMap.level && this.exit)) && (!this.boss && this.completed))
+		
+		if (this.canImprint && !this.harvesting && game.world.coreStats && game.world.coreStats.autoImprint)
+			this.startHarvest(1)
 		
 		if (!game.offline && gui.tabs.activeTab == "management" && this.displays.management && this.displays.management.visible)
 			this.updateDisplay("management", true)
@@ -277,6 +281,13 @@ const mapPointHandler = {
 		game.available.spells.map(x => this.manaCosts[x.id] = (!this.noclone || x.book.substr(0,6) != "summon")? x.cost(this) : -1)
 	},
 
+	updateHarvestTimes() {
+		const n = game.resources._1 + game.resources._2 + game.resources._3 + game.resources._4 + game.resources._5 + game.resources._6
+		this.harvestTimes[1] = ((n+100) ** 1.8 / 350 + 100) * 6//(this.map.level - 26) ** 4
+		if (this.harvesting == 1)
+			this.harvestTimeTotal = this.harvestTimes[1]
+	},
+	
 	levelUp() {
 		if (game.resources.gold < this.costs.levelUp) return
 		if (this.level && this.level >= POINT_MAX_LEVEL) return
@@ -364,6 +375,7 @@ const mapPointHandler = {
 		if (SPELLS[name].recalc) this.unsuspend()
 		if (!game.autoUpgrading) {
 			game.update()
+			if (gui.tabs.activeTab == "management")
 			gui.management.update()
 		}
 		gui.target.updateUpgrades()		
@@ -420,44 +432,46 @@ const mapPointHandler = {
 		return this.temp
 	},
 	
-	getActiveSpirit(slider) {
-		return slider.artifacts.nullRod && this.type==2?0:slider.real.spirit * ((this.parent && this.parent.buildings && this.parent.buildings.obelisk)?(this.parent.level || 0) + 1:1)
+	getActiveSpirit(slider, real) {
+		return (slider.artifacts.nullRod) && this.type==2?0:real.spirit * ((this.parent && this.parent.buildings && this.parent.buildings.obelisk)?(this.parent.level || 0) + 1:1)
 	},
 	
-	getActivePower(slider) {
+	getActivePower(slider, real) {
+		if (!real)
+			real = (slider.target == this)?slider.real:slider.getReal(this, true)
+		
 		let currentPower = this.power * this.progress || 0
 		
 		if (!this.index) {
-			let power = Math.max(0, slider.real.miningPower - (slider.clone?0:Math.max(0, ((this.mineDepth || 0) - slider.real.spirit) * 2)))
+			let power = Math.max(0, real.miningPower - (slider.clone || game.skills.power?0:Math.max(0, ((this.mineDepth || 0) - real.spirit) * 2)))
 			power *= game.world.stats.goldSpeed
-			return (power) ** (slider.artifacts.pickaxe?0.63:0.6) / 2e3
+			const factor = 0.6 + (slider.artifacts.pickaxe?0.03:0) - (slider.artifacts.doublePickaxe?0.05:0)
+			return (power) ** (factor) / 2e3
 		}
 		
-		let absoluteDamage = slider.real.absoluteDamage
+		let absoluteDamage = real.absoluteDamage
 		
 		if (slider.artifacts.loneSword && (this.attackers.size == 0 || this.attackers.size == 1 && this.attackers.has(slider))) {
-			absoluteDamage += (slider.real.fire  
-							+  slider.real.ice   
-							+  slider.real.blood 
-							+  slider.real.metal)
+			absoluteDamage += (real.fire  
+							+  real.ice   
+							+  real.blood 
+							+  real.metal)
 		}			
 		
 		const chapter = this.map.level > 20 || this.map.virtual ? 1 : 0
-		const weak = chapter ? 0 : 0.5
-		const strong = chapter ? 1 : 4
-		const neutral = chapter ? 0.1 : 1
-		const itself = chapter ? -1 : 0
-		const phys = chapter ? ARTIFACTS.powerGem.equipped && ARTIFACTS.powerGem.equipped.target === this?0.01:0.001 : 1
-		
-		const spirit = slider.real.spirit//getActiveSpirit(slider)
+
+		const spirit = real.spirit
 		let spiritPenalty = (this.boss || slider.clone)?0:Math.max(0,(currentPower - spirit) * 2)
 
-		let fire  = slider.artifacts.nullRod && this.type==4?0:slider.real.fire *  [1,1,1, weak, itself, strong, neutral][this.type]
-		let ice   = slider.artifacts.nullRod && this.type==5?0:slider.real.ice *   [1,1,1, neutral, weak, itself, strong][this.type]
-		let blood = slider.artifacts.nullRod && this.type==3?0:slider.real.blood * [1,1,1, itself, strong, neutral, weak][this.type]
-		let metal = slider.artifacts.nullRod && this.type==6?0:slider.real.metal * [1,1,1, strong, neutral, weak, itself][this.type]
+		let physical = game.alignDamage(real.power ,1, this.type, chapter)
+		let blood    = game.alignDamage(real.blood ,3, this.type, chapter)
+		let fire     = game.alignDamage(real.fire  ,4, this.type, chapter)
+		let ice      = game.alignDamage(real.ice   ,5, this.type, chapter)
+		let metal    = game.alignDamage(real.metal ,6, this.type, chapter)
 		
-		let physical = slider.artifacts.nullRod && this.type==1?0:slider.real.power * (this.type > 2 ? phys : 1)
+		if (chapter && this.type > 2 && ARTIFACTS.powerGem.equipped && (ARTIFACTS.powerGem.equipped.target === this || ARTIFACTS.powerGem.equipped == slider))
+			physical *= 10
+		
 		let superphysical = 0
 		
 		let elemental = fire + ice + blood + metal
@@ -469,9 +483,6 @@ const mapPointHandler = {
 		if (game.skills.metal) superelemental += metal, elemental -= metal
 		if (game.skills.power) superphysical = physical, physical = 0
 		
-/*		if (this.special == SPECIAL_RESIST && game.skills.pierceResist)
-			return physical*/
-
 		elemental = Math.max(0, elemental) * (this.special == SPECIAL_RESIST ? 0 : 1)
 		physical = Math.max(0, physical) * (this.special == SPECIAL_BLOCK ? 0 : 1)
 		
@@ -481,14 +492,18 @@ const mapPointHandler = {
 		let finalMult = (this.enchanted == ENCHANT_DOOM?this.map.level:1)
 		if (slider.artifacts.warAmulet && slider.lastTarget == this.index) finalMult *= 1 + slider.onSame / 600
 		if (slider.artifacts.victoryAmulet && slider.victoryTimer) finalMult *= 1 + this.map.level / 10
+		if (slider.artifacts.channelSword && this.special == SPECIAL_NOCHANNEL) finalMult *= 0.1
 		if (this.type > 2) {
 			const bane = ARTIFACTS[POINT_TYPES[this.type]+"Gem"]
-			if (bane.equipped && bane.equipped.target === this) finalMult *= 3
+			if (bane.equipped && (bane.equipped.target === this || bane.equipped == slider)) finalMult *= 3
 		}
-		if (this.attackers.size > 1 && ARTIFACTS.selflessCrown.equipped && ARTIFACTS.selflessCrown.equipped.target == this) {
-			finalMult *= ARTIFACTS.selflessCrown.equipped == slider?0.1:2
+		if (this.index && this.attackers.size > 1 && ARTIFACTS.selflessCrown.equipped && ARTIFACTS.selflessCrown.equipped.target == this) {
+			finalMult *= (ARTIFACTS.selflessCrown.equipped == slider)?0.1:2
 		}
-		if (this.attackers.size > 1 && ARTIFACTS.puppetCrown.equipped && ARTIFACTS.puppetCrown.equipped.target == this) {
+		if (this.index && this.attackers.size > 1 && ARTIFACTS.soloCrown.equipped && ARTIFACTS.soloCrown.equipped.target == this) {
+			finalMult *= (ARTIFACTS.soloCrown.equipped == slider)?2:0.1
+		}
+		if (this.index && this.attackers.size > 1 && ARTIFACTS.puppetCrown.equipped && ARTIFACTS.puppetCrown.equipped.target == this) {
 			if (slider.clone == 2) 
 				finalMult *= 4
 			else if (ARTIFACTS.puppetCrown.equipped == slider && [...this.attackers].filter(x => x.clone == 2).length)
@@ -524,9 +539,11 @@ const mapPointHandler = {
 			game.resources["_"+(this.type || 0)] += 1
 		this.harvested = this.harvesting
 		this.harvestTime = this.harvestTimeTotal
-		game.update()
+		this.map.updateHarvestTimes()
+//		game.update()
 		if (gui.target.point == this) gui.target.update(true)
 		game.harvesting.delete(this)
+		game.updateMapBackground = true
 		delete this.harvesting
 	},
 	
@@ -535,13 +552,21 @@ const mapPointHandler = {
 			this.real.loss = 0
 			return
 		}
+		
+		if (this.index && (this.real.passiveDamage || this.attackers.size != 1 || !ARTIFACTS.nullRod.equipped || ARTIFACTS.nullRod.equipped.target !== this)) {
+			this.map.failed.null1 = 1
+		}
 /*		if (this.enchanted == ENCHANT_DOOM) {
 			this.real.loss *= this.map.level
 			this.real.passiveDamage *= this.map.level
 		}*/
 		
 		let power = this.real.loss * time
-		
+
+		this.dealDamage(power)
+	},
+	
+	dealDamage(power, percent = false) {
 		if (!this.index) {
 			this.mineDepth = (this.mineDepth || 0) + power
 			return
@@ -550,6 +575,9 @@ const mapPointHandler = {
 		this.progress = this.progress || 0
 		const oldProgress0 = this.progress * 100 | 0
 		const start = this.totalPower * this.progress ** 2
+		
+		if (percent) power = (this.totalPower - start) * power / 100
+		
 		const end = Math.min(this.totalPower, start + power)
 		this.progress = (end / this.totalPower) ** 0.5
 		const summonsHere = [...this.attackers].filter(x => x.clone == 2)
@@ -558,14 +586,14 @@ const mapPointHandler = {
 		let canMasterSummon = !this.noclone && !hasSummons && this.attackers && this.attackers.has(ARTIFACTS.masterSummonAmulet.equipped) && this.special != SPECIAL_ALONE
 		let canGrandmasterSummon = !this.noclone && this.attackers && this.attackers.has(ARTIFACTS.legendarySummonAmulet.equipped) && this.special != SPECIAL_ALONE && this.summon != SPECIAL_RESIST
 		if (canSummon || canMasterSummon || canGrandmasterSummon) {
+			let summoned = false
 			let oldProgress1 = oldProgress0
 			while (oldProgress1 < (this.progress* 100|0)) {
 				oldProgress1++
 				if (canSummon && (Math.random() * (ARTIFACTS.summonAmulet.equipped.onSame + 900) < ARTIFACTS.summonAmulet.equipped.onSame)) {
 					if (game.sliders.filter(x => x.clone == 2).length >= game.world.stats.maxSummons) break
 					createSummon(this, 1)
-					if (gui.target.point == this)
-						gui.target.set(this, -1)
+					summoned = true
 					canMasterSummon = canSummon = false
 				}
 				if (canMasterSummon && (Math.random() * (ARTIFACTS.masterSummonAmulet.equipped.onSame + 1800) < ARTIFACTS.masterSummonAmulet.equipped.onSame)) {
@@ -573,8 +601,7 @@ const mapPointHandler = {
 					let element = Math.random() * 4 + 3 | 0
 					while (element == this.type || element % 4 + 3 == this.type) element = Math.random() * 4 + 3 | 0
 					createSummon(this, element)
-					if (gui.target.point == this)
-						gui.target.set(this, -1)
+					summoned = true
 					canMasterSummon = canSummon = false
 				}
 				if (canGrandmasterSummon && (Math.random() * (ARTIFACTS.legendarySummonAmulet.equipped.onSame + 300 * (3 ** hasSummons)) < ARTIFACTS.legendarySummonAmulet.equipped.onSame)) {
@@ -582,11 +609,15 @@ const mapPointHandler = {
 					let element = this.type < 3?Math.random() * 4 + 3 | 0:(this.type)%4+3
 //					if (this.special == SPECIAL_RESIST) element = 1
 					createSummon(this, element)
-					if (gui.target.point == this)
-						gui.target.set(this, -1)
+					summoned = true
 					hasSummons++
 					canMasterSummon = canSummon = false
 				}
+			}
+			if (summoned) {
+				this.calculateStats()
+				if (gui.target.point == this)
+					gui.target.set(this, -1)
 			}
 		}
 		if (this.type > 2 && this.attackers.has(ARTIFACTS.aligner.equipped) && hasSummons) {
@@ -675,6 +706,7 @@ const mapPointHandler = {
 		if (this.exit) {
 			if (this.map.virtual) {
 				game.resources.stardust++
+				game.updateStardust = true
 				game.addStatistic("stardust")
 			} else {
 				game.resources.stars++
@@ -779,17 +811,21 @@ const mapPointHandler = {
 				target.calculateStats()
 			}
 		}
-
+		
 		game.update()
+		
+		if (game.world.coreStats.superCharge) 
+			game.sliders.map(x => x.charge = Math.max(1, (x.charge || 0) + Math.random()))
 		
 		const slidersLength = game.sliders.length
 		
 		attackers.sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => {
+			x.lastCapture = this
 			if (!x.clone)
 				this.map.failed.noreal1 = 1
 			x.victoryTimer = 60 * this.map.level
 			if (x.clone == 2) {
-				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && (y.special != SPECIAL_ALONE || (!game.skills.smartSummons || (y.type < 3 || x.element == y.type % 4 + 3 ) && y.getActivePower(x)) && !y.attackers.size) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !x.element || x.element < 3 || y.type != x.element))
+				const outs = [...this.children].filter(y => !y.locked && (!y.boss || y.boss <= this.map.boss) && (y.special != SPECIAL_ALONE || (!game.skills.smartSummons || (y.type < 3 || x.element == y.type % 4 + 3 ) && x.predictDamage(y)) && !masterSlider.summonAvoidNarrow && !y.attackers.size) && y.special != SPECIAL_NOCLONE && (!game.skills.smartSummons || !masterSlider.summonAvoidSame || !x.element || x.element < 3 || y.type != x.element))
 				if (!outs.length || game.sliders.filter(x => x.clone == 2).length > game.world.stats.maxSummons)
 					x.fullDestroy()
 				else {
@@ -797,7 +833,7 @@ const mapPointHandler = {
 						x.levelUp()
 					}
 					if (game.skills.smartSummons) {
-						x.assignTarget(outs.sort((y,z) => z.getActivePower(x) - y.getActivePower(x))[0], true)						
+						x.assignTarget(outs.sort((y,z) => x.predictDamage(z) - x.predictDamage(y))[0], true)						
 					} else {
 						x.assignTarget(outs[outs.length * Math.random() | 0], true)
 					}
@@ -807,7 +843,6 @@ const mapPointHandler = {
 			} else {
 				if (!x.target || x.target == this) {
 					x.autoTarget()
-					x.getReal(true)
 				}
 			}
 		})
@@ -904,16 +939,56 @@ const mapPointHandler = {
 
 	getReal() {
 		if (!this.real) this.real = {}
+//		if (!this.owned || !this.index) {
 		this.real.localPower = this.index?(this.progress || 0) * this.power:(this.mineDepth || 0)
 		this.real.defence = this.totalPower * (1 - (this.progress || 0) ** 2)
-		this.real.passiveDamage = this.real.loss = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine?
-			(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult * (this.special == SPECIAL_RESIST?3:1))
-			*(this.enchanted==ENCHANT_DOOM?this.map.level:1)
-			*(ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?this.map.level:1) 
-			*(ARTIFACTS.stormStone.equipped && ARTIFACTS.stormStone.equipped.target && ARTIFACTS.stormStone.equipped.target.parent === this.parent?this.map.level:1) 
-			* game.world.stats.meanBoost:0
-		if (this.real.passiveDamage) this.map.failed.noabsolute1 = 1
-		if (this.real.loss && !this.owned) game.attacked.add(this)
+//		}
+	},
+	
+	getDamage() {
+		this.real.passiveDamage = this.real.loss = 0
+		if (!this.owned) {
+			const thundered = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine
+			let stormBonus = 0
+			if (thundered) {
+				if (ARTIFACTS.stormSword.equipped && ARTIFACTS.stormSword.equipped.target && ARTIFACTS.stormSword.equipped.target.parent === this.parent)
+					stormBonus += ARTIFACTS.stormSword.equipped.real.elemental
+				
+				if (ARTIFACTS.stormStaff.equipped && ARTIFACTS.stormStaff.equipped.target) {
+					let parent = ARTIFACTS.stormStaff.equipped.target.parent
+					while (parent && parent.depth >= this.depth - 1) {
+						if (parent == this.parent) {
+							stormBonus += ARTIFACTS.stormStaff.equipped.real.elemental
+							break
+						}
+						parent = parent.parent
+					}
+				}
+				
+				this.real.passiveDamage = this.real.loss =
+					(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult)
+					* (this.special == SPECIAL_RESIST?3:1)
+					* (this.special == SPECIAL_NOCHANNEL && (!ARTIFACTS.channelSword.equipped || ARTIFACTS.channelSword.equipped.target != this)?0.1:1)
+					* (this.enchanted==ENCHANT_DOOM?this.map.level:1)
+					* (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?5:1) 
+					* (ARTIFACTS.stormStone.equipped && ARTIFACTS.stormStone.equipped.target && ARTIFACTS.stormStone.equipped.target.parent === this.parent?3:1) 
+					* game.world.stats.meanBoost
+					+ stormBonus
+			}
+			if (this.real.passiveDamage) this.map.failed.noabsolute1 = 1
+		}
+		if (this.attackers) {
+			for (let slider of this.attackers)
+				this.real.loss += slider.real.attack
+		}
+		if (this.loss < 0) this.loss = 0
+		if (this.real.loss && !this.owned) game.attacked.add(this)		
+	},
+	
+	channelFactor() {
+		if (this.special != SPECIAL_NOCHANNEL) return 1		
+		if (ARTIFACTS.channelSword.equipped && ARTIFACTS.channelSword.equipped.target == this) return 0.1
+		return 0
 	},
 	
 	destroyDisplays() {
@@ -926,7 +1001,7 @@ const mapPointHandler = {
 	},
 	
 	toJSON() {
-		let o = Object.assign({}, this)
+/*		let o = Object.assign({}, this)
 		delete o.x
 		delete o.y
 		delete o.dx
@@ -980,7 +1055,34 @@ const mapPointHandler = {
 		if (!o.boss) delete o.boss
 		if (!o.exit) delete o.exit
 		if (!o.owned) delete o.owned
-		return o
+		return o*/
+		return {
+			distance: this.distance,
+			angle: this.angle,
+			size: this.size,
+			parentIndex: this.parentIndex,
+			type: this.type,
+			owned: this.owned,
+			buildings: this.buildings,
+//			changed: this.changed,
+//			locks: this.locks,
+			mineDepth: this.mineDepth,
+			canImprint: this.canImprint,
+			special: this.special,
+			customPower: this.customPower,
+			progress: this.progress,
+			level: this.level,
+			exit: this.exit,
+			boss: this.boss,
+			key: this.key,
+			lock: this.lock,
+			enchanted: this.enchanted,
+			unlocked: this.unlocked,
+			harvestTimeTotal: this.harvestTimeTotal,
+			harvestTime: this.harvestTime,
+			harvesting: this.harvesting,
+			harvested: this.harvested
+		}
 	},
 }
 
@@ -1006,14 +1108,15 @@ const worldPointHandler = {
 		point.connections.push(this)
 	},
 	
-	valueString() {
+	valueString(projected) {
 		const element = WORLD_ELEMENTS[this.type]
+		if (projected?!this.projectedActive:!this.active) return "Inactive"
 		if (!element || !element.value) return "None"
 		let s = ""
 		if (element.effect == WORLD_BONUS_ADD) s += "+"
 		if (element.effect == WORLD_BONUS_ADD_MULT) s += "Multiplier +"
 		if (element.effect == WORLD_BONUS_MUL) s += "Multiplier x"
-		s += element.value(this).toDigits(3)
+		s += element.value(projected?this.projectedDepth:this.depth).toDigits(3)
 		return s
 	},
 	
@@ -1022,6 +1125,7 @@ const worldPointHandler = {
 		delete o.angle		
 		delete o.distance		
 		delete o.active
+		delete o.projectedActive
 		delete o.connections
 		delete o.world
 		delete o.voronoi
@@ -1029,6 +1133,7 @@ const worldPointHandler = {
 		delete o.radius
 		delete o.reach
 		delete o.deadZone
+		delete o.projectedDepth
 		delete o.depth
 		delete o.newX
 		delete o.newY

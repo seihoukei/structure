@@ -1,5 +1,11 @@
 'use strict'
 
+const RESEARCH_LETTERS = 0
+const RESEARCH_NUMBERS = 1
+
+const LETTERS = Array(26).fill(0).map((x,n) => String.fromCharCode(n+65))
+const LETTER_PAIRS = Array(26*26).fill(0).map((x,n) => LETTERS[n/26|0]+LETTERS[n%26])
+
 const ARTIFACTS = {
 	pickaxe: {
 		name: "Radiant pickaxe",
@@ -9,9 +15,40 @@ const ARTIFACTS = {
 		depth : 2.341e4,
 		iconText: "⛏️\uFE0E",
 		iconTextColor: "var(--foreground)",
+		glyph : "none-pickaxe",
 		active() {
 			return this.equipped && this.equipped.target && !this.equipped.target.index
 		}
+	},
+	doublePickaxe: {
+		name : "Double work pickaxe",
+		desc : "Slider mines less efficiently but counts as two workers",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 5,
+		codeCost : 1e15,
+		codeDigits : 2,
+		depth : 8.645e45,
+		active() {
+			return this.equipped && this.equipped.target && !this.equipped.target.index
+		},
+		glyph : "power-pickaxe",
+		iconText: "⛏️\uFE0E",
+		iconTextColor: "var(--bg-power)",		
+	},
+	alwaysPickaxe: {
+		name : "Automatic pickaxe",
+		desc : "Slider counts as a worker even when not mining",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 5,
+		codeCost : 1e15,
+		codeDigits : 2,
+		depth : 3.165e48,
+		active() {
+			return this.equipped && (!this.equipped.target || this.equipped.target.index)
+		},
+		glyph : "spirit-pickaxe",
+		iconText: "⛏️\uFE0E",
+		iconTextColor: "var(--bg-spirit)",		
 	},
 	expOrb: {
 		name : "Orb of experience",
@@ -23,7 +60,8 @@ const ARTIFACTS = {
 			return this.equipped && this.equipped.real && this.equipped.real.producingExp
 		},
 		iconText : "🔮️\uFE0E",
-		iconTextColor : "var(--shade5)"
+		iconTextColor : "var(--shade5)",
+		glyph : "none-emptyorb",
 	},
 	channelOrb: {
 		name : "Channeller's orb",
@@ -35,7 +73,8 @@ const ARTIFACTS = {
 			return this.equipped && (masterSlider.masterChannel?masterSlider:this.equipped).channel.length
 		},
 		iconText : "🔮️\uFE0E",
-		iconTextColor : "var(--foreground)"
+		iconTextColor : "var(--foreground)",
+		glyph : "none-orb",
 	},
 	summonOrb: {
 		name : "Summonner's orb",
@@ -47,7 +86,8 @@ const ARTIFACTS = {
 			return this.equipped && (masterSlider.masterChannel?masterSlider:this.equipped).channel.length && game.sliders.filter(x => x.clone == 2).length
 		},
 		iconText : "🔮️\uFE0E",
-		iconTextColor : "var(--enchantdoom)"
+		iconTextColor : "var(--enchantdoom)",
+		glyph : "mana-emptyorb",
 	},
 	growthOrb: {
 		name : "Orb of growth",
@@ -59,7 +99,8 @@ const ARTIFACTS = {
 			return this.equipped && this.equipped.real && Object.values(this.equipped.real.growth).reduce((v,x) => v+x, 0)
 		},
 		iconText : "🔮️\uFE0E",
-		iconTextColor : "var(--enchantgrowth)"
+		iconTextColor : "var(--enchantgrowth)",
+		glyph : "storm-emptyorb",
 	},
 	powerOrb: {
 		name : "Orb of power",
@@ -70,6 +111,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.growth.power
 		},
+		glyph : "power-orb",
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-power)"
 	},
@@ -82,6 +124,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.growth.blood
 		},
+		glyph : "blood-orb",
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -94,6 +137,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.growth.fire
 		},
+		glyph : "fire-orb",
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -106,6 +150,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.growth.ice
 		},
+		glyph : "ice-orb",
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -118,6 +163,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.growth.metal
 		},
+		glyph : "metal-orb",
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--bg-metal)"
 	},
@@ -130,9 +176,70 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && (this.equipped.growth.power || this.equipped.learn.includes(1))
 		},
+		glyph : "storm-orb",
 		iconText : "🔮️\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},	
+	targetOrb: {
+		name : "Orb of draining",
+		desc : "When targetting an elemental node, target element growth is boosted on this slider",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 5,
+		codeCost : 1e15,
+		codeDigits : 3,
+		depth : 3.606e46,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.type > 2
+		},
+		glyph : "spirit-orb",
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-spirit)"
+	},
+	superTargetOrb: {
+		name : "Supreme orb of draining",
+		desc : "When targetting an elemental node, target element growth is boosted on every slider",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 6,
+		codeCost : 2e16,
+		codeDigits : 4,
+		depth : 5.222e54,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.type > 2
+		},
+		glyph : "spirit-emptyorb",
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--bg-spirit)"
+	},
+	masterOrb: {
+		name : "Orb of domination",
+		desc : "When targetting an elemental node, element target is weak to growth is boosted on this slider",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 7,
+		codeCost : 7e15,
+		codeDigits : 3,
+		depth : 2.157e50,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.type > 2
+		},
+		glyph : "dark-orb",
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--shade8)"
+	},
+	superMasterOrb: {
+		name : "Supreme orb of domination",
+		desc : "When targetting an elemental node, element target is weak to growth is boosted on every slider",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 7,
+		codeCost : 2e16,
+		codeDigits : 4,
+		depth : 9.455e55,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.type > 2
+		},
+		glyph : "dark-emptyorb",
+		iconText : "🔮️\uFE0E",
+		iconTextColor : "var(--shade8)"
+	},
 	bloodRod: {
 		name : "Rod of blood",
 		desc : "Deals unblockable 5% of slider's blood damage",
@@ -142,6 +249,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.blood
 		},
+		glyph : "blood-rod",
 		iconText: "/️",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -154,6 +262,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.fire
 		},
+		glyph : "fire-rod",
 		iconText: "/️",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -166,6 +275,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.ice
 		},
+		glyph : "ice-rod",
 		iconText: "/️",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -178,6 +288,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real.metal
 		},
+		glyph : "metal-rod",
 		iconText: "/️",
 		iconTextColor : "var(--bg-metal)"
 	},
@@ -190,6 +301,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && (this.equipped.real.metal + this.equipped.real.ice + this.equipped.real.fire + this.equipped.real.blood)
 		},
+		glyph : "storm-rod",
 		iconText: "/️",
 		iconTextColor : "var(--foreground)"
 	},
@@ -200,8 +312,9 @@ const ARTIFACTS = {
 		codeCost : 1e11,
 		depth : 1.51e27,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.real[POINT_TYPES[this.equipped.target.type]]
+			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "dark-staff",
 		iconText : "/",
 		iconTextColor : "var(--shade13)"
 	},
@@ -214,6 +327,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.blood && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "blood-staff",
 		iconText : "╱",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -226,6 +340,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.fire && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "fire-staff",
 		iconText : "╱",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -238,6 +353,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.ice && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "ice-staff",
 		iconText : "╱",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -250,8 +366,24 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.metal && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "metal-staff",
 		iconText : "╱",
 		iconTextColor : "var(--bg-metal)"
+	},
+	stormStaff: {
+		name : "Staff of storms",
+		desc : "Sliders elemental power boosts every Mean machine on the shortest path from core to target",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 4,
+		codeCost : 2e16,
+		codeDigits : 4,
+		depth : 2.046e55,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.parent && this.equipped.target.parent.buildings && this.equipped.target.parent.buildings["earthquakeMachine"]
+		},
+		glyph : "storm-staff",
+		iconText : "/",
+		iconTextColor : "#5588DD"
 	},
 	channelReceiver: {
 		name: "Student's amulet",
@@ -262,6 +394,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.gotChannel
 		},
+		glyph : "none-amulet",
 		iconText: "V",
 		iconTextColor: "var(--foreground)"
 	},
@@ -274,6 +407,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "power-amulet",
 		iconText : "V",
 		iconTextColor : "var(--bg-power)"
 	},
@@ -286,6 +420,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.victoryTimer
 		},
+		glyph : "blood-amulet",
 		iconText : "V",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -298,6 +433,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length == 0
 		},
+		glyph : "spirit-amulet",
 		iconText : "V",
 		iconTextColor : "var(--bg-spirit)"
 	},
@@ -310,6 +446,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length == 0
 		},
+		glyph : "fire-amulet",
 		iconText : "V",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -322,6 +459,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "ice-amulet",
 		iconText : "V",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -335,7 +473,8 @@ const ARTIFACTS = {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.real.spirit && game.resources.fears
 		},
 		iconText : "T",
-		iconTextColor : "var(--bg-spirit)"
+		iconTextColor : "var(--bg-spirit)",
+		glyph : "spirit-sword"
 	},
 	loneSword: {
 		name : "Sword of the stranger",
@@ -344,10 +483,41 @@ const ARTIFACTS = {
 		codeCost : 5e10,
 		depth : 3.654e29,
 		active() {
-			return this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size == 1 && (this.equipped.real.metal + this.equipped.real.ice + this.equipped.real.fire + this.equipped.real.blood)
+			return !!(this.equipped && this.equipped.real && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size == 1 && (this.equipped.real.metal + this.equipped.real.ice + this.equipped.real.fire + this.equipped.real.blood))
 		},
+		glyph : "none-sword",
 		iconText : "T",
-		iconTextColor : "var(--bg-foreground)"
+		iconTextColor : "var(--	foreground)"
+	},
+	channelSword: {
+		name : "Conductive sword",
+		desc : "When attacking a node with anti-channel shield, deals reduced damage but lets 10% of channelling through",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 4,
+		codeCost : 6e15,
+		codeDigits : 4,
+		depth : 5.170e51,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.special == SPECIAL_NOCHANNEL
+		},
+		glyph : "power-sword",
+		iconText : "T",
+		iconTextColor : "var(--bg-power)"
+	},
+	stormSword: {
+		name : "Sword of holy thunderforce",
+		desc : "Sliders elemental power boosts nearby Mean machine",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 4,
+		codeCost : 2e15,
+		codeDigits : 3,
+		depth : 1.775e47,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.parent && this.equipped.target.parent.buildings && this.equipped.target.parent.buildings["earthquakeMachine"]
+		},
+		glyph : "storm-sword",
+		iconText : "T",
+		iconTextColor : "#5588DD"
 	},
 	channelCrown: {
 		name : "Leader's crown",
@@ -358,6 +528,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
 		},
+		glyph : "none-crown",
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},
@@ -370,6 +541,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
 		},
+		glyph : "blood-crown",
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},	
@@ -382,9 +554,40 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length
 		},
+		glyph : "fire-crown",
 		iconText : "👑\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},	
+	soloCrown: {
+		name : "Crown of the egoist",
+		desc : "If not attacking alone, reduces damage of others but deals doubled damage",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 5,
+		codeCost : 5e15,
+		codeDigits : 3,
+		depth : 5.406e49,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
+		},
+		glyph : "dark-crown",
+		iconText : "👑\uFE0E",
+		iconTextColor : "var(--shade8)"
+	},
+	shareCrown: {
+		name : "Conductive crown",
+		desc : "If not attacking alone, receives and sends no channel bonus but others get doubled channel bonus",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 7,
+		codeCost : 3e15,
+		codeDigits : 2,
+		depth : 7.498e47,
+		active() {
+			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && this.equipped.target.attackers.size > 1
+		},
+		glyph : "power-crown",
+		iconText : "👑\uFE0E",
+		iconTextColor : "var(--bg-power)"
+	},
 	bloodRing: {
 		name : "Bleeding ring",
 		desc : "Imbuing slider with blood costs nothing",
@@ -394,6 +597,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 3
 		},
+		glyph : "blood-ring",
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -406,6 +610,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 4
 		},
+		glyph : "fire-ring",
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -418,6 +623,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 5
 		},
+		glyph : "ice-ring",
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -430,8 +636,24 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.real && this.equipped.real.imbuement == 6
 		},
+		glyph : "metal-ring",
 		iconText : "💍\uFE0E",
 		iconTextColor : "var(--bg-metal)"
+	},
+	imbueRing: {
+		name : "Ring of magic power",
+		desc : "Slider retains its power while imbuement is active",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 5,
+		codeCost : 2e16,
+		codeDigits : 3,
+		depth : 3.292e53,
+		active() {
+			return this.equipped && this.equipped.real && this.equipped.real.imbuement
+		},
+		glyph : "power-ring",
+		iconText : "💍\uFE0E",
+		iconTextColor : "var(--bg-power)"
 	},
 	goldShield: {
 		name : "Shield of gold",
@@ -442,6 +664,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.enchanted
 		},
+		glyph : "power-shield",
 		iconText : "O",
 		iconTextColor : "var(--enchantgold)"
 	},
@@ -454,6 +677,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.enchanted
 		},
+		glyph : "mana-shield",
 		iconText : "O",
 		iconTextColor : "var(--enchantmana)"
 	},	
@@ -466,6 +690,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.special
 		},
+		glyph : "none-shield",
 		iconText : "O",
 		iconTextColor : "#DD88DD"
 	},
@@ -478,6 +703,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && !this.equipped.target.special
 		},
+		glyph : "storm-shield",
 		iconText : "O",
 		iconTextColor : "#DD55DD"
 	},
@@ -490,8 +716,24 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index
 		},
+		glyph : "dark-shield",
 		iconText : "O",
 		iconTextColor : "var(--enchantdoom)"
+	},
+	reloadShield: {
+		name : "Shield of acclaim",
+		desc : "Slider refills full spirit charge when it changes target",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 4,
+		codeCost : 1e16,
+		codeDigits : 4,
+		depth : 1.060e53,
+		active() {
+			return this.equipped
+		},
+		glyph : "spirit-shield",
+		iconText : "O\uFE0E",
+		iconTextColor : "var(--bg-spirit)"
 	},
 	stormGem: {
 		name : "Gem of storms",
@@ -502,6 +744,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.special != SPECIAL_BLOCK && this.equipped.target.parent && this.equipped.target.parent.buildings && this.equipped.target.parent.buildings["earthquakeMachine"]
 		},
+		glyph : "storm-gem",
 		iconText : "💎\uFE0E",
 		iconTextColor : "#5588DD"
 	},	
@@ -514,6 +757,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type > 2
 		},
+		glyph : "power-gem",
 		iconText : "💎\uFE0E",
 		iconTextColor : "var(--bg-power)"
 	},	
@@ -526,7 +770,9 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 3
 		},
+		glyph : "blood-gem",
 		iconText : "💎\uFE0E",
+		shineColor : "var(--bg-metal)",
 		iconTextColor : "var(--bg-blood)"
 	},	
 	fireGem: {
@@ -538,7 +784,9 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 4
 		},
+		glyph : "fire-gem",
 		iconText : "💎\uFE0E",
+		shineColor : "var(--bg-blood)",
 		iconTextColor : "var(--bg-fire)"
 	},	
 	iceGem: {
@@ -550,7 +798,9 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 5
 		},
+		glyph : "ice-gem",
 		iconText : "💎\uFE0E",
+		shineColor : "var(--bg-fire)",
 		iconTextColor : "var(--bg-ice)"
 	},	
 	metalGem: {
@@ -562,7 +812,9 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.type == 6
 		},
+		glyph : "metal-gem",
 		iconText : "💎\uFE0E",
+		shineColor : "var(--bg-ice)",
 		iconTextColor : "var(--bg-metal)"
 	},	
 	expScales: {
@@ -572,14 +824,12 @@ const ARTIFACTS = {
 		codeCost : 5e11,
 		depth : 1.623e35,
 		active() {
-			return this.equipped && game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e14
+			return this.equipped && game.real && game.real.production && Math.abs(game.real.production.exp) < game.real.growth.power / 1e12
 		},
+		glyph : "storm-scales",
 		iconText : "⚖\uFE0E",
 		iconTextColor : "var(--foreground)"
 	},	
-	
-	//distribute
-	
 	bloodBracelet: {
 		name : "Bracelet of blood knight",
 		desc : "Focus all the elemental power in blood",
@@ -589,6 +839,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped
 		},
+		glyph : "blood-bracelet",
 		iconText : "o",
 		iconTextColor : "var(--bg-blood)"
 	},
@@ -601,6 +852,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped
 		},
+		glyph : "fire-bracelet",
 		iconText : "o",
 		iconTextColor : "var(--bg-fire)"
 	},
@@ -613,6 +865,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped
 		},
+		glyph : "ice-bracelet",
 		iconText : "o",
 		iconTextColor : "var(--bg-ice)"
 	},
@@ -625,6 +878,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped
 		},
+		glyph : "metal-bracelet",
 		iconText : "o",
 		iconTextColor : "var(--bg-metal)"
 	},
@@ -637,8 +891,69 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.charge
 		},
+		glyph : "spirit-flag",
 		iconText : "⚑\uFE0E",
 		iconTextColor : "var(--bg-spirit)"
+	},
+	bloodFlag: {
+		name : "Banner of infliction",
+		desc : "Halves slider's final blood attribute, channelling the other half to every blood elemental",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 6,
+		codeCost : 4e15,
+		codeDigits : 3,
+		depth : 1.168e49,
+		active() {
+			return this.equipped
+		},
+		glyph : "blood-flag",
+		iconText : "⚑\uFE0E",
+		iconTextColor : "var(--bg-blood)"
+	},
+	fireFlag: {
+		name : "Banner of ignition",
+		desc : "Halves slider's final fire attribute, channelling the other half to every fire elemental",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 6,
+		codeCost : 4e15,
+		codeDigits : 3,
+		depth : 1.076e51,
+		active() {
+			return this.equipped
+		},
+		glyph : "fire-flag",
+		iconText : "⚑\uFE0E",
+		iconTextColor : "var(--bg-fire)"
+	},
+	iceFlag: {
+		name : "Banner of cooling",
+		desc : "Halves slider's final ice attribute, channelling the other half to every ice elemental",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 6,
+		codeCost : 4e15,
+		codeDigits : 3,
+		depth : 2.314e52,
+		active() {
+			return this.equipped
+		},
+		glyph : "ice-flag",
+		iconText : "⚑\uFE0E",
+		iconTextColor : "var(--bg-ice)"
+	},
+	metalFlag: {
+		name : "Banner of quenching",
+		desc : "Halves slider's final metal attribute, channelling the other half to every metal elemental",
+		researchType : RESEARCH_NUMBERS,
+		codeLength : 6,
+		codeCost : 4e15,
+		codeDigits : 3,
+		depth : 1.099e54,
+		active() {
+			return this.equipped
+		},
+		glyph : "metal-flag",
+		iconText : "⚑\uFE0E",
+		iconTextColor : "var(--bg-metal)"
 	},
 	aligner: {
 		name : "Radiant stone",
@@ -649,6 +964,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.type > 2 && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2 && x.element > 2).length
 		},
+		glyph : "power-stone",
 		iconText : "☀\uFE0E",
 		iconTextColor : "var(--bg-power)"
 	},
@@ -661,6 +977,7 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.attackers && [...this.equipped.target.attackers].filter(x => x.clone == 2).length
 		},
+		glyph : "spirit-stone",
 		iconText : "☀\uFE0E",
 		iconTextColor : "var(--bg-spirit)"
 	},
@@ -673,13 +990,10 @@ const ARTIFACTS = {
 		active() {
 			return this.equipped && this.equipped.target && this.equipped.target.index && this.equipped.target.parent && this.equipped.target.parent.buildings && this.equipped.target.parent.buildings["earthquakeMachine"]
 		},
+		glyph : "storm-stone",
 		iconText : "☀\uFE0E",
 		iconTextColor : "#5588DD"
 	},
-	
-//- Artifact : Lose damage / add to Mean Machine above (all directions) ?
-//- Artifact : Create summons on capture ?
-//- Artifact : Lose damage / ignore 25% barrier ?
 }
 
 Object.keys(ARTIFACTS).map(x => ARTIFACTS[x].id = x)

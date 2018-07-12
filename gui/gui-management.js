@@ -75,6 +75,7 @@ const ManagementTab = Template({
 
 		this.buildings = Object.keys(BUILDINGS).map(x => BuildingIcon(x, this.dvBuildAutomation))
 		this.buildings.map(x => {
+			x.dvDisplay.title = BUILDINGS[x.id].name
 			x.dvDisplay.onclick = (event) => {
 				game.automation.buildings[x.id] = game.automation.buildings[x.id]?0:1
 				game.getFullMoney()
@@ -86,6 +87,7 @@ const ManagementTab = Template({
 
 		this.enchantments = Object.keys(SPELLS).filter(x => SPELLS[x].managed).map(x => SpellIcon(x, this.dvBuildAutomation))
 		this.enchantments.map(x => {
+			x.dvDisplay.title = SPELLS[x.id].name
 			x.dvDisplay.onclick = (event) => {
 				game.autoUpgrading = 1
 				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).filter(x => x.getDisplay("management").visible).map(point => point.cast(x.id))
@@ -106,7 +108,7 @@ const ManagementTab = Template({
 
 		this.dvBuildAutomationETA = createElement("div", "automation-eta", this.dvBuildAutomation)
 
-		this.sorting = BASE_SORTING
+		this.sorting = Object.assign({}, BASE_SORTING)
 		
 		this.dvSort = createElement("div", "sort", this.dvDisplay)
 
@@ -159,15 +161,20 @@ const ManagementTab = Template({
 
 		this.filterBuildings = Object.keys(BUILDINGS).map(x => BuildingIcon(x, this.dvExtraFilter))
 		this.filterBuildings.map(x => {
+			x.dvDisplay.title = "Ignore " + BUILDINGS[x.id].name
 			x.dvDisplay.onclick = (event) => {
 				if (this.sorting.buildings.includes(x.id)) {
 					while (this.sorting.buildings.indexOf(x.id) > -1)
 						this.sorting.buildings.splice(this.sorting.buildings.indexOf(x.id),1)
 					this.sorting.notBuildings.push(x.id)
+					x.dvDisplay.title = "Can have " + BUILDINGS[x.id].name + " built"
 				} else if (this.sorting.notBuildings.includes(x.id)) {
 					this.sorting.notBuildings.splice(this.sorting.notBuildings.indexOf(x.id),1)
-				} else
+					x.dvDisplay.title = "Ignore " + BUILDINGS[x.id].name
+				} else {
 					this.sorting.buildings.push(x.id)
+					x.dvDisplay.title = "Has " + BUILDINGS[x.id].name + " built"
+				}
 //				game.automation.buildings[x.id] = game.automation.buildings[x.id]?0:1
 //				game.getFullMoney()
 				this.update(true)
@@ -207,11 +214,12 @@ const ManagementTab = Template({
 	
 	onSet() {
 		this.dvDisplay.insertBefore(gui.dvHeader, this.dvDisplay.firstChild)
+		gui.setHeader(["gold", "exp", "mana", "science", "thunderstone"])
 		this.update(true)
 	},
 
 	updateList() {
-		game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map(x => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
+		game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map((x,n) => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
 	},
 	
 	update(forced) {

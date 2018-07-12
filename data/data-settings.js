@@ -87,7 +87,7 @@ const SETTINGS = {
 	theme : {
 		group : "Display",
 		displayName : "Color theme",
-		default : "light",
+		default : "dark",
 		choices : [{
 			text : "Light",
 			value : "light"
@@ -127,6 +127,21 @@ const SETTINGS = {
 		}],
 		onSet () {
 			game.updateMapBackground = true
+		}
+	},
+	artifactGlyphs : {
+		group : "Display",
+		displayName : "Artifact icons",
+		default : 1,
+		choices : [{
+			text : "Text",
+			value : 0
+		},{
+			text : "Images",
+			value : 1
+		}],
+		onSet () {
+			gui.updateArtifactIcons()
 		}
 	},
 	eta : {

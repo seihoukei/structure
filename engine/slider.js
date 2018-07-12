@@ -55,6 +55,7 @@ const SELECTORS = {
 const sliderHandler = {
 	_init() {
 		this.color = this.color || (this.element?(gui.theme.typeColors[this.element]):("hsl("+(Math.random()*360|0)+(this.clone?",30%,40%)":",100%,30%)")))
+		this.target = null
 		if (this.targetIndex !== undefined) this.assignTarget(game.map.points[this.targetIndex])
 		if (this.target) this.targetIndex = this.target.index
 		this.growth = POINT_TYPES.reduce((v,x,n) => (n?v[x]=(v[x]===undefined?1:v[x]):v,v),this.growth || {})
@@ -1256,7 +1257,9 @@ const sliderHandler = {
 			delete o[x]
 		})
 		delete o.targetIndex
-		if (o.target) o.targetIndex = o.target.index 
+		if (o.target) {
+			o.targetIndex = o.target.index 
+		}
 		delete o.target
 		delete o.real
 		delete o.learns

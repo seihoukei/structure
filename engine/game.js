@@ -1107,7 +1107,7 @@ const game = {
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = 0)
-		this.sliders.map(x => x.destroy())
+		this.sliders.map(x => x.fullDestroy())
 		
 		this.starTime = 0
 		
@@ -1174,10 +1174,13 @@ const game = {
 		
 		this.realMap = this.maps["main"]
 		this.setMap(activeMap, false)
-		
+				
 		Object.assign(masterSlider, baseMasterSlider, save.masterSlider)
 
+		this.sliders.length = 0
 		this.sliders = save.sliders.map(x => Slider(x))
+
+//		this.sliders.map(x => x.restoreTarget())
 		
 		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
 		Object.assign(this.sliderPresets, save.sliderPresets)
@@ -1308,7 +1311,7 @@ const game = {
 				spirit : map.basePower * 5,
 			}
 		}))
-		this.sliders && this.sliders.map(x => x.destroy())
+		this.sliders && this.sliders.map(x => x.fullDestroy())
 		this.sliders = sliders
 		
 		let firstTarget = [...this.map.points[0].children][0]

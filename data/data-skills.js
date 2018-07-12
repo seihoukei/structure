@@ -512,7 +512,7 @@ const SKILLS = {
 		desc : "Completed virtual maps of real map level produce stardust for each evolution until deleted",
 		req : ["evolveVirtual"],
 		map : 36,
-		exp : 1e45,
+		exp : 1e40,
 		mult : 2
 	},
 	worldCore : {
@@ -520,7 +520,7 @@ const SKILLS = {
 		desc : "Filter memories for more efficient worlds",
 		req : ["world"],
 		sliders : 8,
-		exp : 1e45,
+		exp : 1e40,
 		mult : 2
 	},
 	autoStar : {
@@ -528,7 +528,7 @@ const SKILLS = {
 		desc : "Automated stardust redistribution",
 		req : ["starfall"],
 		map : 37,
-		exp : 1e45,
+		exp : 1e41,
 		mult : 2
 	},
 	book_explosive1 : {
@@ -537,7 +537,7 @@ const SKILLS = {
 		req : ["spellcasting"],
 		map : 38,
 		science : 1e16,
-		exp : 1e44,
+		exp : 1e42,
 		mult : 1.1,
 	},
 	starfire : {

@@ -98,8 +98,6 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			createSummon(point, 1)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
 		},
 		iconText : "P",
 		iconColor : "var(--bg-power)",
@@ -116,8 +114,6 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			createSummon(point, 3 + Math.random() * 4 | 0)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
 		},
 		iconText : "R",
 		iconColor : "gray",
@@ -134,8 +130,6 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			createSummon(point, 3)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
 		},
 		iconText : "B",
 		iconColor : "var(--bg-blood)",
@@ -152,8 +146,6 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			createSummon(point, 4)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
 		},
 		iconText : "F",
 		iconColor : "var(--bg-fire)",
@@ -170,8 +162,6 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			createSummon(point, 5)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
 		},
 		iconText : "I",
 		iconColor : "var(--bg-ice)",
@@ -188,8 +178,6 @@ const SPELLS = {//function context == point
 		},
 		cast(point) {
 			createSummon(point, 6)
-			if (gui.target.point == point)
-				gui.target.set(point, -1)
 		},
 		iconText : "M",
 		iconColor : "var(--bg-metal)",

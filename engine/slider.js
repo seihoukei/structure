@@ -464,7 +464,7 @@ const sliderHandler = {
 			if (here == -1 || index == here) return
 			const slider = game.sliders.splice(index, 1)
 			game.sliders.splice(here,0,...slider)
-			gui.sliders.onSet()
+			if (gui.tabs.activeTab == "sliders") gui.sliders.onSet()
 			game.sliders.map(x => gui.map.dvSliders.appendChild(x.dvMapIcon))
 		}
 
@@ -1322,6 +1322,8 @@ function createSummon(target, element) {
 	game.sliders.push(summon)
 	summon.assignTarget(target)
 	gui.updateTabs()
+	if (gui.target.point == target)
+		gui.target.set(target, -1)
 }
 
 const baseMasterSlider = {

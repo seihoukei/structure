@@ -367,8 +367,9 @@ const mapPointHandler = {
 	cast (name) {
 		if (!SPELLS[name]) return
 		if (SPELLS[name].type != SPELL_TYPE_POINT) return
-		if (this.manaCosts[name] < 0 || this.manaCosts[name] > game.resources.mana) return
-		game.resources.mana -= this.manaCosts[name]
+		const cost = SPELLS[name].cost(this)
+		if (cost < 0 || cost > game.resources.mana) return
+		game.resources.mana -= cost
 		if (SPELLS[name].recalc) this.suspend()
 		SPELLS[name].cast(this)
 		this.changed |= 1

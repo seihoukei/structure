@@ -702,6 +702,10 @@ canvas.foreground : {
 	align-items : center;
 }
 
+.resource-icon {
+	flex-shrink : 0;
+}
+
 .resource-value {
 	margin-left : 3px;
 	pointer-events : none;

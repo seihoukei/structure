@@ -616,9 +616,10 @@ const mapHandler = {
 	addCharge(x) {
 		if (!this.tookTime || !this.focus) return
 		this.chargeTime += x
-		const times = Math.floor(this.chargeTime / this.tookTime)
+		const chargeMax = Math.max(this.tookTime, 600000)
+		const times = Math.floor(this.chargeTime / chargeMax)
 		if (times) {
-			this.chargeTime -= this.tookTime * times
+			this.chargeTime -= chargeMax * times
 			game.growth[POINT_TYPES[this.focus]] += this.getGrowth(this.focus) * times
 		}
 	},

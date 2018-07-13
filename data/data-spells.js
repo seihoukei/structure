@@ -212,9 +212,9 @@ const SPELLS = {//function context == point
 		book : "realign1",
 		type : SPELL_TYPE_POINT,
 		cost(point) { 
-			const clones = [...point.attackers].reduce((v,x) => x.clone==2?v+(x.level || 0)+1:v,0)
+			const clones = [...point.attackers].reduce((v,x) => x.clone==2?v+1:v,0)
 			if (!clones) return -1
-			return clones * point.bonus ** 0.5/10
+			return (clones ** 0.9) * point.bonus ** 0.5/10
 		},
 		cast(point) {
 			[...point.attackers].filter(x => x.clone == 2).map(slider => {

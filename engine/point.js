@@ -949,7 +949,7 @@ const mapPointHandler = {
 	getDamage() {
 		this.real.passiveDamage = this.real.loss = 0
 		if (!this.owned) {
-			const thundered = (this.special != SPECIAL_BLOCK) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine
+			const thundered = (this.special != SPECIAL_BLOCK || ARTIFACTS.stormSword.equipped && ARTIFACTS.stormSword.equipped.target == this) && !this.locked && (!this.boss || this.boss <= this.map.boss) && this.parent && this.parent.buildings && this.parent.buildings.earthquakeMachine
 			let stormBonus = 0
 			if (thundered) {
 				if (ARTIFACTS.stormSword.equipped && ARTIFACTS.stormSword.equipped.target && ARTIFACTS.stormSword.equipped.target.parent === this.parent)
@@ -969,6 +969,7 @@ const mapPointHandler = {
 				this.real.passiveDamage = this.real.loss =
 					(this.parent.bonus ** 0.78 * game.resources.thunderstone * game.skillCostMult)
 					* (this.special == SPECIAL_RESIST?3:1)
+					* (this.special == SPECIAL_BLOCK?(ARTIFACTS.channelSword.equipped && ARTIFACTS.channelSword.equipped.target == this)?0.1:0:1)
 					* (this.special == SPECIAL_NOCHANNEL && (!ARTIFACTS.channelSword.equipped || ARTIFACTS.channelSword.equipped.target != this)?0.1:1)
 					* (this.enchanted==ENCHANT_DOOM?this.map.level:1)
 					* (ARTIFACTS.stormGem.equipped && ARTIFACTS.stormGem.equipped.target === this?5:1) 

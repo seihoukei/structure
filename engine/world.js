@@ -420,7 +420,7 @@ const worldHandler = {
 	},
 	
 	updateCore() {
-		this.coreResetCost = 0
+		this.coreResetCost = 50 * 2 ** (Object.entries(game.worlds).length - 2)
 		Object.keys(this.coreStats).map(x => this.coreStats[x] = BASE_WORLD_CORE_STATS[x])
 		Object.keys(this.core).map(x => {
 			if (!this.core[x]) return
@@ -468,17 +468,19 @@ const worldHandler = {
 			this.coreCost = {}
 		for (let i = 1; i <= 6; i++) 
 			this.coreCost["_"+i] = 0
-		this.coreResetCost = 0
+		this.coreResetCost = 50 * 2 ** (Object.entries(game.worlds).length - 1)
 		
 		Object.keys(this.core).map(x => {
 			if (!this.core[x]) return
-			this.coreResetCost += 1e4
+//			this.coreResetCost += 1e4
 			if (!WORLD_CORE_CELLS[x]) return
 			const cost = WORLD_CORE_CELLS[x].cost
 			if (!cost) return
 			Object.keys(cost).map(x => this.coreCost[x] = 1 - (1-this.coreCost[x]) * (1-cost[x]))
 		})
-		this.coreResetCost -= 1e4 //0,0
+		if (Object.keys(this.core).length == 1)
+			this.coreResetCost = 0
+//		this.coreResetCost -= 1e4 //0,0
 /*		this.coreCost._1 = 0.6
 		this.coreCost._2 = 0.5
 		this.coreCost._3 = 0.4

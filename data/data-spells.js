@@ -214,7 +214,7 @@ const SPELLS = {//function context == point
 		cost(point) { 
 			const clones = [...point.attackers].reduce((v,x) => x.clone==2?v+(x.level || 0)+1:v,0)
 			if (!clones) return -1
-			return clones * point.baseCost ** 0.4/50
+			return clones * point.bonus ** 0.5/10
 		},
 		cast(point) {
 			[...point.attackers].filter(x => x.clone == 2).map(slider => {

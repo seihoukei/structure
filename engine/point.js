@@ -1114,11 +1114,12 @@ const worldPointHandler = {
 		const element = WORLD_ELEMENTS[this.type]
 		if (projected?!this.projectedActive:!this.active) return "Inactive"
 		if (!element || !element.value) return "None"
+		const minus = (this.world.coreStats.finalLayer && this.depth == this.world.workers && this.depth > 1)?1:0
 		let s = ""
 		if (element.effect == WORLD_BONUS_ADD) s += "+"
 		if (element.effect == WORLD_BONUS_ADD_MULT) s += "Multiplier +"
 		if (element.effect == WORLD_BONUS_MUL) s += "Multiplier x"
-		s += element.value(projected?this.projectedDepth:this.depth).toDigits(3)
+		s += element.value(projected?this.projectedDepth - minus:this.depth - minus).toDigits(3)
 		return s
 	},
 	

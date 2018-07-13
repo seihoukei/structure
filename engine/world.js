@@ -505,8 +505,8 @@ const worldHandler = {
 
 		this.points.filter(x => (x.active || x.projectedActive) && WORLD_ELEMENTS[x.type].stat).sort((x,y) => WORLD_ELEMENTS[x.type].effect - WORLD_ELEMENTS[y.type].effect).map(x => {
 			const element = WORLD_ELEMENTS[x.type]
-			const minus = (this.coreStats.finalLayer && x.depth == this.workers && x.depth > 1)?1:0
 			if (!element.stat || !this.stats[element.stat]) return
+			const minus = (this.coreStats.finalLayer && x.depth == this.workers && x.depth > 1)?1:0
 			if (element.effect == WORLD_BONUS_MUL) {
 				this.projectedStats[element.stat] *= element.value(x.projectedDepth - minus)
 				if (!x.projected && x.active)

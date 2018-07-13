@@ -1107,7 +1107,7 @@ const game = {
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = 0)
-		this.sliders.map(x => x.fullDestroy())
+		this.sliders.map(x => x.destroy())
 		
 		this.starTime = 0
 		

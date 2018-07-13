@@ -318,7 +318,7 @@ const StardustTab = Template({
 			
 			let specials = ""
 			if (game.world.coreStats.evolutionScale) specials += "\nVirtual map evolutions have longer distances"
-			if (game.world.coreStats.mapChargeSpeed) specials += "\nCompleted focused virtual maps produce their focus attribute growth at " + Math.floor(game.world.coreStats.mapChargeSpeed / 10) + "% completion speed"
+			if (game.world.coreStats.mapChargeSpeed) specials += "\nCompleted focused virtual maps produce their focus attribute growth at " + Math.floor(game.world.coreStats.mapChargeSpeed / 10) + "% completion speed (capped at 10 minutes)"
 			if (game.world.coreStats.goldenMaps) specials += "\nMaximum level virtual maps are created as starfields"
 			this.dvCoreSpecials.innerText = specials
 		}
@@ -340,9 +340,10 @@ const StardustTab = Template({
 				gui.stardust.virtualMaps.map(x => {
 					const map = game.maps[x.name]
 					if (!map.virtual || !map.complete || !map.focus) return
-					const progress = Math.floor(map.chargeTime / map.tookTime * 10000)/100
+					const chargeMax = Math.max(map.tookTime, 600000)
+					const progress = Math.floor(map.chargeTime / chargeMax * 10000)/100
 					//x.dvFocus.title = POINT_TYPES[map.focus].capitalizeFirst() + " charge: " + progress.toFixed(2) + "% (" + shortTimeString((map.tookTime - map.chargeTime)/game.world.coreStats.mapChargeSpeed) + ") "
-					x.dvFocus.innerText = POINT_TYPES[map.focus].capitalizeFirst() + " (" + shortTimeString((map.tookTime - map.chargeTime)/game.world.coreStats.mapChargeSpeed) + ") "
+					x.dvFocus.innerText = POINT_TYPES[map.focus].capitalizeFirst() + " (" + shortTimeString((chargeMax - map.chargeTime)/game.world.coreStats.mapChargeSpeed) + ") "
 					x.dvCharge.style.transform = "scale("+(progress/100)+",1)"
 				})
 			}

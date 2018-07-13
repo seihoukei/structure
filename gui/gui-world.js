@@ -361,8 +361,8 @@ const worldPointInfoHandler = {
 			this.dvIcon.innerText = this.building.iconText
 			this.dvIcon.style.backgroundColor = gui.theme.world[this.point.family]
 		}
-		const depth = this.point.depth < 100?this.point.depth:"Detached"
-		const projectedDepth = this.point.projectedDepth < 100?this.point.projectedDepth:"Detached"
+		const depth = this.point.depth < 100?this.point.depth + (this.point.depth == this.point.world.workers && this.point.world.coreStats.finalLayer && this.point.depth > 1?" - 1":""):"Detached"
+		const projectedDepth = this.point.projectedDepth < 100?this.point.projectedDepth + (this.point.projectedDepth == this.point.world.workers && this.point.world.coreStats.finalLayer && this.point.projectedDepth > 1?" - 1":""):"Detached"
 		this.dvInfo.innerText = "Type: " + this.building.name + "\nDepth: " + (depth + (depth != projectedDepth?" => "+projectedDepth:"")) + "\n" + ("Effect: "+this.point.valueString()+(this.point.valueString() != this.point.valueString(1)?" => "+this.point.valueString(1):""))
 	}
 }

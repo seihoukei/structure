@@ -34,6 +34,11 @@ const WORLD_CORE_STATS = {
 		type: WORLD_CORE_STAT_VALUE,
 		default: 1e15
 	},
+	spiritCap : {
+		name: "Spirit multiplier cap x",
+		type: WORLD_CORE_STAT_VALUE,
+		default: 1e10
+	},
 	elementalCap : {
 		name: "Elemental multiplier cap x",
 		type: WORLD_CORE_STAT_VALUE,

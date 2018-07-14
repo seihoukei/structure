@@ -215,7 +215,7 @@ const gui = {
 				let target = this.point || null
 				if (!sliders.filter(x => x.target != target).length)
 					target = null
-				sliders.map(x => x.assignTarget(target))
+				sliders.map(x => x.assignTarget(target, false, true))
 			},
 			
 			update() {
@@ -544,8 +544,9 @@ const gui = {
 		if (!this.images.resources) {
 			this.images.resources = {}
 			RESOURCES.filter(x => x.slice(0,1) != "_").map(x => {
-				this.images.resources[x] = new Image()
-				this.images.resources[x].src = GUI_RESOURCE_IMAGES+x+".png"
+				const image = new Image()
+				image.onload = (event) => this.images.resources[x] = image
+				image.src = GUI_RESOURCE_IMAGES+x+".png"
 			})
 		}
 		

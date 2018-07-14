@@ -443,7 +443,7 @@ const GUIDE = {
 		},{
 			subtitle : "Levels",
 			condition : () => (game.skills.sliderLevels),
-			text: `You can spend experience to level up sliders, which provides permanent multipliers to its growth speed. For every level, multipliers can be raised up to 5x, which is also dpne automatically when you get a new level. Multipliers stack between levels.New level multipliers are arbitrary head-ups you get based on how slider was used recently. Whenever you level up a slider, all its attributes are reset, and on every odd level you get an extra artifact slot.`
+			text: `You can spend experience to level up sliders, which provides permanent multipliers to its growth speed. For every level, multipliers can be raised up to 5x, which is also done automatically when you get a new level. Multipliers stack between levels.New level multipliers are arbitrary head-ups you get based on how slider was used recently. Whenever you level up a slider, all its attributes are reset, and on every odd level you get an extra artifact slot.`
 
 		},{
 			subtitle : "Party",

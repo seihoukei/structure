@@ -570,7 +570,7 @@ const mapPointHandler = {
 	dealDamage(power, percent = false) {
 		if (!this.index) {
 			this.mineDepth = (this.mineDepth || 0) + power
-			return
+			return 0
 		}
 		
 		this.progress = this.progress || 0
@@ -636,9 +636,14 @@ const mapPointHandler = {
 				})
 			}
 		}
+		
 		if (this.progress >= 1-1e-9) {
+			const remainder = start + power - this.totalPower
 			this.capture()
+			return remainder
 		}
+		
+		return 0
 	},
 	
 	capture() {
@@ -1066,14 +1071,15 @@ const mapPointHandler = {
 			type: this.type,
 			owned: this.owned,
 			buildings: this.buildings,
-//			changed: this.changed,
-//			locks: this.locks,
 			mineDepth: this.mineDepth,
 			canImprint: this.canImprint,
 			special: this.special,
 			customPower: this.customPower,
 			progress: this.progress,
 			level: this.level,
+			layer: this.layer,
+			gate: this.gate,
+			letter: this.letter,
 			exit: this.exit,
 			boss: this.boss,
 			key: this.key,

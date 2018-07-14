@@ -109,8 +109,9 @@ const sliderHandler = {
 				this.fullDestroy()
 				game.map.updateSpellCosts()
 				if (gui.target.point) gui.target.updateUpgrades(true)
-			} else
-				this.target == gui.target.point?(this.assignTarget(null)):this.assignTarget(gui.target.point)
+			} else {
+				this.target == gui.target.point?(this.assignTarget(null, false, true)):this.assignTarget(gui.target.point, false, true)
+			}
 		}
 
 		this.dvColor = createElement("div", "slider-color", this.dvTarget)
@@ -583,6 +584,8 @@ const sliderHandler = {
 				game.getReals()
 			return
 		}
+		if (this.target && (!this.target.owned || !this.target.index) && this.customTarget && !forced)
+			return
 		if (this.target && !(this.target.index && game.skills.smartMine && this.atFilter.autoNew) && (!this.target.owned || (!game.skills.smartMine || !this.atFilter.autoMine) && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.atFilter.autoZero && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if ((!game.skills.autoTarget || this.atFilter.disabled) && !forced) {
@@ -660,7 +663,7 @@ const sliderHandler = {
 				this.real.attackSpirit = real.spirit
 			}
 		}
-		this.dvInfo.innerText = (!point.index?"Gold:" + displayNumber(this.real.attackTarget):"Attack: " + displayNumber(this.real.attackTarget)) + "/s\n" +
+		this.dvInfo.innerText = (!point.index?"Gold: " + displayNumber(this.real.attackTarget):"Attack: " + displayNumber(this.real.attackTarget)) + "/s\n" +
 								(this.clone == 2?"Click to unsummon":(point.boss || this.clone || game.skills.power)?"":("Spirit: " + displayNumber(this.real.attackSpirit) + "\n"))
 
 		this.dvTarget.classList.toggle("weak", !game.skills.power && !point.boss && !this.clone && point.real.localPower > this.real.attackSpirit)
@@ -766,7 +769,7 @@ const sliderHandler = {
 		return !this.target || (this.target.owned && !(!this.index && game.skills.mining))
 	},
 	
-	assignTarget(point, forced) {
+	assignTarget(point, forced, custom) {
 		if (this.clone == 2 && !forced) point = this.target || game.map.points[this.targetIndex]
 		if (this.target) {
 			this.target.attackers.delete(this)
@@ -776,6 +779,11 @@ const sliderHandler = {
 					gui.target.updateUpgrades()
 			}
 		}
+		
+		if (custom)
+			this.customTarget = true
+		else
+			delete this.customTarget
 		
 		if (point && point.owned && point.index) point = null
 			
@@ -806,7 +814,7 @@ const sliderHandler = {
 		}
 		
 		if (game.skills.party && this.role == ROLE_LEADER && game.sliders)
-			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => (!point || point.special != SPECIAL_ALONE)?x.assignTarget(this.target):x.autoTarget())
+			game.sliders.filter(x => x.role == ROLE_FOLLOWER && x.team == this.team).map(x => (!point || point.special != SPECIAL_ALONE)?x.assignTarget(this.target, false, true):x.autoTarget())
 
 		game.world.update(true)
 	},
@@ -1271,6 +1279,11 @@ const sliderHandler = {
 	
 	destroy() {
 		Object.keys(this.artifacts).map(x => this.unequip(x))
+		for (let spark of this.sparks) {
+			spark.dead = true
+			this.sparks.delete(spark)
+			animations.freeSpark(spark)
+		}
 		this.dvTarget.remove()
 		delete this.dvTarget
 		this.dvDisplay.remove()

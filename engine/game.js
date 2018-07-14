@@ -17,6 +17,7 @@ const game = {
 	updateWorldBackground : false,
 	skillCostMult : 1,
 	sliders : [],
+	pulses : [],
 	sliderPresets : {},
 	animatingPoints : new Set(),
 	frame : 0,
@@ -182,6 +183,7 @@ const game = {
 		c.lineCap = "round"
 		this.renderAnimations(c)
 		this.sliders.map(x => x.render(c))
+		this.pulses.map(x => x.render(c))
 		if (gui.mapMouse.closest) {
 			c.save()
 			c.lineWidth = Math.max(1, 1/gui.mainViewport.current.zoom)
@@ -401,6 +403,8 @@ const game = {
 
 		if (retain) {
 			this.sliders.filter (x => x.clone == 2).map(x => x.fullDestroy())
+			while (this.pulses.length)
+				this.pulses[0].destroy()
 			this.production.mana -= this.skills.magic?(this.map.manaBase) * (this.map.ownedRadius ** 2):0
 			miners.map(x => x.assignTarget(this.map.points[0]))
 
@@ -749,6 +753,7 @@ const game = {
 			}
 
 			this.sliders.map(slider => slider.advance(deltaTime))
+			this.pulses.map(pulse => pulse.advance(deltaTime))
 			
 			this.sliders.map(slider => slider.grow(mul))
 	
@@ -1107,6 +1112,7 @@ const game = {
 		animations.reset()
 		this.animatingPoints.clear()
 		Object.keys(this.skills).map(x => this.skills[x] = 0)
+
 		while (this.sliders[0]) 
 			this.sliders[0].fullDestroy()
 		
@@ -1180,6 +1186,10 @@ const game = {
 
 		this.sliders.length = 0
 		this.sliders = save.sliders.map(x => Slider(x))
+
+		this.pulses.length = 0
+		if (save.pulses)
+			this.pulses = save.pulses.map(x => Pulse(x))
 
 //		this.sliders.map(x => x.restoreTarget())
 		
@@ -1306,14 +1316,18 @@ const game = {
 		Object.assign(masterSlider, baseMasterSlider)
 		Object.keys(this.sliderPresets).map(x => delete this.sliderPresets[x])
 		
+		this.sliders && this.sliders.map(x => x.fullDestroy())
+
 		let sliders = Array(1).fill().map(x => Slider({
 			stats : {
 				power : map.basePower,
 				spirit : map.basePower * 5,
 			}
 		}))
-		this.sliders && this.sliders.map(x => x.fullDestroy())
+
 		this.sliders = sliders
+
+		this.pulses.length = 0
 		
 		let firstTarget = [...this.map.points[0].children][0]
 		firstTarget.type = 1

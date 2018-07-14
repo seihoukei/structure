@@ -420,7 +420,7 @@ const worldHandler = {
 	},
 	
 	updateCore() {
-		this.coreResetCost = 50 * 2 ** (Object.entries(game.worlds).length - 2)
+		this.coreResetCost = 50 * 2 ** (Object.entries(game.worlds).length - 1)
 		Object.keys(this.coreStats).map(x => this.coreStats[x] = BASE_WORLD_CORE_STATS[x])
 		Object.keys(this.core).map(x => {
 			if (!this.core[x]) return
@@ -557,7 +557,7 @@ const worldHandler = {
 	finalizeProject() {
 		this.points.filter(x => x.projected).sort((x,y) => x.depth - y.depth).map(x => this.finalize(x, false))
 		this.updateConnections()
-		this.update()		
+		this.update()
 	},
 	
 	sellAll() {

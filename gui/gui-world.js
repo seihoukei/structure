@@ -407,6 +407,10 @@ const worldPointTargetHandler = {
 			game.world.free(this.point)
 			this.reset()
 			gui.world.hover.reset()
+			if (!game.world.points.some(x => x.projected)) {
+				gui.world.dvApproveButton.classList.toggle("hidden", true)
+				gui.world.dvCancelButton.classList.toggle("hidden", true)
+			}
 		}
 		
 		this.dvStore = createElement("div", "world-target-button active", this.dvButtons, "Store") 

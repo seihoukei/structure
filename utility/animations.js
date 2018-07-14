@@ -86,9 +86,11 @@ const animations = {
 	
 	Fireworks(x, y, color, sparks, power) {
 		if (game.offline || this.sparks > 1000) return
-		this.effects.add(Fireworks({
+		const fireworks = Fireworks({
 			x, y, color, count : sparks, power
-		}))
+		})
+		this.effects.add(fireworks)
+		return fireworks
 	},
 	
 	render(c) {

@@ -870,6 +870,8 @@ const game = {
 			if (x == "spirit") {
 				if (this.skills.spiritStar)
 					this.real.multi.spirit *= 1 + this.resources.stars * this.resources.stardust
+				if (this.real.multi.spirit > this.world.coreStats.spiritCap)
+					this.real.multi.spirit = this.world.coreStats.spiritCap
 			} else if (x == "power") {
 				if (this.real.multi.power > this.world.coreStats.powerCap)
 					this.real.multi.power = this.world.coreStats.powerCap

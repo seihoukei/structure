@@ -826,6 +826,7 @@ const mapPointHandler = {
 		const slidersLength = game.sliders.length
 		
 		attackers.sort((x,y) => +(y.role == ROLE_LEADER) - +(x.role == ROLE_LEADER)).map(x => {
+			delete x.customTarget
 			x.lastCapture = this
 			if (!x.clone)
 				this.map.failed.noreal1 = 1

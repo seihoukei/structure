@@ -578,14 +578,16 @@ const sliderHandler = {
 		delete this.lastCapture
 //		if (baseParent) console.log(baseParent)
 			
+		if (this.target && (!this.target.owned || !this.target.index) && this.customTarget && !forced)
+			return
+
 		if (game.skills.mining && this.atSelector == "Mining") {
 			this.assignTarget(game.map.points[0])
 			if (!game.loading)
 				game.getReals()
 			return
 		}
-		if (this.target && (!this.target.owned || !this.target.index) && this.customTarget && !forced)
-			return
+
 		if (this.target && !(this.target.index && game.skills.smartMine && this.atFilter.autoNew) && (!this.target.owned || (!game.skills.smartMine || !this.atFilter.autoMine) && !this.target.index && game.skills.mining) && !(game.skills.smartAuto && this.atFilter.autoZero && this.real && (this.real.attack <= 0))) return
 		if (this.target && this.target.owned) this.assignTarget(null)
 		if ((!game.skills.autoTarget || this.atFilter.disabled) && !forced) {

@@ -124,7 +124,7 @@ const MapTab = Template({
 			if (visible != x.visible) 
 				x.dvDisplay.classList.toggle("hidden", !(x.visible = visible))
 			if (visible) {
-				const newValue = displayNumber(game.growth[x.name]) + (game.real.multi[x.name] != 1?" × "+displayNumber(game.real.multi[x.name]) + (x.name == "power" && game.real.multi[x.name] == game.world.coreStats.powerCap || n>1 && game.real.multi[x.name] == game.world.coreStats.elementalCap?" (CAP)":"")+" = "+displayNumber(game.real.growth[x.name]):"")
+				const newValue = displayNumber(game.growth[x.name]) + (game.real.multi[x.name] != 1?" × "+displayNumber(game.real.multi[x.name]) + (x.name == "power" && game.real.multi.power == game.world.coreStats.powerCap || x.name == "spirit" && game.real.multi.spirit == game.world.coreStats.spiritCap || n>1 && game.real.multi[x.name] == game.world.coreStats.elementalCap?" (CAP)":"")+" = "+displayNumber(game.real.growth[x.name]):"")
 				if (newValue != x.oldValue)
 					x.dvValue.innerText = x.oldValue = newValue
 			}

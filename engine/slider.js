@@ -967,9 +967,11 @@ const sliderHandler = {
 				extraTimes *= 2
 		}
 		
-		Object.keys(this.stats).map((x,n) => {
+		POINT_TYPES.slice(1).map((x,n) => {
 			real[x] = this.stats[x] - (game.activeMap == "main"?0:this.start[game.activeMap] && this.start[game.activeMap][x] || 0)
+		})
 
+		POINT_TYPES.slice(1).map((x,n) => {
 			if (extraTimes && (!target || target.channelFactor()))
 				game.sliders.map(slider => {
 					if (slider == this || slider.clone || slider.artifacts.shareCrown && !(slider.target && slider.target.index)) return
@@ -978,8 +980,9 @@ const sliderHandler = {
 					if ((masterSlider.masterChannel?masterSlider.channel:slider.channel).includes(n+1)) times++
 					if (slider.artifacts.summonOrb)
 						times *= (this.clone==2)?2:0
-					
+										
 					times *= extraTimes * (target?target.channelFactor():1)
+
 					if (times) {
 						if (this.artifacts.channelReceiver) times *= 2
 						real[this.clone?POINT_TYPES[this.element || 1]:x] += times * (slider.stats[x] - (game.activeMap == "main"?0:slider.start[game.activeMap] && slider.start[game.activeMap][x] || 0))
@@ -987,6 +990,7 @@ const sliderHandler = {
 					}
 				})
 		})
+		
 		if (game.skills.charge && !this.clone) real.spirit *= this.charge?this.artifacts.reloadFlag?(2+(Math.min(this.charge * 5 | 0, 4))):2:1
 		
 		real.spirit = target?target.getActiveSpirit(this, real):real.spirit

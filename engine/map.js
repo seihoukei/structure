@@ -528,21 +528,21 @@ const mapHandler = {
 			this.points.map((point,index) => {
 				point.updateText()
 			})	
-			this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
-			if (this.complete && !this.completeTime) {
-				if (!this.evolved)
-					game.addStatistic(this.virtual?"completed_virtual_maps":"completed_maps")
-				this.completeTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
-				this.tookTime = this.completeTime - this.relativeStart
-				this.chargeTime = 0
-				if (this.virtual && this.focus > 2 && this.evolved) game.feats[POINT_TYPES[this.focus]+"1"] = 1
-				if (this.virtual && this.evolved && !this.failed.noreal1) game.feats.noreal1 = 1
-				if (this.virtual && this.evolved && !this.failed.noabsolute1) game.feats.noabsolute1 = 1
-				if (this.virtual && this.focus == 2 && !this.failed.null1 && this.level >= FEATS.null1.map) game.feats.null1 = 1
-				if (this.virtual && this.tookTime < 900000 && this.level >= FEATS.speedrun1.minMap) game.feats.speedrun1 = 1
-				if (this.virtual && game.realMap && this.level == game.realMap.level && this.level >= 36) game.feats["same"+(this.evolved||0)] = 1
-			}
-			if (this.complete) game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
+		}
+		this.complete = !this.points.filter(pt => (!pt.boss || pt.boss <= this.boss) && !pt.owned).length
+		if (this.complete && !this.completeTime) {
+			if (!this.evolved)
+				game.addStatistic(this.virtual?"completed_virtual_maps":"completed_maps")
+			this.completeTime = Math.round((game.statistics.onlineTime || 0) + (game.statistics.offlineTime || 0))
+			this.tookTime = this.completeTime - this.relativeStart
+			this.chargeTime = 0
+			if (this.virtual && this.focus > 2 && this.evolved) game.feats[POINT_TYPES[this.focus]+"1"] = 1
+			if (this.virtual && this.evolved && !this.failed.noreal1) game.feats.noreal1 = 1
+			if (this.virtual && this.evolved && !this.failed.noabsolute1) game.feats.noabsolute1 = 1
+			if (this.virtual && this.focus == 2 && !this.failed.null1 && this.level >= FEATS.null1.map) game.feats.null1 = 1
+			if (this.virtual && this.tookTime < 900000 && this.level >= FEATS.speedrun1.minMap) game.feats.speedrun1 = 1
+			if (this.virtual && game.realMap && this.level == game.realMap.level && this.level >= 36) game.feats["same"+(this.evolved||0)] = 1
+			game.unlockStory((this.virtual?"v":"m")+this.level.digits(3)+"b"+this.boss.digits(1)+"b")
 		}
 		this.updateAways()
 		this.nearbyPoints = this.points.filter(x => (!x.boss || x.boss <= this.boss) && x.away == 1 || (game.skills.mining && !x.index))

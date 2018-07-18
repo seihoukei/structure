@@ -1091,7 +1091,7 @@ const sliderHandler = {
 		real.attack = target?target.getActivePower(this, real):0
 		
 		if (target && target.totalPower && this.clone && real.production) {
-			const scale = real.attack / game.map.basePower / (1 + (game.realMap.level - game.map.level)) ** 3
+			const scale = Math.max(0,real.attack / game.map.basePower / (1 + (game.realMap.level - game.map.level)) ** 3)
 			if (game.world.coreStats.summonThunder)
 				real.production.thunderstone = game.production.thunderstone * Math.min(game.world.coreStats.summonThunder, scale) * ((this.level || 0) + 1)
 			if (game.world.coreStats.summonGold)

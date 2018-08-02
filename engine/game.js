@@ -444,6 +444,8 @@ const game = {
 	setWorld(name, update = true) {
 		if (!this.worlds[name]) 
 			return
+		gui.worldMouse.state = MOUSE_STATE_FREE
+		delete gui.worldMouse.target
 		this.world = this.worlds[name]
 		this.activeWorld = name
 		update && this.map && this.update()

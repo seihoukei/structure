@@ -195,7 +195,7 @@ const GUIDE = {
 			text : `Memories can be obtained by imprinting nodes. Every imprinted node provides one memory of its type. `
 		}, {
 			newBlock : true,
-			condition : () => game.skills.imprint && !game.skills.imprintVirtual,
+			condition : () => game.skills.imprint && !game.skills.virtualImprint,
 			text : `You can imprint every fully leveled and built node on a real map.`
 		}, {
 			newBlock : true,
@@ -204,9 +204,15 @@ const GUIDE = {
 		}, {
 			newBlock : true,
 			condition : () => game.skills.imprint,
-			text : `The time it takes to imprint a node depends on how many you have imprinted. Every imprint progresses simultaneously and imprinting speed is spread among nodes being imprinted. 
-			
-			Imprinting continues even if you are exploring another map, as long as the map node belongs to is still on the list. Ascending from map with unfinished imprints or deleting such virtual map would lose you all unfinished imprints on that map. `
+			text : `The time it takes to imprint a node depends on how many you have imprinted. Every imprint progresses simultaneously and imprinting speed is spread among nodes being imprinted. `
+		}, {
+			newBlock : true,
+			condition : () => game.skills.imprint && !game.skills.virtualImprint,
+			text : `Imprinting continues even if you are exploring a virtual map, but ascending from map with unfinished imprints would lose you all unfinished imprints on that map. `
+		}, {
+			newBlock : true,
+			condition : () => game.skills.imprint && game.skills.virtualImprint,
+			text : `Imprinting continues even if you are exploring another map, as long as the map node belongs to is still on the list. Ascending from map with unfinished imprints or deleting such virtual map would lose you all unfinished imprints on that map. `
 		}, {
 			newBlock : true,
 			condition : () => game.skills.world && !game.skills.worldCore,

@@ -90,7 +90,7 @@ const ManagementTab = Template({
 			x.dvDisplay.title = SPELLS[x.id].name
 			x.dvDisplay.onclick = (event) => {
 				game.autoUpgrading = 1
-				game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).filter(x => x.getDisplay("management").visible).map(point => point.cast(x.id))
+				game && game.map && game.map.points.filter(x => x.available && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).filter(x => x.getDisplay("management").visible).map(point => point.cast(x.id))
 				game.autoUpgrading = 0
 				game.update()
 				gui.management.update()
@@ -124,7 +124,7 @@ const ManagementTab = Template({
 				return true
 			},
 			onUpdate : () => {
-				game && game.map && game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(true))
+				game && game.map && game.map.points.filter(x => x.available && x.index).map(x => x.getDisplay("management").update(true))
 			}
 		})
 		
@@ -207,6 +207,15 @@ const ManagementTab = Template({
 			onSet : () => this.update(true)
 		})
 		
+		this.cbShowUnowned = GuiCheckbox({
+			parent : this.dvExtraFilter,
+			title : "Show unowned",
+			container : this.sorting,
+			visible : () => !!game.skills.book_enchantments2,
+			value : "showUnowned",
+			onSet : () => this.update(true)
+		})
+		
 		this.dvList = createElement("div", "list", this.dvDisplay)
 		
 		this.dvHover = createElement("div", "list-hover hidden", this.dvDisplay)
@@ -219,7 +228,7 @@ const ManagementTab = Template({
 	},
 
 	updateList() {
-		game && game.map && game.map.points.filter(x => x.owned && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map((x,n) => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
+		game && game.map && game.map.points.filter(x => x.available && x.index).sort((x, y) => (SORT_METHODS[this.sorting.sortBy](x, y)) * this.sorting.sortDir).map((x,n) => x.getDisplay("management").dvDisplay.parentElement.appendChild(x.getDisplay("management").dvDisplay))
 	},
 	
 	update(forced) {
@@ -240,8 +249,9 @@ const ManagementTab = Template({
 			this.cbHideEnchanted.update()
 			this.cbHideCompleted.update()
 			this.cbHideImprinted.update()
+			this.cbShowUnowned.update()
 			this.cbSortOften.update()
-			game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update(forced))
+			game.map.points.filter(x => x.available && x.index).map(x => x.getDisplay("management").update(forced))
 			this.buildings.map((x, n) => {
 				let visible = game.statistics["built_"+x.id]
 				x.dvDisplay.classList.toggle("visible", !!visible)
@@ -258,7 +268,7 @@ const ManagementTab = Template({
 			})
 		}
 		if (this.hoverFunction) this.dvHover.innerText = this.hoverFunction()
-		game.map.points.filter(x => x.owned && x.index).map(x => x.getDisplay("management").update())		
+		game.map.points.filter(x => x.available && x.index).map(x => x.getDisplay("management").update())		
 		this.dvBuildAutomationETA.innerText = (game.fullMoney && game.fullMoney > game.resources.gold && game.real && game.real.production.gold && game.real.production.gold > 0?"Estimated finish time: "+ETAString(game.fullMoney, "gold"):"")
 	}
 })
@@ -397,6 +407,7 @@ const managementPointElementHandler = {
 			this.dvBorder.src = gui.images.specialBorders[this.point.special || 0]
 			if (this.point.enchanted && gui.management.sorting.hideEnchanted || 
 					this.point.boss || 
+					(!!gui.management.sorting.showUnowned == !!this.point.owned) || 
 					gui.management.sorting.hideCompleted && this.point.completed ||
 					gui.management.sorting.hideImprinted && (!this.point.canImprint || this.point.harvested) ||
 					gui.management.sorting.types.length && !gui.management.sorting.types.includes(this.point.type) || 
@@ -416,7 +427,7 @@ const managementPointElementHandler = {
 			this.dvIcon.innerText = this.point.level || "0"
 			if (game.skills.magicManagement)
 				this.dvIcon.classList.toggle(["enchant-none", "enchant-gold", "enchant-growth", "enchant-mana", "enchant-doom"][this.point.enchanted || 0], 1)
-			this.dvLevelUp.classList.toggle("visible", !this.point.boss && (!this.point.level || this.point.level < POINT_MAX_LEVEL))
+			this.dvLevelUp.classList.toggle("visible", !this.point.boss && this.point.owned && (!this.point.level || this.point.level < POINT_MAX_LEVEL))
 			this.icons.map(x => {
 				x.visible = this.point.buildings && this.point.buildings[x.id] || !this.point.boss && this.point.level && this.point.level >= x.building.level && (this.point.costs[x.id] > -1) && (game.skills["build"+x.building.level])
 				x.dvDisplay.classList.toggle("visible", !!x.visible)

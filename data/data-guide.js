@@ -509,7 +509,7 @@ const GUIDE = {
 			
 			You lose summons when switching maps.`
 		},{
-			condition : () => (!game.skills.retainVirtualBonus),
+			condition : () => (game.skills.virtualMaps) && (!game.skills.retainVirtualBonus),
 			newBolck : true,
 			text: `You lose all the growth, multipliers and production provide by a virtual map if you delete it. The actual values gained from it remain with you.`
 		},{

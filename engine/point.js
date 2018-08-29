@@ -218,7 +218,7 @@ const mapPointHandler = {
 				}				
 				this.locks = locks
 			}
-			if (!this.power)
+//			if (!this.power) //borks the generator
 				this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
 			if (!this.totalPower) 
 				this.totalPower = this.power * this.length * 0.5

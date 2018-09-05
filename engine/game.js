@@ -780,6 +780,7 @@ const game = {
 			time -= deltaTime
 			
 			if (this.nextTarget) {
+				this.getReals()
 				if (game.skills.smartMine)
 					this.sliders.filter (x => x.target && (!x.target.index && x.atFilter.autoMine || x.target.index && x.atFilter.autoNew && !x.atFilter.childNext && !(x.role == ROLE_FOLLOWER && [...x.target.attackers].some(y => y.role == ROLE_LEADER && y.team == x.team)))).map(x => x.autoTarget())
 				if (game.skills.autoTarget)

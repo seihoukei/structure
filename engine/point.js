@@ -1,5 +1,7 @@
 'use strict'
 
+const MINIMUM_CAPTURE_TIME = 0.05
+
 const POINT_TYPES = [
 	"none",
 	"power",
@@ -220,15 +222,15 @@ const mapPointHandler = {
 			}
 //			if (!this.power) //borks the generator
 				this.power = this.customPower || (this.map.basePower * (4 ** (this.distance / this.map.size)) * ((1.1 + 0.005 * this.map.level) ** this.depth) * (1.2 ** locks) * (this.size / 6) * (this.boss?10 ** this.boss:1))
-			if (!this.totalPower) 
+//			if (!this.totalPower) 
 				this.totalPower = this.power * this.length * 0.5
 			this.initialized = (this.initialized || 0) + 1
 //		}
 
-		if (!this.bonus)
+//		if (!this.bonus)
 			this.bonus = Math.sqrt(this.power) * 0.1 * (4 ** (this.level || 0))
 		
-		if (!this.baseCost)
+//		if (!this.baseCost)
 			this.baseCost = Math.sqrt(this.power) * 25.6
 		
 		this.outs = [...this.children].filter(x => !x.owned && (!x.boss || x.boss <= this.map.boss)).length
@@ -989,7 +991,10 @@ const mapPointHandler = {
 			for (let slider of this.attackers)
 				this.real.loss += slider.real.attack
 		}
-		if (this.loss < 0) this.loss = 0
+		if (this.real.loss <= 0) 
+			this.real.loss = 0
+		else
+			this.real.loss = Math.min(this.real.loss, this.totalPower / MINIMUM_CAPTURE_TIME)
 		if (this.real.loss && !this.owned) game.attacked.add(this)		
 	},
 	

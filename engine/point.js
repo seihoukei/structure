@@ -993,7 +993,7 @@ const mapPointHandler = {
 		}
 		if (this.real.loss <= 0) 
 			this.real.loss = 0
-		else
+		else if (this.index)
 			this.real.loss = Math.min(this.real.loss, this.totalPower / MINIMUM_CAPTURE_TIME)
 		if (this.real.loss && !this.owned) game.attacked.add(this)		
 	},

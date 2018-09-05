@@ -1,6 +1,6 @@
 'use strict'
 
-const MINIMUM_CAPTURE_TIME = 0.05
+const MINIMUM_CAPTURE_TIME = 0.1
 
 const POINT_TYPES = [
 	"none",

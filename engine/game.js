@@ -747,7 +747,7 @@ const game = {
 			this.getReals()
 			this.getRealProduction()
 						
-			for (let point of this.attacked) point.attack(deltaTime)
+			for (let point of [...this.attacked]) point.attack(deltaTime)
 				
 			if (this.harvesting && this.harvesting.size) {
 				const harvestTime = deltaTime * this.real.harvestSpeed

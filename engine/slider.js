@@ -1012,7 +1012,7 @@ const sliderHandler = {
 		real.miningPower = real.power
 		
 		if (real.imbuement) {
-			if (game.resources.mana > ((masterSlider.masterImbuement?masterSlider.safeImbuement:this.safeImbuement)?(real.imbuementCosts[POINT_TYPES[real.imbuement]] || 0 * 10):1e-6)) {
+			if (game.resources.mana > ((masterSlider.masterImbuement?masterSlider.safeImbuement:this.safeImbuement)?((real.imbuementCosts[POINT_TYPES[real.imbuement]] || 0) * 10):1e-6)) {
 				if (target && target.index && real.production)
 					real.production.mana -= real.imbuementCosts[POINT_TYPES[real.imbuement]] || 0
 				real[POINT_TYPES[real.imbuement]] += real.power

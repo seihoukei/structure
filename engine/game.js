@@ -722,11 +722,13 @@ const game = {
 					for (let i = 0; i < 5; i++) {
 						const map = this.maps["virtual"+i]
 						if (map && map.level == this.realMap.level && map.evolved && map.complete) {
+							const mapStardust = map.evolved + (map.evolved >= 3?game.world.coreStats.extraStars:0)
 							if (this.real) {
-								this.real.stardustChange += map.evolved + (map.evolved >= 3?game.world.coreStats.extraStars:0)
+								this.real.stardustChange += mapStardust
 							}
-							this.resources.stardust += times * map.evolved
-							this.addStatistic("stardust", times * map.evolved)
+							const stardustEarned = times * mapStardust
+							this.resources.stardust += stardustEarned
+							this.addStatistic("stardust", stardustEarned)
 						}
 					}
 					if (this.real.stardustChange == 15 && this.realMap.level >= FEATS.stars1.minMap)

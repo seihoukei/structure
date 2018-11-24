@@ -1081,7 +1081,7 @@ const sliderHandler = {
 		if (this.artifacts.iceStaff)   		real.absoluteDamage += real.ice  
 		if (this.artifacts.metalStaff) 		real.absoluteDamage += real.metal
 		
-		if (this.artifacts.pierceRod)  		real.absoluteDamage += 0.02 * (real.metal + real.blood +  real.fire + real.ice) * 0.02
+		if (this.artifacts.pierceRod)  		real.absoluteDamage += 0.02 * (real.metal + real.blood +  real.fire + real.ice)
 
 				
 		if (this.clone == 2 && this.element && target && ARTIFACTS.summonBreaker.equipped && ARTIFACTS.summonBreaker.equipped.target == target) {

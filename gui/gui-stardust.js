@@ -405,7 +405,7 @@ const mapDisplayHandler = {
 				if (game.skills.virtualImprint && game.maps[this.name].points.some(x => x.canImprint && !x.harvested && !x.harvestTime)) ask += "There are nodes you can imprint.\n"
 				if (game.maps[this.name].points.some(x => x.harvesting)) ask += "There are unfinished imprints that will be lost.\n"
 				if (game.maps[this.name].focus && game.maps[this.name].complete && game.world.coreStats.mapChargeSpeed) ask += "Map will stop charging to produce " + POINT_TYPES[game.maps[this.name].focus] + " growth.\n"
-				if (game.skills.starfall && game.maps[this.name].complete && game.maps[this.name].evolved) ask += "Map will stop producing stardust.\n"
+				if (game.skills.starfall && game.maps[this.name].complete && game.maps[this.name].evolved && game.maps[this.name].level == game.realMap.level) ask += "Map will stop producing stardust.\n"
 
 				if (ask && !confirm(ask+"\nAre you sure you want to delete this map?")) return
 				game.deleteMap(this.name, game.skills.retainVirtualBonus)

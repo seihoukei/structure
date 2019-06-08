@@ -89,6 +89,7 @@ const FEATS = {
 	},
 	memories1 : {
 		desc : "Get at least 1000 of each kind of memory",
+		minMap : 39,
 		map : 39,
 	},
 	speedrun1 : {

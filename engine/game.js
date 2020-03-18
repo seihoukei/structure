@@ -726,8 +726,8 @@ const game = {
 							if (this.real) {
 								this.real.stardustChange += stardustProduced
 							}
-							this.resources.stardust += stardustProduced
-							this.addStatistic("stardust", stardustProduced)
+							this.resources.stardust += times * stardustProduced
+							this.addStatistic("stardust", times * stardustProduced)
 
 						}
 					}

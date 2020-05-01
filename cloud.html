@@ -1,0 +1,196 @@
+<!doctype html>
+<html>
+<head>
+<script src="import/lz-string.min.js"></script>
+<script src="import/forge-sha256.min.js"></script>
+<script src="utility/utility.js"></script>
+<style>
+	body {
+		font-family : verdana;
+		background-color : #000000;
+		color : #cccccc;
+	}
+	
+	.entry {
+		display : flex;
+		flex-direction : column;
+		margin : 5px;
+		width : 100%;
+		align-items : center;
+	}
+	
+	.line {
+		display : flex;
+		flex-direction : row;
+		background-color : #222222;
+		width : 610px;
+	}
+	
+	.left {
+		width : 200px;
+		margin : 3px 3px 0;
+		padding : 5px;
+		background-color : #111111;
+		color : #aaaaaa;
+		text-align : center;
+	}
+	
+	.right {
+		width : 400px;
+		margin : 3px 3px 0 0;
+		padding : 5px;
+		background-color : #111111;
+		color : #999999;
+		text-align : center;
+	}
+	
+	.wide {
+		width : 604px;
+		margin : 3px;
+		background-color : #111111;
+		text-align : center;
+		cursor : pointer;
+		color : #aaaa33;
+	}
+	
+	.half {
+		width : 300px;
+		margin : 0 3px 3px;
+		background-color : #111111;
+		text-align : center;
+		cursor : pointer;
+		color : #aaaa33;
+	}
+	
+	.hidden {
+		display : none !important;
+	}
+	
+</style>
+</head>
+<body>
+<script>
+
+const cloud = {
+	server : location.protocol+"//zefiris.su/cloud/structure/",
+//	server : location.protocol+"//localhost/cloud/",
+	local : {},
+	ignore : {},
+	
+	saveLocal() {
+		localStorage[GAME_PREFIX + "cloud"] = JSON.stringify(this.local)
+	},
+	
+	init() {
+		const cloudData = localStorage[GAME_PREFIX + "cloud"]
+		if (cloudData) 
+			Object.assign(this.local, JSON.parse(cloudData))
+			
+		if (!this.local.deviceid) {
+			const a = new Uint8Array(16)
+			crypto.getRandomValues(a, 16)
+			this.local.deviceid = a.reduce((v,x) => v + x.toString(16),"")
+		}
+			
+	},
+	
+	getList(data) {
+		const fmForm = createElement("form", "hidden", document.body	)
+		fmForm.method = "post"
+		fmForm.action = this.server + "download.php"
+		const dvToken = createElement("input", "", fmForm)
+		dvToken.name = "token"
+		dvToken.value = this.local.token
+		const dvId = createElement("input", "", fmForm)
+		dvId.name = "id"
+		dvId.value = ""
+		
+		
+		fetch(this.server+"list.php", {
+				method: "POST",
+				body: JSON.stringify(data)
+			}).then(httpStatus)
+				.then((res) => res.json())
+				.then((data) => {
+					if (!data.success) {
+						console.log("Cloud login error: " + data.error)
+						return
+					}
+					if (data.success) {
+						data.filelist.sort((x,y) => y.fileTime - x.fileTime)
+						for (let file of data.filelist) {
+							console.log(file)
+							const dvEntry = createDiv(document.body,"entry")
+							const dvLine1 = createDiv(dvEntry,"line")
+							const dvLine2 = createDiv(dvEntry,"line")
+							const dvLine3 = createDiv(dvEntry,"line")
+							const dvLine4 = createDiv(dvEntry,"line")
+							createDiv(dvLine1,"left",new Date(+file.fileTime * 1000).toString().split(" ").slice(1,5).join(" "))
+							createDiv(dvLine1,"right","Offline time: " + timeString(Date.now() - +file.saveTime, 3) + " ago")
+							createDiv(dvLine2,"left","Map: " + file.map)
+							createDiv(dvLine2,"right","Game time: " + timeString(+file.gameTime, 3))
+							createDiv(dvLine3,"wide","Download "+file.title).onclick = (event) => {
+								dvId.value = file.title.split('.')[0]
+								fmForm.submit()
+							}
+							createDiv(dvLine4,"half","Import into autosave").onclick = (event) => {
+								this.load(file.title.split('.')[0], "_Autosave")
+							}
+							createDiv(dvLine4,"half","Import into _Cloud save").onclick = (event) => {
+								this.load(file.title.split('.')[0], "_Cloud save")
+							}
+//							createDiv(dvLine3,"button","Delete").onclick = (event) => {
+//								console.log("Delete " + file.title)							
+//							}
+							
+						}
+					}
+				})
+				.catch(x => {
+					console.log(x)
+				})					
+	},
+	
+	load(id = this.local.id, to = "_Cloud save") {
+		if (!this.local.token) 
+			return false		
+		fetch(this.server+"restore.php", {
+				method: "POST",
+				body: JSON.stringify({
+					token : this.local.token, id
+				})
+			}).then(httpStatus)
+				.then((res) => res.json())
+				.then((data) => {
+					if (!data.success) {
+						console.log(data.error)
+						return
+					}
+					localStorage[SAVE_PREFIX+to] = data.savedata
+					alert("Downloaded into " + to)
+				})
+				.catch(x => {
+					console.log(x)
+				})
+	},
+}
+
+const GAME_PREFIX = "sliders_"
+const SAVE_PREFIX = GAME_PREFIX + "saveData"
+const SAVE_PREFIX_LENGTH = SAVE_PREFIX.length
+
+window.onload = (event) => {
+	cloud.init()
+	if (!cloud.local.token) {
+		createDiv(document.body, "", "You must be connected to cloud in game on this server!")
+	}
+	data = cloud.getList({
+		token : cloud.local.token,
+		deviceid : cloud.local.deviceid
+	})
+	
+	
+}
+</script>
+</body>
+</html>

@@ -227,7 +227,7 @@ const ManagementTab = Template({
 			this.dvAutomation.classList.toggle("hidden", !game.skills.automation)
 			this.dvBuildAutomation.classList.toggle("hidden", !game.skills.buildAutomation)
 			this.dvEnchantAutomationText.classList.toggle("hidden", !game.skills.massEnchant)
-			this.dvImprintAll.classList.toggle("hidden", !game.skills.imprint || !game.skills.massEnchant || (game.map.virtual && (!game.skills.virtualImprint || game.map.level != game.realMap.level)))
+			this.dvImprintAll.classList.toggle("hidden", !game.skills.world || !game.skills.imprint || !game.skills.massEnchant || (game.map.virtual && (!game.skills.virtualImprint || game.map.level != game.realMap.level)))
 			if (game.skills.automation) {
 				this.maxLevel.update(true)
 				this.maxCost.update()

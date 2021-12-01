@@ -115,7 +115,7 @@ function importState(saveData) {
 }
 
 const cloud = {
-	server : location.protocol+"//zefiris.su/cloud/structure/",
+	server : location.protocol+"//cloud.seihoukei.games/structure/",
 	local : {},
 	
 	saveLocal() {
